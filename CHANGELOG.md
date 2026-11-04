@@ -1,3 +1,9 @@
+## [1.0.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.11...v1.0.0-dev.12) (2026-11-04)
+
+### ✨ New Features
+
+* Edit items from the real backpack and move gold and energy to a small window ([dd930fc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dd930fc27b4156930ba18ce00397d7db0e74c1ec))
+
 ## [1.0.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.10...v1.0.0-dev.11) (2026-11-04)
 
 ### 🐛 Bug Fixes

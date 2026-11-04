@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-04T18:59:30",
-  "description": "## [1.0.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.10...v1.0.0-dev.11) (2026-11-04)\n\n### 🐛 Bug Fixes\n\n* Remove duplicate statuses from the add status list ([0255b20](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0255b20566d01d32e6eb91e801f7c0168d3b6ba1))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.11/patches-1.0.0-dev.11.mpp",
+  "created_at": "2026-11-04T19:05:28",
+  "description": "## [1.0.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.11...v1.0.0-dev.12) (2026-11-04)\n\n### ✨ New Features\n\n* Edit items from the real backpack and move gold and energy to a small window ([dd930fc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dd930fc27b4156930ba18ce00397d7db0e74c1ec))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.12/patches-1.0.0-dev.12.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.11"
+  "version": "1.0.0-dev.12"
 }
