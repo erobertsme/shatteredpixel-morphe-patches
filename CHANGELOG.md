@@ -1,3 +1,9 @@
+## [1.0.0-dev.23](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.22...v1.0.0-dev.23) (2026-11-04)
+
+### ✨ New Features
+
+* Add enemy and NPC editor and on/off switches for each editor ([d7b15ca](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d7b15ca08072fde5b6bd80451aff49fe1887700c))
+
 ## [1.0.0-dev.22](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.21...v1.0.0-dev.22) (2026-11-04)
 
 ### ✨ New Features
