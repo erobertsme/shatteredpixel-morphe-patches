@@ -10,7 +10,8 @@ public enum Icons {
 	TALENT,
 	STATS,
 	SHUFFLE,
-	INFO;
+	INFO,
+	BACKPACK;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

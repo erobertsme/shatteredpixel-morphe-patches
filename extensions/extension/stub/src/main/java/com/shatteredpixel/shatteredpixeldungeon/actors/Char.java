@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import java.util.LinkedHashSet;
 
 public class Char {
+	public int pos;
 	public int HP;
 	public int HT;
 

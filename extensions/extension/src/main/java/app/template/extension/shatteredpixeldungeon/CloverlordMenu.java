@@ -81,7 +81,7 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of the WndGame constructor. Adds the Extras and Character buttons below the existing buttons.
+	 * Called at the end of the WndGame constructor. Adds the Extras, Character and Inventory buttons below the existing buttons.
 	 */
 	public static void onGameMenuCreated(Window window) {
 		try {
@@ -93,8 +93,12 @@ public final class CloverlordMenu {
 			int height = heightField.getInt(window);
 
 			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
-			if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+			boolean inRun = Dungeon.hero != null && Dungeon.hero.isAlive();
+			if (inRun && CharacterWindow.isAvailable()) {
 				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.open(CharacterWindow.TAB_STATS, 1));
+			}
+			if (inRun && InventoryWindow.isAvailable()) {
+				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, () -> InventoryWindow.open(0));
 			}
 			window.resize(width, height);
 		} catch (Exception e) {

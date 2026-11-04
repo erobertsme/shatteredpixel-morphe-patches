@@ -17,6 +17,8 @@ val characterEditorPatch = bytecodePatch(
 	dependsOn(cloverlordMenuPatch)
 
 	execute {
+		CharacterEditorAvailableFingerprint.returnTrue()
+
 		HeroConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $EXTRAS_CLASS->reset()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->store(Lcom/watabou/utils/Bundle;)V")
 		HeroRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->restore(Lcom/watabou/utils/Bundle;)V")

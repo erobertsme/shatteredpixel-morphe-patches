@@ -77,6 +77,13 @@ public class CharacterWindow extends Window {
 		resize(WIDTH, (int) pos);
 	}
 
+	/**
+	 * Replaced by the Character editor patch to return true.
+	 */
+	public static boolean isAvailable() {
+		return false;
+	}
+
 	public static void open(int tab, int tier) {
 		Game.scene().addToFront(new CharacterWindow(tab, tier));
 	}

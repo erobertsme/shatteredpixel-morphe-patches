@@ -192,3 +192,17 @@ object SaltCubeRegenFingerprint : Fingerprint(
 	returnType = "F",
 	parameters = listOf(),
 )
+
+object CharacterEditorAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/CharacterWindow;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object InventoryEditorAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/InventoryWindow;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
