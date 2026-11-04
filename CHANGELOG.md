@@ -1,3 +1,9 @@
+## [1.0.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Use range invoke for menu hooks in methods with many registers ([8222246](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/82222460a74c630bf22d4b757ba4d0146e7e3f90))
+
 ## [1.0.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-11-04)
 
 ### ✨ New Features
