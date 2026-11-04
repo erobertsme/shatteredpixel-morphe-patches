@@ -1,3 +1,9 @@
+## [1.0.0-dev.21](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.20...v1.0.0-dev.21) (2026-11-04)
+
+### ✨ New Features
+
+* Rework hunger editor, add favorites and stable list layouts, fix back navigation and hero window icons ([5e81c33](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5e81c33f9b05228d58d354cae22c356f0a6997dc))
+
 ## [1.0.0-dev.20](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.19...v1.0.0-dev.20) (2026-11-04)
 
 ### ✨ New Features
