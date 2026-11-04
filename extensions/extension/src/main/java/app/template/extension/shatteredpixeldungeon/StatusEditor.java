@@ -211,7 +211,7 @@ final class StatusEditor {
 		refreshIndicator();
 	}
 
-	private static float hungerLevel(Hero hero) {
+	static float hungerLevel(Hero hero) {
 		Hunger hunger = hunger(hero);
 		if (hunger == null) return 0;
 		try {

@@ -288,3 +288,24 @@ object WndHeroConstructorFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object HungerEditorAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/HungerEditor;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object SaltCubeHungerGainFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/trinkets/SaltCube;",
+	name = "hungerGainMultiplier",
+	returnType = "F",
+	parameters = listOf(),
+)
+
+object HeroDamageFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "damage",
+	returnType = "V",
+	parameters = listOf("I", "Ljava/lang/Object;"),
+)

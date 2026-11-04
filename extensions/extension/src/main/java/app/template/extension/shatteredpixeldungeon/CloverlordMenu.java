@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
@@ -155,7 +156,8 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of the WndHero constructor. Adds an Edit character button below the hero info.
+	 * Called at the end of the WndHero constructor. Adds an Edit button that opens the editor for the selected tab,
+	 * and a Hunger button when the Hunger editor patch is applied.
 	 */
 	public static void onHeroWindowCreated(Window window) {
 		if (!CharacterWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
@@ -167,20 +169,42 @@ public final class CloverlordMenu {
 			int width = widthField.getInt(window);
 			int height = heightField.getInt(window);
 
-			RedButton button = new RedButton("Edit character", 7) {
+			boolean hunger = HungerEditor.isAvailable();
+			float editWidth = hunger ? (width - GAP) * 0.6f : width;
+
+			RedButton edit = new RedButton("Edit character", 7) {
 				@Override
 				public void onClick() {
 					window.hide();
-					CharacterWindow.open(CharacterWindow.TAB_STATS, 1);
+					CharacterWindow.open(editorTabFor(WndHero.lastIdx), 1);
 				}
 			};
-			button.icon(Icons.get(Icons.STATS));
-			button.setRect(0, height + GAP, width, 16);
-			window.add(button);
+			edit.icon(Icons.get(Icons.STATS));
+			edit.setRect(0, height + GAP, editWidth, 16);
+			window.add(edit);
+
+			if (hunger) {
+				RedButton hungerButton = new RedButton("Hunger", 7) {
+					@Override
+					public void onClick() {
+						window.hide();
+						HungerWindow.open(null);
+					}
+				};
+				hungerButton.setRect(editWidth + GAP, height + GAP, width - editWidth - GAP, 16);
+				window.add(hungerButton);
+			}
+
 			window.resize(width, height + GAP + 16);
 		} catch (Exception e) {
-			Log.e(TAG, "Could not add the edit character button", e);
+			Log.e(TAG, "Could not add the hero window buttons", e);
 		}
+	}
+
+	private static int editorTabFor(int heroTab) {
+		if (heroTab == 1) return CharacterWindow.TAB_TALENTS;
+		if (heroTab == 2) return CharacterWindow.TAB_STATUS;
+		return CharacterWindow.TAB_STATS;
 	}
 
 	private static int addGameMenuButton(Window window, String label, Icons icon, int width, int height, Runnable action) {

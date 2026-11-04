@@ -61,12 +61,17 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter) {
+		addStepper(label, display, current, step, min, max, setter, true);
+	}
+
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled) {
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
 		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
+		if (!enabled) text.alpha(0.3f);
 		add(text);
 
 		float x = WIDTH - 2 * STEP_WIDTH - VALUE_WIDTH - 2 * GAP;
-		addStepButton("-", x, current, -step, setter);
+		addStepButton("-", x, current, -step, setter).enable(enabled);
 
 		RedButton value = new RedButton(display, 6) {
 			@Override
@@ -78,13 +83,14 @@ abstract class EditorWindow extends Window {
 			}
 		};
 		value.setRect(x + STEP_WIDTH + GAP, pos, VALUE_WIDTH, ROW_HEIGHT);
+		value.enable(enabled);
 		add(value);
 
-		addStepButton("+", value.right() + GAP, current, step, setter);
+		addStepButton("+", value.right() + GAP, current, step, setter).enable(enabled);
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	private void addStepButton(String label, float x, int current, int delta, IntSetter setter) {
+	private RedButton addStepButton(String label, float x, int current, int delta, IntSetter setter) {
 		RedButton button = new RedButton(label) {
 			@Override
 			public void onClick() {
@@ -101,9 +107,14 @@ abstract class EditorWindow extends Window {
 		};
 		button.setRect(x, pos, STEP_WIDTH, ROW_HEIGHT);
 		add(button);
+		return button;
 	}
 
 	protected void addCheckBox(String label, boolean checked, Runnable onToggle) {
+		addCheckBox(label, checked, onToggle, true);
+	}
+
+	protected void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled) {
 		CheckBox box = new CheckBox(label) {
 			@Override
 			public void onClick() {
@@ -113,6 +124,7 @@ abstract class EditorWindow extends Window {
 			}
 		};
 		box.checked(checked);
+		box.enable(enabled);
 		box.setRect(0, pos, WIDTH, ROW_HEIGHT);
 		add(box);
 		pos += ROW_HEIGHT + GAP;

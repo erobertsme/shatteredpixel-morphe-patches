@@ -34,6 +34,14 @@ public class CloverlordWindow extends Window {
 		addLabel("Title screen");
 		addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
 
+		if (HungerEditor.isAvailable()) {
+			addLabel("Gameplay");
+			addButton("Hunger", Icons.BACKPACK, () -> {
+				hide();
+				HungerWindow.open(CloverlordMenu::show);
+			});
+		}
+
 		if (SupporterRewards.isAvailable()) {
 			addLabel("Supporter rewards");
 			addTierButtons();

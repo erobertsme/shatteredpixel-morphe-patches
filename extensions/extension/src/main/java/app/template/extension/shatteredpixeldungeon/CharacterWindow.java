@@ -313,6 +313,18 @@ public class CharacterWindow extends Window {
 
 		int hunger = StatusEditor.hungerState(hero);
 		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
+		if (HungerEditor.isAvailable()) {
+			RedButton hungerSettings = new RedButton("Hunger settings", 6) {
+				@Override
+				public void onClick() {
+					hide();
+					HungerWindow.open(() -> open(TAB_STATUS, tier, page));
+				}
+			};
+			hungerSettings.setRect(0, pos, WIDTH, ROW_HEIGHT);
+			add(hungerSettings);
+			pos += ROW_HEIGHT + GAP;
+		}
 
 		float half = (WIDTH - GAP) / 2f;
 		RedButton removeNegative = new RedButton("Remove negative", 6) {
