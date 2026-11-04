@@ -1,5 +1,6 @@
 package app.template.patches.shatteredpixeldungeon
 
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGEON
@@ -41,17 +42,21 @@ private val saveBackupResourcePatch = resourcePatch {
 			packageName
 		}
 
-		get("res/values/morphe_save_backup_strings.xml", false).writeText(
-			"""
-			<?xml version="1.0" encoding="utf-8"?>
-			<resources>
-				<string name="morphe_export_saves_short">Export saves</string>
-				<string name="morphe_export_saves_long">Export saves to a backup file</string>
-				<string name="morphe_import_saves_short">Import saves</string>
-				<string name="morphe_import_saves_long">Import saves from a backup file</string>
-			</resources>
-			""".trimIndent(),
-		)
+		get("res/values/strings.xml", false).apply {
+			val text = if (exists()) readText() else "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n</resources>"
+			val closing = text.lastIndexOf("</resources>")
+			if (closing < 0) throw PatchException("res/values/strings.xml has no closing resources tag")
+
+			val strings = mapOf(
+				"morphe_export_saves_short" to "Export saves",
+				"morphe_export_saves_long" to "Export saves to a backup file",
+				"morphe_import_saves_short" to "Import saves",
+				"morphe_import_saves_long" to "Import saves from a backup file",
+			).entries.joinToString("") { (name, value) -> "\t<string name=\"$name\">$value</string>\n" }
+
+			parentFile.mkdirs()
+			writeText(text.substring(0, closing) + strings + text.substring(closing))
+		}
 
 		get("res/xml/$SHORTCUTS_RESOURCE.xml", false).apply {
 			parentFile.mkdirs()
