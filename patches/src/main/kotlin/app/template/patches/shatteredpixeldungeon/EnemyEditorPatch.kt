@@ -1,5 +1,6 @@
 package app.template.patches.shatteredpixeldungeon
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGEON
 
@@ -18,14 +19,14 @@ val enemyEditorPatch = bytecodePatch(
 	execute {
 		EnemyEditorAvailableFingerprint.returnTrue()
 
+		WndInfoMobConstructorFingerprint.method.addInstruction(0, "invoke-static { p1 }, $ENEMY_CLASS->beforeMobInfo(Ljava/lang/Object;)V")
 		WndInfoMobConstructorFingerprint.callBeforeReturn(
-			"invoke-static/range { p0 .. p1 }, $ENEMY_CLASS->onMobInfoCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;Ljava/lang/Object;)V",
+			"invoke-static/range { p0 .. p0 }, $ENEMY_CLASS->afterMobInfo(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
 		CharStoreInBundleFingerprint.callBeforeReturn(
 			"invoke-static/range { p0 .. p1 }, $ENEMY_CLASS->store(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
-		CharRestoreFromBundleFingerprint.callBeforeReturn(
-			"invoke-static/range { p0 .. p1 }, $ENEMY_CLASS->restore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
-		)
+		CharRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ENEMY_CLASS->beforeRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
+		CharRestoreFromBundleFingerprint.callBeforeReturn("invoke-static { }, $ENEMY_CLASS->afterRestore()V")
 	}
 }

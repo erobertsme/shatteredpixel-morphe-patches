@@ -24,7 +24,8 @@ val hungerEditorPatch = bytecodePatch(
 
 		HungerConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $HUNGER_CLASS->onHungerCreated()V")
 		HungerStoreInBundleFingerprint.callBeforeReturn("invoke-static/range { p1 .. p1 }, $HUNGER_CLASS->store(Lcom/watabou/utils/Bundle;)V")
-		HungerRestoreFromBundleFingerprint.callBeforeReturn("invoke-static/range { p1 .. p1 }, $HUNGER_CLASS->restore(Lcom/watabou/utils/Bundle;)V")
+		HungerRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p1 }, $HUNGER_CLASS->beforeRestore(Lcom/watabou/utils/Bundle;)V")
+		HungerRestoreFromBundleFingerprint.callBeforeReturn("invoke-static { }, $HUNGER_CLASS->afterRestore()V")
 
 		HungerActFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p0 }, $HUNGER_CLASS->onHungerAct(Ljava/lang/Object;)V")
 

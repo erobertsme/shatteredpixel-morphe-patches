@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.utils.Bundle;
 
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -27,6 +28,8 @@ public final class EnemyEditor {
 	private static final int GAP = 3;
 
 	private static final Set<Char> editedAlignment = Collections.newSetFromMap(new WeakHashMap<>());
+	private static final ArrayDeque<Object[]> restoring = new ArrayDeque<>();
+	private static Object infoMob;
 
 	private EnemyEditor() {
 	}
@@ -63,9 +66,22 @@ public final class EnemyEditor {
 	}
 
 	/**
+	 * Called at the start of Char.restoreFromBundle, which reuses its parameter registers before returning.
+	 */
+	public static void beforeRestore(Object character, Bundle bundle) {
+		restoring.push(new Object[] { character, bundle });
+	}
+
+	/**
 	 * Called at the end of Char.restoreFromBundle.
 	 */
-	public static void restore(Object character, Bundle bundle) {
+	public static void afterRestore() {
+		if (restoring.isEmpty()) return;
+		Object[] entry = restoring.pop();
+		restore(entry[0], (Bundle) entry[1]);
+	}
+
+	private static void restore(Object character, Bundle bundle) {
 		if (!(character instanceof Mob)) return;
 		String value = bundle.getString(KEY_ALIGNMENT);
 		if (value == null || value.isEmpty()) return;
@@ -77,9 +93,18 @@ public final class EnemyEditor {
 	}
 
 	/**
+	 * Called at the start of the WndInfoMob constructor, which reuses its parameter register before returning.
+	 */
+	public static void beforeMobInfo(Object mob) {
+		infoMob = mob;
+	}
+
+	/**
 	 * Called at the end of the WndInfoMob constructor. Adds an Edit button under the description.
 	 */
-	public static void onMobInfoCreated(Window window, Object mob) {
+	public static void afterMobInfo(Window window) {
+		Object mob = infoMob;
+		infoMob = null;
 		if (!EditorSwitches.enemy() || !(mob instanceof Mob)) return;
 		try {
 			Field widthField = Window.class.getDeclaredField("width");

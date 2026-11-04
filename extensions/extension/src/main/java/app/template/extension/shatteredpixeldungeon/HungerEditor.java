@@ -44,6 +44,7 @@ public final class HungerEditor {
 	private static final String BUNDLE_OVERRIDE = "morphe_hunger_override";
 
 	private static Map<String, Integer> gameSettings;
+	private static Bundle restoringBundle;
 	private static float partialDamage;
 	private static int fixedTurns;
 	private static boolean dealingStarvingDamage;
@@ -318,9 +319,19 @@ public final class HungerEditor {
 	}
 
 	/**
+	 * Called at the start of Hunger.restoreFromBundle, which reuses its parameter register before returning.
+	 */
+	public static void beforeRestore(Bundle bundle) {
+		restoringBundle = bundle;
+	}
+
+	/**
 	 * Called at the end of Hunger.restoreFromBundle. Loads this game's own hunger settings, if it has any.
 	 */
-	public static void restore(Bundle bundle) {
+	public static void afterRestore() {
+		Bundle bundle = restoringBundle;
+		restoringBundle = null;
+		if (bundle == null) return;
 		if (bundle.getInt(BUNDLE_OVERRIDE) != 1) {
 			gameSettings = null;
 			return;
