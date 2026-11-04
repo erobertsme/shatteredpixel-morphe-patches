@@ -11,10 +11,10 @@ internal val cloverlordMenuPatch = bytecodePatch(
 
 	execute {
 		TitleSceneCreateFingerprint.callBeforeReturn(
-			"invoke-static { p0 }, $MENU_CLASS->onTitleCreated(Lcom/watabou/noosa/Group;)V",
+			"invoke-static/range { p0 .. p0 }, $MENU_CLASS->onTitleCreated(Lcom/watabou/noosa/Group;)V",
 		)
 		WndGameConstructorFingerprint.callBeforeReturn(
-			"invoke-static { p0 }, $MENU_CLASS->onGameMenuCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
+			"invoke-static/range { p0 .. p0 }, $MENU_CLASS->onGameMenuCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
 	}
 }
