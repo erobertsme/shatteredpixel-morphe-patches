@@ -1,10 +1,44 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.8",
+  "version": "1.0.0-dev.9",
   "patches": [
     {
       "name": "Character editor",
       "description": "Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.shatteredpixel.shatteredpixeldungeon",
+          "name": "Shattered Pixel Dungeon",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#2B2B2B",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "4.0.2",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Inventory editor",
+      "description": "Adds an Inventory button to the in-game menu for editing gold, energy and items (level, quantity, curses, enchantments, glyphs, augments and charges) and for adding any item in the game.",
       "default": true,
       "category": null,
       "compatiblePackages": [

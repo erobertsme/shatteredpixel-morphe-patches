@@ -1,3 +1,9 @@
+## [1.0.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-11-04)
+
+### ✨ New Features
+
+* Add inventory editor ([0a68a77](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0a68a77379eefe83331380a3ca994dd4cf78f881))
+
 ## [1.0.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-11-04)
 
 ### ✨ New Features
