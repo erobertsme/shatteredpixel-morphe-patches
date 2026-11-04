@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.4",
+  "version": "1.0.0-dev.5",
   "patches": [
     {
       "name": "Public save folder",
@@ -48,7 +48,7 @@
     },
     {
       "name": "Save backup",
-      "description": "Adds Export saves and Import saves to the Cloverlord menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file.",
+      "description": "Adds Export saves and Import saves to the Extras menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file.",
       "default": true,
       "category": null,
       "compatiblePackages": [
@@ -150,7 +150,7 @@
     },
     {
       "name": "Unlock all",
-      "description": "Adds toggles to the Cloverlord menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress.",
+      "description": "Adds toggles to the Extras menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress.",
       "default": true,
       "category": null,
       "compatiblePackages": [

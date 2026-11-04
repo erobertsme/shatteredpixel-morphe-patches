@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Rename menu to Extras and place title button below the others ([0e52b69](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0e52b69a6a2102d6dd3c24f40dff6cda1064768e))
+
 ## [1.0.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-11-04)
 
 ### 🐛 Bug Fixes
