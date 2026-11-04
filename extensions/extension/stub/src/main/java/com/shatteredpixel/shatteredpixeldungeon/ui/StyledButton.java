@@ -10,5 +10,7 @@ public class StyledButton extends Button {
 	public void text(String value) { throw new RuntimeException("Stub"); }
 	public String text() { throw new RuntimeException("Stub"); }
 	public void enable(boolean value) { throw new RuntimeException("Stub"); }
+	public float alpha() { throw new RuntimeException("Stub"); }
+	public void alpha(float value) { throw new RuntimeException("Stub"); }
 	public void textColor(int value) { throw new RuntimeException("Stub"); }
 }

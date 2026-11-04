@@ -260,3 +260,10 @@ object SupporterRewardsAvailableFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+object TitleSceneUpdateFadeFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/TitleScene;",
+	name = "updateFade",
+	returnType = "V",
+	parameters = listOf(),
+)

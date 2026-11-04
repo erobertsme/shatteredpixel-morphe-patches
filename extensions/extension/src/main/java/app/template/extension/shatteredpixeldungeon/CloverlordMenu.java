@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("unused")
@@ -22,6 +23,8 @@ public final class CloverlordMenu {
 	private static final int BTN_HEIGHT = 20;
 
 	public static final String HIDE_SUPPORT = "hide_support_button";
+
+	private static WeakReference<StyledButton> titleButton;
 
 	private CloverlordMenu() {
 	}
@@ -59,6 +62,7 @@ public final class CloverlordMenu {
 			};
 			button.icon(Icons.get(Icons.TALENT));
 			scene.add(button);
+			titleButton = new WeakReference<>(button);
 
 			boolean landscape = support.top() == play.top();
 			if (CloverlordSettings.get(HIDE_SUPPORT)) {
@@ -84,6 +88,23 @@ public final class CloverlordMenu {
 			button.setRect(about.right() + GAP, top, left + rowWidth - about.right() - GAP, height);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the title screen button", e);
+		}
+	}
+
+	/**
+	 * Called at the end of TitleScene.updateFade. Fades the menu button with the rest of the title buttons.
+	 */
+	public static void onTitleFade(Group scene) {
+		StyledButton button = titleButton == null ? null : titleButton.get();
+		if (button == null) return;
+		try {
+			StyledButton play = titleButton(scene, "btnPlay");
+			float alpha = play.alpha();
+			button.alpha(alpha);
+			button.enable(alpha != 0);
+			if (CloverlordSettings.get(HIDE_SUPPORT)) titleButton(scene, "btnSupport").active = false;
+		} catch (Exception e) {
+			Log.e(TAG, "Could not fade the title screen button", e);
 		}
 	}
 

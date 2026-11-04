@@ -23,6 +23,9 @@ internal val cloverlordMenuPatch = bytecodePatch(
 		TitleSceneCreateFingerprint.callBeforeReturn(
 			"invoke-static/range { p0 .. p0 }, $MENU_CLASS->onTitleCreated(Lcom/watabou/noosa/Group;)V",
 		)
+		TitleSceneUpdateFadeFingerprint.callBeforeReturn(
+			"invoke-static/range { p0 .. p0 }, $MENU_CLASS->onTitleFade(Lcom/watabou/noosa/Group;)V",
+		)
 		WndGameConstructorFingerprint.callBeforeReturn(
 			"invoke-static/range { p0 .. p0 }, $MENU_CLASS->onGameMenuCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
