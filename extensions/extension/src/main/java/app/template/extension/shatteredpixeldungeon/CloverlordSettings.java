@@ -11,6 +11,7 @@ public final class CloverlordSettings {
 
 	private static final String PREFS = "cloverlord";
 	private static final Map<String, Boolean> cache = new HashMap<>();
+	private static final Map<String, Integer> intCache = new HashMap<>();
 
 	private CloverlordSettings() {
 	}
@@ -30,6 +31,23 @@ public final class CloverlordSettings {
 		SharedPreferences prefs = prefs();
 		if (prefs == null) return;
 		prefs.edit().putBoolean(key, value).apply();
+	}
+
+	public static synchronized int getInt(String key) {
+		Integer cached = intCache.get(key);
+		if (cached != null) return cached;
+
+		SharedPreferences prefs = prefs();
+		int value = prefs == null ? 0 : prefs.getInt(key, 0);
+		intCache.put(key, value);
+		return value;
+	}
+
+	public static synchronized void setInt(String key, int value) {
+		intCache.put(key, value);
+		SharedPreferences prefs = prefs();
+		if (prefs == null) return;
+		prefs.edit().putInt(key, value).apply();
 	}
 
 	private static SharedPreferences prefs() {

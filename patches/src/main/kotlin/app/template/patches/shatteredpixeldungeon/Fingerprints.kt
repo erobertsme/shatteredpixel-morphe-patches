@@ -246,3 +246,17 @@ object PatchesVersionFingerprint : Fingerprint(
 	returnType = "Ljava/lang/String;",
 	parameters = listOf(),
 )
+
+object PaymentIsTierUnlockedFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/services/payment/Payment;",
+	name = "isTierUnlocked",
+	returnType = "Z",
+	parameters = listOf("I"),
+)
+
+object SupporterRewardsAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/SupporterRewards;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)

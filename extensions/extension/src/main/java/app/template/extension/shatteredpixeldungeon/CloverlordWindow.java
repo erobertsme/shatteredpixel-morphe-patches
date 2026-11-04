@@ -34,6 +34,11 @@ public class CloverlordWindow extends Window {
 		addLabel("Title screen");
 		addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
 
+		if (SupporterRewards.isAvailable()) {
+			addLabel("Supporter rewards");
+			addTierButtons();
+		}
+
 		if (UnlockAll.isAvailable()) {
 			addLabel("Unlocks");
 			addToggle("All heroes", UnlockAll.HEROES);
@@ -50,6 +55,27 @@ public class CloverlordWindow extends Window {
 		}
 
 		resize(WIDTH, (int) pos);
+	}
+
+	private void addTierButtons() {
+		String[] names = SupporterRewards.TIER_NAMES;
+		float width = (WIDTH - (names.length - 1) * GAP) / (float) names.length;
+		int selected = SupporterRewards.tier();
+		for (int i = 0; i < names.length; i++) {
+			final int tier = i;
+			RedButton button = new RedButton(names[i], 6) {
+				@Override
+				public void onClick() {
+					SupporterRewards.tier(tier);
+					hide();
+					CloverlordMenu.show();
+				}
+			};
+			if (i == selected) button.textColor(TITLE_COLOR);
+			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
+			add(button);
+		}
+		pos += BTN_HEIGHT + GAP;
 	}
 
 	private void addLabel(String text) {
