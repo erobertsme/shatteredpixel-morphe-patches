@@ -1,3 +1,9 @@
+## [1.0.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-11-04)
+
+### ✨ New Features
+
+* Show owned talents greyed out and add info buttons in the talent swap picker ([dab16a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dab16a5dad67d721b7a6c25ff70276d1af3827b1))
+
 ## [1.0.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-11-04)
 
 ### ✨ New Features
