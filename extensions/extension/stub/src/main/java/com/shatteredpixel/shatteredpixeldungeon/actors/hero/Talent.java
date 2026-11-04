@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public enum Talent {
-	HEARTY_MEAL;
+	HEARTY_MEAL,
+	ENHANCED_RINGS;
 
 	public static int[] tierLevelThresholds;
 

@@ -69,7 +69,7 @@ public final class CloverlordMenu {
 			keepFaderOnTop(scene);
 
 			boolean landscape = support.top() == play.top();
-			if (CloverlordSettings.get(HIDE_SUPPORT)) {
+			if (hidesSupport()) {
 				support.visible = false;
 				support.active = false;
 				button.setRect(support.left(), support.top(), support.width(), support.height());
@@ -106,7 +106,7 @@ public final class CloverlordMenu {
 			float alpha = play.alpha();
 			button.enable(alpha != 0);
 			button.alpha(alpha);
-			if (CloverlordSettings.get(HIDE_SUPPORT)) titleButton(scene, "btnSupport").active = false;
+			if (hidesSupport()) titleButton(scene, "btnSupport").active = false;
 		} catch (Exception e) {
 			Log.e(TAG, "Could not fade the title screen button", e);
 		}
@@ -119,6 +119,10 @@ public final class CloverlordMenu {
 		for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(scene))) {
 			if (member != null && member.getClass().getName().endsWith("PixelScene$Fader")) scene.bringToFront(member);
 		}
+	}
+
+	private static boolean hidesSupport() {
+		return SupporterRewards.isAvailable() && CloverlordSettings.get(HIDE_SUPPORT);
 	}
 
 	private static StyledButton titleButton(Group scene, String name) throws ReflectiveOperationException {

@@ -309,3 +309,17 @@ object HeroDamageFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("I", "Ljava/lang/Object;"),
 )
+
+object WndBagTabClickFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "onClick",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTabbed\$Tab;"),
+)
+
+object HungerActFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger;",
+	name = "act",
+	returnType = "Z",
+	parameters = listOf(),
+)

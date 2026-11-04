@@ -1,11 +1,16 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.noosa.Image;
 
 public class CloverlordWindow extends Window {
 
@@ -31,19 +36,17 @@ public class CloverlordWindow extends Window {
 		add(version);
 		pos = version.bottom() + 2 * GAP;
 
-		addLabel("Title screen");
-		addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
-
 		if (HungerEditor.isAvailable()) {
 			addLabel("Gameplay");
-			addButton("Hunger", Icons.BACKPACK, () -> {
+			addButton("Hunger", new ItemSprite(new Food()), () -> {
 				hide();
 				HungerWindow.open(CloverlordMenu::show);
 			});
 		}
 
 		if (SupporterRewards.isAvailable()) {
-			addLabel("Supporter rewards");
+			addLabel("Supporter options");
+			addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
 			addTierButtons();
 		}
 
@@ -58,7 +61,7 @@ public class CloverlordWindow extends Window {
 
 		if (SaveBackupActivity.isAvailable()) {
 			addLabel("Saves");
-			addButton("Export saves", Icons.DATA, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
+			addButton("Export saves", new TalentIcon(Talent.ENHANCED_RINGS), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
 			addButton("Import saves", Icons.CHANGES, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_IMPORT));
 		}
 
@@ -109,13 +112,17 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void addButton(String text, Icons icon, Runnable action) {
+		addButton(text, Icons.get(icon), action);
+	}
+
+	private void addButton(String text, Image icon, Runnable action) {
 		RedButton button = new RedButton(text) {
 			@Override
 			public void onClick() {
 				action.run();
 			}
 		};
-		button.icon(Icons.get(icon));
+		button.icon(icon);
 		button.setRect(0, pos, WIDTH, BTN_HEIGHT);
 		add(button);
 		pos = button.bottom() + GAP;

@@ -37,6 +37,7 @@ public final class BackpackEditor {
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
 	private static boolean openingEditWindow;
+	private static boolean switchingEditTab;
 
 	private BackpackEditor() {
 	}
@@ -56,10 +57,18 @@ public final class BackpackEditor {
 	}
 
 	/**
+	 * Called at the start of WndBag.onClick(Tab), which closes the bag before opening the new tab.
+	 */
+	public static void beforeTabSwitch(Window window) {
+		switchingEditTab = editWindows.contains(window);
+	}
+
+	/**
 	 * Called at the start of the WndBag constructor, before it replaces the open bag window.
 	 */
 	public static void beforeBagCreated() {
-		pendingEditWindow = openingEditWindow || isOpenEditWindow(WndBag.INSTANCE);
+		pendingEditWindow = openingEditWindow || switchingEditTab || isOpenEditWindow(WndBag.INSTANCE);
+		switchingEditTab = false;
 	}
 
 	/**
@@ -76,10 +85,14 @@ public final class BackpackEditor {
 
 	private static void decorate(Window window) {
 		try {
-			markTitle(window);
 			addBackButton(window);
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not decorate the backpack editor", e);
+			Log.e(TAG, "Could not add the backpack editor back button", e);
+		}
+		try {
+			markTitle(window);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not mark the backpack editor title", e);
 		}
 	}
 

@@ -37,7 +37,13 @@ public class HungerWindow extends EditorWindow {
 		addHint("Turns from eating to Hungry, and from Hungry to Starving. Game defaults: 300 and 150. Food keeps its normal value, so longer stages make meals last longer.");
 
 		addSection("Starving");
-		addCheckBox("Starving causes damage", HungerEditor.starvingDamages(), () -> HungerEditor.setStarvingDamages(!HungerEditor.starvingDamages()), !disabled);
+		boolean damages = HungerEditor.starvingDamages();
+		addCheckBox("Starving causes damage", damages, () -> HungerEditor.setStarvingDamages(!HungerEditor.starvingDamages()), !disabled);
+		int interval = HungerEditor.starvingInterval();
+		int amount = HungerEditor.starvingAmount();
+		addStepper("Damage every", interval == 0 ? "Default" : interval + " turns", interval, 1, 0, HungerEditor.MAX_STARVE_INTERVAL, HungerEditor::setStarvingInterval, !disabled && damages);
+		addStepper("Damage", amount == 0 ? "Default" : String.valueOf(amount), amount, 1, 0, HungerEditor.MAX_STARVE_AMOUNT, HungerEditor::setStarvingAmount, !disabled && damages);
+		addHint("Default: 1 damage roughly every 1000 / max health turns. 0 keeps the default.");
 
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Reset to defaults", 0, half, () -> {

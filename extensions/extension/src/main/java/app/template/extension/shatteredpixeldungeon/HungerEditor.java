@@ -2,6 +2,7 @@ package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 
 @SuppressWarnings("unused")
 public final class HungerEditor {
@@ -17,6 +18,14 @@ public final class HungerEditor {
 	private static final String KEY_NO_STARVE_DAMAGE = "hunger_no_starve_damage";
 	private static final String KEY_NOT_HUNGRY = "hunger_not_hungry_turns";
 	private static final String KEY_HUNGRY = "hunger_hungry_turns";
+	private static final String KEY_STARVE_INTERVAL = "hunger_starve_interval";
+	private static final String KEY_STARVE_AMOUNT = "hunger_starve_amount";
+
+	public static final int MAX_STARVE_INTERVAL = 999;
+	public static final int MAX_STARVE_AMOUNT = 999;
+
+	private static int starvingTurns;
+	private static boolean dealingStarvingDamage;
 
 	private HungerEditor() {
 	}
@@ -62,11 +71,33 @@ public final class HungerEditor {
 		CloverlordSettings.setInt(KEY_HUNGRY, Math.max(MIN_TURNS, Math.min(MAX_TURNS, value)));
 	}
 
+	static int starvingInterval() {
+		return CloverlordSettings.getInt(KEY_STARVE_INTERVAL);
+	}
+
+	static void setStarvingInterval(int value) {
+		CloverlordSettings.setInt(KEY_STARVE_INTERVAL, Math.max(0, Math.min(MAX_STARVE_INTERVAL, value)));
+	}
+
+	static int starvingAmount() {
+		return CloverlordSettings.getInt(KEY_STARVE_AMOUNT);
+	}
+
+	static void setStarvingAmount(int value) {
+		CloverlordSettings.setInt(KEY_STARVE_AMOUNT, Math.max(0, Math.min(MAX_STARVE_AMOUNT, value)));
+	}
+
+	private static boolean usesCustomStarving() {
+		return starvingInterval() > 0 || starvingAmount() > 0;
+	}
+
 	static void resetDefaults() {
 		setDisabled(false);
 		setStarvingDamages(true);
 		CloverlordSettings.setInt(KEY_NOT_HUNGRY, 0);
 		CloverlordSettings.setInt(KEY_HUNGRY, 0);
+		CloverlordSettings.setInt(KEY_STARVE_INTERVAL, 0);
+		CloverlordSettings.setInt(KEY_STARVE_AMOUNT, 0);
 	}
 
 	/**
@@ -84,6 +115,32 @@ public final class HungerEditor {
 	 * Called at the start of Hero.damage. Returns true to ignore starvation damage.
 	 */
 	public static boolean blocksDamage(Object source) {
-		return source instanceof Hunger && (isDisabled() || !starvingDamages());
+		if (!(source instanceof Hunger) || dealingStarvingDamage) return false;
+		return isDisabled() || !starvingDamages() || usesCustomStarving();
+	}
+
+	/**
+	 * Called at the start of Hunger.act. Deals starvation damage on the custom schedule.
+	 */
+	public static void onHungerAct(Object hunger) {
+		Hero hero = Dungeon.hero;
+		if (!(hunger instanceof Hunger) || hero == null || !hero.isAlive()) return;
+		if (isDisabled() || !starvingDamages() || !usesCustomStarving()) return;
+		if (Dungeon.level != null && Dungeon.level.locked) return;
+		if (!((Hunger) hunger).isStarving()) {
+			starvingTurns = 0;
+			return;
+		}
+
+		int interval = starvingInterval() > 0 ? starvingInterval() : Math.max(1, Math.round(1000f / Math.max(1, hero.HT)));
+		if (++starvingTurns < interval) return;
+		starvingTurns = 0;
+
+		dealingStarvingDamage = true;
+		try {
+			hero.damage(starvingAmount() > 0 ? starvingAmount() : 1, hunger);
+		} finally {
+			dealingStarvingDamage = false;
+		}
 	}
 }

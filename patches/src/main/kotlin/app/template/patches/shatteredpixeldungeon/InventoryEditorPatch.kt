@@ -46,6 +46,7 @@ val inventoryEditorPatch = bytecodePatch(
 		)
 
 		WndBagConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $BACKPACK_CLASS->beforeBagCreated()V")
+		WndBagTabClickFingerprint.method.addInstruction(0, "invoke-static { p0 }, $BACKPACK_CLASS->beforeTabSwitch(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V")
 		WndBagConstructorFingerprint.callBeforeReturn(
 			"invoke-static/range { p0 .. p0 }, $BACKPACK_CLASS->afterBagCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
