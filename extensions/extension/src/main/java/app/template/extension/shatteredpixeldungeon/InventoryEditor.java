@@ -13,12 +13,17 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 final class InventoryEditor {
@@ -31,6 +36,7 @@ final class InventoryEditor {
 		WANDS("Wands"),
 		RINGS("Rings"),
 		ARTIFACTS("Artifacts"),
+		TRINKETS("Trinkets"),
 		POTIONS("Potions"),
 		SCROLLS("Scrolls"),
 		QUEST("Quest"),
@@ -47,11 +53,17 @@ final class InventoryEditor {
 		final Class<? extends Item> type;
 		final String name;
 		final Category category;
+		final int tier;
 
-		Entry(Class<? extends Item> type, String name, Category category) {
+		Entry(Class<? extends Item> type, String name, Category category, int tier) {
 			this.type = type;
 			this.name = name;
 			this.category = category;
+			this.tier = tier;
+		}
+
+		String label() {
+			return tier > 0 ? "T" + tier + " " + name : name;
 		}
 	}
 
@@ -62,12 +74,23 @@ final class InventoryEditor {
 
 	static synchronized List<Entry> catalog() {
 		if (catalog != null) return catalog;
-		List<Entry> entries = new ArrayList<>();
+		Map<Class<?>, Entry> loaded = new HashMap<>();
 		for (String className : ItemClasses.NAMES) {
 			Entry entry = load(className);
-			if (entry != null) entries.add(entry);
+			if (entry != null) loaded.put(entry.type, entry);
 		}
-		Collections.sort(entries, (a, b) -> a.name.compareToIgnoreCase(b.name));
+
+		List<Entry> entries = new ArrayList<>();
+		for (Entry entry : loaded.values()) {
+			if (!inheritsName(entry, loaded)) entries.add(entry);
+		}
+		Collections.sort(entries, (a, b) -> {
+			if (a.tier != b.tier) return Integer.compare(a.tier, b.tier);
+			boolean aMissile = MissileWeapon.class.isAssignableFrom(a.type);
+			boolean bMissile = MissileWeapon.class.isAssignableFrom(b.type);
+			if (aMissile != bMissile) return aMissile ? 1 : -1;
+			return a.name.compareToIgnoreCase(b.name);
+		});
 		catalog = entries;
 		return catalog;
 	}
@@ -80,6 +103,20 @@ final class InventoryEditor {
 		return result;
 	}
 
+	private static boolean inheritsName(Entry entry, Map<Class<?>, Entry> loaded) {
+		for (Class<?> parent = entry.type.getSuperclass(); parent != null && parent != Item.class; parent = parent.getSuperclass()) {
+			Entry parentEntry = loaded.get(parent);
+			if (parentEntry != null && parentEntry.name.equalsIgnoreCase(entry.name)) return true;
+		}
+		return false;
+	}
+
+	private static int tierOf(Item item) {
+		if (item instanceof MeleeWeapon) return ((MeleeWeapon) item).tier;
+		if (item instanceof MissileWeapon) return ((MissileWeapon) item).tier;
+		return 0;
+	}
+
 	@SuppressWarnings("unchecked")
 	private static Entry load(String className) {
 		try {
@@ -88,7 +125,7 @@ final class InventoryEditor {
 			Item sample = (Item) type.getConstructor().newInstance();
 			String name = sample.trueName();
 			if (name == null || name.isEmpty() || name.startsWith("!!!")) return null;
-			return new Entry((Class<? extends Item>) type, capitalize(name), categorize(className, sample));
+			return new Entry((Class<? extends Item>) type, capitalize(name), categorize(className, sample), tierOf(sample));
 		} catch (Throwable e) {
 			return null;
 		}
@@ -101,6 +138,7 @@ final class InventoryEditor {
 		if (item instanceof Wand) return Category.WANDS;
 		if (item instanceof Ring) return Category.RINGS;
 		if (item instanceof Artifact) return Category.ARTIFACTS;
+		if (item instanceof Trinket) return Category.TRINKETS;
 		if (className.contains(".items.potions.")) return Category.POTIONS;
 		if (className.contains(".items.scrolls.")) return Category.SCROLLS;
 		return Category.OTHER;
@@ -137,7 +175,7 @@ final class InventoryEditor {
 	static void add(Hero hero, Class<? extends Item> type, int level, int quantity) {
 		try {
 			Item item = type.getConstructor().newInstance();
-			if (level != 0 && item.isUpgradable()) setLevel(item, level);
+			if (level != 0 && isLevelEditable(item)) setLevel(item, level);
 			if (item.stackable) item.quantity(Math.max(1, quantity));
 			item.identify();
 			give(hero, item);
@@ -176,6 +214,10 @@ final class InventoryEditor {
 			Log.e(TAG, "Could not delete " + item.getClass().getName(), e);
 		}
 		Item.updateQuickslot();
+	}
+
+	static boolean isLevelEditable(Item item) {
+		return item.isUpgradable() || item instanceof Wand || item instanceof Artifact || item instanceof Trinket;
 	}
 
 	static void setLevel(Item item, int level) {

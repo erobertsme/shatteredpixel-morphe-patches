@@ -27,7 +27,7 @@ public class ItemEditWindow extends EditorWindow {
 
 		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), () -> InventoryWindow.showInfo(item));
 
-		if (item.isUpgradable() || item instanceof Wand || item instanceof Artifact) {
+		if (InventoryEditor.isLevelEditable(item)) {
 			int level = item.level();
 			addStepper("Upgrade level", (level >= 0 ? "+" : "") + level, level, 1, value -> InventoryEditor.setLevel(item, Math.max(-5, Math.min(99, value))));
 		}

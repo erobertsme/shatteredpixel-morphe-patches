@@ -48,14 +48,14 @@ public class ItemPickerWindow extends EditorWindow {
 		for (int i = shown * perPage; i < end; i++) {
 			InventoryEditor.Entry entry = entries.get(i);
 			Item sample = sample(entry);
-			addListRow(entry.name, sample == null ? null : new ItemSprite(sample), false, true, () -> {
+			addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> {
 				InventoryEditor.add(hero, entry.type, level, quantity);
 				refresh();
 			}, sample == null ? null : () -> InventoryWindow.showInfo(sample));
 		}
 		addPager(shown, pages, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
-		addHint("Tap to add (identified). Level only applies to upgradable items, quantity to stackable ones. A full backpack drops it at your feet.");
+		addHint("Tap to add (identified). Level applies to upgradable items and trinkets, quantity to stackable ones. A full backpack drops it at your feet.");
 		addButton("Back", 0, WIDTH, () -> replaceWith(new InventoryWindow(0)));
 		pos += ROW_HEIGHT;
 		finish();

@@ -2,6 +2,7 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.util.Log;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -195,6 +196,60 @@ final class StatusEditor {
 		} catch (Throwable ignored) {
 		}
 		return buff.getClass().getSimpleName();
+	}
+
+	private static final String[] DURATION_FIELDS = { "left", "level" };
+
+	static boolean isTurnsEditable(Buff buff) {
+		return buff instanceof FlavourBuff || durationField(buff) != null;
+	}
+
+	static int turnsValue(Buff buff) {
+		try {
+			return Math.round(Float.parseFloat(buff.iconTextDisplay().trim()));
+		} catch (Throwable ignored) {
+		}
+		Field field = durationField(buff);
+		if (field == null) return 0;
+		try {
+			return Math.round(field.getType() == int.class ? field.getInt(buff) : field.getFloat(buff));
+		} catch (Throwable e) {
+			return 0;
+		}
+	}
+
+	static void setTurns(Buff buff, int turns) {
+		int value = Math.max(1, turns);
+		try {
+			if (buff instanceof FlavourBuff) {
+				Field time = Actor.class.getDeclaredField("time");
+				time.setAccessible(true);
+				time.setFloat(buff, Actor.now() + value);
+			} else {
+				Field field = durationField(buff);
+				if (field == null) return;
+				if (field.getType() == int.class) field.setInt(buff, value);
+				else field.setFloat(buff, value);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not set turns for " + buff.getClass().getName(), e);
+		}
+		refreshIndicator();
+	}
+
+	private static Field durationField(Buff buff) {
+		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
+			for (String name : DURATION_FIELDS) {
+				try {
+					Field field = type.getDeclaredField(name);
+					if (field.getType() != float.class && field.getType() != int.class) continue;
+					field.setAccessible(true);
+					return field;
+				} catch (NoSuchFieldException ignored) {
+				}
+			}
+		}
+		return null;
 	}
 
 	static String turnsOf(Buff buff) {

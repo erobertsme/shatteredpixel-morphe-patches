@@ -318,12 +318,14 @@ public class CharacterWindow extends Window {
 		add(addStatus);
 		pos += ROW_HEIGHT + GAP;
 
-		addHint("Tap i or long-press a status to read it.");
+		addHint("Tap a number to change how many turns are left. Tap i or long-press a status to read it.");
 	}
 
 	private void addStatusRow(Buff buff) {
 		float removeWidth = 30;
-		float nameWidth = WIDTH - removeWidth - INFO_SIZE - 2 * GAP;
+		float turnsWidth = 22;
+		boolean editable = StatusEditor.isTurnsEditable(buff);
+		float nameWidth = WIDTH - removeWidth - INFO_SIZE - 2 * GAP - (editable ? turnsWidth + GAP : 0);
 
 		RedButton name = new RedButton("") {
 			@Override
@@ -346,12 +348,27 @@ public class CharacterWindow extends Window {
 		add(icon);
 
 		String turns = StatusEditor.turnsOf(buff);
-		RenderedTextBlock label = PixelScene.renderTextBlock(StatusEditor.nameOf(buff) + (turns.isEmpty() ? "" : " (" + turns + ")"), 6);
+		String text = StatusEditor.nameOf(buff) + (editable || turns.isEmpty() ? "" : " (" + turns + ")");
+		RenderedTextBlock label = PixelScene.renderTextBlock(text, 6);
 		label.maxWidth((int) (nameWidth - icon.width() - 6));
 		if (buff.type == Buff.buffType.POSITIVE) label.hardlight(POSITIVE_COLOR);
 		if (buff.type == Buff.buffType.NEGATIVE) label.hardlight(NEGATIVE_COLOR);
 		label.setPos(icon.width() + 5, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
+
+		float x = name.right() + GAP;
+		if (editable) {
+			int current = StatusEditor.turnsValue(buff);
+			RedButton turnsButton = new RedButton(String.valueOf(current), 6) {
+				@Override
+				public void onClick() {
+					promptValue("Turns left", current, value -> StatusEditor.setTurns(buff, value));
+				}
+			};
+			turnsButton.setRect(x, pos, turnsWidth, ROW_HEIGHT);
+			add(turnsButton);
+			x += turnsWidth + GAP;
+		}
 
 		IconButton info = new IconButton(Icons.get(Icons.INFO)) {
 			@Override
@@ -359,7 +376,7 @@ public class CharacterWindow extends Window {
 				showBuffInfo(buff);
 			}
 		};
-		info.setRect(name.right() + GAP, pos, INFO_SIZE, ROW_HEIGHT);
+		info.setRect(x, pos, INFO_SIZE, ROW_HEIGHT);
 		add(info);
 
 		RedButton remove = new RedButton("Remove", 6) {
