@@ -154,6 +154,35 @@ public final class CloverlordMenu {
 		}
 	}
 
+	/**
+	 * Called at the end of the WndHero constructor. Adds an Edit character button below the hero info.
+	 */
+	public static void onHeroWindowCreated(Window window) {
+		if (!CharacterWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		try {
+			Field widthField = Window.class.getDeclaredField("width");
+			Field heightField = Window.class.getDeclaredField("height");
+			widthField.setAccessible(true);
+			heightField.setAccessible(true);
+			int width = widthField.getInt(window);
+			int height = heightField.getInt(window);
+
+			RedButton button = new RedButton("Edit character", 7) {
+				@Override
+				public void onClick() {
+					window.hide();
+					CharacterWindow.open(CharacterWindow.TAB_STATS, 1);
+				}
+			};
+			button.icon(Icons.get(Icons.STATS));
+			button.setRect(0, height + GAP, width, 16);
+			window.add(button);
+			window.resize(width, height + GAP + 16);
+		} catch (Exception e) {
+			Log.e(TAG, "Could not add the edit character button", e);
+		}
+	}
+
 	private static int addGameMenuButton(Window window, String label, Icons icon, int width, int height, Runnable action) {
 		RedButton button = new RedButton(label) {
 			@Override

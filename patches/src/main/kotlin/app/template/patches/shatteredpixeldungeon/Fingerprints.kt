@@ -281,3 +281,10 @@ object HeroActFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+object WndHeroConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndHero;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(),
+)

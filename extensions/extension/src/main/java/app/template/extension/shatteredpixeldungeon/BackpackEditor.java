@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -30,6 +32,7 @@ public final class BackpackEditor {
 	private static final String TAG = "BackpackEditor";
 	private static final int EDIT_COLOR = 0xFF9944;
 	private static final int BACK_HEIGHT = 16;
+	private static final int SHORTCUT_SIZE = 14;
 
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
@@ -63,6 +66,8 @@ public final class BackpackEditor {
 		if (pendingEditWindow) {
 			editWindows.add(window);
 			decorate(window);
+		} else {
+			addEditorShortcut(window);
 		}
 		pendingEditWindow = false;
 	}
@@ -76,8 +81,32 @@ public final class BackpackEditor {
 		}
 	}
 
+	private static void addEditorShortcut(Window window) {
+		if (!InventoryWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		try {
+			Field selectorField = WndBag.class.getDeclaredField("selector");
+			selectorField.setAccessible(true);
+			if (selectorField.get(window) != null) return;
+
+			RenderedTextBlock title = findTitle(window);
+			if (title == null) return;
+
+			IconButton shortcut = new IconButton(Icons.get(Icons.TALENT)) {
+				@Override
+				public void onClick() {
+					window.hide();
+					InventoryWindow.open();
+				}
+			};
+			shortcut.setRect(title.right() + 2, 0, SHORTCUT_SIZE, SHORTCUT_SIZE);
+			window.add(shortcut);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the inventory editor shortcut", e);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
-	private static void markTitle(Window window) throws ReflectiveOperationException {
+	private static RenderedTextBlock findTitle(Window window) throws ReflectiveOperationException {
 		Field membersField = Group.class.getDeclaredField("members");
 		membersField.setAccessible(true);
 		RenderedTextBlock title = null;
@@ -86,6 +115,11 @@ public final class BackpackEditor {
 			RenderedTextBlock block = (RenderedTextBlock) member;
 			if (title == null || block.left() < title.left()) title = block;
 		}
+		return title;
+	}
+
+	private static void markTitle(Window window) throws ReflectiveOperationException {
+		RenderedTextBlock title = findTitle(window);
 		if (title == null) return;
 		title.text("[Editing] " + title.text());
 		title.hardlight(EDIT_COLOR);

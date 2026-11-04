@@ -19,6 +19,9 @@ val characterEditorPatch = bytecodePatch(
 
 	execute {
 		CharacterEditorAvailableFingerprint.returnTrue()
+		WndHeroConstructorFingerprint.callBeforeReturn(
+			"invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/CloverlordMenu;->onHeroWindowCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
+		)
 
 		HeroConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $EXTRAS_CLASS->reset()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->store(Lcom/watabou/utils/Bundle;)V")

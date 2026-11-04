@@ -18,6 +18,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -335,7 +336,7 @@ public class CharacterWindow extends Window {
 		add(addStatus);
 		pos += ROW_HEIGHT + GAP;
 
-		addHint("Tap a number to change turns left. inf makes a status infinite (yellow = on). X removes it. Tap i or long-press to read it.");
+		addHint("Tap a number to change turns left. The star makes a status infinite (bright = on). X removes it. Tap i or long-press to read it.");
 	}
 
 	private void addStatusRow(Buff buff) {
@@ -378,26 +379,29 @@ public class CharacterWindow extends Window {
 		float x = name.right() + GAP;
 		if (showTurns) {
 			int current = StatusEditor.turnsValue(buff);
-			RedButton turnsButton = new RedButton(infinite ? "inf" : String.valueOf(current), 6) {
+			RedButton turnsButton = new RedButton(infinite ? "" : String.valueOf(current), 6) {
 				@Override
 				public void onClick() {
+					if (infinite) return;
 					promptValue("Turns left", current, 1, 9999, value -> StatusEditor.setTurns(buff, value));
 				}
 			};
+			if (infinite) turnsButton.icon(Icons.get(Icons.TALENT));
 			turnsButton.setRect(x, pos, turnsWidth, ROW_HEIGHT);
-			turnsButton.enable(!infinite);
 			add(turnsButton);
 			x += turnsWidth + GAP;
 		}
 
-		RedButton infiniteButton = new RedButton("inf", 6) {
+		RedButton infiniteButton = new RedButton("") {
 			@Override
 			public void onClick() {
 				InfiniteStatuses.setInfinite(buff, !infinite);
 				refresh();
 			}
 		};
-		if (infinite) infiniteButton.textColor(TITLE_COLOR);
+		Image star = Icons.get(Icons.TALENT);
+		if (!infinite) star.alpha(0.3f);
+		infiniteButton.icon(star);
 		infiniteButton.setRect(x, pos, smallWidth, ROW_HEIGHT);
 		add(infiniteButton);
 		x += smallWidth + GAP;
