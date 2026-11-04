@@ -1,3 +1,9 @@
+## [1.0.0-dev.13](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.12...v1.0.0-dev.13) (2026-11-04)
+
+### ✨ New Features
+
+* Add back buttons, mark the backpack editor, show patches version and allow hiding the Support button ([d3aa586](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d3aa5862eec2df6a384e3db6ec1904f84f7a49c3))
+
 ## [1.0.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.11...v1.0.0-dev.12) (2026-11-04)
 
 ### ✨ New Features
