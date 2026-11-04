@@ -4,5 +4,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Scene;
 
 public class PixelScene extends Scene {
+	public static boolean landscape() { throw new RuntimeException("Stub"); }
 	public static RenderedTextBlock renderTextBlock(String text, int size) { throw new RuntimeException("Stub"); }
 }

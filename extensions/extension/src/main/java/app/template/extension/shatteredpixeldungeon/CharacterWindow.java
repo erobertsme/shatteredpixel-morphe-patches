@@ -1,21 +1,26 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.Game;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class CharacterWindow extends Window {
@@ -26,13 +31,17 @@ public class CharacterWindow extends Window {
 	static final int GAP = 2;
 	static final int TITLE_COLOR = 0xFFFF44;
 	static final int DIM_COLOR = 0x999999;
+	static final int POSITIVE_COLOR = 0x7AD35C;
+	static final int NEGATIVE_COLOR = 0xE06A5A;
+	static final int INFO_SIZE = 16;
 	private static final int STEP_WIDTH = 15;
 	private static final int VALUE_WIDTH = 34;
 
 	public static final int TAB_STATS = 0;
 	public static final int TAB_TALENTS = 1;
 	public static final int TAB_MODIFIERS = 2;
-	private static final String[] TAB_NAMES = { "Stats", "Talents", "Modifiers" };
+	public static final int TAB_STATUS = 3;
+	private static final String[] TAB_NAMES = { "Stats", "Talents", "Mods", "Status" };
 
 	interface IntSetter {
 		void set(int value);
@@ -40,6 +49,7 @@ public class CharacterWindow extends Window {
 
 	private final int tab;
 	private final int tier;
+	private final int page;
 	private float pos;
 
 	public CharacterWindow() {
@@ -47,9 +57,14 @@ public class CharacterWindow extends Window {
 	}
 
 	public CharacterWindow(int tab, int tier) {
+		this(tab, tier, 0);
+	}
+
+	public CharacterWindow(int tab, int tier, int page) {
 		super();
 		this.tab = tab;
 		this.tier = tier;
+		this.page = page;
 
 		Hero hero = Dungeon.hero;
 		addTabs();
@@ -57,6 +72,7 @@ public class CharacterWindow extends Window {
 			if (tab == TAB_STATS) buildStats(hero);
 			if (tab == TAB_TALENTS) buildTalents(hero);
 			if (tab == TAB_MODIFIERS) buildModifiers(hero);
+			if (tab == TAB_STATUS) buildStatus(hero);
 		}
 		resize(WIDTH, (int) pos);
 	}
@@ -65,20 +81,30 @@ public class CharacterWindow extends Window {
 		Game.scene().addToFront(new CharacterWindow(tab, tier));
 	}
 
+	public static void open(int tab, int tier, int page) {
+		Game.scene().addToFront(new CharacterWindow(tab, tier, page));
+	}
+
 	private void reopen(int newTab, int newTier) {
 		hide();
 		open(newTab, newTier);
 	}
 
+	private void reopenPage(int newPage) {
+		hide();
+		open(tab, tier, newPage);
+	}
+
 	private void refresh() {
-		reopen(tab, tier);
+		hide();
+		open(tab, tier, page);
 	}
 
 	private void addTabs() {
-		float width = (WIDTH - 2 * GAP) / 3f;
+		float width = (WIDTH - (TAB_NAMES.length - 1) * GAP) / (float) TAB_NAMES.length;
 		for (int i = 0; i < TAB_NAMES.length; i++) {
 			final int index = i;
-			RedButton button = new RedButton(TAB_NAMES[i], 7) {
+			RedButton button = new RedButton(TAB_NAMES[i], 6) {
 				@Override
 				public void onClick() {
 					if (index != tab) reopen(index, tier);
@@ -246,6 +272,135 @@ public class CharacterWindow extends Window {
 		reset.setRect(0, pos, WIDTH, ROW_HEIGHT);
 		add(reset);
 		pos += ROW_HEIGHT + GAP;
+	}
+
+	private void buildStatus(Hero hero) {
+		List<Buff> active = StatusEditor.active(hero);
+		addSection("Active effects (" + active.size() + ")");
+		if (active.isEmpty()) addHint("No active effects.");
+
+		int perPage = PixelScene.landscape() ? 3 : 6;
+		int pages = Math.max(1, (active.size() + perPage - 1) / perPage);
+		int current = Math.min(page, pages - 1);
+		int end = Math.min(active.size(), (current + 1) * perPage);
+		for (int i = current * perPage; i < end; i++) addStatusRow(active.get(i));
+		if (pages > 1) addPager(current, pages, this::reopenPage);
+
+		int hunger = StatusEditor.hungerState(hero);
+		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, value -> StatusEditor.setHungerState(hero, value));
+
+		float half = (WIDTH - GAP) / 2f;
+		RedButton removeNegative = new RedButton("Remove negative", 6) {
+			@Override
+			public void onClick() {
+				StatusEditor.removeNegative(hero);
+				refresh();
+			}
+		};
+		removeNegative.setRect(0, pos, half, ROW_HEIGHT);
+		add(removeNegative);
+
+		RedButton addStatus = new RedButton("Add status", 6) {
+			@Override
+			public void onClick() {
+				hide();
+				Game.scene().addToFront(new StatusPickerWindow(Buff.buffType.POSITIVE, 0));
+			}
+		};
+		addStatus.setRect(half + GAP, pos, half, ROW_HEIGHT);
+		add(addStatus);
+		pos += ROW_HEIGHT + GAP;
+
+		addHint("Tap i or long-press a status to read it.");
+	}
+
+	private void addStatusRow(Buff buff) {
+		float removeWidth = 30;
+		float nameWidth = WIDTH - removeWidth - INFO_SIZE - 2 * GAP;
+
+		RedButton name = new RedButton("") {
+			@Override
+			public void onClick() {
+				showBuffInfo(buff);
+			}
+
+			@Override
+			public boolean onLongClick() {
+				showBuffInfo(buff);
+				return true;
+			}
+		};
+		name.setRect(0, pos, nameWidth, ROW_HEIGHT);
+		add(name);
+
+		BuffIcon icon = new BuffIcon(buff, true);
+		icon.x = 3;
+		icon.y = pos + (ROW_HEIGHT - icon.height()) / 2f;
+		add(icon);
+
+		String turns = StatusEditor.turnsOf(buff);
+		RenderedTextBlock label = PixelScene.renderTextBlock(StatusEditor.nameOf(buff) + (turns.isEmpty() ? "" : " (" + turns + ")"), 6);
+		label.maxWidth((int) (nameWidth - icon.width() - 6));
+		if (buff.type == Buff.buffType.POSITIVE) label.hardlight(POSITIVE_COLOR);
+		if (buff.type == Buff.buffType.NEGATIVE) label.hardlight(NEGATIVE_COLOR);
+		label.setPos(icon.width() + 5, pos + (ROW_HEIGHT - label.height()) / 2f);
+		add(label);
+
+		IconButton info = new IconButton(Icons.get(Icons.INFO)) {
+			@Override
+			public void onClick() {
+				showBuffInfo(buff);
+			}
+		};
+		info.setRect(name.right() + GAP, pos, INFO_SIZE, ROW_HEIGHT);
+		add(info);
+
+		RedButton remove = new RedButton("Remove", 6) {
+			@Override
+			public void onClick() {
+				StatusEditor.remove(buff);
+				refresh();
+			}
+		};
+		remove.setRect(info.right() + GAP, pos, removeWidth, ROW_HEIGHT);
+		add(remove);
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	interface PageOpener {
+		void open(int page);
+	}
+
+	void addPager(int current, int pages, PageOpener opener) {
+		RedButton previous = new RedButton("<", 7) {
+			@Override
+			public void onClick() {
+				opener.open((current + pages - 1) % pages);
+			}
+		};
+		previous.setRect(0, pos, 24, ROW_HEIGHT);
+		add(previous);
+
+		RenderedTextBlock label = PixelScene.renderTextBlock("Page " + (current + 1) + " / " + pages, 6);
+		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);
+		add(label);
+
+		RedButton next = new RedButton(">", 7) {
+			@Override
+			public void onClick() {
+				opener.open((current + 1) % pages);
+			}
+		};
+		next.setRect(WIDTH - 24, pos, 24, ROW_HEIGHT);
+		add(next);
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	static void showBuffInfo(Buff buff) {
+		try {
+			Game.scene().addToFront(new WndInfoBuff(buff));
+		} catch (Throwable ignored) {
+		}
 	}
 
 	private void addStepper(String label, String display, int current, IntSetter setter) {

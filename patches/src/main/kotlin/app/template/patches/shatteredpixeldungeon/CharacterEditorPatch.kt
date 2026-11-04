@@ -9,7 +9,7 @@ private const val EXTRAS_CLASS = "$EXTENSION_PACKAGE/HeroExtras;"
 @Suppress("unused")
 val characterEditorPatch = bytecodePatch(
 	name = "Character editor",
-	description = "Adds a Character button to the in-game menu for editing health, level, experience, strength and talents, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run.",
+	description = "Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
