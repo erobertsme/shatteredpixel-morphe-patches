@@ -1,3 +1,9 @@
+## [1.0.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Add backup shortcut labels to strings.xml ([e78678c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e78678ca77e900eb87f330f6a167feaf268b079c))
+
 ## 1.0.0-dev.1 (2026-11-04)
 
 ### ✨ New Features
