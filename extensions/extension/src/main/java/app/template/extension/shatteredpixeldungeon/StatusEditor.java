@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 final class StatusEditor {
 
@@ -62,10 +63,17 @@ final class StatusEditor {
 			if (!Buff.class.isAssignableFrom(type) || type == Hunger.class) return null;
 			Buff sample = (Buff) type.getConstructor().newInstance();
 			if (sample.icon() == NO_ICON) return null;
-			return new Entry((Class<? extends Buff>) type, sample, nameOf(sample), sample.type);
+			String name = nameOf(sample);
+			if (isCooldown(type, name)) return null;
+			return new Entry((Class<? extends Buff>) type, sample, name, sample.type);
 		} catch (Throwable e) {
 			return null;
 		}
+	}
+
+	private static boolean isCooldown(Class<?> type, String name) {
+		String lowerName = name.toLowerCase(Locale.ENGLISH);
+		return type.getName().contains("Cooldown") || lowerName.contains("cooldown") || lowerName.contains("cool down");
 	}
 
 	static List<Entry> catalog(Buff.buffType kind) {
