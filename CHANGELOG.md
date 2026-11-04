@@ -1,3 +1,9 @@
+## [1.0.0-dev.19](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.18...v1.0.0-dev.19) (2026-11-04)
+
+### ✨ New Features
+
+* Add hunger editor and open the matching editor tab from the hero info window ([f369626](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f369626244d31887fc99acca363af70ddd8f8634))
+
 ## [1.0.0-dev.18](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.17...v1.0.0-dev.18) (2026-11-04)
 
 ### 🐛 Bug Fixes

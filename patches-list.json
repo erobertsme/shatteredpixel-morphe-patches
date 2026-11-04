@@ -1,10 +1,44 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.18",
+  "version": "1.0.0-dev.19",
   "patches": [
     {
       "name": "Character editor",
       "description": "Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.shatteredpixel.shatteredpixeldungeon",
+          "name": "Shattered Pixel Dungeon",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#2B2B2B",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "4.0.2",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Hunger editor",
+      "description": "Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, turning off starvation damage or disabling hunger completely.",
       "default": true,
       "category": null,
       "compatiblePackages": [

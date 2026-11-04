@@ -19,9 +19,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.18](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.18)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+> **[v1.0.0-dev.19](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.19)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
 <details open>
-<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;8 patches</summary>
+<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;9 patches</summary>
 <br>
 
 **Package name:** `com.shatteredpixel.shatteredpixeldungeon`
@@ -34,6 +34,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Character editor](#character-editor) | Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run. |  |
+| [Hunger editor](#hunger-editor) | Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, turning off starvation damage or disabling hunger completely. |  |
 | [Inventory editor](#inventory-editor) | Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). |  |
 | [Public save folder](#public-save-folder) | Stores save files in a public folder on the device so they can be opened with any file manager. Asks for storage access on first launch and copies existing saves over. | • Save folder |
 | [Save backup](#save-backup) | Adds Export saves and Import saves to the Extras menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file. |  |
