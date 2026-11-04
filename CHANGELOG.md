@@ -1,3 +1,9 @@
+## [1.0.0-dev.17](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.16...v1.0.0-dev.17) (2026-11-04)
+
+### ✨ New Features
+
+* Use a star for infinite statuses and add editor shortcuts to the hero info and backpack windows ([be81fb5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/be81fb56b1b3889bc63095229a3403a9a99c4452))
+
 ## [1.0.0-dev.16](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.15...v1.0.0-dev.16) (2026-11-04)
 
 ### ✨ New Features
