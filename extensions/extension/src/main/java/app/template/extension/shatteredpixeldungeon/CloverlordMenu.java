@@ -21,7 +21,16 @@ public final class CloverlordMenu {
 	private static final int GAP = 2;
 	private static final int BTN_HEIGHT = 20;
 
+	public static final String HIDE_SUPPORT = "hide_support_button";
+
 	private CloverlordMenu() {
+	}
+
+	/**
+	 * Replaced by the patch with the version of the patches.
+	 */
+	public static String patchesVersion() {
+		return "";
 	}
 
 	public static void show() {
@@ -52,6 +61,12 @@ public final class CloverlordMenu {
 			scene.add(button);
 
 			boolean landscape = support.top() == play.top();
+			if (CloverlordSettings.get(HIDE_SUPPORT)) {
+				support.visible = false;
+				support.active = false;
+				button.setRect(support.left(), support.top(), support.width(), support.height());
+				return;
+			}
 			if (!landscape) {
 				float gap = rankings.top() - support.bottom();
 				button.setRect(play.left(), about.bottom() + gap, play.width(), play.height());

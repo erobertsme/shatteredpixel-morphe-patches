@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;

@@ -239,3 +239,10 @@ object WndBagConstructorFingerprint : Fingerprint(
 		"Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$ItemSelector;",
 	),
 )
+
+object PatchesVersionFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/CloverlordMenu;",
+	name = "patchesVersion",
+	returnType = "Ljava/lang/String;",
+	parameters = listOf(),
+)

@@ -1,10 +1,18 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import android.util.Log;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Group;
+
+import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +27,10 @@ public final class BackpackEditor {
 
 	public static final String ACTION_EDIT = "MORPHE_EDIT";
 
+	private static final String TAG = "BackpackEditor";
+	private static final int EDIT_COLOR = 0xFF9944;
+	private static final int BACK_HEIGHT = 16;
+
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
 
@@ -29,6 +41,7 @@ public final class BackpackEditor {
 		if (Dungeon.hero == null) return;
 		WndBag bag = new WndBag(Dungeon.hero.belongings.backpack);
 		editWindows.add(bag);
+		decorate(bag);
 		Game.scene().addToFront(bag);
 	}
 
@@ -47,8 +60,56 @@ public final class BackpackEditor {
 	 * Called at the end of the WndBag constructor. Switching bag tabs keeps edit mode.
 	 */
 	public static void afterBagCreated(Window window) {
-		if (pendingEditWindow) editWindows.add(window);
+		if (pendingEditWindow) {
+			editWindows.add(window);
+			decorate(window);
+		}
 		pendingEditWindow = false;
+	}
+
+	private static void decorate(Window window) {
+		try {
+			markTitle(window);
+			addBackButton(window);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not decorate the backpack editor", e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void markTitle(Window window) throws ReflectiveOperationException {
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		RenderedTextBlock title = null;
+		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+			if (!(member instanceof RenderedTextBlock)) continue;
+			RenderedTextBlock block = (RenderedTextBlock) member;
+			if (title == null || block.left() < title.left()) title = block;
+		}
+		if (title == null) return;
+		title.text("[Editing] " + title.text());
+		title.hardlight(EDIT_COLOR);
+	}
+
+	private static void addBackButton(Window window) throws ReflectiveOperationException {
+		Field widthField = Window.class.getDeclaredField("width");
+		Field heightField = Window.class.getDeclaredField("height");
+		widthField.setAccessible(true);
+		heightField.setAccessible(true);
+		int width = widthField.getInt(window);
+		int height = heightField.getInt(window);
+
+		RedButton back = new RedButton("Back", 7) {
+			@Override
+			public void onClick() {
+				window.hide();
+				InventoryWindow.open();
+			}
+		};
+		back.textColor(EDIT_COLOR);
+		back.setRect(0, height + 2, width, BACK_HEIGHT);
+		window.add(back);
+		window.resize(width, height + 2 + BACK_HEIGHT);
 	}
 
 	/**

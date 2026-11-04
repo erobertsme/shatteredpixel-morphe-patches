@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
 import com.watabou.noosa.Game;
 
@@ -25,6 +26,8 @@ public class InventoryWindow extends EditorWindow {
 
 		addTitle("INVENTORY");
 		if (hero == null) {
+			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
+			pos += ROW_HEIGHT;
 			finish();
 			return;
 		}
@@ -49,6 +52,8 @@ public class InventoryWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 
 		addHint("Open backpack shows your normal backpack with an Edit button under each item.");
+		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
+		pos += ROW_HEIGHT;
 		finish();
 	}
 

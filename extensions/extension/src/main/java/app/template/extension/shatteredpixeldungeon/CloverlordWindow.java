@@ -23,7 +23,16 @@ public class CloverlordWindow extends Window {
 		title.hardlight(TITLE_COLOR);
 		title.setPos((WIDTH - title.width()) / 2f, GAP);
 		add(title);
-		pos = title.bottom() + 2 * GAP;
+		pos = title.bottom() + GAP;
+
+		RenderedTextBlock version = PixelScene.renderTextBlock("Cloverlord Patches " + CloverlordMenu.patchesVersion(), 6);
+		version.hardlight(0x999999);
+		version.setPos((WIDTH - version.width()) / 2f, pos);
+		add(version);
+		pos = version.bottom() + 2 * GAP;
+
+		addLabel("Title screen");
+		addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
 
 		if (UnlockAll.isAvailable()) {
 			addLabel("Unlocks");
