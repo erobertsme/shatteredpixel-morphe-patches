@@ -43,7 +43,10 @@ public class InventoryWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 
 		float half = (WIDTH - GAP) / 2f;
-		addButton("Add item", 0, half, () -> replaceWith(new ItemPickerWindow(InventoryEditor.Category.WEAPONS, 0)));
+		addButton("Add item", 0, half, () -> {
+			hide();
+			ItemPickerWindow.openFromInventory();
+		});
 		addButton("Identify all", half + GAP, half, () -> {
 			hero.belongings.identify();
 			Item.updateQuickslot();

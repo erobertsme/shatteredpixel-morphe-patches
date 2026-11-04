@@ -11,6 +11,7 @@ public class ItemPickerWindow extends EditorWindow {
 
 	private static int level = 0;
 	private static int quantity = 1;
+	private static boolean returnToBackpack;
 
 	private final InventoryEditor.Category category;
 	private final int page;
@@ -56,9 +57,28 @@ public class ItemPickerWindow extends EditorWindow {
 		addPager(shown, pages, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
 		addHint("Tap to add (identified). Level applies to upgradable items and trinkets, quantity to stackable ones. A full backpack drops it at your feet.");
-		addButton("Back", 0, WIDTH, () -> replaceWith(new InventoryWindow()));
+		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	public static void openFromBackpack() {
+		returnToBackpack = true;
+		show(new ItemPickerWindow(InventoryEditor.Category.WEAPONS, 0));
+	}
+
+	public static void openFromInventory() {
+		returnToBackpack = false;
+		show(new ItemPickerWindow(InventoryEditor.Category.WEAPONS, 0));
+	}
+
+	private void back() {
+		hide();
+		if (returnToBackpack) {
+			BackpackEditor.open();
+		} else {
+			InventoryWindow.open();
+		}
 	}
 
 	private static Item sample(InventoryEditor.Entry entry) {

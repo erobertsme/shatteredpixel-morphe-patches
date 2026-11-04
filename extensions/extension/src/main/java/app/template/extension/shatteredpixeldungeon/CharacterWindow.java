@@ -379,15 +379,15 @@ public class CharacterWindow extends Window {
 		float x = name.right() + GAP;
 		if (showTurns) {
 			int current = StatusEditor.turnsValue(buff);
-			RedButton turnsButton = new RedButton(infinite ? "" : String.valueOf(current), 6) {
+			RedButton turnsButton = new RedButton(infinite ? "-" : String.valueOf(current), 6) {
 				@Override
 				public void onClick() {
 					if (infinite) return;
 					promptValue("Turns left", current, 1, 9999, value -> StatusEditor.setTurns(buff, value));
 				}
 			};
-			if (infinite) turnsButton.icon(Icons.get(Icons.TALENT));
 			turnsButton.setRect(x, pos, turnsWidth, ROW_HEIGHT);
+			turnsButton.enable(!infinite);
 			add(turnsButton);
 			x += turnsWidth + GAP;
 		}

@@ -4,12 +4,11 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
+import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
@@ -32,20 +31,24 @@ public final class BackpackEditor {
 	private static final String TAG = "BackpackEditor";
 	private static final int EDIT_COLOR = 0xFF9944;
 	private static final int BACK_HEIGHT = 16;
-	private static final int SHORTCUT_SIZE = 14;
+	private static final int SHORTCUT_WIDTH = 24;
+	private static final int SHORTCUT_HEIGHT = 12;
 
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
+	private static boolean openingEditWindow;
 
 	private BackpackEditor() {
 	}
 
 	public static void open() {
 		if (Dungeon.hero == null) return;
-		WndBag bag = new WndBag(Dungeon.hero.belongings.backpack);
-		editWindows.add(bag);
-		decorate(bag);
-		Game.scene().addToFront(bag);
+		openingEditWindow = true;
+		try {
+			Game.scene().addToFront(new WndBag(Dungeon.hero.belongings.backpack));
+		} finally {
+			openingEditWindow = false;
+		}
 	}
 
 	private static boolean isOpenEditWindow(Window window) {
@@ -56,7 +59,7 @@ public final class BackpackEditor {
 	 * Called at the start of the WndBag constructor, before it replaces the open bag window.
 	 */
 	public static void beforeBagCreated() {
-		pendingEditWindow = isOpenEditWindow(WndBag.INSTANCE);
+		pendingEditWindow = openingEditWindow || isOpenEditWindow(WndBag.INSTANCE);
 	}
 
 	/**
@@ -66,9 +69,8 @@ public final class BackpackEditor {
 		if (pendingEditWindow) {
 			editWindows.add(window);
 			decorate(window);
-		} else {
-			addEditorShortcut(window);
 		}
+		addShortcut(window, pendingEditWindow);
 		pendingEditWindow = false;
 	}
 
@@ -81,28 +83,43 @@ public final class BackpackEditor {
 		}
 	}
 
-	private static void addEditorShortcut(Window window) {
+	private static void addShortcut(Window window, boolean editing) {
 		if (!InventoryWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
 		try {
 			Field selectorField = WndBag.class.getDeclaredField("selector");
 			selectorField.setAccessible(true);
 			if (selectorField.get(window) != null) return;
 
-			RenderedTextBlock title = findTitle(window);
-			if (title == null) return;
-
-			IconButton shortcut = new IconButton(Icons.get(Icons.TALENT)) {
+			RedButton shortcut = new RedButton(editing ? "Add" : "Edit", 6) {
 				@Override
 				public void onClick() {
 					window.hide();
-					InventoryWindow.open();
+					if (editing) {
+						ItemPickerWindow.openFromBackpack();
+					} else {
+						open();
+					}
 				}
 			};
-			shortcut.setRect(title.right() + 2, 0, SHORTCUT_SIZE, SHORTCUT_SIZE);
+			shortcut.textColor(EDIT_COLOR);
+			shortcut.setRect(counterLeft(window) - SHORTCUT_WIDTH - 3, 1, SHORTCUT_WIDTH, SHORTCUT_HEIGHT);
 			window.add(shortcut);
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not add the inventory editor shortcut", e);
+			Log.e(TAG, "Could not add the backpack shortcut", e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static float counterLeft(Window window) throws ReflectiveOperationException {
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		Field widthField = Window.class.getDeclaredField("width");
+		widthField.setAccessible(true);
+		float left = widthField.getInt(window);
+		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+			if (member instanceof BitmapText) left = Math.min(left, ((BitmapText) member).x);
+		}
+		return left;
 	}
 
 	@SuppressWarnings("unchecked")
