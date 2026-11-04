@@ -74,7 +74,22 @@ public class CharacterWindow extends Window {
 			if (tab == TAB_MODIFIERS) buildModifiers(hero);
 			if (tab == TAB_STATUS) buildStatus(hero);
 		}
+		addBackButton();
 		resize(WIDTH, (int) pos);
+	}
+
+	private void addBackButton() {
+		pos += GAP;
+		RedButton back = new RedButton("Back", 7) {
+			@Override
+			public void onClick() {
+				hide();
+				Game.scene().addToFront(new WndGame());
+			}
+		};
+		back.setRect(0, pos, WIDTH, ROW_HEIGHT);
+		add(back);
+		pos += ROW_HEIGHT;
 	}
 
 	/**
