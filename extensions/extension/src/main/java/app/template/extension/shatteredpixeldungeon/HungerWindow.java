@@ -15,7 +15,7 @@ public class HungerWindow extends EditorWindow {
 	private static final String[] TABS = { "Stages", "Starving" };
 	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 
-	private static final String GENERAL_INFO = "Hunger settings apply to every run. Shadows, the Salt Cube and other hunger effects still apply on top.\n\nDisable hunger stops hunger rising. Turn it off again and hunger continues from where it was.\n\nThe small reset button on a row restores that one setting. Reset all restores everything.";
+	private static final String GENERAL_INFO = "Changes made from the main menu are the default for every game. Changes made during a game only apply to that game and are saved with it; Use main menu defaults goes back to the defaults. Shadows, the Salt Cube and other hunger effects still apply on top.\n\nDisable hunger stops hunger rising. Turn it off again and hunger continues from where it was.\n\nThe small reset button on a row restores that one setting. Reset all restores everything.";
 	private static final String STAGES_INFO = "Stages\n\nNot hungry is the number of turns from eating until you get Hungry. Hungry is the number of turns from then until you start Starving. The game defaults are 300 and 150.\n\n75%, 50% and 30% make hunger rise at that share of the normal rate, so every stage lasts longer. Default restores both.\n\nFood keeps its normal value, so longer stages also make meals last longer.\n\n" + GENERAL_INFO;
 	private static final String STARVING_INFO = "Starving\n\nFormula: the turns between hits are the formula divided by your max health. The game uses 1000, so with 50 max health you take damage every 20 turns. A higher formula means more time between hits. It changes by 10.\n\nFixed: you take damage every set number of turns, whatever your max health. Its reset uses the game's default for your max health.\n\nDamage is how much each hit takes.\n\n75%, 50% and 30% set the formula so you take damage at that share of the normal rate. They switch Fixed back to Formula.\n\nNow shows the result for your current max health.\n\n" + GENERAL_INFO;
 
@@ -32,6 +32,7 @@ public class HungerWindow extends EditorWindow {
 		boolean disabled = HungerEditor.isDisabled();
 
 		addTitle("Hunger", tab == 0 ? STAGES_INFO : STARVING_INFO);
+		addScope();
 		addCheckBox("Disable hunger", disabled, () -> HungerEditor.setDisabled(!HungerEditor.isDisabled()));
 		addButtonRow(TABS, tab, index -> {
 			tab = index;
@@ -52,6 +53,32 @@ public class HungerWindow extends EditorWindow {
 		addButton("Back", half + GAP, half, this::back);
 		pos += ROW_HEIGHT + GAP;
 		finish();
+	}
+
+	private void addScope() {
+		boolean inGame = HungerEditor.editsCurrentGame();
+		String text;
+		if (!inGame) {
+			text = "Default for all games";
+		} else if (HungerEditor.hasGameSettings()) {
+			text = "This game only";
+		} else {
+			text = "This game (using main menu defaults)";
+		}
+		RenderedTextBlock scope = PixelScene.renderTextBlock(text, 6);
+		scope.hardlight(CharacterWindow.DIM_COLOR);
+		scope.maxWidth(WIDTH);
+		scope.setPos(0, pos - GAP);
+		add(scope);
+		pos = scope.bottom() + 2 * GAP;
+
+		if (inGame && HungerEditor.hasGameSettings()) {
+			addButton("Use main menu defaults", 0, WIDTH, () -> {
+				HungerEditor.useMainMenuSettings();
+				refresh();
+			});
+			pos += ROW_HEIGHT + GAP;
+		}
 	}
 
 	private void buildTab(int index, boolean disabled) {

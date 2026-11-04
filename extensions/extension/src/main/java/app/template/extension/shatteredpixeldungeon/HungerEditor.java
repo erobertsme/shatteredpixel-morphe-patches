@@ -4,7 +4,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 
+import com.watabou.noosa.Game;
+import com.watabou.utils.Bundle;
+
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public final class HungerEditor {
@@ -32,6 +37,13 @@ public final class HungerEditor {
 	private static final String KEY_INTERVAL = "hunger_starve_fixed_interval";
 	private static final String KEY_AMOUNT = "hunger_starve_damage";
 
+	private static final String[] KEYS = {
+		KEY_DISABLED, KEY_NO_STARVE_DAMAGE, KEY_NOT_HUNGRY, KEY_HUNGRY, KEY_FIXED, KEY_FORMULA, KEY_INTERVAL, KEY_AMOUNT,
+	};
+	private static final String BUNDLE_PREFIX = "morphe_hunger_";
+	private static final String BUNDLE_OVERRIDE = "morphe_hunger_override";
+
+	private static Map<String, Integer> gameSettings;
 	private static float partialDamage;
 	private static int fixedTurns;
 	private static boolean dealingStarvingDamage;
@@ -47,19 +59,19 @@ public final class HungerEditor {
 	}
 
 	static boolean isDisabled() {
-		return CloverlordSettings.get(KEY_DISABLED);
+		return readBool(KEY_DISABLED);
 	}
 
 	static void setDisabled(boolean value) {
-		CloverlordSettings.set(KEY_DISABLED, value);
+		writeBool(KEY_DISABLED, value);
 	}
 
 	static boolean starvingDamages() {
-		return !CloverlordSettings.get(KEY_NO_STARVE_DAMAGE);
+		return !readBool(KEY_NO_STARVE_DAMAGE);
 	}
 
 	static void setStarvingDamages(boolean value) {
-		CloverlordSettings.set(KEY_NO_STARVE_DAMAGE, !value);
+		writeBool(KEY_NO_STARVE_DAMAGE, !value);
 	}
 
 	static int notHungryTurns() {
@@ -67,7 +79,7 @@ public final class HungerEditor {
 	}
 
 	static void setNotHungryTurns(int value) {
-		CloverlordSettings.setInt(KEY_NOT_HUNGRY, clamp(value, MIN_TURNS, MAX_TURNS));
+		writeInt(KEY_NOT_HUNGRY, clamp(value, MIN_TURNS, MAX_TURNS));
 	}
 
 	static int hungryTurns() {
@@ -75,12 +87,12 @@ public final class HungerEditor {
 	}
 
 	static void setHungryTurns(int value) {
-		CloverlordSettings.setInt(KEY_HUNGRY, clamp(value, MIN_TURNS, MAX_TURNS));
+		writeInt(KEY_HUNGRY, clamp(value, MIN_TURNS, MAX_TURNS));
 	}
 
 	static void resetStages() {
-		CloverlordSettings.setInt(KEY_NOT_HUNGRY, 0);
-		CloverlordSettings.setInt(KEY_HUNGRY, 0);
+		writeInt(KEY_NOT_HUNGRY, 0);
+		writeInt(KEY_HUNGRY, 0);
 	}
 
 	static void applyStagePreset(float rate) {
@@ -89,12 +101,12 @@ public final class HungerEditor {
 	}
 
 	static boolean usesFixedInterval() {
-		return CloverlordSettings.get(KEY_FIXED);
+		return readBool(KEY_FIXED);
 	}
 
 	static void setUsesFixedInterval(boolean value) {
-		if (value && CloverlordSettings.getInt(KEY_INTERVAL) <= 0) setFixedInterval(Math.round(formulaInterval(maxHealth())));
-		CloverlordSettings.set(KEY_FIXED, value);
+		if (value && readInt(KEY_INTERVAL) <= 0) setFixedInterval(Math.round(formulaInterval(maxHealth())));
+		writeBool(KEY_FIXED, value);
 	}
 
 	static int formula() {
@@ -102,7 +114,7 @@ public final class HungerEditor {
 	}
 
 	static void setFormula(int value) {
-		CloverlordSettings.setInt(KEY_FORMULA, clamp(value, MIN_FORMULA, MAX_FORMULA));
+		writeInt(KEY_FORMULA, clamp(value, MIN_FORMULA, MAX_FORMULA));
 	}
 
 	static int fixedInterval() {
@@ -110,7 +122,7 @@ public final class HungerEditor {
 	}
 
 	static void setFixedInterval(int value) {
-		CloverlordSettings.setInt(KEY_INTERVAL, clamp(value, 1, MAX_INTERVAL));
+		writeInt(KEY_INTERVAL, clamp(value, 1, MAX_INTERVAL));
 	}
 
 	static int damageAmount() {
@@ -118,19 +130,19 @@ public final class HungerEditor {
 	}
 
 	static void setDamageAmount(int value) {
-		CloverlordSettings.setInt(KEY_AMOUNT, clamp(value, 1, MAX_AMOUNT));
+		writeInt(KEY_AMOUNT, clamp(value, 1, MAX_AMOUNT));
 	}
 
 	static void resetStarving() {
 		setStarvingDamages(true);
-		CloverlordSettings.set(KEY_FIXED, false);
-		CloverlordSettings.setInt(KEY_FORMULA, 0);
-		CloverlordSettings.setInt(KEY_INTERVAL, 0);
-		CloverlordSettings.setInt(KEY_AMOUNT, 0);
+		writeBool(KEY_FIXED, false);
+		writeInt(KEY_FORMULA, 0);
+		writeInt(KEY_INTERVAL, 0);
+		writeInt(KEY_AMOUNT, 0);
 	}
 
 	static void applyStarvingPreset(float rate) {
-		CloverlordSettings.set(KEY_FIXED, false);
+		writeBool(KEY_FIXED, false);
 		setFormula(Math.round(DEFAULT_FORMULA / rate / 10f) * 10);
 	}
 
@@ -229,8 +241,97 @@ public final class HungerEditor {
 		}
 	}
 
+	/**
+	 * True while a game is open, so edits are saved to that game instead of the main menu defaults.
+	 */
+	static boolean editsCurrentGame() {
+		return Dungeon.hero != null && Game.scene() != null && Game.scene().getClass().getSimpleName().equals("GameScene");
+	}
+
+	static boolean hasGameSettings() {
+		return gameSettings != null;
+	}
+
+	static void useMainMenuSettings() {
+		gameSettings = null;
+	}
+
+	private static int readInt(String key) {
+		Map<String, Integer> settings = gameSettings;
+		if (settings != null) return settings.containsKey(key) ? settings.get(key) : 0;
+		return CloverlordSettings.getInt(key);
+	}
+
+	private static boolean readBool(String key) {
+		Map<String, Integer> settings = gameSettings;
+		if (settings != null) return settings.containsKey(key) && settings.get(key) != 0;
+		return CloverlordSettings.get(key);
+	}
+
+	private static void writeInt(String key, int value) {
+		if (!editsCurrentGame()) {
+			CloverlordSettings.setInt(key, value);
+			return;
+		}
+		copyDefaultsIntoGame();
+		gameSettings.put(key, value);
+	}
+
+	private static void writeBool(String key, boolean value) {
+		if (!editsCurrentGame()) {
+			CloverlordSettings.set(key, value);
+			return;
+		}
+		copyDefaultsIntoGame();
+		gameSettings.put(key, value ? 1 : 0);
+	}
+
+	private static void copyDefaultsIntoGame() {
+		if (gameSettings != null) return;
+		Map<String, Integer> copy = new HashMap<>();
+		copy.put(KEY_DISABLED, CloverlordSettings.get(KEY_DISABLED) ? 1 : 0);
+		copy.put(KEY_NO_STARVE_DAMAGE, CloverlordSettings.get(KEY_NO_STARVE_DAMAGE) ? 1 : 0);
+		copy.put(KEY_FIXED, CloverlordSettings.get(KEY_FIXED) ? 1 : 0);
+		for (String key : new String[] { KEY_NOT_HUNGRY, KEY_HUNGRY, KEY_FORMULA, KEY_INTERVAL, KEY_AMOUNT }) {
+			copy.put(key, CloverlordSettings.getInt(key));
+		}
+		gameSettings = copy;
+	}
+
+	/**
+	 * Called at the start of the Hunger constructor. A new hunger status means a new or freshly loaded game.
+	 */
+	public static void onHungerCreated() {
+		gameSettings = null;
+		partialDamage = 0;
+		fixedTurns = 0;
+	}
+
+	/**
+	 * Called at the end of Hunger.storeInBundle. Saves this game's own hunger settings, if it has any.
+	 */
+	public static void store(Bundle bundle) {
+		Map<String, Integer> settings = gameSettings;
+		if (settings == null) return;
+		bundle.put(BUNDLE_OVERRIDE, 1);
+		for (String key : KEYS) bundle.put(BUNDLE_PREFIX + key, settings.containsKey(key) ? settings.get(key) : 0);
+	}
+
+	/**
+	 * Called at the end of Hunger.restoreFromBundle. Loads this game's own hunger settings, if it has any.
+	 */
+	public static void restore(Bundle bundle) {
+		if (bundle.getInt(BUNDLE_OVERRIDE) != 1) {
+			gameSettings = null;
+			return;
+		}
+		Map<String, Integer> settings = new HashMap<>();
+		for (String key : KEYS) settings.put(key, bundle.getInt(BUNDLE_PREFIX + key));
+		gameSettings = settings;
+	}
+
 	private static int orDefault(String key, int fallback) {
-		int value = CloverlordSettings.getInt(key);
+		int value = readInt(key);
 		return value <= 0 ? fallback : value;
 	}
 

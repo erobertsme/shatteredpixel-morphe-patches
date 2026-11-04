@@ -11,7 +11,7 @@ private const val HUNGER_CLASS = "$EXTENSION_PACKAGE/HungerEditor;"
 @Suppress("unused")
 val hungerEditorPatch = bytecodePatch(
 	name = "Hunger editor",
-	description = "Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger completely.",
+	description = "Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -21,6 +21,10 @@ val hungerEditorPatch = bytecodePatch(
 	execute {
 		HungerEditorAvailableFingerprint.returnTrue()
 		SaltCubeHungerGainFingerprint.adjustReturns("$HUNGER_CLASS->adjustHungerGain(F)F")
+
+		HungerConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $HUNGER_CLASS->onHungerCreated()V")
+		HungerStoreInBundleFingerprint.callBeforeReturn("invoke-static/range { p1 .. p1 }, $HUNGER_CLASS->store(Lcom/watabou/utils/Bundle;)V")
+		HungerRestoreFromBundleFingerprint.callBeforeReturn("invoke-static/range { p1 .. p1 }, $HUNGER_CLASS->restore(Lcom/watabou/utils/Bundle;)V")
 
 		HungerActFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p0 }, $HUNGER_CLASS->onHungerAct(Ljava/lang/Object;)V")
 

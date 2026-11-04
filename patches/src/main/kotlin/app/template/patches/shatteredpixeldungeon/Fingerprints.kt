@@ -353,3 +353,26 @@ object CharRestoreFromBundleFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(BUNDLE_TYPE),
 )
+
+private const val HUNGER_CLASS_TYPE = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger;"
+
+object HungerConstructorFingerprint : Fingerprint(
+	definingClass = HUNGER_CLASS_TYPE,
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object HungerStoreInBundleFingerprint : Fingerprint(
+	definingClass = HUNGER_CLASS_TYPE,
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)
+
+object HungerRestoreFromBundleFingerprint : Fingerprint(
+	definingClass = HUNGER_CLASS_TYPE,
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)
