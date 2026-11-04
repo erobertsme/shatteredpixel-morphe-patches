@@ -9,10 +9,12 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 @SuppressWarnings("unused")
 public final class CloverlordMenu {
@@ -63,6 +65,7 @@ public final class CloverlordMenu {
 			button.icon(Icons.get(Icons.TALENT));
 			scene.add(button);
 			titleButton = new WeakReference<>(button);
+			keepFaderOnTop(scene);
 
 			boolean landscape = support.top() == play.top();
 			if (CloverlordSettings.get(HIDE_SUPPORT)) {
@@ -100,11 +103,20 @@ public final class CloverlordMenu {
 		try {
 			StyledButton play = titleButton(scene, "btnPlay");
 			float alpha = play.alpha();
-			button.alpha(alpha);
 			button.enable(alpha != 0);
+			button.alpha(alpha);
 			if (CloverlordSettings.get(HIDE_SUPPORT)) titleButton(scene, "btnSupport").active = false;
 		} catch (Exception e) {
 			Log.e(TAG, "Could not fade the title screen button", e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void keepFaderOnTop(Group scene) throws ReflectiveOperationException {
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(scene))) {
+			if (member != null && member.getClass().getName().endsWith("PixelScene$Fader")) scene.bringToFront(member);
 		}
 	}
 

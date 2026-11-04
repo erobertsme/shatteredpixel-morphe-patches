@@ -32,8 +32,8 @@ public class InventoryWindow extends EditorWindow {
 			return;
 		}
 
-		addStepper("Gold", String.valueOf(Dungeon.gold), Dungeon.gold, 10, value -> Dungeon.gold = Math.max(0, value));
-		addStepper("Energy", String.valueOf(Dungeon.energy), Dungeon.energy, 1, value -> Dungeon.energy = Math.max(0, value));
+		addStepper("Gold", String.valueOf(Dungeon.gold), Dungeon.gold, 10, 0, 999999, value -> Dungeon.gold = Math.max(0, value));
+		addStepper("Energy", String.valueOf(Dungeon.energy), Dungeon.energy, 1, 0, 99999, value -> Dungeon.energy = Math.max(0, value));
 		pos += GAP;
 
 		addButton("Open backpack", 0, WIDTH, () -> {

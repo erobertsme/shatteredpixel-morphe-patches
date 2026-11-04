@@ -17,7 +17,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.Game;
 
 import java.util.ArrayList;
@@ -132,20 +131,22 @@ public class CharacterWindow extends Window {
 		add(title);
 		pos = title.bottom() + 2 * GAP;
 
-		addStepper("Health", String.valueOf(hero.HP), hero.HP, value -> hero.HP = clamp(value, 1, hero.HT));
-		addStepper("Max health", String.valueOf(hero.HT), hero.HT, value -> {
+		addStepper("Health", String.valueOf(hero.HP), hero.HP, 1, hero.HT, value -> hero.HP = clamp(value, 1, hero.HT));
+		addStepper("Max health", String.valueOf(hero.HT), hero.HT, 1, 999, value -> {
 			int target = Math.max(1, value);
 			hero.HTBoost += target - hero.HT;
 			hero.updateHT(false);
 		});
-		addStepper("Level", String.valueOf(hero.lvl), hero.lvl, value -> {
+		addStepper("Level", String.valueOf(hero.lvl), hero.lvl, 1, 30, value -> {
 			int previous = hero.lvl;
 			hero.lvl = clamp(value, 1, 30);
 			hero.exp = Math.min(hero.exp, hero.maxExp() - 1);
 			hero.updateHT(hero.lvl > previous);
 		});
-		addStepper("Experience", hero.exp + " / " + hero.maxExp(), hero.exp, value -> hero.exp = clamp(value, 0, hero.maxExp() - 1));
-		addStepper("Strength", String.valueOf(hero.STR), hero.STR, value -> hero.STR = clamp(value, 1, 99));
+		addStepper("Experience", hero.exp + " / " + hero.maxExp(), hero.exp, 0, hero.maxExp() - 1, value -> hero.exp = clamp(value, 0, hero.maxExp() - 1));
+		addStepper("Strength", String.valueOf(hero.STR), hero.STR, 1, 99, value -> hero.STR = clamp(value, 1, 99));
+		int shield = hero.shielding();
+		addStepper("Shield", String.valueOf(shield), shield, 0, 999, value -> StatusEditor.setShield(hero, clamp(value, 0, 999)));
 
 		addSection("Current totals");
 		int strBonus = hero.STR() - hero.STR;
@@ -184,7 +185,7 @@ public class CharacterWindow extends Window {
 
 		addStat("Unspent points", String.valueOf(hero.talentPointsAvailable(tier)));
 		int bonus = HeroExtras.bonusTalentPoints(tier);
-		addStepper("Bonus points", "+" + bonus, bonus, value -> HeroExtras.bonusTalentPoints(tier, value));
+		addStepper("Bonus points", "+" + bonus, bonus, 0, 99, value -> HeroExtras.bonusTalentPoints(tier, value));
 		pos += GAP;
 
 		ArrayList<Talent> talents = new ArrayList<>(hero.talents.get(tier - 1).keySet());
@@ -266,7 +267,7 @@ public class CharacterWindow extends Window {
 		for (HeroExtras.Mod mod : HeroExtras.Mod.values()) {
 			int value = HeroExtras.mod(mod);
 			String text = (value >= 0 ? "+" : "") + value + (mod.percent ? "%" : "");
-			addStepper(mod.label, text, value, newValue -> HeroExtras.mod(mod, newValue), mod.step());
+			addStepper(mod.label, text, value, mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue), mod.step());
 		}
 		addHint("Long-press - or + to change by 10 steps. Tap a value to type it.");
 
@@ -295,7 +296,7 @@ public class CharacterWindow extends Window {
 		if (pages > 1) addPager(current, pages, this::reopenPage);
 
 		int hunger = StatusEditor.hungerState(hero);
-		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, value -> StatusEditor.setHungerState(hero, value));
+		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
 
 		float half = (WIDTH - GAP) / 2f;
 		RedButton removeNegative = new RedButton("Remove negative", 6) {
@@ -365,7 +366,7 @@ public class CharacterWindow extends Window {
 			RedButton turnsButton = new RedButton(infinite ? "inf" : String.valueOf(current), 6) {
 				@Override
 				public void onClick() {
-					promptValue("Turns left", current, value -> StatusEditor.setTurns(buff, value));
+					promptValue("Turns left", current, 1, 9999, value -> StatusEditor.setTurns(buff, value));
 				}
 			};
 			turnsButton.setRect(x, pos, turnsWidth, ROW_HEIGHT);
@@ -445,11 +446,11 @@ public class CharacterWindow extends Window {
 		}
 	}
 
-	private void addStepper(String label, String display, int current, IntSetter setter) {
-		addStepper(label, display, current, setter, 1);
+	private void addStepper(String label, String display, int current, int min, int max, IntSetter setter) {
+		addStepper(label, display, current, min, max, setter, 1);
 	}
 
-	private void addStepper(String label, String display, int current, IntSetter setter, int step) {
+	private void addStepper(String label, String display, int current, int min, int max, IntSetter setter, int step) {
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
 		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
 		add(text);
@@ -460,7 +461,7 @@ public class CharacterWindow extends Window {
 		RedButton value = new RedButton(display, 6) {
 			@Override
 			public void onClick() {
-				promptValue(label, current, setter);
+				promptValue(label, current, min, max, setter);
 			}
 		};
 		value.setRect(x + STEP_WIDTH + GAP, pos, VALUE_WIDTH, ROW_HEIGHT);
@@ -489,19 +490,8 @@ public class CharacterWindow extends Window {
 		return button;
 	}
 
-	private void promptValue(String label, int current, IntSetter setter) {
-		Game.scene().addToFront(new WndTextInput(label, null, String.valueOf(current), 6, false, "Set", "Cancel") {
-			@Override
-			public void onSelect(boolean positive, String text) {
-				if (!positive) return;
-				try {
-					setter.set(Integer.parseInt(text.trim().replace("+", "").replace("%", "")));
-				} catch (NumberFormatException ignored) {
-					return;
-				}
-				refresh();
-			}
-		});
+	private void promptValue(String label, int current, int min, int max, IntSetter setter) {
+		NumberPrompt.show(label, current, min, max, setter::set, this::refresh);
 	}
 
 	private void addSection(String text) {

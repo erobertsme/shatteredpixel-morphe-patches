@@ -4,10 +4,12 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 import java.lang.reflect.Field;
@@ -168,6 +170,24 @@ final class StatusEditor {
 		} catch (Throwable e) {
 			return false;
 		}
+	}
+
+	static void setShield(Hero hero, int target) {
+		int current = hero.shielding();
+		try {
+			if (target > current) {
+				Buff.affect(hero, Barrier.class).incShield(target - current);
+			} else if (target < current) {
+				int remaining = current - target;
+				for (Buff buff : new ArrayList<>(hero.buffs())) {
+					if (remaining <= 0) break;
+					if (buff instanceof ShieldBuff) remaining = ((ShieldBuff) buff).absorbDamage(remaining);
+				}
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not set shield", e);
+		}
+		refreshIndicator();
 	}
 
 	static int hungerState(Hero hero) {

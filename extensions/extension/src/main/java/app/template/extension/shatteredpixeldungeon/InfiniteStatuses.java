@@ -5,6 +5,7 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.watabou.utils.Bundle;
 
@@ -40,7 +41,8 @@ public final class InfiniteStatuses {
 			pinned.remove(buff.getClass());
 			return;
 		}
-		pinned.put(buff.getClass(), Math.max(1, StatusEditor.turnsValue(buff)));
+		int value = buff instanceof ShieldBuff ? ((ShieldBuff) buff).shielding() : StatusEditor.turnsValue(buff);
+		pinned.put(buff.getClass(), Math.max(1, value));
 		refresh(buff);
 	}
 
@@ -150,6 +152,11 @@ public final class InfiniteStatuses {
 	private static void refresh(Buff buff) {
 		Integer value = pinned.get(buff.getClass());
 		if (value == null) return;
+		if (buff instanceof ShieldBuff) {
+			((ShieldBuff) buff).setShield(value);
+			StatusEditor.keepScheduled(buff);
+			return;
+		}
 		if (buff instanceof FlavourBuff) {
 			StatusEditor.setTurns(buff, FLAVOUR_TURNS);
 			return;

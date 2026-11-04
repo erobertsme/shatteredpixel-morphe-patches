@@ -11,7 +11,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.Game;
 
 import java.util.List;
@@ -96,18 +95,7 @@ public class StatusPickerWindow extends Window {
 		RedButton value = new RedButton(duration + " turns", 6) {
 			@Override
 			public void onClick() {
-				Game.scene().addToFront(new WndTextInput("Duration", null, String.valueOf(duration), 4, false, "Set", "Cancel") {
-					@Override
-					public void onSelect(boolean positive, String text) {
-						if (!positive) return;
-						try {
-							setDuration(Integer.parseInt(text.trim()));
-						} catch (NumberFormatException ignored) {
-							return;
-						}
-						reopen(kind, page);
-					}
-				});
+				NumberPrompt.show("Duration", duration, 1, 9999, StatusPickerWindow::setDuration, () -> reopen(kind, page));
 			}
 		};
 		value.setRect(x + 15 + GAP, pos, valueWidth, ROW_HEIGHT);

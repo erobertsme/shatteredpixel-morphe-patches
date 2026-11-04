@@ -37,8 +37,8 @@ public class ItemPickerWindow extends EditorWindow {
 			});
 		}
 
-		addStepper("Level", (level >= 0 ? "+" : "") + level, level, 1, value -> level = Math.max(-5, Math.min(99, value)));
-		addStepper("Quantity", String.valueOf(quantity), quantity, 1, value -> quantity = Math.max(1, Math.min(9999, value)));
+		addStepper("Level", (level >= 0 ? "+" : "") + level, level, 1, -5, 99, value -> level = Math.max(-5, Math.min(99, value)));
+		addStepper("Quantity", String.valueOf(quantity), quantity, 1, 1, 9999, value -> quantity = Math.max(1, Math.min(9999, value)));
 
 		List<InventoryEditor.Entry> entries = InventoryEditor.catalog(category);
 		int perPage = perPage(6, 3);

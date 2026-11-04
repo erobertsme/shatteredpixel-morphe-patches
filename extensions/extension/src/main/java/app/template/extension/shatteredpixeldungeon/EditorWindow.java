@@ -7,7 +7,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 
@@ -61,7 +60,7 @@ abstract class EditorWindow extends Window {
 		pos = block.bottom() + 2 * GAP;
 	}
 
-	protected void addStepper(String label, String display, int current, int step, IntSetter setter) {
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter) {
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
 		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
 		add(text);
@@ -72,18 +71,9 @@ abstract class EditorWindow extends Window {
 		RedButton value = new RedButton(display, 6) {
 			@Override
 			public void onClick() {
-				Game.scene().addToFront(new WndTextInput(label, null, String.valueOf(current), 7, false, "Set", "Cancel") {
-					@Override
-					public void onSelect(boolean positive, String input) {
-						if (!positive) return;
-						try {
-							setter.set(Integer.parseInt(input.trim().replace("+", "")));
-						} catch (NumberFormatException ignored) {
-							return;
-						}
-						EditorWindow.this.hide();
-						reopen();
-					}
+				NumberPrompt.show(label, current, min, max, setter::set, () -> {
+					EditorWindow.this.hide();
+					reopen();
 				});
 			}
 		};

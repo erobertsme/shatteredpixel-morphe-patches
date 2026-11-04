@@ -27,10 +27,10 @@ public class ItemEditWindow extends EditorWindow {
 
 		if (InventoryEditor.isLevelEditable(item)) {
 			int level = item.level();
-			addStepper("Upgrade level", (level >= 0 ? "+" : "") + level, level, 1, value -> InventoryEditor.setLevel(item, Math.max(-5, Math.min(99, value))));
+			addStepper("Upgrade level", (level >= 0 ? "+" : "") + level, level, 1, -5, 99, value -> InventoryEditor.setLevel(item, Math.max(-5, Math.min(99, value))));
 		}
 		if (item.stackable) {
-			addStepper("Quantity", String.valueOf(item.quantity()), item.quantity(), 1, value -> item.quantity(Math.max(1, Math.min(9999, value))));
+			addStepper("Quantity", String.valueOf(item.quantity()), item.quantity(), 1, 1, 9999, value -> item.quantity(Math.max(1, Math.min(9999, value))));
 		}
 
 		addCheckBox("Identified", item.isIdentified(), () -> InventoryEditor.setIdentified(item, !item.isIdentified()));
@@ -62,7 +62,7 @@ public class ItemEditWindow extends EditorWindow {
 
 		if (item instanceof Wand) {
 			Wand wand = (Wand) item;
-			addStepper("Charges", wand.curCharges + " / " + wand.maxCharges, wand.curCharges, 1, value -> {
+			addStepper("Charges", wand.curCharges + " / " + wand.maxCharges, wand.curCharges, 1, 0, wand.maxCharges, value -> {
 				wand.curCharges = Math.max(0, Math.min(wand.maxCharges, value));
 				Item.updateQuickslot();
 			});
@@ -72,7 +72,7 @@ public class ItemEditWindow extends EditorWindow {
 			Artifact artifact = (Artifact) item;
 			int charge = InventoryEditor.artifactValue(artifact, "charge");
 			int cap = InventoryEditor.artifactValue(artifact, "chargeCap");
-			if (cap > 0) addStepper("Charge", charge + " / " + cap, charge, 1, value -> InventoryEditor.setArtifactCharge(artifact, value));
+			if (cap > 0) addStepper("Charge", charge + " / " + cap, charge, 1, 0, cap, value -> InventoryEditor.setArtifactCharge(artifact, value));
 		}
 
 		pos += GAP;
