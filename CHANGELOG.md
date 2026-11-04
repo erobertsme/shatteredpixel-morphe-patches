@@ -1,3 +1,9 @@
+## [1.0.0-dev.22](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.21...v1.0.0-dev.22) (2026-11-04)
+
+### ✨ New Features
+
+* Move help text into info buttons, keep the hunger window size fixed, fix the hero window layout ([d7b6adc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d7b6adceccdac970da6cc10fcecd4ea98039a12e))
+
 ## [1.0.0-dev.21](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.20...v1.0.0-dev.21) (2026-11-04)
 
 ### ✨ New Features
