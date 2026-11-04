@@ -19,7 +19,7 @@ public class CloverlordWindow extends Window {
 	public CloverlordWindow() {
 		super();
 
-		RenderedTextBlock title = PixelScene.renderTextBlock("Cloverlord", 9);
+		RenderedTextBlock title = PixelScene.renderTextBlock("Extras", 9);
 		title.hardlight(TITLE_COLOR);
 		title.setPos((WIDTH - title.width()) / 2f, GAP);
 		add(title);

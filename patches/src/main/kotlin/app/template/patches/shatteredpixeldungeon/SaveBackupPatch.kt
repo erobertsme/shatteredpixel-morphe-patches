@@ -96,7 +96,7 @@ private val saveBackupResourcePatch = resourcePatch {
 @Suppress("unused")
 val saveBackupPatch = bytecodePatch(
 	name = "Save backup",
-	description = "Adds Export saves and Import saves to the Cloverlord menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file.",
+	description = "Adds Export saves and Import saves to the Extras menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

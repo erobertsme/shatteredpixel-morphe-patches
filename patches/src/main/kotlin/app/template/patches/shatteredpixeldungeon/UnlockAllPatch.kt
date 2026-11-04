@@ -15,7 +15,7 @@ private val documentFingerprints = listOf(
 @Suppress("unused")
 val unlockAllPatch = bytecodePatch(
 	name = "Unlock all",
-	description = "Adds toggles to the Cloverlord menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress.",
+	description = "Adds toggles to the Extras menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

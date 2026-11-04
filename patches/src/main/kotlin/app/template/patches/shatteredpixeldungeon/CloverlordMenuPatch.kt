@@ -5,7 +5,7 @@ import app.morphe.patcher.patch.bytecodePatch
 private const val MENU_CLASS = "$EXTENSION_PACKAGE/CloverlordMenu;"
 
 internal val cloverlordMenuPatch = bytecodePatch(
-	description = "Adds the Cloverlord menu to the title screen and the in-game menu.",
+	description = "Adds the Extras menu to the title screen and the in-game menu.",
 ) {
 	extendWith("extensions/extension.mpe")
 

@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 public final class CloverlordMenu {
 
 	private static final String TAG = "CloverlordMenu";
-	private static final String LABEL = "Cloverlord";
+	private static final String LABEL = "Extras";
 	private static final int GAP = 2;
 	private static final int BTN_HEIGHT = 20;
 
@@ -28,17 +28,18 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of TitleScene.create. Splits the Support button in half to make room for the menu button.
+	 * Called at the end of TitleScene.create. Adds a full width menu button below the existing buttons.
 	 */
 	public static void onTitleCreated(Group scene) {
 		try {
-			Field field = scene.getClass().getDeclaredField("btnSupport");
-			field.setAccessible(true);
-			StyledButton support = (StyledButton) field.get(scene);
-			if (support == null) return;
+			StyledButton play = titleButton(scene, "btnPlay");
+			StyledButton support = titleButton(scene, "btnSupport");
+			StyledButton rankings = titleButton(scene, "btnRankings");
+			StyledButton about = titleButton(scene, "btnAbout");
 
-			float halfWidth = (support.width() - GAP) / 2f;
-			support.setRect(support.left(), support.top(), halfWidth, support.height());
+			float gap = rankings.top() - Math.max(play.bottom(), support.bottom());
+			float left = play.left();
+			float width = about.right() - left;
 
 			StyledButton button = new StyledButton(Chrome.Type.GREY_BUTTON_TR, LABEL) {
 				@Override
@@ -47,11 +48,19 @@ public final class CloverlordMenu {
 				}
 			};
 			button.icon(Icons.get(Icons.TALENT));
-			button.setRect(support.right() + GAP, support.top(), halfWidth, support.height());
+			button.setRect(left, about.bottom() + gap, width, play.height());
 			scene.add(button);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the title screen button", e);
 		}
+	}
+
+	private static StyledButton titleButton(Group scene, String name) throws ReflectiveOperationException {
+		Field field = scene.getClass().getDeclaredField(name);
+		field.setAccessible(true);
+		StyledButton button = (StyledButton) field.get(scene);
+		if (button == null) throw new NoSuchFieldException(name + " is not set");
+		return button;
 	}
 
 	/**
