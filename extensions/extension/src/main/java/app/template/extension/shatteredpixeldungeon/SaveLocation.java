@@ -104,6 +104,15 @@ public class SaveLocation {
 		}
 	}
 
+	/**
+	 * The folder the game is currently reading and writing saves from.
+	 */
+	public static File getActiveSaveFolder(Context context) {
+		if (!hasStorageAccess(context)) return context.getFilesDir();
+		File folder = getSaveFolder();
+		return folder.isDirectory() ? folder : context.getFilesDir();
+	}
+
 	private static boolean shouldRedirect() {
 		if (redirect != null) return redirect;
 
