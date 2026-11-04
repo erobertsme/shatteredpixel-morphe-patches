@@ -1,3 +1,10 @@
+## [1.0.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.9...v1.0.0-dev.10) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Deduplicate item list, sort weapons by tier, add trinkets tab and editable status turns ([874e145](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/874e1457498f785a1c0477f39d2a0f2d4eef63c8))
+* Leave cooldown statuses out of the add status list ([409dd35](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/409dd356793d32ad7284af971dba83ee8aa107d8))
+
 ## [1.0.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2026-11-04)
 
 ### ✨ New Features
