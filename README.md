@@ -19,9 +19,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.13](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.13)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.0.0-dev.14](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.14)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
 <details open>
-<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
+<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;8 patches</summary>
 <br>
 
 **Package name:** `com.shatteredpixel.shatteredpixeldungeon`
@@ -38,6 +38,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Public save folder](#public-save-folder) | Stores save files in a public folder on the device so they can be opened with any file manager. Asks for storage access on first launch and copies existing saves over. | • Save folder |
 | [Save backup](#save-backup) | Adds Export saves and Import saves to the Extras menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file. |  |
 | [Save file access](#save-file-access) | Exposes the game's save folder in the system file picker and Files app so saves can be copied, backed up, and edited. |  |
+| [Supporter rewards](#supporter-rewards) | Adds a setting to the Extras menu that enables the Silver, Golden or Shattered supporter rewards. Only works on the Google Play version of the game. |  |
 | [Uncompressed saves](#uncompressed-saves) | Writes save files as plain JSON instead of GZIP so they can be edited in any text editor. Existing compressed saves still load and are converted the next time the game saves. |  |
 | [Unlock all](#unlock-all) | Adds toggles to the Extras menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress. |  |
 

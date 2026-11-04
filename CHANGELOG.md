@@ -1,3 +1,13 @@
+## [1.0.0-dev.14](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.13...v1.0.0-dev.14) (2026-11-04)
+
+### ✨ New Features
+
+* Add supporter rewards setting for the Google Play build ([19731ba](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/19731bae2b8d4dd6e4f7875632366b78ff96a8d5))
+
+### 🐛 Bug Fixes
+
+* Fade the Extras title button with the other title buttons ([8e1ff1a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8e1ff1ab562b8b8ddb35f283ab8ff137cad18d04))
+
 ## [1.0.0-dev.13](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.12...v1.0.0-dev.13) (2026-11-04)
 
 ### ✨ New Features
