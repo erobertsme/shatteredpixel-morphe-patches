@@ -17,12 +17,10 @@ public class ItemEditWindow extends EditorWindow {
 	private static final Armor.Augment[] ARMOR_AUGMENT_VALUES = { Armor.Augment.EVASION, Armor.Augment.NONE, Armor.Augment.DEFENSE };
 
 	private final Item item;
-	private final int inventoryPage;
 
-	public ItemEditWindow(Item item, int inventoryPage) {
+	public ItemEditWindow(Item item) {
 		super();
 		this.item = item;
-		this.inventoryPage = inventoryPage;
 		Hero hero = Dungeon.hero;
 
 		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), () -> InventoryWindow.showInfo(item));
@@ -95,8 +93,8 @@ public class ItemEditWindow extends EditorWindow {
 
 	private void addPickerRow(String label, String current, boolean armor) {
 		float half = (WIDTH - GAP) / 2f;
-		addButton(label + ": " + current, 0, half, () -> replaceWith(new EnchantPickerWindow(item, inventoryPage, armor, false, 0)));
-		addButton("Curses", half + GAP, half, () -> replaceWith(new EnchantPickerWindow(item, inventoryPage, armor, true, 0)));
+		addButton(label + ": " + current, 0, half, () -> replaceWith(new EnchantPickerWindow(item, armor, false, 0)));
+		addButton("Curses", half + GAP, half, () -> replaceWith(new EnchantPickerWindow(item, armor, true, 0)));
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -108,11 +106,12 @@ public class ItemEditWindow extends EditorWindow {
 	}
 
 	private void back() {
-		replaceWith(new InventoryWindow(inventoryPage));
+		hide();
+		BackpackEditor.open();
 	}
 
 	@Override
 	protected void reopen() {
-		show(new ItemEditWindow(item, inventoryPage));
+		show(new ItemEditWindow(item));
 	}
 }

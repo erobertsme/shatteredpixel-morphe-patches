@@ -98,7 +98,7 @@ public final class CloverlordMenu {
 				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.open(CharacterWindow.TAB_STATS, 1));
 			}
 			if (inRun && InventoryWindow.isAvailable()) {
-				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, () -> InventoryWindow.open(0));
+				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
 			}
 			window.resize(width, height);
 		} catch (Exception e) {

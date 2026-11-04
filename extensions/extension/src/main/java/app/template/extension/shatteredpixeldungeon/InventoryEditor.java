@@ -155,19 +155,6 @@ final class InventoryEditor {
 		return result;
 	}
 
-	static List<Item> carried(Hero hero) {
-		List<Item> result = new ArrayList<>();
-		collectItems(hero.belongings.backpack, result);
-		return result;
-	}
-
-	private static void collectItems(Bag bag, List<Item> result) {
-		for (Item item : new ArrayList<>(bag.items)) {
-			result.add(item);
-			if (item instanceof Bag) collectItems((Bag) item, result);
-		}
-	}
-
 	static boolean isEquipped(Hero hero, Item item) {
 		return equipped(hero).contains(item);
 	}

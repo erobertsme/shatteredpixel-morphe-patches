@@ -206,3 +206,36 @@ object InventoryEditorAvailableFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+private const val ITEM_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"
+
+object ItemActionsFingerprint : Fingerprint(
+	definingClass = ITEM_CLASS,
+	name = "actions",
+	returnType = "Ljava/util/ArrayList;",
+	parameters = listOf(HERO_CLASS),
+)
+
+object ItemActionNameFingerprint : Fingerprint(
+	definingClass = ITEM_CLASS,
+	name = "actionName",
+	returnType = "Ljava/lang/String;",
+	parameters = listOf("Ljava/lang/String;", HERO_CLASS),
+)
+
+object ItemExecuteFingerprint : Fingerprint(
+	definingClass = ITEM_CLASS,
+	name = "execute",
+	returnType = "V",
+	parameters = listOf(HERO_CLASS, "Ljava/lang/String;"),
+)
+
+object WndBagConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(
+		"Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/Bag;",
+		"Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$ItemSelector;",
+	),
+)

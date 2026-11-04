@@ -87,3 +87,29 @@ internal fun Fingerprint.adjustReturns(adjust: String, extraArguments: String = 
 		)
 	}
 }
+
+/**
+ * Passes every object the method returns through [adjust], a static method that takes the object and returns
+ * the new one.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.adjustObjectReturns(adjust: String) {
+	val instructions = method.implementation!!.instructions
+	val indices = instructions.withIndex()
+		.filter { it.value.opcode == Opcode.RETURN_OBJECT }
+		.map { it.index }
+	if (indices.isEmpty()) throw PatchException("${method.name} has no return-object")
+
+	indices.reversed().forEach { index ->
+		val register = (instructions[index] as OneRegisterInstruction).registerA
+		if (register > 15) throw PatchException("${method.name} returns from v$register, which is out of range")
+		method.replaceInstruction(index, "invoke-static { v$register }, $adjust")
+		method.addInstructions(
+			index + 1,
+			"""
+				move-result-object v$register
+				return-object v$register
+			""",
+		)
+	}
+}

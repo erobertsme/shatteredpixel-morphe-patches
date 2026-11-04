@@ -56,7 +56,7 @@ public class ItemPickerWindow extends EditorWindow {
 		addPager(shown, pages, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
 		addHint("Tap to add (identified). Level applies to upgradable items and trinkets, quantity to stackable ones. A full backpack drops it at your feet.");
-		addButton("Back", 0, WIDTH, () -> replaceWith(new InventoryWindow(0)));
+		addButton("Back", 0, WIDTH, () -> replaceWith(new InventoryWindow()));
 		pos += ROW_HEIGHT;
 		finish();
 	}
