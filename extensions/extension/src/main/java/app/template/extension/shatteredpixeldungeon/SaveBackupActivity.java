@@ -2,6 +2,7 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,6 +36,22 @@ public class SaveBackupActivity extends Activity {
 	private static final String ZIP_MIME = "application/zip";
 	private static final int REQUEST_EXPORT = 1;
 	private static final int REQUEST_IMPORT = 2;
+
+	/**
+	 * Replaced by the Save backup patch to return true.
+	 */
+	public static boolean isAvailable() {
+		return false;
+	}
+
+	public static void launch(String action) {
+		Context context = SaveLocation.getContext();
+		if (context == null) return;
+		Intent intent = new Intent(action)
+			.setClass(context, SaveBackupActivity.class)
+			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

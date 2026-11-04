@@ -83,3 +83,31 @@ object DocumentAllPagesFoundFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+object TitleSceneCreateFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/TitleScene;",
+	name = "create",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object WndGameConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndGame;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object UnlockAllAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/UnlockAll;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object SaveBackupAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/SaveBackupActivity;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)

@@ -173,7 +173,7 @@ public class SaveLocation {
 		}
 	}
 
-	private static Context getContext() {
+	static Context getContext() {
 		try {
 			return (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);
 		} catch (Exception e) {
