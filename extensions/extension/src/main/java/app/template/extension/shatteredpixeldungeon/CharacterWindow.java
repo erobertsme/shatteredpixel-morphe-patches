@@ -336,7 +336,7 @@ public class CharacterWindow extends Window {
 
 		int hunger = StatusEditor.hungerState(hero);
 		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
-		if (HungerEditor.isAvailable()) {
+		if (EditorSwitches.hunger()) {
 			RedButton hungerSettings = new RedButton("Hunger settings", 6) {
 				@Override
 				public void onClick() {
@@ -364,7 +364,7 @@ public class CharacterWindow extends Window {
 			@Override
 			public void onClick() {
 				hide();
-				Game.scene().addToFront(new StatusPickerWindow(StatusPickerWindow.FAVORITES, 0));
+				StatusPickerWindow.openFor(Dungeon.hero, () -> open(TAB_STATUS, tier, page));
 			}
 		};
 		addStatus.setRect(half + GAP, pos, half, ROW_HEIGHT);

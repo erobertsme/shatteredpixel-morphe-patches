@@ -106,7 +106,7 @@ public final class BackpackEditor {
 	}
 
 	private static void addShortcut(Window window, boolean editing) {
-		if (!InventoryWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		if (!EditorSwitches.inventory() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
 		try {
 			Field selectorField = WndBag.class.getDeclaredField("selector");
 			selectorField.setAccessible(true);
@@ -195,7 +195,7 @@ public final class BackpackEditor {
 	 * Called before Item.actions returns.
 	 */
 	public static ArrayList<String> addEditAction(ArrayList<String> actions) {
-		if (actions == null || !InventoryWindow.isAvailable()) return actions;
+		if (actions == null || !EditorSwitches.inventory()) return actions;
 		if (!isOpenEditWindow(WndBag.INSTANCE)) return actions;
 		if (!actions.contains(ACTION_EDIT)) actions.add(ACTION_EDIT);
 		return actions;

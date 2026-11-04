@@ -153,10 +153,10 @@ public final class CloverlordMenu {
 
 			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
 			boolean inRun = Dungeon.hero != null && Dungeon.hero.isAlive();
-			if (inRun && CharacterWindow.isAvailable()) {
+			if (inRun && EditorSwitches.character()) {
 				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.openFrom(CloverlordMenu::showGameMenu, CharacterWindow.TAB_STATS, 1));
 			}
-			if (inRun && InventoryWindow.isAvailable()) {
+			if (inRun && EditorSwitches.inventory()) {
 				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
 			}
 			window.resize(width, height);
@@ -170,7 +170,10 @@ public final class CloverlordMenu {
 	 * an Edit button that opens the editor for the selected tab, and a Hunger button.
 	 */
 	public static void onHeroWindowCreated(Window window) {
-		if (!CharacterWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		boolean character = EditorSwitches.character();
+		boolean hunger = EditorSwitches.hunger();
+		if (!character && !hunger) return;
 		try {
 			Field widthField = Window.class.getDeclaredField("width");
 			Field heightField = Window.class.getDeclaredField("height");
@@ -179,11 +182,11 @@ public final class CloverlordMenu {
 			int width = widthField.getInt(window);
 			float y = heightField.getInt(window) + GAP;
 
-			boolean hunger = HungerEditor.isAvailable();
 			List<Gizmo> summary = new ArrayList<>();
 			if (hunger) y = addHungerSummary(window, width, y, summary) + 2 * GAP;
 
-			float editWidth = hunger ? (width - GAP) * 0.6f : width;
+			float editWidth = !character ? 0 : hunger ? (width - GAP) * 0.6f : width;
+			float hungerLeft = character ? editWidth + GAP : 0;
 			RedButton edit = new RedButton("Edit character", 7) {
 				private int shownTab = -1;
 
@@ -204,7 +207,7 @@ public final class CloverlordMenu {
 			};
 			edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
 			edit.setRect(0, y, editWidth, 16);
-			window.add(edit);
+			if (character) window.add(edit);
 
 			if (hunger) {
 				RedButton hungerButton = new RedButton("Hunger", 7) {
@@ -215,7 +218,7 @@ public final class CloverlordMenu {
 					}
 				};
 				hungerButton.icon(new ItemSprite(new Food()));
-				hungerButton.setRect(editWidth + GAP, y, width - editWidth - GAP, 16);
+				hungerButton.setRect(hungerLeft, y, width - hungerLeft, 16);
 				window.add(hungerButton);
 			}
 

@@ -323,3 +323,33 @@ object HungerActFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+private const val CHAR_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"
+
+object EnemyEditorAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/EnemyWindow;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object WndInfoMobConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoMob;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;"),
+)
+
+object CharStoreInBundleFingerprint : Fingerprint(
+	definingClass = CHAR_CLASS,
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)
+
+object CharRestoreFromBundleFingerprint : Fingerprint(
+	definingClass = CHAR_CLASS,
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)

@@ -18,9 +18,11 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
+
+	private static int page;
 
 	public CloverlordWindow() {
 		super();
@@ -38,7 +40,14 @@ public class CloverlordWindow extends Window {
 		add(version);
 		pos = version.bottom() + 2 * GAP;
 
-		if (HungerEditor.isAvailable()) {
+		if (EditorSwitches.anyAvailable()) addTabs();
+		if (page == 1) {
+			buildEditors();
+			resize(WIDTH, (int) pos);
+			return;
+		}
+
+		if (EditorSwitches.hunger()) {
 			addLabel("Gameplay");
 			addButton("Hunger", new ItemSprite(new Food()), () -> {
 				hide();
@@ -68,6 +77,49 @@ public class CloverlordWindow extends Window {
 		}
 
 		resize(WIDTH, (int) pos);
+	}
+
+	private void addTabs() {
+		String[] names = { "General", "Editors" };
+		float width = (WIDTH - GAP) / 2f;
+		for (int i = 0; i < names.length; i++) {
+			int index = i;
+			RedButton button = new RedButton(names[i], 7) {
+				@Override
+				public void onClick() {
+					if (index == page) return;
+					page = index;
+					hide();
+					CloverlordMenu.show();
+				}
+			};
+			if (i == page) button.textColor(TITLE_COLOR);
+			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
+			add(button);
+		}
+		pos += BTN_HEIGHT + 2 * GAP;
+	}
+
+	private void buildEditors() {
+		addLabel("Editors");
+		if (CharacterWindow.isAvailable()) addSwitch("Character editor", EditorSwitches.CHARACTER);
+		if (InventoryWindow.isAvailable()) addSwitch("Inventory editor", EditorSwitches.INVENTORY);
+		if (EnemyWindow.isAvailable()) addSwitch("Enemy and NPC editor", EditorSwitches.ENEMY);
+		if (HungerEditor.isAvailable()) addSwitch("Hunger editor", EditorSwitches.HUNGER);
+	}
+
+	private void addSwitch(String text, String key) {
+		CheckBox box = new CheckBox(text) {
+			@Override
+			public void onClick() {
+				super.onClick();
+				EditorSwitches.setOn(key, checked());
+			}
+		};
+		box.checked(EditorSwitches.isOn(key));
+		box.setRect(0, pos, WIDTH, BTN_HEIGHT);
+		add(box);
+		pos = box.bottom() + GAP;
 	}
 
 	private static Image exportIcon() {

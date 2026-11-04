@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -107,7 +108,7 @@ final class StatusEditor {
 		return entryKind == Buff.buffType.NEUTRAL;
 	}
 
-	static List<Buff> active(Hero hero) {
+	static List<Buff> active(Char hero) {
 		List<Buff> result = new ArrayList<>();
 		for (Buff buff : new ArrayList<>(hero.buffs())) {
 			if (buff instanceof Hunger) continue;
@@ -117,7 +118,7 @@ final class StatusEditor {
 		return result;
 	}
 
-	static boolean isActive(Hero hero, Class<? extends Buff> type) {
+	static boolean isActive(Char hero, Class<? extends Buff> type) {
 		for (Buff buff : hero.buffs()) {
 			if (buff.getClass() == type) return true;
 		}
@@ -133,14 +134,14 @@ final class StatusEditor {
 		refreshIndicator();
 	}
 
-	static void removeNegative(Hero hero) {
+	static void removeNegative(Char hero) {
 		for (Buff buff : active(hero)) {
 			if (buff.type == Buff.buffType.NEGATIVE) InfiniteStatuses.removeForever(buff);
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static void add(Hero hero, Class<? extends Buff> type, int duration) {
+	static void add(Char hero, Class<? extends Buff> type, int duration) {
 		try {
 			if (FlavourBuff.class.isAssignableFrom(type)) {
 				Buff.affect(hero, (Class) type, (float) duration);

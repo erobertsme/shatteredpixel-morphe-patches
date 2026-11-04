@@ -179,6 +179,7 @@ public final class HungerEditor {
 	 * Called before SaltCube.hungerGainMultiplier returns. Scales how fast hunger rises in the current stage.
 	 */
 	public static float adjustHungerGain(float value) {
+		if (!EditorSwitches.hunger()) return value;
 		if (isDisabled()) return 0f;
 		if (Dungeon.hero == null) return value;
 		float level = StatusEditor.hungerLevel(Dungeon.hero);
@@ -190,7 +191,7 @@ public final class HungerEditor {
 	 * Called at the start of Hero.damage. Returns true to ignore the game's own starvation damage.
 	 */
 	public static boolean blocksDamage(Object source) {
-		if (!(source instanceof Hunger) || dealingStarvingDamage) return false;
+		if (!(source instanceof Hunger) || dealingStarvingDamage || !EditorSwitches.hunger()) return false;
 		return isDisabled() || !starvingDamages() || usesCustomStarving();
 	}
 
@@ -199,7 +200,7 @@ public final class HungerEditor {
 	 */
 	public static void onHungerAct(Object hunger) {
 		Hero hero = Dungeon.hero;
-		if (!(hunger instanceof Hunger) || hero == null || !hero.isAlive()) return;
+		if (!(hunger instanceof Hunger) || hero == null || !hero.isAlive() || !EditorSwitches.hunger()) return;
 		if (isDisabled() || !starvingDamages() || !usesCustomStarving()) return;
 		if (Dungeon.level != null && Dungeon.level.locked) return;
 		if (!((Hunger) hunger).isStarving()) {
