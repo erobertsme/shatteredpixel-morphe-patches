@@ -1,3 +1,9 @@
+## [1.0.0-dev.25](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.24...v1.0.0-dev.25) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Stop the Char and Hunger load hooks from reading reused registers, which crashed the game ([f7e52b6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f7e52b67b1b0f071e4c0069a7cec2f4bd249d058))
+
 ## [1.0.0-dev.24](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.23...v1.0.0-dev.24) (2026-11-04)
 
 ### ✨ New Features
