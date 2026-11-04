@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-04T23:38:23",
-  "description": "## [1.0.0-dev.23](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.22...v1.0.0-dev.23) (2026-11-04)\n\n### ✨ New Features\n\n* Add enemy and NPC editor and on/off switches for each editor ([d7b15ca](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d7b15ca08072fde5b6bd80451aff49fe1887700c))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.23/patches-1.0.0-dev.23.mpp",
+  "created_at": "2026-11-04T23:44:38",
+  "description": "## [1.0.0-dev.24](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.23...v1.0.0-dev.24) (2026-11-04)\n\n### ✨ New Features\n\n* Make main menu hunger settings the default and save in-game changes to the current game ([75cf695](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/75cf695bb943a15cf5e3675d05db5a7eb799fed3))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.24/patches-1.0.0-dev.24.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.23"
+  "version": "1.0.0-dev.24"
 }

@@ -1,3 +1,9 @@
+## [1.0.0-dev.24](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.23...v1.0.0-dev.24) (2026-11-04)
+
+### ✨ New Features
+
+* Make main menu hunger settings the default and save in-game changes to the current game ([75cf695](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/75cf695bb943a15cf5e3675d05db5a7eb799fed3))
+
 ## [1.0.0-dev.23](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.22...v1.0.0-dev.23) (2026-11-04)
 
 ### ✨ New Features

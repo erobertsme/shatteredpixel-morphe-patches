@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.23",
+  "version": "1.0.0-dev.24",
   "patches": [
     {
       "name": "Character editor",
@@ -72,7 +72,7 @@
     },
     {
       "name": "Hunger editor",
-      "description": "Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger completely.",
+      "description": "Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game.",
       "default": true,
       "category": null,
       "compatiblePackages": [
