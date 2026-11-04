@@ -49,6 +49,9 @@ public final class HeroExtras {
 	private static final int[] mods = new int[Mod.values().length];
 	private static final int INFINITE_EVASION = 1_000_000;
 
+	private static Object bonusHero;
+	private static int bonusTier;
+
 	private HeroExtras() {
 	}
 
@@ -84,6 +87,7 @@ public final class HeroExtras {
 	public static void reset() {
 		for (int i = 0; i < bonusTalentPoints.length; i++) bonusTalentPoints[i] = 0;
 		resetMods();
+		InfiniteStatuses.reset();
 	}
 
 	/**
@@ -92,6 +96,7 @@ public final class HeroExtras {
 	public static void store(Bundle bundle) {
 		for (int tier = 1; tier <= TIERS; tier++) bundle.put(PREFIX + "talents_" + tier, bonusTalentPoints[tier]);
 		for (Mod mod : Mod.values()) bundle.put(PREFIX + mod.name().toLowerCase(), mods[mod.ordinal()]);
+		InfiniteStatuses.store(bundle);
 	}
 
 	/**
@@ -101,12 +106,24 @@ public final class HeroExtras {
 		reset();
 		for (int tier = 1; tier <= TIERS; tier++) bonusTalentPoints[tier] = bundle.getInt(PREFIX + "talents_" + tier);
 		for (Mod mod : Mod.values()) mods[mod.ordinal()] = bundle.getInt(PREFIX + mod.name().toLowerCase());
+		InfiniteStatuses.restore(bundle);
+	}
+
+	/**
+	 * Called at the start of Hero.bonusTalentPoints, which reuses its parameter registers before returning.
+	 */
+	public static void beforeBonusTalentPoints(Object hero, int tier) {
+		bonusHero = hero;
+		bonusTier = tier;
 	}
 
 	/**
 	 * Called before each return of Hero.bonusTalentPoints.
 	 */
-	public static int adjustBonusTalentPoints(int value, Object hero, int tier) {
+	public static int adjustBonusTalentPoints(int value) {
+		Object hero = bonusHero;
+		int tier = bonusTier;
+		bonusHero = null;
 		if (!(hero instanceof Hero) || hero != Dungeon.hero) return value;
 		if (tier < 1 || tier > TIERS) return value;
 		if (isTierLocked((Hero) hero, tier)) return value;

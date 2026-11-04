@@ -126,7 +126,7 @@ final class StatusEditor {
 
 	static void removeNegative(Hero hero) {
 		for (Buff buff : active(hero)) {
-			if (buff.type == Buff.buffType.NEGATIVE) remove(buff);
+			if (buff.type == Buff.buffType.NEGATIVE) InfiniteStatuses.removeForever(buff);
 		}
 	}
 
@@ -220,6 +220,19 @@ final class StatusEditor {
 	}
 
 	private static final String[] DURATION_FIELDS = { "left", "level" };
+
+	static boolean hasDurationField(Buff buff) {
+		return durationField(buff) != null;
+	}
+
+	static void keepScheduled(Buff buff) {
+		try {
+			Field time = Actor.class.getDeclaredField("time");
+			time.setAccessible(true);
+			time.setFloat(buff, Math.max(time.getFloat(buff), Actor.now() + 1));
+		} catch (Throwable ignored) {
+		}
+	}
 
 	static boolean isTurnsEditable(Buff buff) {
 		return buff instanceof FlavourBuff || durationField(buff) != null;

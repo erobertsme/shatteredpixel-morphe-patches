@@ -267,3 +267,17 @@ object TitleSceneUpdateFadeFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object CharRemoveBuffFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;",
+	name = "remove",
+	returnType = "Z",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Buff;"),
+)
+
+object HeroActFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "act",
+	returnType = "Z",
+	parameters = listOf(),
+)

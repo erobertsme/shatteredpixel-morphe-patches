@@ -5,6 +5,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGEON
 
 private const val EXTRAS_CLASS = "$EXTENSION_PACKAGE/HeroExtras;"
+private const val INFINITE_CLASS = "$EXTENSION_PACKAGE/InfiniteStatuses;"
 
 @Suppress("unused")
 val characterEditorPatch = bytecodePatch(
@@ -23,7 +24,8 @@ val characterEditorPatch = bytecodePatch(
 		HeroStoreInBundleFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->store(Lcom/watabou/utils/Bundle;)V")
 		HeroRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->restore(Lcom/watabou/utils/Bundle;)V")
 
-		HeroBonusTalentPointsFingerprint.adjustReturns("$EXTRAS_CLASS->adjustBonusTalentPoints(ILjava/lang/Object;I)I", "p0, p1")
+		HeroBonusTalentPointsFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $EXTRAS_CLASS->beforeBonusTalentPoints(Ljava/lang/Object;I)V")
+		HeroBonusTalentPointsFingerprint.adjustReturns("$EXTRAS_CLASS->adjustBonusTalentPoints(I)I")
 		HeroAttackSkillFingerprint.adjustReturns("$EXTRAS_CLASS->adjustAccuracy(I)I")
 		HeroDefenseSkillFingerprint.adjustReturns("$EXTRAS_CLASS->adjustEvasion(I)I")
 		HeroDamageRollFingerprint.adjustReturns("$EXTRAS_CLASS->adjustDamage(I)I")
@@ -31,5 +33,9 @@ val characterEditorPatch = bytecodePatch(
 		HeroAttackDelayFingerprint.adjustReturns("$EXTRAS_CLASS->adjustAttackDelay(F)F")
 		HeroSpeedFingerprint.adjustReturns("$EXTRAS_CLASS->adjustMoveSpeed(F)F")
 		SaltCubeRegenFingerprint.adjustReturns("$EXTRAS_CLASS->adjustRegen(F)F")
+
+		CharRemoveBuffFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $INFINITE_CLASS->beforeRemove(Ljava/lang/Object;Ljava/lang/Object;)V")
+		CharRemoveBuffFingerprint.adjustReturns("$INFINITE_CLASS->afterRemove(Z)Z")
+		HeroActFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p0 }, $INFINITE_CLASS->onHeroAct(Ljava/lang/Object;)V")
 	}
 }

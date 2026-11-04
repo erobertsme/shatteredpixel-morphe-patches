@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -25,6 +26,7 @@ public class StatusPickerWindow extends Window {
 	private static final String[] KIND_NAMES = { "Positive", "Negative", "Other" };
 
 	private static int duration = 20;
+	private static boolean infinite;
 
 	private final Buff.buffType kind;
 	private final int page;
@@ -58,6 +60,7 @@ public class StatusPickerWindow extends Window {
 		pos += ROW_HEIGHT + 2 * GAP;
 
 		addDuration();
+		addInfinite();
 
 		List<StatusEditor.Entry> entries = StatusEditor.catalog(kind);
 		int perPage = PixelScene.landscape() ? 4 : 7;
@@ -113,6 +116,20 @@ public class StatusPickerWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
+	private void addInfinite() {
+		CheckBox box = new CheckBox("Infinite") {
+			@Override
+			public void onClick() {
+				super.onClick();
+				infinite = checked();
+			}
+		};
+		box.checked(infinite);
+		box.setRect(0, pos, WIDTH, ROW_HEIGHT);
+		add(box);
+		pos += ROW_HEIGHT + GAP;
+	}
+
 	private void addStep(String label, float x, int delta) {
 		RedButton button = new RedButton(label) {
 			@Override
@@ -141,6 +158,7 @@ public class StatusPickerWindow extends Window {
 			@Override
 			public void onClick() {
 				StatusEditor.add(hero, entry.type, duration);
+				if (infinite) InfiniteStatuses.pin(entry.type, duration);
 				back();
 			}
 
