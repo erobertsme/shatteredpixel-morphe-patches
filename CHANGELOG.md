@@ -1,3 +1,9 @@
+## [1.0.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.10...v1.0.0-dev.11) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Remove duplicate statuses from the add status list ([0255b20](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0255b20566d01d32e6eb91e801f7c0168d3b6ba1))
+
 ## [1.0.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.9...v1.0.0-dev.10) (2026-11-04)
 
 ### 🐛 Bug Fixes
