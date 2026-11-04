@@ -85,12 +85,28 @@ public class CharacterWindow extends Window {
 			@Override
 			public void onClick() {
 				hide();
-				Game.scene().addToFront(new WndGame());
+				Runnable action = backAction;
+				backAction = null;
+				if (action != null) {
+					action.run();
+				} else {
+					Game.scene().addToFront(new WndGame());
+				}
 			}
 		};
 		back.setRect(0, pos, WIDTH, ROW_HEIGHT);
 		add(back);
 		pos += ROW_HEIGHT;
+	}
+
+	private static Runnable backAction;
+
+	/**
+	 * Opens the editor and remembers where its Back button returns to.
+	 */
+	public static void openFrom(Runnable back, int tab, int tier) {
+		backAction = back;
+		open(tab, tier);
 	}
 
 	/**
@@ -309,7 +325,10 @@ public class CharacterWindow extends Window {
 		int current = Math.min(page, pages - 1);
 		int end = Math.min(active.size(), (current + 1) * perPage);
 		for (int i = current * perPage; i < end; i++) addStatusRow(active.get(i));
-		if (pages > 1) addPager(current, pages, this::reopenPage);
+		if (pages > 1) {
+			pos += (perPage - (end - current * perPage)) * (ROW_HEIGHT + GAP);
+			addPager(current, pages, this::reopenPage);
+		}
 
 		int hunger = StatusEditor.hungerState(hero);
 		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
@@ -341,7 +360,7 @@ public class CharacterWindow extends Window {
 			@Override
 			public void onClick() {
 				hide();
-				Game.scene().addToFront(new StatusPickerWindow(Buff.buffType.POSITIVE, 0));
+				Game.scene().addToFront(new StatusPickerWindow(StatusPickerWindow.FAVORITES, 0));
 			}
 		};
 		addStatus.setRect(half + GAP, pos, half, ROW_HEIGHT);

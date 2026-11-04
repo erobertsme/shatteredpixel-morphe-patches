@@ -91,13 +91,20 @@ final class StatusEditor {
 		return type.getName().contains("Cooldown") || lowerName.contains("cooldown") || lowerName.contains("cool down");
 	}
 
-	static List<Entry> catalog(Buff.buffType kind) {
+	static List<Entry> catalog(int kind) {
 		List<Entry> result = new ArrayList<>();
 		for (Entry entry : catalog()) {
-			Buff.buffType entryKind = entry.kind == null ? Buff.buffType.NEUTRAL : entry.kind;
-			if (entryKind == kind) result.add(entry);
+			if (matches(entry, kind)) result.add(entry);
 		}
 		return result;
+	}
+
+	private static boolean matches(Entry entry, int kind) {
+		if (kind == StatusPickerWindow.FAVORITES) return Favorites.isStatus(entry.type);
+		Buff.buffType entryKind = entry.kind == null ? Buff.buffType.NEUTRAL : entry.kind;
+		if (kind == StatusPickerWindow.POSITIVE) return entryKind == Buff.buffType.POSITIVE;
+		if (kind == StatusPickerWindow.NEGATIVE) return entryKind == Buff.buffType.NEGATIVE;
+		return entryKind == Buff.buffType.NEUTRAL;
 	}
 
 	static List<Buff> active(Hero hero) {

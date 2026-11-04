@@ -38,8 +38,17 @@ public final class BackpackEditor {
 	private static boolean pendingEditWindow;
 	private static boolean openingEditWindow;
 	private static boolean switchingEditTab;
+	private static Runnable backAction;
 
 	private BackpackEditor() {
+	}
+
+	/**
+	 * Opens the backpack editor and remembers where its Back button returns to.
+	 */
+	public static void open(Runnable back) {
+		backAction = back;
+		open();
 	}
 
 	public static void open() {
@@ -110,7 +119,7 @@ public final class BackpackEditor {
 					if (editing) {
 						ItemPickerWindow.openFromBackpack();
 					} else {
-						open();
+						open(() -> Game.scene().addToFront(new WndBag(Dungeon.hero.belongings.backpack)));
 					}
 				}
 			};
@@ -167,7 +176,13 @@ public final class BackpackEditor {
 			@Override
 			public void onClick() {
 				window.hide();
-				InventoryWindow.open();
+				Runnable action = backAction;
+				backAction = null;
+				if (action != null) {
+					action.run();
+				} else {
+					InventoryWindow.open();
+				}
 			}
 		};
 		back.textColor(EDIT_COLOR);

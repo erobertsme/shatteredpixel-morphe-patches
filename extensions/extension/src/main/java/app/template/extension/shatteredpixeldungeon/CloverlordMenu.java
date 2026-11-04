@@ -4,10 +4,15 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
@@ -148,7 +153,7 @@ public final class CloverlordMenu {
 			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
 			boolean inRun = Dungeon.hero != null && Dungeon.hero.isAlive();
 			if (inRun && CharacterWindow.isAvailable()) {
-				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.open(CharacterWindow.TAB_STATS, 1));
+				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.openFrom(CloverlordMenu::showGameMenu, CharacterWindow.TAB_STATS, 1));
 			}
 			if (inRun && InventoryWindow.isAvailable()) {
 				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
@@ -160,8 +165,8 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of the WndHero constructor. Adds an Edit button that opens the editor for the selected tab,
-	 * and a Hunger button when the Hunger editor patch is applied.
+	 * Called at the end of the WndHero constructor. Adds a hunger summary when the Hunger editor patch is applied,
+	 * an Edit button that opens the editor for the selected tab, and a Hunger button.
 	 */
 	public static void onHeroWindowCreated(Window window) {
 		if (!CharacterWindow.isAvailable() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
@@ -171,20 +176,31 @@ public final class CloverlordMenu {
 			widthField.setAccessible(true);
 			heightField.setAccessible(true);
 			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
+			float y = heightField.getInt(window) + GAP;
 
 			boolean hunger = HungerEditor.isAvailable();
-			float editWidth = hunger ? (width - GAP) * 0.6f : width;
+			if (hunger) y = addHungerSummary(window, width, y);
 
+			float editWidth = hunger ? (width - GAP) * 0.6f : width;
 			RedButton edit = new RedButton("Edit character", 7) {
+				private int shownTab = -1;
+
+				@Override
+				public void update() {
+					super.update();
+					if (shownTab == WndHero.lastIdx) return;
+					shownTab = WndHero.lastIdx;
+					icon(Icons.get(tabIcon(shownTab)));
+				}
+
 				@Override
 				public void onClick() {
 					window.hide();
-					CharacterWindow.open(editorTabFor(WndHero.lastIdx), 1);
+					CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
 				}
 			};
-			edit.icon(Icons.get(Icons.STATS));
-			edit.setRect(0, height + GAP, editWidth, 16);
+			edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
+			edit.setRect(0, y, editWidth, 16);
 			window.add(edit);
 
 			if (hunger) {
@@ -192,17 +208,49 @@ public final class CloverlordMenu {
 					@Override
 					public void onClick() {
 						window.hide();
-						HungerWindow.open(null);
+						HungerWindow.open(CloverlordMenu::showHeroWindow);
 					}
 				};
-				hungerButton.setRect(editWidth + GAP, height + GAP, width - editWidth - GAP, 16);
+				hungerButton.icon(new ItemSprite(new Food()));
+				hungerButton.setRect(editWidth + GAP, y, width - editWidth - GAP, 16);
 				window.add(hungerButton);
 			}
 
-			window.resize(width, height + GAP + 16);
+			window.resize(width, (int) (y + 16));
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the hero window buttons", e);
 		}
+	}
+
+	private static float addHungerSummary(Window window, int width, float y) {
+		RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
+		title.hardlight(0xFFFF44);
+		title.setPos(0, y);
+		window.add(title);
+		y = title.bottom() + 2;
+
+		boolean disabled = HungerEditor.isDisabled();
+		y = HungerWindow.addHungerBar(window, 0, y, width, HungerEditor.notHungryTurns(), HungerEditor.hungryTurns(), disabled) + 2;
+
+		RenderedTextBlock starving = PixelScene.renderTextBlock("Starving: " + HungerEditor.describeStarving(HungerEditor.maxHealth()), 6);
+		starving.maxWidth(width);
+		starving.setPos(0, y);
+		window.add(starving);
+		return starving.bottom() + GAP + 2;
+	}
+
+	private static Icons tabIcon(int heroTab) {
+		if (heroTab == 1) return Icons.TALENT;
+		if (heroTab == 2) return Icons.BUFFS;
+		return Icons.RANKINGS;
+	}
+
+	static void showGameMenu() {
+		Game.scene().addToFront(new WndGame());
+	}
+
+	static void showHeroWindow() {
+		Game.scene().addToFront(new WndHero());
 	}
 
 	private static int editorTabFor(int heroTab) {

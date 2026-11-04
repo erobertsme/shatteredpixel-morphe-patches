@@ -12,6 +12,7 @@ public final class CloverlordSettings {
 	private static final String PREFS = "cloverlord";
 	private static final Map<String, Boolean> cache = new HashMap<>();
 	private static final Map<String, Integer> intCache = new HashMap<>();
+	private static final Map<String, String> stringCache = new HashMap<>();
 
 	private CloverlordSettings() {
 	}
@@ -48,6 +49,21 @@ public final class CloverlordSettings {
 		SharedPreferences prefs = prefs();
 		if (prefs == null) return;
 		prefs.edit().putInt(key, value).apply();
+	}
+
+	public static synchronized String getString(String key) {
+		if (stringCache.containsKey(key)) return stringCache.get(key);
+		SharedPreferences prefs = prefs();
+		String value = prefs == null ? null : prefs.getString(key, null);
+		stringCache.put(key, value);
+		return value;
+	}
+
+	public static synchronized void setString(String key, String value) {
+		stringCache.put(key, value);
+		SharedPreferences prefs = prefs();
+		if (prefs == null) return;
+		prefs.edit().putString(key, value).apply();
 	}
 
 	private static SharedPreferences prefs() {

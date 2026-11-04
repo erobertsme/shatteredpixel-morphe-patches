@@ -41,22 +41,29 @@ public class ItemPickerWindow extends EditorWindow {
 		addStepper("Level", (level >= 0 ? "+" : "") + level, level, 1, -5, 99, value -> level = Math.max(-5, Math.min(99, value)));
 		addStepper("Quantity", String.valueOf(quantity), quantity, 1, 1, 9999, value -> quantity = Math.max(1, Math.min(9999, value)));
 
+		pos += GAP;
 		List<InventoryEditor.Entry> entries = InventoryEditor.catalog(category);
-		int perPage = perPage(6, 3);
-		int pages = pageCount(entries.size(), perPage);
-		int shown = Math.min(page, pages - 1);
-		int end = Math.min(entries.size(), (shown + 1) * perPage);
-		for (int i = shown * perPage; i < end; i++) {
-			InventoryEditor.Entry entry = entries.get(i);
+		if (entries.isEmpty()) addHint("No favorites yet. Tap the heart next to an item to add it here.");
+		addPagedList(entries.size(), perPage(6, 3), page, index -> {
+			InventoryEditor.Entry entry = entries.get(index);
 			Item sample = sample(entry);
 			addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> {
 				InventoryEditor.add(hero, entry.type, level, quantity);
 				refresh();
-			}, sample == null ? null : () -> InventoryWindow.showInfo(sample));
-		}
-		addPager(shown, pages, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+			}, sample == null ? null : () -> InventoryWindow.showInfo(sample), new Favorite() {
+				@Override
+				public boolean isFavorite() {
+					return Favorites.isItem(entry.type);
+				}
 
-		addHint("Tap to add (identified). Level applies to upgradable items and trinkets, quantity to stackable ones. A full backpack drops it at your feet.");
+				@Override
+				public void toggle() {
+					Favorites.toggleItem(entry.type);
+				}
+			});
+		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+
+		addHint("Tap to add (identified). The heart adds it to Favorites. Level applies to upgradable items and trinkets, quantity to stackable ones.");
 		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();
@@ -64,12 +71,12 @@ public class ItemPickerWindow extends EditorWindow {
 
 	public static void openFromBackpack() {
 		returnToBackpack = true;
-		show(new ItemPickerWindow(InventoryEditor.Category.WEAPONS, 0));
+		show(new ItemPickerWindow(InventoryEditor.Category.FAVORITES, 0));
 	}
 
 	public static void openFromInventory() {
 		returnToBackpack = false;
-		show(new ItemPickerWindow(InventoryEditor.Category.WEAPONS, 0));
+		show(new ItemPickerWindow(InventoryEditor.Category.FAVORITES, 0));
 	}
 
 	private void back() {

@@ -11,7 +11,9 @@ public enum Icons {
 	STATS,
 	SHUFFLE,
 	INFO,
-	BACKPACK;
+	BACKPACK,
+	RANKINGS,
+	BUFFS;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

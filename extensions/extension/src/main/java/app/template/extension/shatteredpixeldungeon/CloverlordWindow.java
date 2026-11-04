@@ -1,14 +1,13 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
-import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Image;
 
@@ -18,6 +17,7 @@ public class CloverlordWindow extends Window {
 	private static final int BTN_HEIGHT = 18;
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
+	private static final int UPGRADE_ICON = 50;
 
 	private float pos;
 
@@ -61,11 +61,17 @@ public class CloverlordWindow extends Window {
 
 		if (SaveBackupActivity.isAvailable()) {
 			addLabel("Saves");
-			addButton("Export saves", new TalentIcon(Talent.ENHANCED_RINGS), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
+			addButton("Export saves", exportIcon(), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
 			addButton("Import saves", Icons.CHANGES, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_IMPORT));
 		}
 
 		resize(WIDTH, (int) pos);
+	}
+
+	private static Image exportIcon() {
+		BuffIcon icon = new BuffIcon(UPGRADE_ICON, true);
+		icon.hardlight(0f, 1f, 0f);
+		return icon;
 	}
 
 	private void addTierButtons() {

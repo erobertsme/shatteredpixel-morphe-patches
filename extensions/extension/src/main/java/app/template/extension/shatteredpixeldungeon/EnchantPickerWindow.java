@@ -29,16 +29,11 @@ public class EnchantPickerWindow extends EditorWindow {
 		if (!curses) addListRow("None", null, current == null, true, () -> apply(null), null);
 
 		List<Object> options = InventoryEditor.enchantments(armor, curses);
-		int perPage = perPage(6, 3);
-		int pages = pageCount(options.size(), perPage);
-		int shown = Math.min(page, pages - 1);
-		int end = Math.min(options.size(), (shown + 1) * perPage);
-		for (int i = shown * perPage; i < end; i++) {
-			Object option = options.get(i);
+		addPagedList(options.size(), perPage(6, 3), page, index -> {
+			Object option = options.get(index);
 			boolean selected = current != null && current.getClass() == option.getClass();
 			addListRow(InventoryEditor.enchantmentName(option), null, selected, true, () -> apply(option), () -> showInfo(option));
-		}
-		addPager(shown, pages, newPage -> replaceWith(new EnchantPickerWindow(item, armor, curses, newPage)));
+		}, newPage -> replaceWith(new EnchantPickerWindow(item, armor, curses, newPage)));
 
 		addHint("Tap to apply. Tap i or long-press to read it.");
 		addButton("Back", 0, WIDTH, this::back);

@@ -4,16 +4,19 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Group;
 
 public class HungerWindow extends EditorWindow {
 
-	private static final int NOT_HUNGRY_COLOR = 0xFF7AD35C;
-	private static final int HUNGRY_COLOR = 0xFFE8C547;
-	private static final int STARVING_COLOR = 0xFFE06A5A;
+	static final int NOT_HUNGRY_COLOR = 0xFF7AD35C;
+	static final int HUNGRY_COLOR = 0xFFE8C547;
+	static final int STARVING_COLOR = 0xFFE06A5A;
 	private static final int BAR_HEIGHT = 8;
-	private static final int STARVING_SHARE = 60;
+	private static final String[] TABS = { "Stages", "Starving" };
+	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 
 	private static Runnable backAction;
+	private static int tab;
 
 	public static void open(Runnable back) {
 		backAction = back;
@@ -26,58 +29,129 @@ public class HungerWindow extends EditorWindow {
 
 		addTitle("Hunger");
 		addCheckBox("Disable hunger", disabled, () -> HungerEditor.setDisabled(!HungerEditor.isDisabled()));
-		addHint("Your hero never gets hungry. Turn it off again and hunger continues from where it was.");
+		addButtonRow(TABS, tab, index -> {
+			tab = index;
+			refresh();
+		});
+		pos += GAP;
 
-		addSection("Stage lengths");
-		int notHungry = HungerEditor.notHungryTurns();
-		int hungry = HungerEditor.hungryTurns();
-		addStepper("Not hungry", notHungry + " turns", notHungry, 10, HungerEditor.MIN_TURNS, HungerEditor.MAX_TURNS, HungerEditor::setNotHungryTurns, !disabled);
-		addStepper("Hungry", hungry + " turns", hungry, 10, HungerEditor.MIN_TURNS, HungerEditor.MAX_TURNS, HungerEditor::setHungryTurns, !disabled);
-		addBar(notHungry, hungry, disabled);
-		addHint("Turns from eating to Hungry, and from Hungry to Starving. Game defaults: 300 and 150. Food keeps its normal value, so longer stages make meals last longer.");
-
-		addSection("Starving");
-		boolean damages = HungerEditor.starvingDamages();
-		addCheckBox("Starving causes damage", damages, () -> HungerEditor.setStarvingDamages(!HungerEditor.starvingDamages()), !disabled);
-		int interval = HungerEditor.starvingInterval();
-		int amount = HungerEditor.starvingAmount();
-		addStepper("Damage every", interval == 0 ? "Default" : interval + " turns", interval, 1, 0, HungerEditor.MAX_STARVE_INTERVAL, HungerEditor::setStarvingInterval, !disabled && damages);
-		addStepper("Damage", amount == 0 ? "Default" : String.valueOf(amount), amount, 1, 0, HungerEditor.MAX_STARVE_AMOUNT, HungerEditor::setStarvingAmount, !disabled && damages);
-		addHint("Default: 1 damage roughly every 1000 / max health turns. 0 keeps the default.");
+		if (tab == 0) {
+			buildStages(disabled);
+		} else {
+			buildStarving(disabled);
+		}
 
 		float half = (WIDTH - GAP) / 2f;
-		addButton("Reset to defaults", 0, half, () -> {
+		addButton("Reset all", 0, half, () -> {
 			HungerEditor.resetDefaults();
 			refresh();
 		});
 		addButton("Back", half + GAP, half, this::back);
 		pos += ROW_HEIGHT + GAP;
-
-		addHint("Settings apply to every run. Shadows, the Salt Cube and other hunger effects still stack on top.");
+		addHint("Settings apply to every run. Shadows, the Salt Cube and other hunger effects still apply on top.");
 		finish();
 	}
 
-	private void addBar(int notHungry, int hungry, boolean disabled) {
-		float total = notHungry + hungry + STARVING_SHARE * (notHungry + hungry) / 450f;
-		float x = 0;
-		x = addSegment(x, WIDTH * notHungry / total, NOT_HUNGRY_COLOR, disabled);
-		x = addSegment(x, WIDTH * hungry / total, HUNGRY_COLOR, disabled);
-		addSegment(x, WIDTH - x, STARVING_COLOR, disabled);
-		pos += BAR_HEIGHT + GAP;
+	private void buildStages(boolean disabled) {
+		addPresetRow(disabled, HungerEditor::resetStages, HungerEditor::applyStagePreset);
 
-		RenderedTextBlock legend = PixelScene.renderTextBlock("Not hungry - Hungry - Starving", 6);
-		legend.hardlight(CharacterWindow.DIM_COLOR);
-		legend.setPos((WIDTH - legend.width()) / 2f, pos);
-		add(legend);
-		pos = legend.bottom() + 2 * GAP;
+		int notHungry = HungerEditor.notHungryTurns();
+		int hungry = HungerEditor.hungryTurns();
+		addStepper("Not hungry", notHungry + " turns", notHungry, 10, HungerEditor.MIN_TURNS, HungerEditor.MAX_TURNS,
+			HungerEditor::setNotHungryTurns, !disabled, () -> HungerEditor.setNotHungryTurns(HungerEditor.DEFAULT_NOT_HUNGRY));
+		addStepper("Hungry", hungry + " turns", hungry, 10, HungerEditor.MIN_TURNS, HungerEditor.MAX_TURNS,
+			HungerEditor::setHungryTurns, !disabled, () -> HungerEditor.setHungryTurns(HungerEditor.DEFAULT_HUNGRY));
+
+		pos += GAP;
+		pos = addHungerBar(this, 0, pos, WIDTH, notHungry, hungry, disabled) + GAP;
+		addHint("Turns from eating until Hungry, then from Hungry until Starving. Defaults are 300 and 150. The percentage buttons make hunger rise at that rate of normal. Food keeps its normal value.");
 	}
 
-	private float addSegment(float x, float width, int color, boolean disabled) {
+	private void buildStarving(boolean disabled) {
+		boolean damages = HungerEditor.starvingDamages();
+		boolean enabled = !disabled && damages;
+		addCheckBox("Starving causes damage", damages, () -> HungerEditor.setStarvingDamages(!HungerEditor.starvingDamages()), !disabled);
+
+		boolean fixed = HungerEditor.usesFixedInterval();
+		addButtonRow(new String[] { "Formula", "Fixed" }, fixed ? 1 : 0, index -> {
+			HungerEditor.setUsesFixedInterval(index == 1);
+			refresh();
+		});
+
+		if (fixed) {
+			int interval = HungerEditor.fixedInterval();
+			addStepper("Every", interval + " turns", interval, 1, 1, HungerEditor.MAX_INTERVAL,
+				HungerEditor::setFixedInterval, enabled, () -> HungerEditor.setFixedInterval(Math.round(HungerEditor.defaultInterval(HungerEditor.maxHealth()))));
+		} else {
+			int formula = HungerEditor.formula();
+			addStepper("Formula", String.valueOf(formula), formula, 10, HungerEditor.MIN_FORMULA, HungerEditor.MAX_FORMULA,
+				HungerEditor::setFormula, enabled, () -> HungerEditor.setFormula(HungerEditor.DEFAULT_FORMULA));
+		}
+		int amount = HungerEditor.damageAmount();
+		addStepper("Damage", String.valueOf(amount), amount, 1, 1, HungerEditor.MAX_AMOUNT,
+			HungerEditor::setDamageAmount, enabled, () -> HungerEditor.setDamageAmount(HungerEditor.DEFAULT_AMOUNT));
+
+		addPresetRow(!enabled, HungerEditor::resetStarving, HungerEditor::applyStarvingPreset);
+
+		int maxHealth = HungerEditor.maxHealth();
+		RenderedTextBlock result = PixelScene.renderTextBlock("Now: " + HungerEditor.describeStarving(maxHealth) + " (" + maxHealth + " max health)", 6);
+		result.maxWidth(WIDTH);
+		result.hardlight(CharacterWindow.TITLE_COLOR);
+		result.setPos(0, pos + GAP);
+		add(result);
+		pos = result.bottom() + 2 * GAP;
+
+		if (fixed) {
+			addHint("Fixed: you take damage every set number of turns, whatever your max health. Its reset uses the game's default for your max health. The percentage buttons switch back to Formula.");
+		} else {
+			addHint("Formula: turns between hits = formula / max health. The game uses 1000, so with 50 max health you take damage every 20 turns. A higher formula means longer between hits.");
+		}
+	}
+
+	interface Preset {
+		void apply(float rate);
+	}
+
+	private void addPresetRow(boolean disabled, Runnable reset, Preset preset) {
+		float width = (WIDTH - (PRESET_LABELS.length - 1) * GAP) / (float) PRESET_LABELS.length;
+		for (int i = 0; i < PRESET_LABELS.length; i++) {
+			int index = i;
+			addButton(PRESET_LABELS[i], i * (width + GAP), width, () -> {
+				if (index == 0) {
+					reset.run();
+				} else {
+					preset.apply(HungerEditor.PRESETS[index - 1]);
+				}
+				refresh();
+			}).enable(!disabled);
+		}
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	/**
+	 * Draws the hunger stage bar and its legend into [group]. Returns the bottom of the legend.
+	 */
+	static float addHungerBar(Group group, float x, float y, float width, int notHungry, int hungry, boolean disabled) {
+		float starvingShare = (notHungry + hungry) * 0.15f;
+		float total = notHungry + hungry + starvingShare;
+		float left = x;
+		left = addSegment(group, left, y, width * notHungry / total, NOT_HUNGRY_COLOR, disabled);
+		left = addSegment(group, left, y, width * hungry / total, HUNGRY_COLOR, disabled);
+		addSegment(group, left, y, x + width - left, STARVING_COLOR, disabled);
+
+		RenderedTextBlock legend = PixelScene.renderTextBlock("Not hungry " + notHungry + " - Hungry " + hungry + " - Starving", 6);
+		legend.hardlight(CharacterWindow.DIM_COLOR);
+		legend.setPos(x + (width - legend.width()) / 2f, y + BAR_HEIGHT + 2);
+		group.add(legend);
+		return legend.bottom();
+	}
+
+	private static float addSegment(Group group, float x, float y, float width, int color, boolean disabled) {
 		ColorBlock block = new ColorBlock(Math.max(1, width), BAR_HEIGHT, color);
 		block.x = x;
-		block.y = pos;
+		block.y = y;
 		if (disabled) block.alpha(0.3f);
-		add(block);
+		group.add(block);
 		return x + width;
 	}
 

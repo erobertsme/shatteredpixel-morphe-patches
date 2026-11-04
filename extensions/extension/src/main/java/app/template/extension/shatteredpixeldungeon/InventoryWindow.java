@@ -38,7 +38,7 @@ public class InventoryWindow extends EditorWindow {
 
 		addButton("Open backpack", 0, WIDTH, () -> {
 			hide();
-			BackpackEditor.open();
+			BackpackEditor.open(InventoryWindow::open);
 		});
 		pos += ROW_HEIGHT + GAP;
 

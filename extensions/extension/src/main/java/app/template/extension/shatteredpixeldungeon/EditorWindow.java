@@ -1,6 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -20,6 +21,10 @@ abstract class EditorWindow extends Window {
 	static final int GAP = CharacterWindow.GAP;
 	static final int INFO_SIZE = CharacterWindow.INFO_SIZE;
 	private static final int STEP_WIDTH = 15;
+	private static final int FAVORITE_SIZE = 14;
+	private static final int RESET_SIZE = 14;
+	private static final int ROW_PADDING = 3;
+	private static final int HEART_ICON = 21;
 	private static final int VALUE_WIDTH = 40;
 
 	interface IntSetter {
@@ -65,12 +70,34 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled) {
+		addStepper(label, display, current, step, min, max, setter, enabled, null);
+	}
+
+	/**
+	 * A stepper row. When [onReset] is given, a small reset button at the end of the row restores that one value.
+	 */
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled, Runnable onReset) {
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
 		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
 		if (!enabled) text.alpha(0.3f);
 		add(text);
 
-		float x = WIDTH - 2 * STEP_WIDTH - VALUE_WIDTH - 2 * GAP;
+		float right = WIDTH;
+		if (onReset != null) {
+			IconButton reset = new IconButton(Icons.get(Icons.CHANGES)) {
+				@Override
+				public void onClick() {
+					onReset.run();
+					refresh();
+				}
+			};
+			reset.setRect(WIDTH - RESET_SIZE, pos, RESET_SIZE, ROW_HEIGHT);
+			reset.enable(enabled);
+			add(reset);
+			right = WIDTH - RESET_SIZE - GAP;
+		}
+
+		float x = right - 2 * STEP_WIDTH - VALUE_WIDTH - 2 * GAP;
 		addStepButton("-", x, current, -step, setter).enable(enabled);
 
 		RedButton value = new RedButton(display, 6) {
@@ -153,8 +180,36 @@ abstract class EditorWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
+	interface Favorite {
+		boolean isFavorite();
+
+		void toggle();
+	}
+
 	protected void addListRow(String label, Image icon, boolean highlighted, boolean enabled, Runnable onClick, Runnable onInfo) {
-		RedButton button = new RedButton(label, 6) {
+		addListRow(label, icon, highlighted, enabled, onClick, onInfo, null);
+	}
+
+	protected void addListRow(String label, Image icon, boolean highlighted, boolean enabled, Runnable onClick, Runnable onInfo, Favorite favorite) {
+		float x = 0;
+		if (favorite != null) {
+			boolean favorited = favorite.isFavorite();
+			BuffIcon heart = new BuffIcon(HEART_ICON, true);
+			if (!favorited) heart.alpha(0.3f);
+			IconButton heartButton = new IconButton(heart) {
+				@Override
+				public void onClick() {
+					favorite.toggle();
+					refresh();
+				}
+			};
+			heartButton.setRect(0, pos, FAVORITE_SIZE, ROW_HEIGHT);
+			add(heartButton);
+			x = FAVORITE_SIZE + GAP;
+		}
+
+		float width = (onInfo == null ? WIDTH : WIDTH - INFO_SIZE - GAP) - x;
+		RedButton button = new RedButton("") {
 			@Override
 			public void onClick() {
 				onClick.run();
@@ -167,12 +222,25 @@ abstract class EditorWindow extends Window {
 				return true;
 			}
 		};
-		if (icon != null) button.icon(icon);
-		if (highlighted) button.textColor(CharacterWindow.TITLE_COLOR);
-		float width = onInfo == null ? WIDTH : WIDTH - INFO_SIZE - GAP;
-		button.setRect(0, pos, width, ROW_HEIGHT);
+		button.setRect(x, pos, width, ROW_HEIGHT);
 		button.enable(enabled);
 		add(button);
+
+		float textLeft = x + ROW_PADDING;
+		if (icon != null) {
+			icon.x = x + ROW_PADDING;
+			icon.y = pos + (ROW_HEIGHT - icon.height()) / 2f;
+			if (!enabled) icon.alpha(0.3f);
+			add(icon);
+			textLeft = icon.x + icon.width() + ROW_PADDING;
+		}
+
+		RenderedTextBlock text = PixelScene.renderTextBlock(label, 6);
+		text.maxWidth((int) (x + width - textLeft - ROW_PADDING));
+		if (highlighted) text.hardlight(CharacterWindow.TITLE_COLOR);
+		if (!enabled) text.alpha(0.3f);
+		text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
+		add(text);
 
 		if (onInfo != null) {
 			IconButton info = new IconButton(Icons.get(Icons.INFO)) {
@@ -187,8 +255,29 @@ abstract class EditorWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
+	interface RowRenderer {
+		void render(int index);
+	}
+
+	/**
+	 * Shows one page of a list. The page always takes the height of a full page plus the page buttons,
+	 * so the window keeps its size when a page has fewer rows.
+	 */
+	protected void addPagedList(int count, int perPage, int page, RowRenderer renderer, PageOpener opener) {
+		int pages = pageCount(count, perPage);
+		int current = Math.min(page, pages - 1);
+		int start = current * perPage;
+		int end = Math.min(count, start + perPage);
+		for (int i = start; i < end; i++) renderer.render(i);
+		pos += (perPage - (end - start)) * (ROW_HEIGHT + GAP);
+		addPager(current, pages, opener);
+	}
+
 	protected void addPager(int current, int pages, PageOpener opener) {
-		if (pages <= 1) return;
+		if (pages <= 1) {
+			pos += ROW_HEIGHT + GAP;
+			return;
+		}
 		addButton("<", 0, 24, () -> opener.open((current + pages - 1) % pages));
 		RenderedTextBlock label = PixelScene.renderTextBlock("Page " + (current + 1) + " / " + pages, 6);
 		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);

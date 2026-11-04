@@ -31,6 +31,7 @@ final class InventoryEditor {
 	private static final String TAG = "InventoryEditor";
 
 	enum Category {
+		FAVORITES("Favorites"),
 		WEAPONS("Weapons"),
 		ARMOR("Armor"),
 		WANDS("Wands"),
@@ -98,7 +99,8 @@ final class InventoryEditor {
 	static List<Entry> catalog(Category category) {
 		List<Entry> result = new ArrayList<>();
 		for (Entry entry : catalog()) {
-			if (entry.category == category) result.add(entry);
+			boolean matches = category == Category.FAVORITES ? Favorites.isItem(entry.type) : entry.category == category;
+			if (matches) result.add(entry);
 		}
 		return result;
 	}
