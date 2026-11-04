@@ -14,7 +14,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 
 final class StatusEditor {
@@ -46,11 +48,15 @@ final class StatusEditor {
 
 	static synchronized List<Entry> catalog() {
 		if (catalog != null) return catalog;
-		List<Entry> entries = new ArrayList<>();
+		Map<String, Entry> byName = new LinkedHashMap<>();
 		for (String className : BuffClasses.NAMES) {
 			Entry entry = load(className);
-			if (entry != null) entries.add(entry);
+			if (entry == null) continue;
+			String key = entry.name.toLowerCase(Locale.ENGLISH);
+			Entry existing = byName.get(key);
+			if (existing == null || preferred(entry, existing)) byName.put(key, entry);
 		}
+		List<Entry> entries = new ArrayList<>(byName.values());
 		Collections.sort(entries, (a, b) -> a.name.compareToIgnoreCase(b.name));
 		catalog = entries;
 		return catalog;
@@ -69,6 +75,13 @@ final class StatusEditor {
 		} catch (Throwable e) {
 			return null;
 		}
+	}
+
+	private static boolean preferred(Entry candidate, Entry existing) {
+		boolean candidateMob = candidate.type.getName().contains(".actors.mobs.");
+		boolean existingMob = existing.type.getName().contains(".actors.mobs.");
+		if (candidateMob != existingMob) return !candidateMob;
+		return candidate.type.getName().length() < existing.type.getName().length();
 	}
 
 	private static boolean isCooldown(Class<?> type, String name) {
