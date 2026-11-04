@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
@@ -28,18 +29,18 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of TitleScene.create. Adds a full width menu button below the existing buttons.
+	 * Called at the end of TitleScene.create.
+	 * Portrait: adds a full width row below the existing buttons.
+	 * Landscape: makes the bottom row four buttons wide and adds the menu button at its end.
 	 */
 	public static void onTitleCreated(Group scene) {
 		try {
 			StyledButton play = titleButton(scene, "btnPlay");
 			StyledButton support = titleButton(scene, "btnSupport");
 			StyledButton rankings = titleButton(scene, "btnRankings");
+			StyledButton settings = titleButton(scene, "btnSettings");
+			StyledButton changes = titleButton(scene, "btnChanges");
 			StyledButton about = titleButton(scene, "btnAbout");
-
-			float gap = rankings.top() - Math.max(play.bottom(), support.bottom());
-			float left = play.left();
-			float width = about.right() - left;
 
 			StyledButton button = new StyledButton(Chrome.Type.GREY_BUTTON_TR, LABEL) {
 				@Override
@@ -48,8 +49,24 @@ public final class CloverlordMenu {
 				}
 			};
 			button.icon(Icons.get(Icons.TALENT));
-			button.setRect(left, about.bottom() + gap, width, play.height());
 			scene.add(button);
+
+			boolean landscape = support.top() == play.top();
+			if (!landscape) {
+				float gap = rankings.top() - support.bottom();
+				button.setRect(play.left(), about.bottom() + gap, play.width(), play.height());
+				return;
+			}
+
+			float left = settings.left();
+			float rowWidth = about.right() - left;
+			float width = (float) Math.floor((rowWidth - 3 * GAP) / 4f);
+			float top = settings.top();
+			float height = settings.height();
+			settings.setRect(left, top, width, height);
+			changes.setRect(settings.right() + GAP, top, width, height);
+			about.setRect(changes.right() + GAP, top, width, height);
+			button.setRect(about.right() + GAP, top, left + rowWidth - about.right() - GAP, height);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the title screen button", e);
 		}
@@ -64,7 +81,7 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of the WndGame constructor. Adds the menu button below the existing buttons.
+	 * Called at the end of the WndGame constructor. Adds the Extras and Character buttons below the existing buttons.
 	 */
 	public static void onGameMenuCreated(Window window) {
 		try {
@@ -75,19 +92,27 @@ public final class CloverlordMenu {
 			int width = widthField.getInt(window);
 			int height = heightField.getInt(window);
 
-			RedButton button = new RedButton(LABEL) {
-				@Override
-				public void onClick() {
-					window.hide();
-					show();
-				}
-			};
-			button.icon(Icons.get(Icons.TALENT));
-			button.setRect(0, height + GAP, width, BTN_HEIGHT);
-			window.add(button);
-			window.resize(width, height + GAP + BTN_HEIGHT);
+			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
+			if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.open(CharacterWindow.TAB_STATS, 1));
+			}
+			window.resize(width, height);
 		} catch (Exception e) {
-			Log.e(TAG, "Could not add the game menu button", e);
+			Log.e(TAG, "Could not add the game menu buttons", e);
 		}
+	}
+
+	private static int addGameMenuButton(Window window, String label, Icons icon, int width, int height, Runnable action) {
+		RedButton button = new RedButton(label) {
+			@Override
+			public void onClick() {
+				window.hide();
+				action.run();
+			}
+		};
+		button.icon(Icons.get(icon));
+		button.setRect(0, height + GAP, width, BTN_HEIGHT);
+		window.add(button);
+		return height + GAP + BTN_HEIGHT;
 	}
 }

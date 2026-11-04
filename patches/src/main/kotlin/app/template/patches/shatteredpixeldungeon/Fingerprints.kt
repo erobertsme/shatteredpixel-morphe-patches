@@ -111,3 +111,84 @@ object SaveBackupAvailableFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(),
 )
+
+private const val HERO_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;"
+private const val CHAR_TYPE = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"
+private const val BUNDLE_TYPE = "Lcom/watabou/utils/Bundle;"
+
+object HeroConstructorFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object HeroStoreInBundleFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)
+
+object HeroRestoreFromBundleFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf(BUNDLE_TYPE),
+)
+
+object HeroBonusTalentPointsFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "bonusTalentPoints",
+	returnType = "I",
+	parameters = listOf("I"),
+)
+
+object HeroAttackSkillFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "attackSkill",
+	returnType = "I",
+	parameters = listOf(CHAR_TYPE),
+)
+
+object HeroDefenseSkillFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "defenseSkill",
+	returnType = "I",
+	parameters = listOf(CHAR_TYPE),
+)
+
+object HeroDamageRollFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "damageRoll",
+	returnType = "I",
+	parameters = listOf(),
+)
+
+object HeroDrRollFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "drRoll",
+	returnType = "I",
+	parameters = listOf(),
+)
+
+object HeroAttackDelayFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "attackDelay",
+	returnType = "F",
+	parameters = listOf(),
+)
+
+object HeroSpeedFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "speed",
+	returnType = "F",
+	parameters = listOf(),
+)
+
+object SaltCubeRegenFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/trinkets/SaltCube;",
+	name = "healthRegenMultiplier",
+	returnType = "F",
+	parameters = listOf(),
+)

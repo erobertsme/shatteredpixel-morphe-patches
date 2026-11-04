@@ -1,4 +1,4 @@
 package com.watabou.noosa;
 
-public class Image extends Gizmo {
+public class Image extends Visual {
 }
