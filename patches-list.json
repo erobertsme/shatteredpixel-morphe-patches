@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.19",
+  "version": "1.0.0-dev.20",
   "patches": [
     {
       "name": "Character editor",
@@ -38,7 +38,7 @@
     },
     {
       "name": "Hunger editor",
-      "description": "Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, turning off starvation damage or disabling hunger completely.",
+      "description": "Adds a Hunger window to the Extras menu for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger completely.",
       "default": true,
       "category": null,
       "compatiblePackages": [
@@ -217,8 +217,8 @@
       "options": []
     },
     {
-      "name": "Supporter rewards",
-      "description": "Adds a setting to the Extras menu that enables the Silver, Golden or Shattered supporter rewards. Only works on the Google Play version of the game.",
+      "name": "Supporter options",
+      "description": "NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!\n\nAdds Supporter options to the Extras menu: keep your Silver, Golden or Shattered supporter rewards, and hide the Support button on the title screen. Only works on the Google Play version of the game.",
       "default": true,
       "category": null,
       "compatiblePackages": [

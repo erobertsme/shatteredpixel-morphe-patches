@@ -1,3 +1,9 @@
+## [1.0.0-dev.20](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.19...v1.0.0-dev.20) (2026-11-04)
+
+### ✨ New Features
+
+* Keep edit mode across bag tabs, add starvation damage settings, split supporter options into their own patch ([bfa8b75](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/bfa8b7558e10a47733b1004b0a073b0995f05cde))
+
 ## [1.0.0-dev.19](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.18...v1.0.0-dev.19) (2026-11-04)
 
 ### ✨ New Features
