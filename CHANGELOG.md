@@ -1,3 +1,9 @@
+## [1.0.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2026-11-04)
+
+### ✨ New Features
+
+* Add status effects tab to the character editor ([85e125a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/85e125ad817ca6a8c80417725f34f51795bebf88))
+
 ## [1.0.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2026-11-04)
 
 ### ✨ New Features
