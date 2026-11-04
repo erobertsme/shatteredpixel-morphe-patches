@@ -32,6 +32,10 @@ final class TalentEditor {
 		talents.put(talent, points - 1);
 	}
 
+	static boolean isOwned(Hero hero, int tier, Talent talent) {
+		return hero.talents.get(tier - 1).containsKey(talent);
+	}
+
 	static List<Talent> swapOptions(Hero hero, int tier, HeroClass heroClass) {
 		List<Talent> options = new ArrayList<>();
 		if (!canSwap(tier)) return options;
@@ -40,10 +44,7 @@ final class TalentEditor {
 		Talent.initClassTalents(heroClass, classTalents);
 		if (classTalents.size() < tier) return options;
 
-		LinkedHashMap<Talent, Integer> current = hero.talents.get(tier - 1);
-		for (Talent talent : classTalents.get(tier - 1).keySet()) {
-			if (!current.containsKey(talent)) options.add(talent);
-		}
+		options.addAll(classTalents.get(tier - 1).keySet());
 		return options;
 	}
 

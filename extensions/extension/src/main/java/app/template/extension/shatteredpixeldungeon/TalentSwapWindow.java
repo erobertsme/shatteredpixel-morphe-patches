@@ -5,6 +5,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
@@ -19,6 +21,7 @@ public class TalentSwapWindow extends Window {
 	private static final int WIDTH = CharacterWindow.WIDTH;
 	private static final int ROW_HEIGHT = CharacterWindow.ROW_HEIGHT;
 	private static final int GAP = CharacterWindow.GAP;
+	private static final int INFO_SIZE = 16;
 
 	private final Talent replacing;
 	private final int tier;
@@ -58,10 +61,10 @@ public class TalentSwapWindow extends Window {
 		pos += ((classes.length + perRow - 1) / perRow) * (ROW_HEIGHT + GAP) + GAP;
 
 		List<Talent> options = TalentEditor.swapOptions(hero, tier, shown);
-		if (options.isEmpty()) addHint("No other tier " + tier + " talents from this class.");
+		if (options.isEmpty()) addHint("This class has no tier " + tier + " talents.");
 		for (Talent option : options) addOption(hero, option);
 
-		addHint("Tap to swap. Long-press to read a talent. Spent points carry over.");
+		addHint("Tap a talent to swap. Tap i or long-press to read it. Greyed out talents are ones you already have. Spent points carry over.");
 
 		RedButton cancel = new RedButton("Cancel", 7) {
 			@Override
@@ -77,6 +80,7 @@ public class TalentSwapWindow extends Window {
 	}
 
 	private void addOption(Hero hero, Talent option) {
+		boolean owned = TalentEditor.isOwned(hero, tier, option);
 		RedButton button = new RedButton(option.title(), 6) {
 			@Override
 			public void onClick() {
@@ -86,14 +90,28 @@ public class TalentSwapWindow extends Window {
 
 			@Override
 			public boolean onLongClick() {
-				Game.scene().addToFront(new WndInfoTalent(option, 0, null));
+				showInfo(option);
 				return true;
 			}
 		};
 		button.icon(new TalentIcon(option));
-		button.setRect(0, pos, WIDTH, ROW_HEIGHT);
+		button.setRect(0, pos, WIDTH - INFO_SIZE - GAP, ROW_HEIGHT);
+		button.enable(!owned);
 		add(button);
+
+		IconButton info = new IconButton(Icons.get(Icons.INFO)) {
+			@Override
+			public void onClick() {
+				showInfo(option);
+			}
+		};
+		info.setRect(WIDTH - INFO_SIZE, pos, INFO_SIZE, ROW_HEIGHT);
+		add(info);
 		pos += ROW_HEIGHT + GAP;
+	}
+
+	private static void showInfo(Talent talent) {
+		Game.scene().addToFront(new WndInfoTalent(talent, 0, null));
 	}
 
 	private void addHint(String text) {

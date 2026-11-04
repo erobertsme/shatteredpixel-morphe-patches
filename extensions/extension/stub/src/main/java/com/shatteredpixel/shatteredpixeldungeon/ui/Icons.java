@@ -9,7 +9,8 @@ public enum Icons {
 	PREFS,
 	TALENT,
 	STATS,
-	SHUFFLE;
+	SHUFFLE,
+	INFO;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }
