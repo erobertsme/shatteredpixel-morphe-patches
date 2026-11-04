@@ -1,3 +1,10 @@
+## [1.0.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-11-04)
+
+### ✨ New Features
+
+* Add in-game Cloverlord menu with unlock toggles and save backup ([39b256c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/39b256c4ed77a59f4c4e600a7fc88784e4b5dcef))
+* Add unlock all patch ([e720bdc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e720bdcd91e4bb75acd13984c6d5aa15cfbedbef))
+
 ## [1.0.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-11-04)
 
 ### 🐛 Bug Fixes

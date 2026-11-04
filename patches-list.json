@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.2",
+  "version": "1.0.0-dev.3",
   "patches": [
     {
       "name": "Public save folder",
@@ -48,7 +48,7 @@
     },
     {
       "name": "Save backup",
-      "description": "Adds Export saves and Import saves shortcuts to the app icon (long-press it) for backing up and restoring all saves as a zip file.",
+      "description": "Adds Export saves and Import saves to the Cloverlord menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file.",
       "default": true,
       "category": null,
       "compatiblePackages": [
@@ -117,6 +117,40 @@
     {
       "name": "Uncompressed saves",
       "description": "Writes save files as plain JSON instead of GZIP so they can be edited in any text editor. Existing compressed saves still load and are converted the next time the game saves.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.shatteredpixel.shatteredpixeldungeon",
+          "name": "Shattered Pixel Dungeon",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#2B2B2B",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "4.0.2",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Unlock all",
+      "description": "Adds toggles to the Cloverlord menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress.",
       "default": true,
       "category": null,
       "compatiblePackages": [
