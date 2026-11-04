@@ -1,3 +1,9 @@
+## [1.0.0-dev.15](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.14...v1.0.0-dev.15) (2026-11-04)
+
+### ✨ New Features
+
+* Add infinite statuses and fix bonus talent points with Divine Inspiration ([ccc8ac8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ccc8ac8ecb8eb9a0aa443f3edda11d5a043a7cc4))
+
 ## [1.0.0-dev.14](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.13...v1.0.0-dev.14) (2026-11-04)
 
 ### ✨ New Features
