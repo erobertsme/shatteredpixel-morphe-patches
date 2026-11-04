@@ -32,3 +32,54 @@ object SaveFolderNameFingerprint : Fingerprint(
 	returnType = "Ljava/lang/String;",
 	parameters = listOf(),
 )
+
+object HeroClassIsUnlockedFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass;",
+	name = "isUnlocked",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object CatalogIsSeenFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/journal/Catalog;",
+	name = "isSeen",
+	returnType = "Z",
+	parameters = listOf("Ljava/lang/Class;"),
+)
+
+object BestiaryIsSeenFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/journal/Bestiary;",
+	name = "isSeen",
+	returnType = "Z",
+	parameters = listOf("Ljava/lang/Class;"),
+)
+
+private const val DOCUMENT_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/journal/Document;"
+
+object DocumentIsPageFoundFingerprint : Fingerprint(
+	definingClass = DOCUMENT_CLASS,
+	name = "isPageFound",
+	returnType = "Z",
+	parameters = listOf("Ljava/lang/String;"),
+)
+
+object DocumentIsPageReadFingerprint : Fingerprint(
+	definingClass = DOCUMENT_CLASS,
+	name = "isPageRead",
+	returnType = "Z",
+	parameters = listOf("Ljava/lang/String;"),
+)
+
+object DocumentAnyPagesFoundFingerprint : Fingerprint(
+	definingClass = DOCUMENT_CLASS,
+	name = "anyPagesFound",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object DocumentAllPagesFoundFingerprint : Fingerprint(
+	definingClass = DOCUMENT_CLASS,
+	name = "allPagesFound",
+	returnType = "Z",
+	parameters = listOf(),
+)
