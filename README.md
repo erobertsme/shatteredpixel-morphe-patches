@@ -1,4 +1,4 @@
-# 👋🧩 Morphe Patches template
+# 🍀 Cloverlord Patches
 
 Template repository for Morphe Patches.
 
@@ -53,4 +53,4 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 ## 📜 License
 
-UserXYZ Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Cloverlord Patches are licensed under the [GNU General Public License v3.0](LICENSE)

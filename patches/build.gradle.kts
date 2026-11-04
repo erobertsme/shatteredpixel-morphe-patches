@@ -1,14 +1,13 @@
 group = "app.template"
 
 patches {
-    // TODO: Update this section with your project details.
     about {
-        name = "UserXYZ Patches"
-        description = "Patches for apps I like"
-        source = "git@github.com:UserXYZ/morphe-patches.git"
-        author = "Awesome dev"
+        name = "Cloverlord Patches"
+        description = "Save file access, editing and backup patches for Shattered Pixel Dungeon"
+        source = "git@github.com:erobertsme/shatteredpixel-morphe-patches.git"
+        author = "erobertsme"
         contact = "na"
-        website = "na"
+        website = "https://github.com/erobertsme/shatteredpixel-morphe-patches"
         license = "GPLv3"
     }
 }
