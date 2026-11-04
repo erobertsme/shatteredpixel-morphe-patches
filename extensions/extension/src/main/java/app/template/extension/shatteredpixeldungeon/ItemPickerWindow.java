@@ -22,7 +22,7 @@ public class ItemPickerWindow extends EditorWindow {
 		this.page = page;
 		Hero hero = Dungeon.hero;
 
-		addTitle("Add item");
+		addTitle("Add item", "Tap an item to add it to your backpack, identified. If your backpack is full it drops at your feet.\n\nLevel applies to upgradable items and trinkets. Quantity applies to stackable items.\n\nThe heart adds an item to Favorites. Tap i or long-press to read one.");
 
 		InventoryEditor.Category[] categories = InventoryEditor.Category.values();
 		int perRow = perPage(3, 5);
@@ -63,7 +63,6 @@ public class ItemPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
-		addHint("Tap to add (identified). The heart adds it to Favorites. Level applies to upgradable items and trinkets, quantity to stackable ones.");
 		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();

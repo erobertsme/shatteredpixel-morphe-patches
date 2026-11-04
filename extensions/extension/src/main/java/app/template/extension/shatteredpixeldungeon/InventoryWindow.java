@@ -24,7 +24,7 @@ public class InventoryWindow extends EditorWindow {
 		super();
 		Hero hero = Dungeon.hero;
 
-		addTitle("INVENTORY");
+		addTitle("INVENTORY", "Open backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd item adds any item in the game. Identify all identifies everything you carry.\n\nTap a number to type it, with Min and Max buttons.");
 		if (hero == null) {
 			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 			pos += ROW_HEIGHT;
@@ -54,7 +54,6 @@ public class InventoryWindow extends EditorWindow {
 		});
 		pos += ROW_HEIGHT + GAP;
 
-		addHint("Open backpack shows your normal backpack with an Edit button under each item.");
 		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 		pos += ROW_HEIGHT;
 		finish();

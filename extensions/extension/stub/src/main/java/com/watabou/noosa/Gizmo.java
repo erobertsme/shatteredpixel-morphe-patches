@@ -4,4 +4,6 @@ public class Gizmo {
 	public boolean visible;
 	public boolean active;
 	public Group parent;
+
+	public void destroy() { throw new RuntimeException("Stub"); }
 }

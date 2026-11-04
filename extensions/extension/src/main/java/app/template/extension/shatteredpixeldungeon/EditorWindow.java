@@ -40,20 +40,53 @@ abstract class EditorWindow extends Window {
 	protected abstract void reopen();
 
 	protected void addTitle(String text) {
+		addTitle(text, null);
+	}
+
+	/**
+	 * The window title. When [info] is given, an [i] button in the top right corner shows it.
+	 */
+	protected void addTitle(String text, String info) {
 		RenderedTextBlock title = PixelScene.renderTextBlock(text, 9);
 		title.hardlight(CharacterWindow.TITLE_COLOR);
-		title.maxWidth(WIDTH);
-		title.setPos(0, pos);
+		title.maxWidth(info == null ? WIDTH : WIDTH - InfoButton.SIZE - GAP);
+		title.setPos(0, pos + (InfoButton.SIZE - title.height()) / 2f);
 		add(title);
-		pos = title.bottom() + 2 * GAP;
+		if (info != null) InfoButton.add(this, WIDTH, pos, info);
+		pos = Math.max(title.bottom(), pos + (info == null ? 0 : InfoButton.SIZE)) + 2 * GAP;
 	}
 
 	protected void addSection(String text) {
 		RenderedTextBlock block = PixelScene.renderTextBlock(text, 7);
 		block.hardlight(CharacterWindow.TITLE_COLOR);
-		block.setPos(0, pos + GAP);
+		block.setPos(0, pos + 2 * GAP);
 		add(block);
 		pos = block.bottom() + 2 * GAP;
+	}
+
+	/**
+	 * Builds content with [build] only to measure its height, then removes it again.
+	 */
+	@SuppressWarnings("unchecked")
+	protected float measure(Runnable build) {
+		float start = pos;
+		java.util.List<com.watabou.noosa.Gizmo> members;
+		try {
+			java.lang.reflect.Field field = com.watabou.noosa.Group.class.getDeclaredField("members");
+			field.setAccessible(true);
+			members = (java.util.List<com.watabou.noosa.Gizmo>) field.get(this);
+		} catch (ReflectiveOperationException e) {
+			return 0;
+		}
+		int before = members.size();
+		build.run();
+		float height = pos - start;
+		for (com.watabou.noosa.Gizmo gizmo : new java.util.ArrayList<>(members.subList(before, members.size()))) {
+			remove(gizmo);
+			gizmo.destroy();
+		}
+		pos = start;
+		return height;
 	}
 
 	protected void addHint(String text) {

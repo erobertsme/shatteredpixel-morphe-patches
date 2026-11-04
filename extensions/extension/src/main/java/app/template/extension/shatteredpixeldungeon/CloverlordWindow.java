@@ -18,6 +18,7 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
 
@@ -28,6 +29,7 @@ public class CloverlordWindow extends Window {
 		title.hardlight(TITLE_COLOR);
 		title.setPos((WIDTH - title.width()) / 2f, GAP);
 		add(title);
+		InfoButton.add(this, WIDTH, 0, INFO);
 		pos = title.bottom() + GAP;
 
 		RenderedTextBlock version = PixelScene.renderTextBlock("Cloverlord Patches " + CloverlordMenu.patchesVersion(), 6);

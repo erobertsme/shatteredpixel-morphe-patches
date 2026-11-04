@@ -24,7 +24,7 @@ public class TalentSwapWindow extends EditorWindow {
 		Hero hero = Dungeon.hero;
 		HeroClass shown = selectedClass != null ? selectedClass : hero.heroClass;
 
-		addTitle("Replace " + replacing.title());
+		addTitle("Replace " + replacing.title(), "Pick a class, then tap a talent to swap it in, like a Scroll of Metamorphosis. Spent points carry over.\n\nGreyed out talents are ones you already have. Tap i or long-press to read one.");
 
 		HeroClass[] classes = HeroClass.values();
 		int perRow = 3;
@@ -49,7 +49,6 @@ public class TalentSwapWindow extends EditorWindow {
 			}, () -> show(new WndInfoTalent(option, 0, null)));
 		}
 
-		addHint("Tap a talent to swap. Tap i or long-press to read it. Greyed out talents are ones you already have. Spent points carry over.");
 		addButton("Cancel", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();

@@ -15,6 +15,10 @@ public class HungerWindow extends EditorWindow {
 	private static final String[] TABS = { "Stages", "Starving" };
 	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 
+	private static final String GENERAL_INFO = "Hunger settings apply to every run. Shadows, the Salt Cube and other hunger effects still apply on top.\n\nDisable hunger stops hunger rising. Turn it off again and hunger continues from where it was.\n\nThe small reset button on a row restores that one setting. Reset all restores everything.";
+	private static final String STAGES_INFO = "Stages\n\nNot hungry is the number of turns from eating until you get Hungry. Hungry is the number of turns from then until you start Starving. The game defaults are 300 and 150.\n\n75%, 50% and 30% make hunger rise at that share of the normal rate, so every stage lasts longer. Default restores both.\n\nFood keeps its normal value, so longer stages also make meals last longer.\n\n" + GENERAL_INFO;
+	private static final String STARVING_INFO = "Starving\n\nFormula: the turns between hits are the formula divided by your max health. The game uses 1000, so with 50 max health you take damage every 20 turns. A higher formula means more time between hits. It changes by 10.\n\nFixed: you take damage every set number of turns, whatever your max health. Its reset uses the game's default for your max health.\n\nDamage is how much each hit takes.\n\n75%, 50% and 30% set the formula so you take damage at that share of the normal rate. They switch Fixed back to Formula.\n\nNow shows the result for your current max health.\n\n" + GENERAL_INFO;
+
 	private static Runnable backAction;
 	private static int tab;
 
@@ -27,7 +31,7 @@ public class HungerWindow extends EditorWindow {
 		super();
 		boolean disabled = HungerEditor.isDisabled();
 
-		addTitle("Hunger");
+		addTitle("Hunger", tab == 0 ? STAGES_INFO : STARVING_INFO);
 		addCheckBox("Disable hunger", disabled, () -> HungerEditor.setDisabled(!HungerEditor.isDisabled()));
 		addButtonRow(TABS, tab, index -> {
 			tab = index;
@@ -35,11 +39,10 @@ public class HungerWindow extends EditorWindow {
 		});
 		pos += GAP;
 
-		if (tab == 0) {
-			buildStages(disabled);
-		} else {
-			buildStarving(disabled);
-		}
+		float start = pos;
+		float otherHeight = measure(() -> buildTab(1 - tab, disabled));
+		buildTab(tab, disabled);
+		pos = Math.max(pos, start + otherHeight);
 
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Reset all", 0, half, () -> {
@@ -48,8 +51,15 @@ public class HungerWindow extends EditorWindow {
 		});
 		addButton("Back", half + GAP, half, this::back);
 		pos += ROW_HEIGHT + GAP;
-		addHint("Settings apply to every run. Shadows, the Salt Cube and other hunger effects still apply on top.");
 		finish();
+	}
+
+	private void buildTab(int index, boolean disabled) {
+		if (index == 0) {
+			buildStages(disabled);
+		} else {
+			buildStarving(disabled);
+		}
 	}
 
 	private void buildStages(boolean disabled) {
@@ -64,7 +74,6 @@ public class HungerWindow extends EditorWindow {
 
 		pos += GAP;
 		pos = addHungerBar(this, 0, pos, WIDTH, notHungry, hungry, disabled) + GAP;
-		addHint("Turns from eating until Hungry, then from Hungry until Starving. Defaults are 300 and 150. The percentage buttons make hunger rise at that rate of normal. Food keeps its normal value.");
 	}
 
 	private void buildStarving(boolean disabled) {
@@ -101,11 +110,6 @@ public class HungerWindow extends EditorWindow {
 		add(result);
 		pos = result.bottom() + 2 * GAP;
 
-		if (fixed) {
-			addHint("Fixed: you take damage every set number of turns, whatever your max health. Its reset uses the game's default for your max health. The percentage buttons switch back to Formula.");
-		} else {
-			addHint("Formula: turns between hits = formula / max health. The game uses 1000, so with 50 max health you take damage every 20 turns. A higher formula means longer between hits.");
-		}
 	}
 
 	interface Preset {

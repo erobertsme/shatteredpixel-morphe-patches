@@ -26,7 +26,7 @@ public class StatusPickerWindow extends EditorWindow {
 		this.page = page;
 		Hero hero = Dungeon.hero;
 
-		addTitle("Add status");
+		addTitle("Add status", "Tap a status to add it for the chosen duration. Infinite makes it never run out.\n\nYellow statuses are already active, and adding them again extends them.\n\nThe heart adds a status to Favorites. Tap i or long-press to read one.");
 		addButtonRow(KIND_NAMES, kind, index -> {
 			if (index != kind) replaceWith(new StatusPickerWindow(index, 0));
 		});
@@ -55,7 +55,6 @@ public class StatusPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new StatusPickerWindow(kind, newPage)));
 
-		addHint("Tap to add, i or long-press to read. The heart adds it to Favorites. Yellow = already active.");
 		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();

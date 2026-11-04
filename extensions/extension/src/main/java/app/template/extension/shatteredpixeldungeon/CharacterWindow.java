@@ -29,7 +29,7 @@ public class CharacterWindow extends Window {
 	static final int WIDTH = 128;
 	private static final int TALENT_ROW_HEIGHT = 18;
 	static final int ROW_HEIGHT = 16;
-	static final int GAP = 2;
+	static final int GAP = 3;
 	static final int TITLE_COLOR = 0xFFFF44;
 	static final int DIM_COLOR = 0x999999;
 	static final int POSITIVE_COLOR = 0x7AD35C;
@@ -43,6 +43,12 @@ public class CharacterWindow extends Window {
 	public static final int TAB_MODIFIERS = 2;
 	public static final int TAB_STATUS = 3;
 	private static final String[] TAB_NAMES = { "Stats", "Talents", "Mods", "Status" };
+	private static final String[] TAB_INFO = {
+		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
+		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nTap or long-press a talent to read it.",
+		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
+		"Status\n\nTap the number to change how many turns are left.\n\nThe star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove negative clears every negative status.\n\nTap i or long-press a status to read it.",
+	};
 
 	interface IntSetter {
 		void set(int value);
@@ -140,7 +146,9 @@ public class CharacterWindow extends Window {
 	}
 
 	private void addTabs() {
-		float width = (WIDTH - (TAB_NAMES.length - 1) * GAP) / (float) TAB_NAMES.length;
+		float tabsWidth = WIDTH - InfoButton.SIZE - GAP;
+		float width = (tabsWidth - (TAB_NAMES.length - 1) * GAP) / (float) TAB_NAMES.length;
+		InfoButton.add(this, WIDTH, 0, TAB_INFO[tab]);
 		for (int i = 0; i < TAB_NAMES.length; i++) {
 			final int index = i;
 			RedButton button = new RedButton(TAB_NAMES[i], 6) {
@@ -191,7 +199,6 @@ public class CharacterWindow extends Window {
 		addStat("Move speed", safe(() -> format(hero.speed()) + "x") + modSuffix(HeroExtras.Mod.MOVE_SPEED));
 		addStat("Shield", safe(() -> String.valueOf(hero.shielding())));
 		addStat("Gold / Energy", Dungeon.gold + " / " + Dungeon.energy);
-		addHint("Highlighted values include your modifiers.");
 	}
 
 	private void buildTalents(Hero hero) {
@@ -223,7 +230,6 @@ public class CharacterWindow extends Window {
 		ArrayList<Talent> talents = new ArrayList<>(hero.talents.get(tier - 1).keySet());
 		for (Talent talent : talents) addTalentRow(hero, talent);
 
-		addHint("Long-press a talent to read it. " + (TalentEditor.canSwap(tier) ? "The swap button replaces it like a Scroll of Metamorphosis." : "Tier 4 talents depend on your armor ability and can't be swapped."));
 	}
 
 	private void addTalentRow(Hero hero, Talent talent) {
@@ -295,13 +301,11 @@ public class CharacterWindow extends Window {
 	}
 
 	private void buildModifiers(Hero hero) {
-		addHint("Added on top of everything else. Saved with this run.");
 		for (HeroExtras.Mod mod : HeroExtras.Mod.values()) {
 			int value = HeroExtras.mod(mod);
 			String text = (value >= 0 ? "+" : "") + value + (mod.percent ? "%" : "");
 			addStepper(mod.label, text, value, mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue), mod.step());
 		}
-		addHint("Long-press - or + to change by 10 steps. Tap a value to type it.");
 
 		RedButton reset = new RedButton("Reset all", 7) {
 			@Override
@@ -367,7 +371,6 @@ public class CharacterWindow extends Window {
 		add(addStatus);
 		pos += ROW_HEIGHT + GAP;
 
-		addHint("Tap a number to change turns left. The star makes a status infinite (bright = on). X removes it. Tap i or long-press to read it.");
 	}
 
 	private void addStatusRow(Buff buff) {

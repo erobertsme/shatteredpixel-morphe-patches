@@ -21,7 +21,7 @@ public class EnchantPickerWindow extends EditorWindow {
 		this.curses = curses;
 		this.page = page;
 
-		addTitle((armor ? "Glyph for " : "Enchant ") + InventoryEditor.titleOf(item));
+		addTitle((armor ? "Glyph for " : "Enchant ") + InventoryEditor.titleOf(item), "Tap one to apply it. None removes the current one. Curses has the cursed ones.\n\nTap i or long-press to read one.");
 		addButtonRow(new String[] { armor ? "Glyphs" : "Enchantments", "Curses" }, curses ? 1 : 0,
 			index -> replaceWith(new EnchantPickerWindow(item, armor, index == 1, 0)));
 
@@ -35,7 +35,6 @@ public class EnchantPickerWindow extends EditorWindow {
 			addListRow(InventoryEditor.enchantmentName(option), null, selected, true, () -> apply(option), () -> showInfo(option));
 		}, newPage -> replaceWith(new EnchantPickerWindow(item, armor, curses, newPage)));
 
-		addHint("Tap to apply. Tap i or long-press to read it.");
 		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();

@@ -21,6 +21,7 @@ import com.watabou.noosa.Group;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public final class CloverlordMenu {
@@ -179,7 +180,8 @@ public final class CloverlordMenu {
 			float y = heightField.getInt(window) + GAP;
 
 			boolean hunger = HungerEditor.isAvailable();
-			if (hunger) y = addHungerSummary(window, width, y);
+			List<Gizmo> summary = new ArrayList<>();
+			if (hunger) y = addHungerSummary(window, width, y, summary) + 2 * GAP;
 
 			float editWidth = hunger ? (width - GAP) * 0.6f : width;
 			RedButton edit = new RedButton("Edit character", 7) {
@@ -191,6 +193,7 @@ public final class CloverlordMenu {
 					if (shownTab == WndHero.lastIdx) return;
 					shownTab = WndHero.lastIdx;
 					icon(Icons.get(tabIcon(shownTab)));
+					for (Gizmo gizmo : summary) gizmo.visible = shownTab == 0;
 				}
 
 				@Override
@@ -216,13 +219,21 @@ public final class CloverlordMenu {
 				window.add(hungerButton);
 			}
 
+			for (Gizmo gizmo : summary) gizmo.visible = WndHero.lastIdx == 0;
 			window.resize(width, (int) (y + 16));
+			window.offset(0, 0);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the hero window buttons", e);
 		}
 	}
 
-	private static float addHungerSummary(Window window, int width, float y) {
+	@SuppressWarnings("unchecked")
+	private static float addHungerSummary(Window window, int width, float y, List<Gizmo> added) throws ReflectiveOperationException {
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		List<Gizmo> members = (List<Gizmo>) membersField.get(window);
+		int before = members.size();
+
 		RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
 		title.hardlight(0xFFFF44);
 		title.setPos(0, y);
@@ -236,7 +247,9 @@ public final class CloverlordMenu {
 		starving.maxWidth(width);
 		starving.setPos(0, y);
 		window.add(starving);
-		return starving.bottom() + GAP + 2;
+
+		added.addAll(members.subList(before, members.size()));
+		return starving.bottom();
 	}
 
 	private static Icons tabIcon(int heroTab) {

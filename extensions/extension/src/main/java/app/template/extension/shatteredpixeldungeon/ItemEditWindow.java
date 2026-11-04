@@ -23,7 +23,10 @@ public class ItemEditWindow extends EditorWindow {
 		this.item = item;
 		Hero hero = Dungeon.hero;
 
-		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), () -> InventoryWindow.showInfo(item));
+		InfoButton.add(this, WIDTH, pos, "Changes apply straight away. Tap a number to type it, with Min and Max buttons.\n\nEnchantment or Glyph picks one for weapons or armor, Curses picks a curse. Augment trades speed for damage on weapons, or evasion for defense on armor.\n\nDuplicate adds a copy to your backpack. Delete removes the item for good, even if it is equipped or cursed.");
+		float headerTop = pos;
+		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), null);
+		pos = Math.max(pos, headerTop + InfoButton.SIZE + GAP);
 
 		if (InventoryEditor.isLevelEditable(item)) {
 			int level = item.level();
