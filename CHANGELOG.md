@@ -1,3 +1,9 @@
+## [1.0.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-11-04)
+
+### ✨ New Features
+
+* Add character editor and fit Extras into the landscape title screen ([f6b4b6c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f6b4b6c75a9ccdbd8ddd9b8e4e881533327e81ff))
+
 ## [1.0.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-11-04)
 
 ### 🐛 Bug Fixes
