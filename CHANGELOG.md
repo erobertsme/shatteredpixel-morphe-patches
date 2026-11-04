@@ -1,3 +1,13 @@
+## [1.0.0-dev.16](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.15...v1.0.0-dev.16) (2026-11-04)
+
+### ✨ New Features
+
+* Add shield editing and min/max buttons to number inputs, fix Extras title button fading ([02a15f2](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/02a15f226ae0331721a2179decee45c76ddf52b7))
+
+### 🐛 Bug Fixes
+
+* Add the missing back button to the character editor ([e7d2f5b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e7d2f5bec0176366582faa4af3dc3d18ed3db559))
+
 ## [1.0.0-dev.15](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.14...v1.0.0-dev.15) (2026-11-04)
 
 ### ✨ New Features
