@@ -1,3 +1,9 @@
+## [1.0.0-dev.18](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.17...v1.0.0-dev.18) (2026-11-04)
+
+### 🐛 Bug Fixes
+
+* Replace the backpack star with Edit and Add buttons and grey out turns on infinite statuses ([8af00f9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8af00f9b321349198d3a3c2f1307589d9fbb283c))
+
 ## [1.0.0-dev.17](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.16...v1.0.0-dev.17) (2026-11-04)
 
 ### ✨ New Features
