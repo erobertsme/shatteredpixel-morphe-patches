@@ -1,3 +1,9 @@
+## [1.0.0-dev.41](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.40...v1.0.0-dev.41) (2026-11-05)
+
+### ✨ New Features
+
+* Set the level of spawned creatures that scale, tap the hunger summary to edit hunger, Title Case buttons, and confirm attacks from 2 tiles by default ([90d84c4](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/90d84c459fb005cc159e950d0aebe865154513fe))
+
 ## [1.0.0-dev.40](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.39...v1.0.0-dev.40) (2026-11-05)
 
 ### ✨ New Features
