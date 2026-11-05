@@ -1,3 +1,9 @@
+## [1.0.0-dev.28](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.27...v1.0.0-dev.28) (2026-11-05)
+
+### ✨ New Features
+
+* Add door editing and move-to-tile for creatures, fix number input alignment and hero tab button labels ([f43d829](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f43d82969caaef8384b88d5ac20d363228f6f2c2))
+
 ## [1.0.0-dev.27](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.26...v1.0.0-dev.27) (2026-11-05)
 
 ### ✨ New Features
