@@ -12,6 +12,9 @@ public class Char {
 	public boolean[] fieldOfView;
 	public int HP;
 	public int HT;
+	public boolean flying;
+
+	public boolean isImmune(Class effect) { throw new RuntimeException("Stub"); }
 
 	public void damage(int dmg, Object src) { throw new RuntimeException("Stub"); }
 	public void die(Object src) { throw new RuntimeException("Stub"); }

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -87,8 +88,11 @@ public final class PathPreview {
 			if (!level.visited[cell] && !level.mapped[cell] && !hero.fieldOfView[cell]) return false;
 
 			boolean adjacent = isAdjacent(hero.pos, cell, level.width());
-			String danger = dangerAt(level, cell);
 			Char ch = Actor.findChar(cell);
+			List<Integer> path = adjacent ? new ArrayList<>() : findPath(hero, cell, level);
+			if (path == null) path = new ArrayList<>();
+			if (adjacent) path.add(cell);
+			String danger = dangerOnPath(hero, level, path, cell);
 			String message;
 			String goLabel;
 			int color;
@@ -101,7 +105,7 @@ public final class PathPreview {
 				goLabel = interact ? "Talk" : "Attack";
 				color = interact ? TARGET_COLOR : ATTACK_COLOR;
 			} else if (danger != null && ConfirmSettings.confirms(ConfirmSettings.Action.DANGER)) {
-				message = "Danger: " + danger;
+				message = "Danger: " + danger + ".";
 				goLabel = "Go";
 				color = DANGER_COLOR;
 			} else if (isStairs(level.map[cell])) {
@@ -122,8 +126,7 @@ public final class PathPreview {
 				color = TARGET_COLOR;
 			}
 
-			List<Integer> path = adjacent ? new ArrayList<>() : findPath(hero, cell, level);
-			if (path == null) path = new ArrayList<>();
+			if (adjacent) path.clear();
 			if (message == null) {
 				if (path.isEmpty()) return false;
 				if (moving && path.size() < ConfirmSettings.minDistance(ConfirmSettings.Action.MOVE)) return false;
@@ -144,17 +147,65 @@ public final class PathPreview {
 		return tile == ENTRANCE || tile == EXIT || tile == UNLOCKED_EXIT || tile == ENTRANCE_SP;
 	}
 
-	private static String dangerAt(Level level, int cell) {
-		if (level.map[cell] == 0) return "a chasm. You will fall to the floor below.";
-		com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps == null ? null : level.traps.get(cell, null);
-		if (trap != null && trap.visible && trap.active) return "a " + FloorEditor.trapName(trap).toLowerCase() + ".";
-		for (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob blob : FloorEditor.activeEffects()) {
-			if (FloorEditor.strengthAt(blob, cell) <= 0) continue;
-			for (String harmful : HARMFUL_EFFECTS) {
-				if (blob.getClass().getSimpleName().equals(harmful)) return FloorEditor.effectName(blob.getClass()).toLowerCase() + ".";
-			}
+	/**
+	 * The first real danger along [path], which ends at [target]. Chasms are left to the game, which already asks
+	 * before a jump. Known traps only count when the hero would touch them: not while flying, unless levitation
+	 * runs out before the hero can step off again. Harmful gas and fire count unless the hero is immune.
+	 */
+	private static String dangerOnPath(Hero hero, Level level, List<Integer> path, int target) {
+		float speed = Math.max(0.01f, hero.speed());
+		for (int i = 0; i < path.size(); i++) {
+			int cell = path.get(i);
+			boolean flyingThroughout = !hasLanded(hero, (i + 2) / speed);
+			String danger = dangerAt(hero, level, cell, flyingThroughout);
+			if (danger == null) continue;
+			return cell == target ? danger : danger + " on the way";
 		}
 		return null;
+	}
+
+	private static String dangerAt(Hero hero, Level level, int cell, boolean flyingThroughout) {
+		com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps == null ? null : level.traps.get(cell, null);
+		if (trap != null && trap.visible && trap.active && !flyingThroughout) {
+			return "a " + FloorEditor.trapName(trap).toLowerCase() + (hero.flying ? ", and your levitation runs out" : "");
+		}
+		for (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob blob : FloorEditor.activeEffects()) {
+			if (FloorEditor.strengthAt(blob, cell) <= 0) continue;
+			if (!isHarmful(blob) || isImmune(hero, blob)) continue;
+			return FloorEditor.effectName(blob.getClass()).toLowerCase();
+		}
+		return null;
+	}
+
+	/**
+	 * Whether the hero is walking rather than flying by the time [delay] turns have passed.
+	 */
+	private static boolean hasLanded(Hero hero, float delay) {
+		if (!hero.flying) return true;
+		for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff buff : new ArrayList<>(hero.buffs())) {
+			if (!(buff instanceof Levitation)) continue;
+			try {
+				return ((Levitation) buff).detachesWithinDelay(delay);
+			} catch (Throwable e) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isHarmful(com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob blob) {
+		for (String harmful : HARMFUL_EFFECTS) {
+			if (blob.getClass().getSimpleName().equals(harmful)) return true;
+		}
+		return false;
+	}
+
+	private static boolean isImmune(Hero hero, com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob blob) {
+		try {
+			return hero.isImmune(blob.getClass());
+		} catch (Throwable e) {
+			return false;
+		}
 	}
 
 	private static boolean isAdjacent(int a, int b, int width) {
