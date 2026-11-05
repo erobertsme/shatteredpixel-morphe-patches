@@ -301,6 +301,8 @@ public final class FloorEditor {
 	static void setDoor(int cell, int tile) {
 		Level.set(cell, tile);
 		GameScene.updateMap(cell);
+		Dungeon.observe();
+		GameScene.updateFog();
 	}
 
 	static final String[] TERRAIN_NAMES = { "Floor", "Wall", "Door", "Water", "Grass", "Tall grass", "Chasm", "Embers", "Barricade" };
