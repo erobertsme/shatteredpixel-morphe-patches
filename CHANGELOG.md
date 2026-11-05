@@ -1,3 +1,9 @@
+## [1.0.0-dev.38](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.37...v1.0.0-dev.38) (2026-11-05)
+
+### 🐛 Bug Fixes
+
+* Confirm attacks, stairs and steps into danger as well as walking, with a setting for each ([5e8bbbf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5e8bbbfb2d965cadc66f1414c59bdedc232a790e))
+
 ## [1.0.0-dev.37](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.36...v1.0.0-dev.37) (2026-11-05)
 
 ### ✨ New Features
