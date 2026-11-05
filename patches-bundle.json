@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-05T06:09:47",
-  "description": "## [1.0.0-dev.34](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.33...v1.0.0-dev.34) (2026-11-05)\n\n### ✨ New Features\n\n* Add drag-to-draw with Finish and Cancel to the floor editor ([8d69cbd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8d69cbdfcf897b076e05652c2056d0f4851c881d))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.34/patches-1.0.0-dev.34.mpp",
+  "created_at": "2026-11-05T06:29:24",
+  "description": "## [1.0.0-dev.35](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.34...v1.0.0-dev.35) (2026-11-05)\n\n### 🐛 Bug Fixes\n\n* Make colored button text readable and tint Finish and Cancel green and red ([4e7aed5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4e7aed5e802e2983fa8af1b80674431efc289ef7))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.35/patches-1.0.0-dev.35.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.34"
+  "version": "1.0.0-dev.35"
 }

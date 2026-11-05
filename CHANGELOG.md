@@ -1,3 +1,9 @@
+## [1.0.0-dev.35](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.34...v1.0.0-dev.35) (2026-11-05)
+
+### 🐛 Bug Fixes
+
+* Make colored button text readable and tint Finish and Cancel green and red ([4e7aed5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4e7aed5e802e2983fa8af1b80674431efc289ef7))
+
 ## [1.0.0-dev.34](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.33...v1.0.0-dev.34) (2026-11-05)
 
 ### ✨ New Features
