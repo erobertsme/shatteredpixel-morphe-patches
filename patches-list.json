@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.39",
+  "version": "1.0.0-dev.40",
   "patches": [
     {
       "name": "Character editor",
@@ -218,7 +218,7 @@
     },
     {
       "name": "QoL enhancements",
-      "description": "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons.",
+      "description": "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Fearless shopkeeper: the shopkeeper never runs off with the shop. List everything on a tile: examining a tile lists every item in a pile and the tile itself. Unlimited inventory space.",
       "default": true,
       "category": null,
       "compatiblePackages": [

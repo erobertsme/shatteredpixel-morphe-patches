@@ -1,3 +1,13 @@
+## [1.0.0-dev.40](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.39...v1.0.0-dev.40) (2026-11-05)
+
+### ✨ New Features
+
+* Add fearless shopkeeper, a list of everything on a tile with per-item pick up, and unlimited inventory space ([f0cd8df](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f0cd8dff3f51b5827012692d9db97a18788f8b17))
+
+### 🐛 Bug Fixes
+
+* Share the existing bag window fingerprint for unlimited inventory space ([cf19594](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/cf1959439c615bc06955a44d74f4944edd529769))
+
 ## [1.0.0-dev.39](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.38...v1.0.0-dev.39) (2026-11-05)
 
 ### 🐛 Bug Fixes
