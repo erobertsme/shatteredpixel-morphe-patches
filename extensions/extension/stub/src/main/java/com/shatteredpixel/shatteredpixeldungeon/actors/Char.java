@@ -9,6 +9,7 @@ public class Char {
 
 	public Alignment alignment;
 	public int pos;
+	public boolean[] fieldOfView;
 	public int HP;
 	public int HT;
 

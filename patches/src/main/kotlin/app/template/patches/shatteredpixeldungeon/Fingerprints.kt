@@ -1,6 +1,7 @@
 package app.template.patches.shatteredpixeldungeon
 
 import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.methodCall
 import com.android.tools.smali.dexlib2.AccessFlags
 
 object BundleWriteFingerprint : Fingerprint(
@@ -396,4 +397,20 @@ object WndInfoTrapConstructorFingerprint : Fingerprint(
 	name = "<init>",
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap;"),
+)
+
+object PathPreviewAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/PathPreview;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object DefaultCellListenerFingerprint : Fingerprint(
+	name = "onSelect",
+	returnType = "V",
+	parameters = listOf("Ljava/lang/Integer;"),
+	filters = listOf(
+		methodCall(definingClass = HERO_CLASS, name = "handle"),
+	),
 )

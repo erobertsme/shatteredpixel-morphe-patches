@@ -6,6 +6,9 @@ public class Camera extends Gizmo {
 	public static Camera main;
 	public int width;
 	public int height;
+	public float zoom;
+
+	public synchronized void shift(PointF point) { throw new RuntimeException("Stub"); }
 
 	public PointF screenToCamera(int x, int y) { throw new RuntimeException("Stub"); }
 }

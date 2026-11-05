@@ -18,7 +18,7 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nThe Floor editor is in the in-game menu, and on the Edit tile button when you examine a tile or trap.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nThe Floor editor is in the in-game menu, and on the Edit tile button when you examine a tile or trap.\n\nConfirm movement: tapping a distant tile shows the path your hero would take, with Go and Cancel buttons. Tap the same tile again, or Go, to walk there.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
 
@@ -45,6 +45,21 @@ public class CloverlordWindow extends Window {
 			buildEditors();
 			resize(WIDTH, (int) pos);
 			return;
+		}
+
+		if (PathPreview.isAvailable()) {
+			addLabel("Quality of life");
+			CheckBox confirm = new CheckBox("Confirm movement") {
+				@Override
+				public void onClick() {
+					super.onClick();
+					PathPreview.setEnabled(checked());
+				}
+			};
+			confirm.checked(PathPreview.isEnabled());
+			confirm.setRect(0, pos, WIDTH, BTN_HEIGHT);
+			add(confirm);
+			pos = confirm.bottom() + GAP;
 		}
 
 		if (EditorSwitches.hunger()) {

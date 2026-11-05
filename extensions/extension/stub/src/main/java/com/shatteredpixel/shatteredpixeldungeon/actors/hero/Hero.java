@@ -18,6 +18,10 @@ public class Hero extends Char {
 	public ArrayList<LinkedHashMap<Talent, Integer>> talents;
 	public LinkedHashMap<Talent, Talent> metamorphedTalents;
 
+	public boolean ready;
+
+	public boolean handle(int cell) { throw new RuntimeException("Stub"); }
+	public void next() { throw new RuntimeException("Stub"); }
 	public void updateHT(boolean boostHP) { throw new RuntimeException("Stub"); }
 	public int STR() { throw new RuntimeException("Stub"); }
 	public int maxExp() { throw new RuntimeException("Stub"); }

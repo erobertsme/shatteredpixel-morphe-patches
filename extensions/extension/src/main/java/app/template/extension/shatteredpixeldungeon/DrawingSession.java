@@ -36,11 +36,12 @@ final class DrawingSession {
 	private static final int TILE_SIZE = 16;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
-	private static final String[] BRUSH_NAMES = { "Floor", "Wall", "Eraser" };
+	private static final String[] BRUSH_NAMES = { "Floor", "Wall", "Eraser", "Move view" };
 
 	static final int FLOOR = 0;
 	static final int WALL = 1;
 	static final int ERASER = 2;
+	static final int MOVE_VIEW = 3;
 
 	private static final class Original {
 		final int terrain;
@@ -63,6 +64,8 @@ final class DrawingSession {
 	private final List<Gizmo> overlay = new ArrayList<>();
 	private int brush;
 	private int lastCell = -1;
+	private float lastX;
+	private float lastY;
 	private RenderedTextBlock label;
 	private final List<RedButton> brushButtons = new ArrayList<>();
 
@@ -91,12 +94,21 @@ final class DrawingSession {
 			@Override
 			public void onPointerDown(PointerEvent event) {
 				lastCell = -1;
-				paintAt(event.current);
+				lastX = event.current.x;
+				lastY = event.current.y;
+				if (brush != MOVE_VIEW) paintAt(event.current);
 			}
 
 			@Override
 			public void onDrag(PointerEvent event) {
-				paintAt(event.current);
+				if (brush == MOVE_VIEW) {
+					Camera main = Camera.main;
+					main.shift(new PointF((lastX - event.current.x) / main.zoom, (lastY - event.current.y) / main.zoom));
+				} else {
+					paintAt(event.current);
+				}
+				lastX = event.current.x;
+				lastY = event.current.y;
 			}
 
 			@Override
@@ -126,7 +138,7 @@ final class DrawingSession {
 		finish.setRect(width - MARGIN - sideWidth, actionsTop, sideWidth, BUTTON_HEIGHT);
 		addToOverlay(finish);
 
-		float brushWidth = (width - 2 * MARGIN - 2 * 2) / 3f;
+		float brushWidth = (width - 2 * MARGIN - 3 * 2) / 4f;
 		for (int i = 0; i < BRUSH_NAMES.length; i++) {
 			int index = i;
 			RedButton button = new RedButton(BRUSH_NAMES[i], 7) {
@@ -155,7 +167,7 @@ final class DrawingSession {
 	}
 
 	private void updateLabel() {
-		label.text("Drawing: " + BRUSH_NAMES[brush] + "  -  drag across tiles to paint");
+		label.text(brush == MOVE_VIEW ? "Moving the view  -  drag to look around" : "Drawing: " + BRUSH_NAMES[brush] + "  -  drag across tiles to paint");
 		label.maxWidth(PixelScene.uiCamera.width - 2 * MARGIN);
 		label.setPos(MARGIN, 30);
 	}
