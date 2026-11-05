@@ -452,3 +452,17 @@ object BackpackCapacityFingerprint : Fingerprint(
 	returnType = "I",
 	parameters = listOf(),
 )
+
+object WndBagPlaceItemFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "placeItem",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
+object WndBagIconFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "icon",
+	returnType = "Lcom/watabou/noosa/Image;",
+	parameters = listOf(BAG_CLASS),
+)

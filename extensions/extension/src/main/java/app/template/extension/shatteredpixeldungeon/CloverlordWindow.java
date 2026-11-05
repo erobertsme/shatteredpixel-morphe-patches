@@ -21,7 +21,7 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile or trap.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nFearless shopkeeper: the shopkeeper never runs off with the shop, even if you fight in the shop, hit them by accident or get caught stealing.\n\nList everything on a tile: examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space: every bag always has room for one more item, and the backpack grows to fit.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nList everything on a tile (Editors tab, part of the Floor editor): examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space and the Weapons, Armor and Rings backpack tabs are in the Inventory editor, under Inventory in the in-game menu.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile or trap.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nFearless shopkeeper: the shopkeeper never runs off with the shop, even if you fight in the shop, hit them by accident or get caught stealing.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
 
@@ -94,8 +94,6 @@ public class CloverlordWindow extends Window {
 			EditorWindow.show(new ConfirmWindow());
 		});
 		addOption("Fearless shopkeeper", QolSettings.fearlessShopkeeper(), QolSettings::fearlessShopkeeper);
-		addOption("List everything on a tile", QolSettings.tileContents(), QolSettings::tileContents);
-		addOption("Unlimited inventory space", QolSettings.unlimitedInventory(), QolSettings::unlimitedInventory);
 	}
 
 	private void buildUnlocks() {
@@ -142,6 +140,10 @@ public class CloverlordWindow extends Window {
 		if (EnemyWindow.isAvailable()) addSwitch("Enemy and NPC editor", EditorSwitches.ENEMY);
 		if (FloorWindow.isAvailable()) addSwitch("Floor editor", EditorSwitches.FLOOR);
 		if (HungerEditor.isAvailable()) addSwitch("Hunger editor", EditorSwitches.HUNGER);
+		if (FloorWindow.isAvailable()) {
+			addLabel("Floor editor");
+			addOption("List everything on a tile", TileContents.isOn(), TileContents::setOn);
+		}
 	}
 
 	private void addSwitch(String text, String key) {

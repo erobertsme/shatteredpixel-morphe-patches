@@ -7,6 +7,10 @@ public class Item {
 	public boolean cursedKnown;
 	public boolean levelKnown;
 	public boolean stackable;
+	protected int image;
+
+	public String name() { throw new RuntimeException("Stub"); }
+	public String desc() { throw new RuntimeException("Stub"); }
 
 	public static void updateQuickslot() { throw new RuntimeException("Stub"); }
 	public boolean collect(Bag container) { throw new RuntimeException("Stub"); }

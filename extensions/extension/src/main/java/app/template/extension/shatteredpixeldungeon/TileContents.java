@@ -17,8 +17,17 @@ import java.util.List;
 public final class TileContents {
 
 	private static final String TAG = "TileContents";
+	private static final String KEY_OFF = "qol_tile_contents_off";
 
 	private TileContents() {
+	}
+
+	static boolean isOn() {
+		return FloorWindow.isAvailable() && !CloverlordSettings.get(KEY_OFF);
+	}
+
+	static void setOn(boolean on) {
+		CloverlordSettings.set(KEY_OFF, !on);
 	}
 
 	/**
@@ -26,7 +35,7 @@ public final class TileContents {
 	 */
 	public static boolean examine(Integer cell) {
 		try {
-			if (cell == null || !QolSettings.tileContents()) return false;
+			if (cell == null || !isOn()) return false;
 			Level level = Dungeon.level;
 			if (level == null || cell < 0 || cell >= level.length()) return false;
 			if (!level.visited[cell] && !level.mapped[cell]) return false;

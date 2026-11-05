@@ -7,7 +7,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 
-public class Belongings {
+public class Belongings implements Iterable<com.shatteredpixel.shatteredpixeldungeon.items.Item> {
+	public java.util.Iterator<com.shatteredpixel.shatteredpixeldungeon.items.Item> iterator() { throw new RuntimeException("Stub"); }
+	public java.util.ArrayList<Bag> getBags() { throw new RuntimeException("Stub"); }
 	public KindOfWeapon weapon;
 	public Armor armor;
 	public Artifact artifact;

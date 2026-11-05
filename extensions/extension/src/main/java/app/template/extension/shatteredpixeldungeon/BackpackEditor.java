@@ -5,6 +5,8 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -103,9 +105,17 @@ public final class BackpackEditor {
 	}
 
 	/**
+	 * Whether the bag window being built right now opens in edit mode.
+	 */
+	static boolean isOpeningEditWindow() {
+		return pendingEditWindow;
+	}
+
+	/**
 	 * Called at the end of the WndBag constructor. Switching bag tabs keeps edit mode.
 	 */
 	public static void afterBagCreated(Window window) {
+		InventorySpace.afterBagCreated(window);
 		if (pendingEditWindow) {
 			editWindows.add(window);
 			decorate(window);
@@ -149,6 +159,17 @@ public final class BackpackEditor {
 			};
 			shortcut.setRect(counterLeft(window) - SHORTCUT_WIDTH - 3, 1, SHORTCUT_WIDTH, SHORTCUT_HEIGHT);
 			window.add(shortcut);
+
+			if (!editing) return;
+			IconButton settings = new IconButton(Icons.get(Icons.PREFS)) {
+				@Override
+				public void onClick() {
+					window.hide();
+					InventoryWindow.open();
+				}
+			};
+			settings.setRect(shortcut.left() - SHORTCUT_HEIGHT - 2, 1, SHORTCUT_HEIGHT, SHORTCUT_HEIGHT);
+			window.add(settings);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the backpack shortcut", e);
 		}
