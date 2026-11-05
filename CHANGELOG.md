@@ -1,3 +1,9 @@
+## [1.0.0-dev.44](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.43...v1.0.0-dev.44) (2026-11-05)
+
+### ✨ New Features
+
+* Weapons, Armor and Rings backpack tabs, paged bags with unlimited inventory, Cleanse All, and a gear button back to the inventory editor ([e28cc59](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e28cc5986c40d034aa0f23cb3669e267eb6b4a14))
+
 ## [1.0.0-dev.43](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.42...v1.0.0-dev.43) (2026-11-05)
 
 ### ✨ New Features
