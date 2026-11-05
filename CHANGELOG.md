@@ -1,3 +1,9 @@
+## [1.0.0-dev.37](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.36...v1.0.0-dev.37) (2026-11-05)
+
+### ✨ New Features
+
+* Add QoL enhancements patch with movement path preview, and a move view brush for drawing ([c6ee96f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6ee96f669fdad6e714b04b5eacca445973a41e1))
+
 ## [1.0.0-dev.36](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.35...v1.0.0-dev.36) (2026-11-05)
 
 ### ✨ New Features
