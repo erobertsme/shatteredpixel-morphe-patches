@@ -55,7 +55,13 @@ final class Favorites {
 
 	private static Set<String> items;
 	private static Set<String> statuses;
+	private static final String KEY_CREATURES = "favorite_creatures";
+	private static final String[] DEFAULT_CREATURES = {
+		"actors.mobs.Rat", "actors.mobs.Gnoll", "actors.mobs.Crab", "actors.mobs.Skeleton", "actors.mobs.Golem", "actors.mobs.Wraith",
+	};
+
 	private static Set<String> effects;
+	private static Set<String> creatures;
 	private static Set<String> traps;
 
 	private Favorites() {
@@ -91,6 +97,19 @@ final class Favorites {
 
 	static void toggleTrap(String className) {
 		toggle(traps(), className, KEY_TRAPS);
+	}
+
+	static boolean isCreature(String className) {
+		return creatures().contains(className);
+	}
+
+	static void toggleCreature(String className) {
+		toggle(creatures(), className, KEY_CREATURES);
+	}
+
+	private static synchronized Set<String> creatures() {
+		if (creatures == null) creatures = load(KEY_CREATURES, DEFAULT_CREATURES, PACKAGE);
+		return creatures;
 	}
 
 	private static synchronized Set<String> effects() {

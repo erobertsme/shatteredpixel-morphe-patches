@@ -15,5 +15,6 @@ public class Mob extends Char {
 	public int EXP;
 	public int defenseSkill;
 
+	public com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite sprite() { throw new RuntimeException("Stub"); }
 	public void clearEnemy() { throw new RuntimeException("Stub"); }
 }

@@ -162,11 +162,23 @@ final class InventoryEditor {
 	}
 
 	static void add(Hero hero, Class<? extends Item> type, int level, int quantity) {
+		add(hero, type, level, quantity, -1);
+	}
+
+	/**
+	 * Adds an item to the backpack, or drops it on [cell] when [cell] is not -1.
+	 */
+	static void add(Hero hero, Class<? extends Item> type, int level, int quantity, int cell) {
 		try {
 			Item item = type.getConstructor().newInstance();
 			if (level != 0 && isLevelEditable(item)) setLevel(item, level);
 			if (item.stackable) item.quantity(Math.max(1, quantity));
 			item.identify();
+			if (cell >= 0) {
+				Heap heap = Dungeon.level.drop(item, cell);
+				if (heap != null && heap.sprite != null) heap.sprite.drop();
+				return;
+			}
 			give(hero, item);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add " + type.getName(), e);

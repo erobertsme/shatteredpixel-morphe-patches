@@ -8,5 +8,7 @@ public class Dungeon {
 	public static Level level;
 	public static int gold;
 	public static int depth;
+
+	public static void observe() { throw new RuntimeException("Stub"); }
 	public static int energy;
 }

@@ -1,6 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -11,9 +12,15 @@ import java.util.List;
 
 public class FloorWindow extends EditorWindow {
 
-	private static final String INFO = "Floor editor\n\nEffects lists every gas and area effect on this floor with its total strength. Remove clears one completely, Remove all clears them all.\n\nTraps: Reveal and Hide change whether you can see them. Disarm stops them going off, Re-arm switches them back on. Remove all traps takes every trap off this floor.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit tile.";
+	private static final String[] TABS = { "Effects", "Traps", "Other" };
+	private static final String[] INFO = {
+		"Effects\n\nEvery gas and area effect on this floor with its total strength. Remove clears one completely, Remove all clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit tile.",
+		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm stops them going off, Re-arm switches them back on. Remove all traps takes every trap off this floor.",
+		"Other\n\nReveal map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget map clears what you have explored.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
+	};
 
 	private static Runnable backAction;
+	private static int tab;
 
 	/**
 	 * Replaced by the Floor editor patch to return true.
@@ -24,23 +31,53 @@ public class FloorWindow extends EditorWindow {
 
 	static void open(Runnable back) {
 		backAction = back;
+		tab = 0;
 		show(new FloorWindow());
 	}
 
 	public FloorWindow() {
 		super();
-		addTitle("FLOOR " + Dungeon.depth, INFO);
+		addTitle("FLOOR " + Dungeon.depth, INFO[tab]);
+		addButtonRow(TABS, tab, index -> {
+			tab = index;
+			refresh();
+		});
+		pos += GAP;
 
-		addSection("Effects on this floor");
+		float start = pos;
+		float height = 0;
+		for (int i = 0; i < TABS.length; i++) {
+			if (i == tab) continue;
+			int index = i;
+			height = Math.max(height, measure(() -> buildTab(index)));
+		}
+		buildTab(tab);
+		pos = Math.max(pos, start + height);
+
+		pos += GAP;
+		addButton("Back", 0, WIDTH, this::back);
+		pos += ROW_HEIGHT;
+		finish();
+	}
+
+	private void buildTab(int index) {
+		if (index == 0) buildEffects();
+		if (index == 1) buildTraps();
+		if (index == 2) buildOther();
+	}
+
+	private void buildEffects() {
 		List<Blob> effects = FloorEditor.activeEffects();
-		if (effects.isEmpty()) addHint("None.");
+		if (effects.isEmpty()) addHint("No effects on this floor.");
 		for (Blob blob : effects) addEffectRow(blob);
 		addButton("Remove all effects", 0, WIDTH, () -> {
 			FloorEditor.clearAllEffects();
 			refresh();
 		}).enable(!effects.isEmpty());
 		pos += ROW_HEIGHT + GAP;
+	}
 
+	private void buildTraps() {
 		List<Trap> traps = FloorEditor.traps();
 		int hidden = 0;
 		int disarmed = 0;
@@ -48,7 +85,7 @@ public class FloorWindow extends EditorWindow {
 			if (!trap.visible) hidden++;
 			if (!trap.active) disarmed++;
 		}
-		addSection("Traps (" + traps.size() + ": " + hidden + " hidden, " + disarmed + " disarmed)");
+		addHint(traps.size() + " traps: " + hidden + " hidden, " + disarmed + " disarmed.");
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Reveal all", 0, half, () -> run(FloorEditor::revealAll)).enable(hidden > 0);
 		addButton("Hide all", half + GAP, half, () -> run(FloorEditor::hideAll)).enable(!traps.isEmpty());
@@ -59,11 +96,28 @@ public class FloorWindow extends EditorWindow {
 		RedButton removeAll = addButton("Remove all traps", 0, WIDTH, () -> run(FloorEditor::removeAllTraps));
 		removeAll.textColor(CharacterWindow.NEGATIVE_COLOR);
 		removeAll.enable(!traps.isEmpty());
-		pos += ROW_HEIGHT + 2 * GAP;
+		pos += ROW_HEIGHT + GAP;
+	}
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+	private void buildOther() {
+		addSection("Map");
+		float half = (WIDTH - GAP) / 2f;
+		addButton("Reveal map", 0, half, () -> run(FloorEditor::revealMap));
+		addButton("Forget map", half + GAP, half, () -> run(FloorEditor::forgetMap));
+		pos += ROW_HEIGHT + GAP;
+
+		addSection("Creatures");
+		addGroupButton("Defeat all enemies", Char.Alignment.ENEMY);
+		addGroupButton("Defeat all allies", Char.Alignment.ALLY);
+		addGroupButton("Defeat all neutral", Char.Alignment.NEUTRAL);
+	}
+
+	private void addGroupButton(String label, Char.Alignment alignment) {
+		int count = FloorEditor.countCreatures(alignment);
+		RedButton button = addButton(label + " (" + count + ")", 0, WIDTH, () -> run(() -> FloorEditor.defeatCreatures(alignment)));
+		button.textColor(CharacterWindow.NEGATIVE_COLOR);
+		button.enable(count > 0);
+		pos += ROW_HEIGHT + GAP;
 	}
 
 	private void addEffectRow(Blob blob) {

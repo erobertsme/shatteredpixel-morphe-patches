@@ -3,9 +3,15 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
@@ -295,6 +301,143 @@ public final class FloorEditor {
 	static void setDoor(int cell, int tile) {
 		Level.set(cell, tile);
 		GameScene.updateMap(cell);
+	}
+
+	static final String[] TERRAIN_NAMES = { "Floor", "Wall", "Water", "Grass", "Tall grass", "Chasm", "Embers", "Barricade" };
+	static final int[] TERRAINS = { EMPTY, 4, 29, 2, 15, 0, 9, 13 };
+	private static final int[] BLOCKING_TERRAINS = { 4, 0, 13 };
+
+	static boolean isBlocking(int terrain) {
+		for (int blocking : BLOCKING_TERRAINS) if (blocking == terrain) return true;
+		return false;
+	}
+
+	static boolean hasCharacter(int cell) {
+		return Actor.findChar(cell) != null;
+	}
+
+	static void setTerrain(int cell, int terrain) {
+		Level level = level();
+		if (level == null) return;
+		if (isBlocking(terrain) && hasCharacter(cell)) return;
+		try {
+			if (terrain != EMPTY) {
+				Trap trap = trapAt(cell);
+				if (trap != null) level.traps.remove(cell);
+				if (plantAt(cell) != null) level.uproot(cell);
+			}
+			Level.set(cell, terrain);
+			GameScene.updateMap(cell);
+			Dungeon.observe();
+			GameScene.updateFog();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not change terrain", e);
+		}
+	}
+
+	static boolean canStandOn(int cell) {
+		Level level = level();
+		return level != null && level.passable[cell] && !hasCharacter(cell) && tileAt(cell) != 0;
+	}
+
+	static void teleportHero(int cell) {
+		if (!canStandOn(cell)) return;
+		try {
+			ScrollOfTeleportation.appear(Dungeon.hero, cell);
+			Dungeon.observe();
+			GameScene.updateFog();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not teleport", e);
+		}
+	}
+
+	static void spawn(Class<? extends Mob> type, int cell, boolean ally) {
+		if (!canStandOn(cell)) return;
+		try {
+			Mob mob = type.getConstructor().newInstance();
+			mob.pos = cell;
+			mob.state = mob.WANDERING;
+			GameScene.add(mob);
+			if (ally) EnemyEditor.setAlignment(mob, Char.Alignment.ALLY);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not spawn " + type.getName(), e);
+		}
+	}
+
+	static Plant plantAt(int cell) {
+		Level level = level();
+		return level == null || level.plants == null ? null : level.plants.get(cell, null);
+	}
+
+	static String plantName(Plant plant) {
+		try {
+			return InventoryEditor.capitalize(plant.name());
+		} catch (Throwable e) {
+			return plant.getClass().getSimpleName();
+		}
+	}
+
+	static boolean canPlant(int cell) {
+		return canPlaceTrap(cell) && trapAt(cell) == null;
+	}
+
+	static void plant(Class<? extends Item> seedType, int cell) {
+		if (!canPlant(cell)) return;
+		try {
+			level().plant((Plant.Seed) seedType.getConstructor().newInstance(), cell);
+			GameScene.updateMap(cell);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not plant " + seedType.getName(), e);
+		}
+	}
+
+	static void uproot(int cell) {
+		try {
+			level().uproot(cell);
+			GameScene.updateMap(cell);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not remove the plant", e);
+		}
+	}
+
+	static void revealMap() {
+		Level level = level();
+		if (level == null) return;
+		for (int i = 0; i < level.length(); i++) {
+			if (level.discoverable[i]) level.mapped[i] = true;
+			if (level.secret[i]) level.discover(i);
+		}
+		Dungeon.observe();
+		GameScene.updateFog();
+	}
+
+	static void forgetMap() {
+		Level level = level();
+		if (level == null) return;
+		for (int i = 0; i < level.length(); i++) {
+			level.mapped[i] = false;
+			level.visited[i] = false;
+		}
+		Dungeon.observe();
+		GameScene.updateFog();
+	}
+
+	static int countCreatures(Char.Alignment alignment) {
+		int count = 0;
+		for (Mob mob : creatures()) if (mob.alignment == alignment) count++;
+		return count;
+	}
+
+	static void defeatCreatures(Char.Alignment alignment) {
+		for (Mob mob : creatures()) {
+			if (mob.alignment == alignment && mob.isAlive()) EnemyEditor.defeat(mob);
+		}
+	}
+
+	private static List<Mob> creatures() {
+		Level level = level();
+		if (level == null || level.mobs == null) return Collections.emptyList();
+		return new ArrayList<>(level.mobs);
 	}
 
 	static String trapState(Trap trap) {

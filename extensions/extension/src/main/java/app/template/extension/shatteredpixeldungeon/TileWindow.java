@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -15,13 +16,20 @@ import java.util.List;
 
 public class TileWindow extends EditorWindow {
 
-	private static final String INFO = "Tile editor\n\nEffects lists every gas or area effect on this tile. Here clears it from this tile only. All removes it from the whole floor. Add effect places a new one on this tile.\n\nTrap: Active means it goes off when stepped on. Visible means you can see it. Trigger sets it off now. Change swaps it for another trap type. Remove takes it away. Without a trap, Add trap places one here.\n\nDoor: Lock turns it into a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns it into a hidden door you have to search for.\n\nFloor opens the editor for the whole floor.";
+	private static final String[] TABS = { "Effects", "Objects", "Tile" };
+	private static final String[] INFO = {
+		"Effects\n\nEvery gas or area effect on this tile. Here clears it from this tile only, All removes it from the whole floor. Add effect places a new one on this tile.",
+		"Objects\n\nDoor: Lock makes it a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns it into a hidden door.\n\nTrap: Active means it goes off when stepped on, Visible means you can see it. Trigger sets it off now, Change swaps the trap type, Remove takes it away.\n\nPlant: plant a seed here or remove the plant that is here.",
+		"Tile\n\nTerrain changes what this tile is. Walls, chasms and barricades can't be placed where a creature is standing. Changing the terrain removes any trap or plant here.\n\nTeleport here moves your hero to this tile. Spawn creature places any enemy, NPC or ally here. Place item puts any item on this tile.",
+	};
 
 	private static Runnable backAction;
+	private static int tab;
 	private final int cell;
 
 	static void open(int cell, Runnable back) {
 		backAction = back;
+		tab = 0;
 		show(new TileWindow(cell));
 	}
 
@@ -33,9 +41,41 @@ public class TileWindow extends EditorWindow {
 		super();
 		this.cell = cell;
 		int width = Dungeon.level.width();
-		addTitle("TILE " + (cell % width) + ", " + (cell / width), INFO);
+		addTitle("TILE " + (cell % width) + ", " + (cell / width), INFO[tab]);
+		addButtonRow(TABS, tab, index -> {
+			tab = index;
+			refresh();
+		});
+		pos += GAP;
 
-		addSection("Effects on this tile");
+		float start = pos;
+		float height = 0;
+		for (int i = 0; i < TABS.length; i++) {
+			if (i == tab) continue;
+			int index = i;
+			height = Math.max(height, measure(() -> buildTab(index)));
+		}
+		buildTab(tab);
+		pos = Math.max(pos, start + height);
+
+		pos += GAP;
+		float half = (WIDTH - GAP) / 2f;
+		addButton("Floor", 0, half, () -> {
+			hide();
+			FloorWindow.open(() -> open(cell));
+		});
+		addButton("Back", half + GAP, half, this::back);
+		pos += ROW_HEIGHT;
+		finish();
+	}
+
+	private void buildTab(int index) {
+		if (index == 0) buildEffects();
+		if (index == 1) buildObjects();
+		if (index == 2) buildTile();
+	}
+
+	private void buildEffects() {
 		boolean any = false;
 		for (Blob blob : FloorEditor.activeEffects()) {
 			int here = FloorEditor.strengthAt(blob, cell);
@@ -43,10 +83,12 @@ public class TileWindow extends EditorWindow {
 			any = true;
 			addEffectRow(blob, here);
 		}
-		if (!any) addHint("None.");
+		if (!any) addHint("No effects on this tile.");
 		addButton("Add effect", 0, WIDTH, () -> replaceWith(new EffectPickerWindow(cell, 0, 0)));
 		pos += ROW_HEIGHT + GAP;
+	}
 
+	private void buildObjects() {
 		if (FloorEditor.isDoor(cell)) addDoor();
 
 		addSection("Trap");
@@ -58,15 +100,61 @@ public class TileWindow extends EditorWindow {
 			addTrap(trap);
 		}
 
-		pos += GAP;
-		float half = (WIDTH - GAP) / 2f;
-		addButton("Floor", 0, half, () -> {
+		addSection("Plant");
+		Plant plant = FloorEditor.plantAt(cell);
+		if (plant == null) {
+			addButton("Plant a seed", 0, WIDTH, () -> replaceWith(new SeedPickerWindow(cell, 0))).enable(FloorEditor.canPlant(cell));
+		} else {
+			float half = (WIDTH - GAP) / 2f;
+			addButton(FloorEditor.plantName(plant), 0, half, () -> showPlantInfo(plant));
+			addButton("Remove", half + GAP, half, () -> {
+				FloorEditor.uproot(cell);
+				refresh();
+			}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	private void buildTile() {
+		addSection("Terrain");
+		int current = FloorEditor.tileAt(cell);
+		boolean occupied = FloorEditor.hasCharacter(cell);
+		int perRow = 4;
+		float width = (WIDTH - (perRow - 1) * GAP) / (float) perRow;
+		for (int i = 0; i < FloorEditor.TERRAINS.length; i++) {
+			int terrain = FloorEditor.TERRAINS[i];
+			float x = (i % perRow) * (width + GAP);
+			if (i > 0 && i % perRow == 0) pos += ROW_HEIGHT + GAP;
+			RedButton button = addButton(FloorEditor.TERRAIN_NAMES[i], x, width, () -> {
+				FloorEditor.setTerrain(cell, terrain);
+				refresh();
+			});
+			if (terrain == current) button.textColor(CharacterWindow.TITLE_COLOR);
+			button.enable(!(occupied && FloorEditor.isBlocking(terrain)));
+		}
+		pos += ROW_HEIGHT + GAP;
+
+		addSection("Actions");
+		boolean free = FloorEditor.canStandOn(cell);
+		addButton("Teleport here", 0, WIDTH, () -> {
 			hide();
-			FloorWindow.open(() -> open(cell));
-		});
-		addButton("Back", half + GAP, half, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+			FloorEditor.teleportHero(cell);
+		}).enable(free);
+		pos += ROW_HEIGHT + GAP;
+		float half = (WIDTH - GAP) / 2f;
+		addButton("Spawn creature", 0, half, () -> replaceWith(new CreaturePickerWindow(cell, 0, 0))).enable(free);
+		addButton("Place item", half + GAP, half, () -> {
+			hide();
+			ItemPickerWindow.openForCell(cell);
+		}).enable(FloorEditor.level().passable[cell]);
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	private static void showPlantInfo(Plant plant) {
+		try {
+			show(new WndMessage(FloorEditor.plantName(plant) + "\n\n" + plant.desc()));
+		} catch (Throwable ignored) {
+		}
 	}
 
 	private void addEffectRow(Blob blob, int here) {
