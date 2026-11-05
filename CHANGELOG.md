@@ -3,6 +3,13 @@
 ### ✨ New Features
 
 * Add terrain, teleport, creature spawning, item placing, plants, map and creature group tools to the floor editor ([049c701](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/049c701740a9cb760d322d399fa4341ed6b653e8))
+* Show the current terrain in the tile editor title ([439ecc9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/439ecc9e14db60c59f14571d6d83f69c8e303c50))
+
+## [1.0.0-dev.29](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.28...v1.0.0-dev.29) (2026-11-05)
+
+### ✨ New Features
+
+* Add terrain, teleport, creature spawning, item placing, plants, map and creature group tools to the floor editor ([049c701](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/049c701740a9cb760d322d399fa4341ed6b653e8))
 
 ## [1.0.0-dev.29](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.28...v1.0.0-dev.29) (2026-11-05)
 
