@@ -13,7 +13,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportat
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
@@ -342,40 +341,6 @@ public final class FloorEditor {
 			Log.e(TAG, "Could not clear the tile", e);
 		}
 		setTerrain(cell, CHASM);
-	}
-
-	/**
-	 * Lets the player tap tile after tile to paint them with [terrain], or delete them when [erase] is true.
-	 * Stops when the prompt is closed.
-	 */
-	static void startDrawing(String brushName, int terrain, boolean erase) {
-		GameScene.selectCell(new CellSelector.Listener() {
-			private boolean rearming;
-
-			@Override
-			public void onSelect(Integer cell) {
-				if (cell == null) {
-					if (rearming) rearming = false;
-					return;
-				}
-				if (erase) {
-					deleteTile(cell);
-				} else if (tileAt(cell) != terrain) {
-					setTerrain(cell, terrain);
-				}
-				rearming = true;
-				CellSelector.Listener self = this;
-				com.watabou.noosa.Game.runOnRenderThread(() -> {
-					rearming = false;
-					GameScene.selectCell(self);
-				});
-			}
-
-			@Override
-			public String prompt() {
-				return "Drawing " + brushName + ": tap tiles to paint. Close this message to stop.";
-			}
-		});
 	}
 
 	static boolean isBlocking(int terrain) {

@@ -14,7 +14,9 @@ public enum Icons {
 	BACKPACK,
 	RANKINGS,
 	BUFFS,
-	DEPTH;
+	DEPTH,
+	CLOSE,
+	CHECKED;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }
