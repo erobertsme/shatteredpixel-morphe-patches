@@ -392,12 +392,53 @@ public final class FloorEditor {
 		try {
 			Mob mob = type.getConstructor().newInstance();
 			mob.pos = cell;
-			mob.state = mob.WANDERING;
+			prepare(mob);
 			GameScene.add(mob);
 			if (ally) EnemyEditor.setAlignment(mob, Char.Alignment.ALLY);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not spawn " + type.getName(), e);
 		}
+	}
+
+	private static void prepare(Mob mob) {
+		int depth = Math.max(1, Dungeon.scalingDepth());
+		if (mob.HT <= 0) callWithLevel(mob, depth, "setLevel", "adjustStats", "spawn");
+		if (mob.HT <= 0) mob.HT = 10 + depth * 5;
+		if (mob.HP <= 0) mob.HP = mob.HT;
+		if (isMimic(mob)) mob.alignment = Char.Alignment.ENEMY;
+		mob.state = mob.WANDERING;
+	}
+
+	private static void callWithLevel(Mob mob, int level, String... names) {
+		for (String name : names) {
+			for (Class<?> type = mob.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+				try {
+					java.lang.reflect.Method method = type.getDeclaredMethod(name, int.class);
+					method.setAccessible(true);
+					method.invoke(mob, level);
+					return;
+				} catch (NoSuchMethodException ignored) {
+				} catch (Throwable e) {
+					Log.e(TAG, "Could not set up " + mob.getClass().getName(), e);
+					return;
+				}
+			}
+		}
+	}
+
+	static boolean isMimic(Char ch) {
+		for (Class<?> type = ch.getClass(); type != null; type = type.getSuperclass()) {
+			if (type.getName().equals("com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic")) return true;
+		}
+		return false;
+	}
+
+	static boolean isHiddenMimic(Char ch) {
+		return ch.alignment == Char.Alignment.NEUTRAL && isMimic(ch);
+	}
+
+	static Char.Alignment groupOf(Mob mob) {
+		return isHiddenMimic(mob) ? Char.Alignment.ENEMY : mob.alignment;
 	}
 
 	static Plant plantAt(int cell) {
@@ -460,13 +501,13 @@ public final class FloorEditor {
 
 	static int countCreatures(Char.Alignment alignment) {
 		int count = 0;
-		for (Mob mob : creatures()) if (mob.alignment == alignment) count++;
+		for (Mob mob : creatures()) if (groupOf(mob) == alignment) count++;
 		return count;
 	}
 
 	static void defeatCreatures(Char.Alignment alignment) {
 		for (Mob mob : creatures()) {
-			if (mob.alignment == alignment && mob.isAlive()) EnemyEditor.defeat(mob);
+			if (groupOf(mob) == alignment) EnemyEditor.defeat(mob);
 		}
 	}
 

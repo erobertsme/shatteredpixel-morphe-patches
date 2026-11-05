@@ -92,9 +92,11 @@ public final class PathPreview {
 			String message;
 			String goLabel;
 			int color;
-			if (ch instanceof Mob && ch != hero && hero.fieldOfView[cell]) {
+			boolean moving = false;
+			int distance = distance(hero.pos, cell, level.width());
+			if (ch instanceof Mob && ch != hero && hero.fieldOfView[cell] && !FloorEditor.isHiddenMimic(ch)) {
 				boolean interact = ((Mob) ch).heroShouldInteract();
-				if (!ConfirmSettings.confirms(interact ? ConfirmSettings.Action.INTERACT : ConfirmSettings.Action.ATTACK)) return false;
+				if (!ConfirmSettings.confirms(interact ? ConfirmSettings.Action.INTERACT : ConfirmSettings.Action.ATTACK, distance)) return false;
 				message = (interact ? "Talk to " : "Attack ") + ch.name() + "?";
 				goLabel = interact ? "Talk" : "Attack";
 				color = interact ? TARGET_COLOR : ATTACK_COLOR;
@@ -108,12 +110,13 @@ public final class PathPreview {
 				goLabel = "Go";
 				color = TARGET_COLOR;
 			} else if (adjacent) {
-				if (!ConfirmSettings.confirms(ConfirmSettings.Action.STEP)) return false;
+				if (!ConfirmSettings.confirms(ConfirmSettings.Action.MOVE, 1)) return false;
 				message = "Step here?";
 				goLabel = "Go";
 				color = TARGET_COLOR;
 			} else {
-				if (!ConfirmSettings.confirms(ConfirmSettings.Action.WALK)) return false;
+				if (!ConfirmSettings.confirms(ConfirmSettings.Action.MOVE)) return false;
+				moving = true;
 				message = null;
 				goLabel = "Go";
 				color = TARGET_COLOR;
@@ -123,6 +126,7 @@ public final class PathPreview {
 			if (path == null) path = new ArrayList<>();
 			if (message == null) {
 				if (path.isEmpty()) return false;
+				if (moving && path.size() < ConfirmSettings.minDistance(ConfirmSettings.Action.MOVE)) return false;
 				message = "Walk " + path.size() + (path.size() == 1 ? " step?" : " steps?");
 			}
 
@@ -154,7 +158,11 @@ public final class PathPreview {
 	}
 
 	private static boolean isAdjacent(int a, int b, int width) {
-		return Math.abs(a % width - b % width) <= 1 && Math.abs(a / width - b / width) <= 1;
+		return distance(a, b, width) <= 1;
+	}
+
+	private static int distance(int a, int b, int width) {
+		return Math.max(Math.abs(a % width - b % width), Math.abs(a / width - b / width));
 	}
 
 	private static List<Integer> findPath(Hero hero, int cell, Level level) {
