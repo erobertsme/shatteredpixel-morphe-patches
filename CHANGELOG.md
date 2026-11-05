@@ -1,3 +1,9 @@
+## [1.0.0-dev.31](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.30...v1.0.0-dev.31) (2026-11-05)
+
+### ✨ New Features
+
+* Add doors to the tile editor's terrain options ([f88b341](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f88b34103ab023a41d9021b958b1d29b4d7ffe8f))
+
 ## [1.0.0-dev.30](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.29...v1.0.0-dev.30) (2026-11-05)
 
 ### ✨ New Features
