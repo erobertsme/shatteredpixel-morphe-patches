@@ -1,3 +1,9 @@
+## [1.0.0-dev.46](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.45...v1.0.0-dev.46) (2026-11-05)
+
+### ✨ New Features
+
+* Move items and piles on the floor to another tile from their examine window, with the chosen tile highlighted ([d4d72dd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d4d72dd5ba81efc9e2f578006314297000be8b87))
+
 ## [1.0.0-dev.45](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.44...v1.0.0-dev.45) (2026-11-05)
 
 ### ✨ New Features

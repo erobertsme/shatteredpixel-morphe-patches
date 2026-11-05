@@ -19,7 +19,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.45](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.45)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
+> **[v1.0.0-dev.46](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.46)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;12 patches</summary>
 <br>
@@ -35,7 +35,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 |----------|----------------|-----------|
 | [Character editor](#character-editor) | Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run. |  |
 | [Enemy editor](#enemy-editor) | Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behavior and status effects. |  |
-| [Floor editor](#floor-editor) | Adds a Floor button to the in-game menu and an Edit tile button when you examine a tile or trap, for removing or adding gases and other area effects and for adding, removing, hiding, revealing and disarming traps. Examining a tile lists everything on it, including every item in a pile and the tile itself. |  |
+| [Floor editor](#floor-editor) | Adds a Floor button to the in-game menu and an Edit tile button when you examine a tile or trap, for removing or adding gases and other area effects and for adding, removing, hiding, revealing and disarming traps. Examining an item on the floor lets you move it to another tile. Examining a tile lists everything on it, including every item in a pile and the tile itself. |  |
 | [Hunger editor](#hunger-editor) | Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game. |  |
 | [Inventory editor](#inventory-editor) | Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). Also adds optional unlimited inventory space with pages, and Weapons, Armor and Rings backpack tabs. |  |
 | [Public save folder](#public-save-folder) | Stores save files in a public folder on the device so they can be opened with any file manager. Asks for storage access on first launch and copies existing saves over. | • Save folder |
