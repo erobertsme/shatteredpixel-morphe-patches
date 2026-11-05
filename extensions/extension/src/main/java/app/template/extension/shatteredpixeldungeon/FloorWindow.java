@@ -16,7 +16,7 @@ public class FloorWindow extends EditorWindow {
 	private static final String[] INFO = {
 		"Effects\n\nEvery gas and area effect on this floor with its total strength. Remove clears one completely, Remove all clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit tile.",
 		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm stops them going off, Re-arm switches them back on. Remove all traps takes every trap off this floor.",
-		"Other\n\nReveal map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget map clears what you have explored.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
+		"Other\n\nReveal map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then tap tiles one after another to paint them. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser. Close the message at the top to stop drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
 	};
 
 	private static Runnable backAction;
@@ -106,10 +106,22 @@ public class FloorWindow extends EditorWindow {
 		addButton("Forget map", half + GAP, half, () -> run(FloorEditor::forgetMap));
 		pos += ROW_HEIGHT + GAP;
 
+		addSection("Draw");
+		float third = (WIDTH - 2 * GAP) / 3f;
+		addButton("Floor", 0, third, () -> draw("floor", FloorEditor.EMPTY_TILE, false));
+		addButton("Wall", third + GAP, third, () -> draw("walls", FloorEditor.WALL, false));
+		addButton("Eraser", 2 * (third + GAP), third, () -> draw("with the eraser", FloorEditor.CHASM, true)).textColor(CharacterWindow.NEGATIVE_COLOR);
+		pos += ROW_HEIGHT + GAP;
+
 		addSection("Creatures");
 		addGroupButton("Defeat all enemies", Char.Alignment.ENEMY);
 		addGroupButton("Defeat all allies", Char.Alignment.ALLY);
 		addGroupButton("Defeat all neutral", Char.Alignment.NEUTRAL);
+	}
+
+	private void draw(String brushName, int terrain, boolean erase) {
+		hide();
+		FloorEditor.startDrawing(brushName, terrain, erase);
 	}
 
 	private void addGroupButton(String label, Char.Alignment alignment) {

@@ -14,6 +14,7 @@ public class Level {
 	public boolean[] passable;
 	public SparseArray<Trap> traps;
 	public HashMap<Class<? extends Blob>, Blob> blobs;
+	public SparseArray<Heap> heaps;
 	public boolean[] mapped;
 	public boolean[] visited;
 	public boolean[] discoverable;

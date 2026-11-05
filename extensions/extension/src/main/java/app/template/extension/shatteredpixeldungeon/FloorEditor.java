@@ -7,11 +7,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
@@ -29,6 +31,7 @@ public final class FloorEditor {
 	private static final String TAG = "FloorEditor";
 	private static final String BLOBS = "com.shatteredpixel.shatteredpixeldungeon.actors.blobs.";
 	private static final int EMPTY = 1;
+	static final int EMPTY_TILE = EMPTY;
 	private static final int SECRET_TRAP = 17;
 	private static final int TRAP = 18;
 	private static final int INACTIVE_TRAP = 19;
@@ -320,6 +323,59 @@ public final class FloorEditor {
 		}
 		if (tile == SECRET_TRAP || tile == TRAP || tile == INACTIVE_TRAP) return "Trap";
 		return null;
+	}
+
+	static final int WALL = 4;
+	static final int CHASM = 0;
+
+	/**
+	 * Removes everything from a tile and turns it into an empty pit.
+	 */
+	static void deleteTile(int cell) {
+		Level level = level();
+		if (level == null || hasCharacter(cell)) return;
+		try {
+			for (Blob blob : activeEffects()) blob.clear(cell);
+			Heap heap = level.heaps == null ? null : level.heaps.get(cell, null);
+			if (heap != null) heap.destroy();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not clear the tile", e);
+		}
+		setTerrain(cell, CHASM);
+	}
+
+	/**
+	 * Lets the player tap tile after tile to paint them with [terrain], or delete them when [erase] is true.
+	 * Stops when the prompt is closed.
+	 */
+	static void startDrawing(String brushName, int terrain, boolean erase) {
+		GameScene.selectCell(new CellSelector.Listener() {
+			private boolean rearming;
+
+			@Override
+			public void onSelect(Integer cell) {
+				if (cell == null) {
+					if (rearming) rearming = false;
+					return;
+				}
+				if (erase) {
+					deleteTile(cell);
+				} else if (tileAt(cell) != terrain) {
+					setTerrain(cell, terrain);
+				}
+				rearming = true;
+				CellSelector.Listener self = this;
+				com.watabou.noosa.Game.runOnRenderThread(() -> {
+					rearming = false;
+					GameScene.selectCell(self);
+				});
+			}
+
+			@Override
+			public String prompt() {
+				return "Drawing " + brushName + ": tap tiles to paint. Close this message to stop.";
+			}
+		});
 	}
 
 	static boolean isBlocking(int terrain) {

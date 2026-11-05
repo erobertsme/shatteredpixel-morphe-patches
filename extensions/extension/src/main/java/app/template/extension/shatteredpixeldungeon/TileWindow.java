@@ -20,7 +20,7 @@ public class TileWindow extends EditorWindow {
 	private static final String[] INFO = {
 		"Effects\n\nEvery gas or area effect on this tile. Here clears it from this tile only, All removes it from the whole floor. Add effect places a new one on this tile.",
 		"Objects\n\nDoor: Open and Close open or shut it. Lock makes it a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns it into a hidden door. A door can't be closed, locked or hidden while someone stands in it.\n\nTrap: Active means it goes off when stepped on, Visible means you can see it. Trigger sets it off now, Change swaps the trap type, Remove takes it away.\n\nPlant: plant a seed here or remove the plant that is here.",
-		"Tile\n\nTerrain changes what this tile is. Door places a normal door; use the Objects tab to lock or hide it. Walls, chasms and barricades can't be placed where a creature is standing. Changing the terrain removes any trap or plant here.\n\nTeleport here moves your hero to this tile. Spawn creature places any enemy, NPC or ally here. Place item puts any item on this tile.",
+		"Tile\n\nTerrain changes what this tile is. Door places a normal door; use the Objects tab to lock or hide it. Walls, chasms and barricades can't be placed where a creature is standing. Changing the terrain removes any trap or plant here.\n\nTeleport here moves your hero to this tile. Spawn creature places any enemy, NPC or ally here. Place item puts any item on this tile.\n\nDelete tile removes everything here, including effects, traps, plants and items, and leaves an empty pit. It can't be used while a creature stands here.",
 	};
 
 	private static Runnable backAction;
@@ -148,6 +148,11 @@ public class TileWindow extends EditorWindow {
 			hide();
 			ItemPickerWindow.openForCell(cell);
 		}).enable(FloorEditor.level().passable[cell]);
+		pos += ROW_HEIGHT + GAP;
+		addButton("Delete tile (empty pit)", 0, WIDTH, () -> {
+			FloorEditor.deleteTile(cell);
+			refresh();
+		}).enable(!occupied);
 		pos += ROW_HEIGHT + GAP;
 	}
 
