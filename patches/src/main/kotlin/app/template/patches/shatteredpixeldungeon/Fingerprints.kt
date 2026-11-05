@@ -452,10 +452,3 @@ object BackpackCapacityFingerprint : Fingerprint(
 	returnType = "I",
 	parameters = listOf(),
 )
-
-object WndBagConstructorFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
-	name = "<init>",
-	returnType = "V",
-	parameters = listOf(BAG_CLASS, "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$ItemSelector;"),
-)
