@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.utils.Bundle;
 
@@ -46,6 +48,36 @@ public final class EnemyEditor {
 
 	static void setState(Mob mob, Mob.AiState state) {
 		mob.state = state;
+	}
+
+	/**
+	 * Lets the player pick a tile and sends [mob] there.
+	 */
+	static void chooseDestination(Mob mob) {
+		GameScene.selectCell(new CellSelector.Listener() {
+			@Override
+			public void onSelect(Integer cell) {
+				if (cell == null || !mob.isAlive()) return;
+				moveTo(mob, cell);
+			}
+
+			@Override
+			public String prompt() {
+				return "Choose where " + mob.name() + " should go";
+			}
+		});
+	}
+
+	private static void moveTo(Mob mob, int cell) {
+		try {
+			mob.clearEnemy();
+			mob.state = mob.WANDERING;
+			Field target = Mob.class.getDeclaredField("target");
+			target.setAccessible(true);
+			target.setInt(mob, cell);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not move " + mob.getClass().getName(), e);
+		}
 	}
 
 	static void defeat(Mob mob) {

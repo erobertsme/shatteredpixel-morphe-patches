@@ -15,7 +15,7 @@ import java.util.List;
 
 public class TileWindow extends EditorWindow {
 
-	private static final String INFO = "Tile editor\n\nEffects lists every gas or area effect on this tile. Here clears it from this tile only. All removes it from the whole floor. Add effect places a new one on this tile.\n\nTrap: Active means it goes off when stepped on. Visible means you can see it. Trigger sets it off now. Change swaps it for another trap type. Remove takes it away. Without a trap, Add trap places one here.\n\nFloor opens the editor for the whole floor.";
+	private static final String INFO = "Tile editor\n\nEffects lists every gas or area effect on this tile. Here clears it from this tile only. All removes it from the whole floor. Add effect places a new one on this tile.\n\nTrap: Active means it goes off when stepped on. Visible means you can see it. Trigger sets it off now. Change swaps it for another trap type. Remove takes it away. Without a trap, Add trap places one here.\n\nDoor: Lock turns it into a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns it into a hidden door you have to search for.\n\nFloor opens the editor for the whole floor.";
 
 	private static Runnable backAction;
 	private final int cell;
@@ -46,6 +46,8 @@ public class TileWindow extends EditorWindow {
 		if (!any) addHint("None.");
 		addButton("Add effect", 0, WIDTH, () -> replaceWith(new EffectPickerWindow(cell, 0, 0)));
 		pos += ROW_HEIGHT + GAP;
+
+		if (FloorEditor.isDoor(cell)) addDoor();
 
 		addSection("Trap");
 		Trap trap = FloorEditor.trapAt(cell);
@@ -91,6 +93,23 @@ public class TileWindow extends EditorWindow {
 			FloorEditor.clearAll(blob);
 			refresh();
 		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	private void addDoor() {
+		int tile = FloorEditor.tileAt(cell);
+		addSection(FloorEditor.doorState(cell));
+		boolean locked = tile == FloorEditor.LOCKED_DOOR || tile == FloorEditor.CRYSTAL_DOOR || tile == FloorEditor.HERO_LOCKED_DOOR;
+		boolean hidden = tile == FloorEditor.SECRET_DOOR;
+		float half = (WIDTH - GAP) / 2f;
+		addButton(locked ? "Unlock" : "Lock", 0, half, () -> {
+			FloorEditor.setDoor(cell, locked ? FloorEditor.DOOR : FloorEditor.LOCKED_DOOR);
+			refresh();
+		});
+		addButton(hidden ? "Reveal" : "Hide", half + GAP, half, () -> {
+			FloorEditor.setDoor(cell, hidden ? FloorEditor.DOOR : FloorEditor.SECRET_DOOR);
+			refresh();
+		});
 		pos += ROW_HEIGHT + GAP;
 	}
 

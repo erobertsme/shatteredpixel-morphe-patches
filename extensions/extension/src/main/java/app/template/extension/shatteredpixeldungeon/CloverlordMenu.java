@@ -190,7 +190,7 @@ public final class CloverlordMenu {
 
 			float editWidth = !character ? 0 : hunger ? (width - GAP) * 0.6f : width;
 			float hungerLeft = character ? editWidth + GAP : 0;
-			RedButton edit = new RedButton("Edit character", 7) {
+			RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
 				private int shownTab = -1;
 
 				@Override
@@ -199,6 +199,7 @@ public final class CloverlordMenu {
 					if (shownTab == WndHero.lastIdx) return;
 					shownTab = WndHero.lastIdx;
 					icon(Icons.get(tabIcon(shownTab)));
+					text(editLabel(shownTab));
 					for (Gizmo gizmo : summary) gizmo.visible = shownTab == 0;
 				}
 
@@ -256,6 +257,12 @@ public final class CloverlordMenu {
 
 		added.addAll(members.subList(before, members.size()));
 		return starving.bottom();
+	}
+
+	private static String editLabel(int heroTab) {
+		if (heroTab == 1) return "Edit talents";
+		if (heroTab == 2) return "Edit statuses";
+		return "Edit stats";
 	}
 
 	private static Icons tabIcon(int heroTab) {

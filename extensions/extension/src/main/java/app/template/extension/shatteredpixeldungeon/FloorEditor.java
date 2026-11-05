@@ -26,6 +26,12 @@ public final class FloorEditor {
 	private static final int SECRET_TRAP = 17;
 	private static final int TRAP = 18;
 	private static final int INACTIVE_TRAP = 19;
+	static final int DOOR = 5;
+	static final int OPEN_DOOR = 6;
+	static final int LOCKED_DOOR = 10;
+	static final int SECRET_DOOR = 16;
+	static final int CRYSTAL_DOOR = 31;
+	static final int HERO_LOCKED_DOOR = 38;
 	private static final int BUTTON_HEIGHT = 16;
 	private static final int GAP = 3;
 
@@ -263,6 +269,32 @@ public final class FloorEditor {
 		int tile = !trap.active ? INACTIVE_TRAP : trap.visible ? TRAP : SECRET_TRAP;
 		Level.set(trap.pos, tile);
 		GameScene.updateMap(trap.pos);
+	}
+
+	static int tileAt(int cell) {
+		Level level = level();
+		return level == null || level.map == null ? -1 : level.map[cell];
+	}
+
+	static boolean isDoor(int cell) {
+		int tile = tileAt(cell);
+		return tile == DOOR || tile == OPEN_DOOR || tile == LOCKED_DOOR || tile == SECRET_DOOR || tile == CRYSTAL_DOOR || tile == HERO_LOCKED_DOOR;
+	}
+
+	static String doorState(int cell) {
+		switch (tileAt(cell)) {
+			case OPEN_DOOR: return "Open door";
+			case LOCKED_DOOR: return "Locked door";
+			case SECRET_DOOR: return "Hidden door";
+			case CRYSTAL_DOOR: return "Crystal door";
+			case HERO_LOCKED_DOOR: return "Door locked by the skeleton key";
+			default: return "Door";
+		}
+	}
+
+	static void setDoor(int cell, int tile) {
+		Level.set(cell, tile);
+		GameScene.updateMap(cell);
 	}
 
 	static String trapState(Trap trap) {

@@ -14,4 +14,6 @@ public class Mob extends Char {
 	public AiState state;
 	public int EXP;
 	public int defenseSkill;
+
+	public void clearEnemy() { throw new RuntimeException("Stub"); }
 }
