@@ -1,3 +1,9 @@
+## [1.0.0-dev.27](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.26...v1.0.0-dev.27) (2026-11-05)
+
+### ✨ New Features
+
+* Add floor editor for gases, area effects and traps ([e682f88](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e682f88e18cd396b35bb5bf9df4c0f54cd5c85b8))
+
 ## [1.0.0-dev.26](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.25...v1.0.0-dev.26) (2026-11-05)
 
 ### 🐛 Bug Fixes
