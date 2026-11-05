@@ -303,8 +303,8 @@ public final class FloorEditor {
 		GameScene.updateMap(cell);
 	}
 
-	static final String[] TERRAIN_NAMES = { "Floor", "Wall", "Water", "Grass", "Tall grass", "Chasm", "Embers", "Barricade" };
-	static final int[] TERRAINS = { EMPTY, 4, 29, 2, 15, 0, 9, 13 };
+	static final String[] TERRAIN_NAMES = { "Floor", "Wall", "Door", "Water", "Grass", "Tall grass", "Chasm", "Embers", "Barricade" };
+	static final int[] TERRAINS = { EMPTY, 4, DOOR, 29, 2, 15, 0, 9, 13 };
 	private static final int[] BLOCKING_TERRAINS = { 4, 0, 13 };
 
 	/**
