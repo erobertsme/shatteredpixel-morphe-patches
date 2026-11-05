@@ -611,7 +611,7 @@ public final class FloorEditor {
 							} catch (Throwable e) {
 								Log.e(TAG, "Could not " + action.label, e);
 							}
-							reopenInfo(target);
+							if (action.reopens) reopenInfo(target);
 						}
 					};
 					button.enable(action.enabled);
@@ -641,12 +641,34 @@ public final class FloorEditor {
 		final String label;
 		final boolean enabled;
 		final Runnable run;
+		final boolean reopens;
 
 		QuickAction(String label, boolean enabled, Runnable run) {
+			this(label, enabled, run, true);
+		}
+
+		QuickAction(String label, boolean enabled, Runnable run, boolean reopens) {
 			this.label = label;
 			this.enabled = enabled;
 			this.run = run;
+			this.reopens = reopens;
 		}
+	}
+
+	private static boolean isWalkable(int cell) {
+		Level level = level();
+		return level != null && level.passable[cell] && tileAt(cell) != CHASM && Dungeon.hero != null && Dungeon.hero.pos != cell;
+	}
+
+	private static QuickAction teleportAction(int cell) {
+		return new QuickAction("Teleport Here", canStandOn(cell), () -> {
+			Trap trap = trapAt(cell);
+			if (trap == null || !trap.active) {
+				teleportHero(cell);
+				return;
+			}
+			ConfirmPrompt.ask("Active trap", "There is an active " + trapName(trap).toLowerCase() + " here. Teleporting onto it will set it off.", "Teleport", () -> teleportHero(cell));
+		}, false);
 	}
 
 	private static final int GRASS = 2;
@@ -668,6 +690,7 @@ public final class FloorEditor {
 				new QuickAction("Hidden", trap.visible && trap.canBeHidden, () -> setVisible(trap, false)),
 				new QuickAction("Visible", !trap.visible, () -> setVisible(trap, true)),
 			});
+			rows.add(new QuickAction[] { teleportAction(cell) });
 			return rows;
 		}
 
@@ -681,6 +704,7 @@ public final class FloorEditor {
 				new QuickAction("Lock", !locked && !occupied, () -> setDoor(cell, LOCKED_DOOR)),
 				new QuickAction("Unlock", locked, () -> setDoor(cell, DOOR)),
 			});
+			if (tile == OPEN_DOOR) rows.add(new QuickAction[] { teleportAction(cell) });
 			return rows;
 		}
 		if (tile == GRASS || tile == HIGH_GRASS || tile == FURROWED_GRASS) {
@@ -689,6 +713,7 @@ public final class FloorEditor {
 				new QuickAction("Furrowed", tile != FURROWED_GRASS && !occupied, () -> setDoor(cell, FURROWED_GRASS)),
 				new QuickAction("Trampled", tile != GRASS, () -> setDoor(cell, GRASS)),
 			});
+			rows.add(new QuickAction[] { teleportAction(cell) });
 			return rows;
 		}
 		if (tile == LOCKED_EXIT || tile == UNLOCKED_EXIT) {
@@ -696,6 +721,7 @@ public final class FloorEditor {
 				new QuickAction("Lock", tile != LOCKED_EXIT, () -> setDoor(cell, LOCKED_EXIT)),
 				new QuickAction("Unlock", tile != UNLOCKED_EXIT, () -> setDoor(cell, UNLOCKED_EXIT)),
 			});
+			if (tile == UNLOCKED_EXIT) rows.add(new QuickAction[] { teleportAction(cell) });
 			return rows;
 		}
 		if (tile == CHASM) {
@@ -705,6 +731,7 @@ public final class FloorEditor {
 		if (tile == BARRICADE) {
 			rows.add(new QuickAction[] { new QuickAction("Break", true, () -> setDoor(cell, EMPTY)) });
 		}
+		if (isWalkable(cell)) rows.add(new QuickAction[] { teleportAction(cell) });
 		return rows;
 	}
 

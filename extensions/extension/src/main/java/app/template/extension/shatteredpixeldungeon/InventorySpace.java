@@ -5,7 +5,9 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -37,6 +39,8 @@ public final class InventorySpace {
 	private static final String KEY_UNLIMITED = "qol_unlimited_inventory";
 	private static final int EQUIPMENT_SLOTS = 5;
 	private static final int MAX_ITEM_ROWS = 8;
+	private static final int COLUMNS = 5;
+	private static final int DEFAULT_ITEM_SLOTS = 20;
 	private static final int SLOT_MARGIN = 1;
 	private static final int TITLE_HEIGHT = 14;
 	private static final int SCREEN_MARGIN = 32;
@@ -105,11 +109,76 @@ public final class InventorySpace {
 	 */
 	public static ArrayList<Bag> bagTabs(ArrayList<Bag> bags) {
 		if (bags == null || !InventoryWindow.isAvailable()) return bags;
-		ArrayList<Bag> result = new ArrayList<>(bags);
+		ArrayList<Bag> result = withoutDuplicates(bags);
 		for (int kind = 0; kind < FilterBag.count(); kind++) {
 			if (FilterBag.isOn(kind)) result.add(FilterBag.get(kind));
 		}
 		return result;
+	}
+
+	/**
+	 * Called at the start of Bag.collect. Returns true to refuse a second copy of a bag the hero already carries,
+	 * such as a second potion bandolier, so extra copies never add tabs or hold items.
+	 */
+	public static boolean refuseBag(Bag bag, Bag container) {
+		try {
+			if (!InventoryWindow.isAvailable() || bag == null || container == null) return false;
+			if (bag instanceof Belongings.Backpack || bag instanceof FilterBag) return false;
+			Hero hero = Dungeon.hero;
+			if (hero == null || container != hero.belongings.backpack || container.items == null) return false;
+			for (Item item : container.items) {
+				if (item != bag && item.getClass() == bag.getClass()) {
+					GLog.w("You already have a " + bag.name() + ". Only one of each bag can be carried.");
+					return true;
+				}
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not check for a duplicate bag", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Keeps the first bag of each kind. Any extra copy already carried hands its items to the first one and is
+	 * dropped at the hero's feet.
+	 */
+	private static ArrayList<Bag> withoutDuplicates(ArrayList<Bag> bags) {
+		ArrayList<Bag> result = new ArrayList<>();
+		Map<Class<?>, Bag> firsts = new HashMap<>();
+		List<Bag> extras = new ArrayList<>();
+		for (Bag bag : bags) {
+			if (bag instanceof Belongings.Backpack) {
+				result.add(bag);
+				continue;
+			}
+			Bag first = firsts.get(bag.getClass());
+			if (first == null) {
+				firsts.put(bag.getClass(), bag);
+				result.add(bag);
+				continue;
+			}
+			extras.add(bag);
+		}
+		for (Bag extra : extras) dropExtra(extra, firsts.get(extra.getClass()));
+		return result;
+	}
+
+	private static void dropExtra(Bag extra, Bag first) {
+		try {
+			Hero hero = Dungeon.hero;
+			if (hero == null || Dungeon.level == null) return;
+			if (extra.items != null && first != null && first.items != null) {
+				first.items.addAll(extra.items);
+				extra.items.clear();
+			}
+			extra.detachAll(hero.belongings.backpack);
+			Heap heap = Dungeon.level.drop(extra, hero.pos);
+			if (heap != null && heap.sprite != null) heap.sprite.drop();
+			GLog.w("You can only carry one " + extra.name() + ". The extra one was dropped.");
+			Item.updateQuickslot();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not drop an extra bag", e);
+		}
 	}
 
 	/**
@@ -138,6 +207,7 @@ public final class InventorySpace {
 
 			int slots = EQUIPMENT_SLOTS + page.fixed + page.shown.size() + page.free;
 			int needed = Math.max(rows, divideUp(slots, columns));
+			if (page.pages > 1) needed = Math.max(needed, 1 + MAX_ITEM_ROWS);
 
 			int reserved = (page.pages > 1 ? PAGER_HEIGHT + ROW_GAP : 0) + (BackpackEditor.isOpeningEditWindow() ? BACK_HEIGHT : 0);
 			int available = PixelScene.uiCamera.height - SCREEN_MARGIN - TITLE_HEIGHT - reserved - (needed - 1) * SLOT_MARGIN;
@@ -171,7 +241,7 @@ public final class InventorySpace {
 			all.add(item);
 		}
 
-		int perPage = MAX_ITEM_ROWS * 5 - page.fixed;
+		int perPage = MAX_ITEM_ROWS * COLUMNS - page.fixed;
 		int total = all.size() + (filter ? 0 : 1);
 		page.pages = Math.max(1, divideUp(total, perPage));
 		Integer saved = savedPages.get(key(bag));
@@ -186,7 +256,15 @@ public final class InventorySpace {
 				page.hidden.add(all.get(i));
 			}
 		}
-		page.free = !filter && page.shown.size() < perPage ? 1 : 0;
+		int used = page.fixed + page.shown.size();
+		int target;
+		if (page.pages > 1) {
+			target = MAX_ITEM_ROWS * COLUMNS;
+		} else {
+			target = Math.max(DEFAULT_ITEM_SLOTS, used + (filter ? 0 : 1));
+			target = divideUp(target, COLUMNS) * COLUMNS;
+		}
+		page.free = Math.max(0, target - used);
 		return page;
 	}
 

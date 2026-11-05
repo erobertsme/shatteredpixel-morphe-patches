@@ -466,3 +466,24 @@ object WndBagIconFingerprint : Fingerprint(
 	returnType = "Lcom/watabou/noosa/Image;",
 	parameters = listOf(BAG_CLASS),
 )
+
+object ItemStoreInBundleFingerprint : Fingerprint(
+	definingClass = ITEM_CLASS,
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
+object ItemRestoreFromBundleFingerprint : Fingerprint(
+	definingClass = ITEM_CLASS,
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
+object BagCollectFingerprint : Fingerprint(
+	definingClass = BAG_CLASS,
+	name = "collect",
+	returnType = "Z",
+	parameters = listOf(BAG_CLASS),
+)

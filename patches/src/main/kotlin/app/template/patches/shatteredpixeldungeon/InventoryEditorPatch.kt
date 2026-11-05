@@ -16,6 +16,7 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 private const val BACKPACK_CLASS = "$EXTENSION_PACKAGE/BackpackEditor;"
 private const val INVENTORY_SPACE_CLASS = "$EXTENSION_PACKAGE/InventorySpace;"
+private const val INFINITE_CHARGES_CLASS = "$EXTENSION_PACKAGE/InfiniteCharges;"
 private const val WND_BAG_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;"
 
 @Suppress("unused")
@@ -117,6 +118,31 @@ val inventoryEditorPatch = bytecodePatch(
 				return-void
 			""",
 			ExternalLabel("original", 0),
+		)
+
+		BagCollectFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->refuseBag(${BAG_CLASS}$BAG_CLASS)Z
+				move-result v0
+				if-eqz v0, :original
+				const/4 v0, 0x0
+				return v0
+			""",
+			ExternalLabel("original", 0),
+		)
+
+		ItemStoreInBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static { p0, p1 }, $INFINITE_CHARGES_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
+		)
+		ItemRestoreFromBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static { p0, p1 }, $INFINITE_CHARGES_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
+		)
+		HeroActFingerprint.method.addInstruction(
+			0,
+			"invoke-static/range { p0 .. p0 }, $INFINITE_CHARGES_CLASS->onHeroAct(Ljava/lang/Object;)V",
 		)
 
 		WndBagIconFingerprint.method.addInstructionsWithLabels(
