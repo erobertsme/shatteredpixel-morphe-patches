@@ -9,7 +9,7 @@ private const val ENEMY_CLASS = "$EXTENSION_PACKAGE/EnemyEditor;"
 @Suppress("unused")
 val enemyEditorPatch = bytecodePatch(
 	name = "Enemy editor",
-	description = "Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behaviour and status effects.",
+	description = "Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behavior and status effects.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

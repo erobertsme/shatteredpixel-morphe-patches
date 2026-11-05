@@ -24,7 +24,7 @@ public class EnemyWindow extends EditorWindow {
 	private static final String[] ALIGNMENTS = { "Enemy", "Neutral", "Ally" };
 	private static final String[] STATES = { "Sleep", "Wander", "Hunt", "Flee", "Passive" };
 	private static final String[] TAB_INFO = {
-		"Stats\n\nEdit this creature's health and max health. Tap a number to type it, with Min and Max buttons.\n\nSide changes who it fights: enemies attack you, allies fight for you, neutral creatures leave you alone.\n\nBehaviour sets what it is doing right now. Hunting creatures chase their target, wandering ones roam, and sleeping ones wake when disturbed.\n\nDefeat kills it straight away.",
+		"Stats\n\nEdit this creature's health and max health. Tap a number to type it, with Min and Max buttons.\n\nSide changes who it fights: enemies attack you, allies fight for you, neutral creatures leave you alone.\n\nBehavior sets what it is doing right now. Hunting creatures chase their target, wandering ones roam, and sleeping ones wake when disturbed.\n\nDefeat kills it straight away.",
 		"Status\n\nTap the number to change how many turns are left, X to remove a status, and i or long-press to read it.\n\nAdd status uses the same picker as your hero. Infinite statuses are only available for your hero.",
 	};
 
@@ -98,7 +98,7 @@ public class EnemyWindow extends EditorWindow {
 			refresh();
 		});
 
-		addSection("Behaviour");
+		addSection("Behavior");
 		Mob.AiState[] states = { mob.SLEEPING, mob.WANDERING, mob.HUNTING, mob.FLEEING, mob.PASSIVE };
 		int selected = -1;
 		for (int i = 0; i < states.length; i++) if (mob.state == states[i]) selected = i;

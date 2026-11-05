@@ -34,7 +34,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Character editor](#character-editor) | Adds a Character button to the in-game menu for editing health, level, experience, strength, talents and status effects, and for adding modifiers to accuracy, evasion, damage, armor, speed and regeneration. Changes are saved with the run. |  |
-| [Enemy editor](#enemy-editor) | Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behaviour and status effects. |  |
+| [Enemy editor](#enemy-editor) | Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behavior and status effects. |  |
 | [Hunger editor](#hunger-editor) | Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game. |  |
 | [Inventory editor](#inventory-editor) | Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). |  |
 | [Public save folder](#public-save-folder) | Stores save files in a public folder on the device so they can be opened with any file manager. Asks for storage access on first launch and copies existing saves over. | • Save folder |
