@@ -1,3 +1,9 @@
+## [1.0.0-dev.42](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.41...v1.0.0-dev.42) (2026-11-05)
+
+### 🐛 Bug Fixes
+
+* Only warn about danger the hero would really take, checking levitation, immunities and every tile along the way ([0ea54e9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0ea54e9a032747ca4199a970b42f788450e9bb93))
+
 ## [1.0.0-dev.41](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.40...v1.0.0-dev.41) (2026-11-05)
 
 ### ✨ New Features
