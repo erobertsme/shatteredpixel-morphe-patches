@@ -1,3 +1,9 @@
+## [1.0.0-dev.32](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.31...v1.0.0-dev.32) (2026-11-05)
+
+### ✨ New Features
+
+* Add an open and close button for doors in the tile editor ([002e622](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/002e622ca6c3bb191fed998919fe00c89926d2eb))
+
 ## [1.0.0-dev.31](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.30...v1.0.0-dev.31) (2026-11-05)
 
 ### ✨ New Features
