@@ -18,4 +18,5 @@ public class Mob extends Char {
 	public com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite sprite() { throw new RuntimeException("Stub"); }
 	public boolean heroShouldInteract() { throw new RuntimeException("Stub"); }
 	public void clearEnemy() { throw new RuntimeException("Stub"); }
+	public void yell(String str) { throw new RuntimeException("Stub"); }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 public class TrapPickerWindow extends EditorWindow {
 
 	private static final String[] KINDS = { "Favorites", "All traps" };
-	private static final String INFO = "Tap a trap to place it on this tile, replacing any trap already there. Hidden places it hidden, the way the dungeon does.\n\nThe heart adds a trap to Favorites. Tap i or long-press to read one.";
+	private static final String INFO = "Tap a trap to place it on this tile, replacing any trap already there. Hidden places it hidden, the way the dungeon does.\n\n{HEART}The heart adds a trap to Favorites.\n\n{INFO}Tap i or long-press to read one.";
 
 	private static boolean hidden;
 

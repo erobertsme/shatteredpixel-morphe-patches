@@ -8,7 +8,7 @@ import java.util.List;
 public class CreaturePickerWindow extends EditorWindow {
 
 	private static final String[] KINDS = { "Favs", "Enemies", "NPCs", "Other" };
-	private static final String INFO = "Tap a creature to place it on this tile. Ally makes it fight for you.\n\nLevel: some creatures, such as mimics, bees and wraiths, grow stronger the deeper they appear. Those show their level in the list, and spawn at the level you set here. Auto uses the current floor. The reset button goes back to Auto.\n\nBosses and level-specific creatures can behave oddly away from their own floor.\n\nThe heart adds a creature to Favorites. Tap i or long-press to read one.";
+	private static final String INFO = "Tap a creature to place it on this tile. Ally makes it fight for you.\n\nLevel: some creatures, such as mimics, bees and wraiths, grow stronger the deeper they appear. Those show their level in the list, and spawn at the level you set here. Auto uses the current floor.\n\n{CHANGES}The reset button goes back to Auto.\n\nBosses and level-specific creatures can behave oddly away from their own floor.\n\n{HEART}The heart adds a creature to Favorites.\n\n{INFO}Tap i or long-press to read one.";
 
 	private static boolean ally;
 

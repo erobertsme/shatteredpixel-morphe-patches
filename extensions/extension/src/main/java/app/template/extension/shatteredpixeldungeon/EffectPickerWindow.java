@@ -5,7 +5,7 @@ import java.util.List;
 public class EffectPickerWindow extends EditorWindow {
 
 	private static final String[] KINDS = { "Favs", "Gases", "Other" };
-	private static final String INFO = "Tap an effect to place it on this tile. Strength sets how much is placed: gases spread out from that amount, fire and others use it as their size.\n\nThe heart adds an effect to Favorites.";
+	private static final String INFO = "Tap an effect to place it on this tile. Strength sets how much is placed: gases spread out from that amount, fire and others use it as their size.\n\n{HEART}The heart adds an effect to Favorites.";
 
 	private static int strength = 100;
 

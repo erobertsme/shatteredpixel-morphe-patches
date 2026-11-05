@@ -21,7 +21,7 @@ public class EnchantPickerWindow extends EditorWindow {
 		this.curses = curses;
 		this.page = page;
 
-		addTitle((armor ? "Glyph for " : "Enchant ") + InventoryEditor.titleOf(item), "Tap one to apply it. None removes the current one. Curses has the cursed ones.\n\nTap i or long-press to read one.");
+		addTitle((armor ? "Glyph for " : "Enchant ") + InventoryEditor.titleOf(item), "Tap one to apply it. None removes the current one. Curses has the cursed ones.\n\n{INFO}Tap i or long-press to read one.");
 		addButtonRow(new String[] { armor ? "Glyphs" : "Enchantments", "Curses" }, curses ? 1 : 0,
 			index -> replaceWith(new EnchantPickerWindow(item, armor, index == 1, 0)));
 

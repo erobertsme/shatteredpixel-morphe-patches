@@ -28,6 +28,7 @@ public class Hero extends Char {
 	public static int maxExp(int lvl) { throw new RuntimeException("Stub"); }
 	public float attackDelay() { throw new RuntimeException("Stub"); }
 	public String className() { throw new RuntimeException("Stub"); }
+	public void interrupt() { throw new RuntimeException("Stub"); }
 	public int talentPointsAvailable(int tier) { throw new RuntimeException("Stub"); }
 	public int pointsInTalent(Talent talent) { throw new RuntimeException("Stub"); }
 	public boolean hasTalent(Talent talent) { throw new RuntimeException("Stub"); }

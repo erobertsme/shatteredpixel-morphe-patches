@@ -23,7 +23,7 @@ public class ItemPickerWindow extends EditorWindow {
 		this.page = page;
 		Hero hero = Dungeon.hero;
 
-		addTitle(dropCell >= 0 ? "Place item" : "Add item", (dropCell >= 0 ? "Items are placed on the chosen tile. " : "") + "Tap an item to add it to your backpack, identified. If your backpack is full it drops at your feet.\n\nLevel applies to upgradable items and trinkets. Quantity applies to stackable items.\n\nThe heart adds an item to Favorites. Tap i or long-press to read one.");
+		addTitle(dropCell >= 0 ? "Place item" : "Add item", (dropCell >= 0 ? "Items are placed on the chosen tile. " : "") + "Tap an item to add it to your backpack, identified. If your backpack is full it drops at your feet.\n\nLevel applies to upgradable items and trinkets. Quantity applies to stackable items.\n\n{HEART}The heart adds an item to Favorites.\n\n{INFO}Tap i or long-press to read one.");
 
 		InventoryEditor.Category[] categories = InventoryEditor.Category.values();
 		int perRow = perPage(3, 5);

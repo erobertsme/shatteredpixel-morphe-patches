@@ -5,7 +5,6 @@ package app.template.extension.shatteredpixeldungeon;
  */
 final class QolSettings {
 
-	private static final String KEY_FEARLESS_OFF = "qol_fearless_shopkeeper_off";
 
 	private QolSettings() {
 	}
@@ -14,12 +13,5 @@ final class QolSettings {
 		return PathPreview.isAvailable();
 	}
 
-	static boolean fearlessShopkeeper() {
-		return isAvailable() && !CloverlordSettings.get(KEY_FEARLESS_OFF);
-	}
-
-	static void fearlessShopkeeper(boolean on) {
-		CloverlordSettings.set(KEY_FEARLESS_OFF, !on);
-	}
 
 }

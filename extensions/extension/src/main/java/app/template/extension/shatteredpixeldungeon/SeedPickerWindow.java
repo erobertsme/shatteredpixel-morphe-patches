@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SeedPickerWindow extends EditorWindow {
 
-	private static final String INFO = "Tap a seed to plant it on this tile. The plant works just like one grown from a seed you throw. Tap i or long-press to read one.";
+	private static final String INFO = "Tap a seed to plant it on this tile. The plant works just like one grown from a seed you throw.\n\n{INFO}Tap i or long-press to read one.";
 
 	private final int cell;
 	private final int page;

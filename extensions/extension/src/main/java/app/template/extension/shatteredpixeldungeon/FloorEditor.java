@@ -698,10 +698,12 @@ public final class FloorEditor {
 				new QuickAction("Activate", !trap.active, () -> setActive(trap, true)),
 				new QuickAction("Deactivate", trap.active, () -> setActive(trap, false)),
 			});
-			rows.add(new QuickAction[] {
-				new QuickAction("Hidden", trap.visible && trap.canBeHidden, () -> setVisible(trap, false)),
-				new QuickAction("Visible", !trap.visible, () -> setVisible(trap, true)),
-			});
+			if (trap.canBeHidden) {
+				rows.add(new QuickAction[] {
+					new QuickAction("Hidden", trap.visible, () -> setVisible(trap, false)),
+					new QuickAction("Visible", !trap.visible, () -> setVisible(trap, true)),
+				});
+			}
 			rows.add(new QuickAction[] { teleportAction(cell) });
 			return rows;
 		}

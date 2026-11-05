@@ -20,7 +20,7 @@ public class TileWindow extends EditorWindow {
 	private static final String[] TABS = { "Effects", "Objects", "Tile" };
 	private static final String[] INFO = {
 		"Effects\n\nEvery gas or area effect on this tile. Here clears it from this tile only, All removes it from the whole floor. Add effect places a new one on this tile.",
-		"Objects\n\nDoor: Open and Close open or shut it. Lock makes it a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns it into a hidden door. A door can't be closed, locked or hidden while someone stands in it.\n\nTrap: Active means it goes off when stepped on, Visible means you can see it. Trigger sets it off now, Change swaps the trap type, Remove takes it away.\n\nPlant: plant a seed here or remove the plant that is here.",
+		"Objects\n\nDoor: Open and Close open or shut it. Lock makes it a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns a plain door into a hidden door; locked and crystal doors can't be hidden. A door can't be closed, locked or hidden while someone stands in it.\n\nTrap: Active means it goes off when stepped on, Visible means you can see it (only for traps that can be hidden). Trigger sets it off now, Change swaps the trap type, Remove takes it away.\n\nPlant: plant a seed here or remove the plant that is here.",
 		"Tile\n\nTerrain changes what this tile is. Door places a normal door; use the Objects tab to lock or hide it. Walls, chasms and barricades can't be placed where a creature is standing. Changing the terrain removes any trap or plant here.\n\nTeleport here moves your hero to this tile. Spawn creature places any enemy, NPC or ally here. Place item puts any item on this tile.\n\nDelete tile removes everything here, including effects, traps, plants and items, and leaves an empty pit. It can't be used while a creature stands here.",
 	};
 
@@ -197,7 +197,9 @@ public class TileWindow extends EditorWindow {
 		boolean locked = tile == FloorEditor.LOCKED_DOOR || tile == FloorEditor.CRYSTAL_DOOR || tile == FloorEditor.HERO_LOCKED_DOOR;
 		boolean hidden = tile == FloorEditor.SECRET_DOOR;
 		boolean open = tile == FloorEditor.OPEN_DOOR;
-		float third = (WIDTH - 2 * GAP) / 3f;
+		boolean hideable = tile == FloorEditor.DOOR || open || hidden;
+		int columns = hideable ? 3 : 2;
+		float third = (WIDTH - (columns - 1) * GAP) / columns;
 		addButton(open ? "Close" : "Open", 0, third, () -> {
 			FloorEditor.setDoor(cell, open ? FloorEditor.DOOR : FloorEditor.OPEN_DOOR);
 			refresh();
@@ -206,10 +208,12 @@ public class TileWindow extends EditorWindow {
 			FloorEditor.setDoor(cell, locked ? FloorEditor.DOOR : FloorEditor.LOCKED_DOOR);
 			refresh();
 		}).enable(!FloorEditor.hasCharacter(cell) || locked);
-		addButton(hidden ? "Reveal" : "Hide", 2 * (third + GAP), third, () -> {
-			FloorEditor.setDoor(cell, hidden ? FloorEditor.DOOR : FloorEditor.SECRET_DOOR);
-			refresh();
-		}).enable(!FloorEditor.hasCharacter(cell) || hidden);
+		if (hideable) {
+			addButton(hidden ? "Reveal" : "Hide", 2 * (third + GAP), third, () -> {
+				FloorEditor.setDoor(cell, hidden ? FloorEditor.DOOR : FloorEditor.SECRET_DOOR);
+				refresh();
+			}).enable(!FloorEditor.hasCharacter(cell) || hidden);
+		}
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -221,7 +225,7 @@ public class TileWindow extends EditorWindow {
 		}
 		addListRow(FloorEditor.trapName(trap) + " (" + FloorEditor.trapState(trap) + ")", icon, false, true, () -> showTrapInfo(trap), null);
 		addCheckBox("Active", trap.active, () -> FloorEditor.setActive(trap, !trap.active));
-		addCheckBox("Visible", trap.visible, () -> FloorEditor.setVisible(trap, !trap.visible));
+		if (trap.canBeHidden) addCheckBox("Visible", trap.visible, () -> FloorEditor.setVisible(trap, !trap.visible));
 
 		float third = (WIDTH - 2 * GAP) / 3f;
 		addButton("Trigger", 0, third, () -> {

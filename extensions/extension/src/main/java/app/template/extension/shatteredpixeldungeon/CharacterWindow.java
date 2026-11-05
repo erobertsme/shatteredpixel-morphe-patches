@@ -47,7 +47,7 @@ public class CharacterWindow extends Window {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
 		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nTap or long-press a talent to read it.",
 		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
-		"Status\n\nTap the number to change how many turns are left.\n\nThe star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove Negative clears every negative status.\n\nTap i or long-press a status to read it.",
+		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.",
 	};
 
 	interface IntSetter {

@@ -415,11 +415,48 @@ object DefaultCellListenerFingerprint : Fingerprint(
 	),
 )
 
-object ShopkeeperFleeFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper;",
-	name = "flee",
+internal const val SHOPKEEPER_TYPE = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper;"
+
+object ShopkeeperDamageFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "damage",
 	returnType = "V",
+	parameters = listOf("I", "Ljava/lang/Object;"),
+)
+
+object ShopkeeperAddFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "add",
+	returnType = "Z",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Buff;"),
+)
+
+object ShopkeeperActFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "act",
+	returnType = "Z",
 	parameters = listOf(),
+)
+
+object ShopkeeperStoreFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
+object ShopkeeperRestoreFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
+object MobGetCloserFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "getCloser",
+	returnType = "Z",
+	parameters = listOf("I"),
 )
 
 object ExamineCellFingerprint : Fingerprint(

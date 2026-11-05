@@ -9,6 +9,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nList everything on a tile (Editors tab, part of the Floor editor): examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space and the Weapons, Armor and Rings backpack tabs are in the Inventory editor, under Inventory in the in-game menu.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile, trap or item on the floor. Examining an item on the floor also lets you move it, or the whole pile, to another tile.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nFearless shopkeeper: the shopkeeper never runs off with the shop, even if you fight in the shop, hit them by accident or get caught stealing.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\n{FOOD}Hunger: change how hunger and starvation work.\n\nList everything on a tile (Editors tab, part of the Floor editor): examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space and the Weapons, Armor and Rings backpack tabs are in the Inventory editor, under Inventory in the in-game menu.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile, trap or item on the floor. Examining an item on the floor also lets you move it, or the whole pile, to another tile.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nShopkeeper (QoL tab): keep enemies out of the shop, stop the shopkeeper running off, and choose how many sold items can be bought back.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
 
@@ -57,7 +59,14 @@ public class CloverlordWindow extends Window {
 		if (page == TAB_QOL) buildQualityOfLife();
 		if (page == TAB_UNLOCKS) buildUnlocks();
 		if (page == TAB_GENERAL) buildGeneral();
-		resize(WIDTH, (int) pos);
+		pos += 2 * GAP;
+		addButton("Back", (Image) null, this::back);
+		resize(WIDTH, (int) (pos - GAP));
+	}
+
+	private void back() {
+		hide();
+		if (Game.scene() instanceof GameScene) CloverlordMenu.showGameMenu();
 	}
 
 	private static List<Integer> availableTabs() {
@@ -89,11 +98,14 @@ public class CloverlordWindow extends Window {
 
 	private void buildQualityOfLife() {
 		addLabel("Quality of life");
-		addButton("Confirm actions", Icons.INFO, () -> {
+		addButton("Confirm actions", (Image) null, () -> {
 			hide();
 			EditorWindow.show(new ConfirmWindow());
 		});
-		addOption("Fearless shopkeeper", QolSettings.fearlessShopkeeper(), QolSettings::fearlessShopkeeper);
+		addButton("Shopkeeper", (Image) null, () -> {
+			hide();
+			EditorWindow.show(new ShopkeeperWindow());
+		});
 	}
 
 	private void buildUnlocks() {
@@ -238,7 +250,7 @@ public class CloverlordWindow extends Window {
 				action.run();
 			}
 		};
-		button.icon(icon);
+		if (icon != null) button.icon(icon);
 		button.setRect(0, pos, WIDTH, BTN_HEIGHT);
 		add(button);
 		pos = button.bottom() + GAP;
