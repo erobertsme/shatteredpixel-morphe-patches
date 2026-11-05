@@ -11,16 +11,25 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CloverlordWindow extends Window {
 
-	private static final int WIDTH = 120;
+	private static final int WIDTH = 128;
 	private static final int BTN_HEIGHT = 18;
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Sections only appear when their patch is included.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile or trap.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nFearless shopkeeper: the shopkeeper never runs off with the shop, even if you fight in the shop, hit them by accident or get caught stealing.\n\nList everything on a tile: examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space: every bag always has room for one more item, and the backpack grows to fit.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\nHunger: change how hunger and starvation work.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile or trap.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nFearless shopkeeper: the shopkeeper never runs off with the shop, even if you fight in the shop, hit them by accident or get caught stealing.\n\nList everything on a tile: examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space: every bag always has room for one more item, and the backpack grows to fit.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
+
+	private static final int TAB_GENERAL = 0;
+	private static final int TAB_QOL = 1;
+	private static final int TAB_UNLOCKS = 2;
+	private static final int TAB_EDITORS = 3;
+	private static final String[] TAB_NAMES = { "General", "QoL", "Unlocks", "Editors" };
 
 	private static int page;
 
@@ -40,24 +49,27 @@ public class CloverlordWindow extends Window {
 		add(version);
 		pos = version.bottom() + 2 * GAP;
 
-		if (EditorSwitches.anyAvailable()) addTabs();
-		if (page == 1) {
-			buildEditors();
-			resize(WIDTH, (int) pos);
-			return;
-		}
+		List<Integer> tabs = availableTabs();
+		if (!tabs.contains(page)) page = TAB_GENERAL;
+		if (tabs.size() > 1) addTabs(tabs);
 
-		if (PathPreview.isAvailable()) {
-			addLabel("Quality of life");
-			addButton("Confirm actions", Icons.INFO, () -> {
-				hide();
-				EditorWindow.show(new ConfirmWindow());
-			});
-			addOption("Fearless shopkeeper", QolSettings.fearlessShopkeeper(), QolSettings::fearlessShopkeeper);
-			addOption("List everything on a tile", QolSettings.tileContents(), QolSettings::tileContents);
-			addOption("Unlimited inventory space", QolSettings.unlimitedInventory(), QolSettings::unlimitedInventory);
-		}
+		if (page == TAB_EDITORS) buildEditors();
+		if (page == TAB_QOL) buildQualityOfLife();
+		if (page == TAB_UNLOCKS) buildUnlocks();
+		if (page == TAB_GENERAL) buildGeneral();
+		resize(WIDTH, (int) pos);
+	}
 
+	private static List<Integer> availableTabs() {
+		List<Integer> tabs = new ArrayList<>();
+		tabs.add(TAB_GENERAL);
+		if (QolSettings.isAvailable()) tabs.add(TAB_QOL);
+		if (UnlockAll.isAvailable() || SupporterRewards.isAvailable()) tabs.add(TAB_UNLOCKS);
+		if (EditorSwitches.anyAvailable()) tabs.add(TAB_EDITORS);
+		return tabs;
+	}
+
+	private void buildGeneral() {
 		if (EditorSwitches.hunger()) {
 			addLabel("Gameplay");
 			addButton("Hunger", new ItemSprite(new Food()), () -> {
@@ -66,12 +78,27 @@ public class CloverlordWindow extends Window {
 			});
 		}
 
-		if (SupporterRewards.isAvailable()) {
-			addLabel("Supporter options");
-			addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
-			addTierButtons();
+		if (SaveBackupActivity.isAvailable()) {
+			addLabel("Saves");
+			addButton("Export saves", exportIcon(), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
+			addButton("Import saves", Icons.CHANGES, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_IMPORT));
 		}
 
+		if (!EditorSwitches.hunger() && !SaveBackupActivity.isAvailable()) addLabel("Nothing here yet. Try the other tabs.");
+	}
+
+	private void buildQualityOfLife() {
+		addLabel("Quality of life");
+		addButton("Confirm actions", Icons.INFO, () -> {
+			hide();
+			EditorWindow.show(new ConfirmWindow());
+		});
+		addOption("Fearless shopkeeper", QolSettings.fearlessShopkeeper(), QolSettings::fearlessShopkeeper);
+		addOption("List everything on a tile", QolSettings.tileContents(), QolSettings::tileContents);
+		addOption("Unlimited inventory space", QolSettings.unlimitedInventory(), QolSettings::unlimitedInventory);
+	}
+
+	private void buildUnlocks() {
 		if (UnlockAll.isAvailable()) {
 			addLabel("Unlocks");
 			addToggle("All heroes", UnlockAll.HEROES);
@@ -81,30 +108,27 @@ public class CloverlordWindow extends Window {
 			addToggle("Bestiary", UnlockAll.BESTIARY);
 		}
 
-		if (SaveBackupActivity.isAvailable()) {
-			addLabel("Saves");
-			addButton("Export saves", exportIcon(), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
-			addButton("Import saves", Icons.CHANGES, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_IMPORT));
+		if (SupporterRewards.isAvailable()) {
+			addLabel("Supporter options");
+			addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
+			addTierButtons();
 		}
-
-		resize(WIDTH, (int) pos);
 	}
 
-	private void addTabs() {
-		String[] names = { "General", "Editors" };
-		float width = (WIDTH - GAP) / 2f;
-		for (int i = 0; i < names.length; i++) {
-			int index = i;
-			RedButton button = new RedButton(names[i], 7) {
+	private void addTabs(List<Integer> tabs) {
+		float width = (WIDTH - (tabs.size() - 1) * GAP) / (float) tabs.size();
+		for (int i = 0; i < tabs.size(); i++) {
+			int tab = tabs.get(i);
+			RedButton button = new RedButton(TAB_NAMES[tab], tabs.size() > 3 ? 6 : 7) {
 				@Override
 				public void onClick() {
-					if (index == page) return;
-					page = index;
+					if (tab == page) return;
+					page = tab;
 					hide();
 					CloverlordMenu.show();
 				}
 			};
-			if (i == page) button.textColor(TITLE_COLOR);
+			if (tab == page) button.textColor(TITLE_COLOR);
 			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
 			add(button);
 		}

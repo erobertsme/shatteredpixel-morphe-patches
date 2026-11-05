@@ -75,7 +75,7 @@ public class ItemEditWindow extends EditorWindow {
 		if (item instanceof Artifact) {
 			Artifact artifact = (Artifact) item;
 			int charge = InventoryEditor.artifactValue(artifact, "charge");
-			int cap = InventoryEditor.artifactValue(artifact, "chargeCap");
+			int cap = InventoryEditor.artifactChargeMax(artifact);
 			if (cap > 0) addStepper("Charge", charge + " / " + cap, charge, 1, 0, cap, value -> InventoryEditor.setArtifactCharge(artifact, value));
 		}
 

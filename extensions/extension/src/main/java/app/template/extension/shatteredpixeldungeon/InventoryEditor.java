@@ -257,11 +257,26 @@ final class InventoryEditor {
 		}
 	}
 
+	/**
+	 * The most charge [artifact] can hold. Most artifacts have a fixed cap. Ethereal chains recharge up to twice
+	 * their normal amount, and the alchemist's toolkit stores energy without a limit.
+	 */
+	static int artifactChargeMax(Artifact artifact) {
+		int cap = artifactValue(artifact, "chargeCap");
+		if (cap > 0) return cap;
+		String name = artifact.getClass().getSimpleName();
+		if (name.equals("EtherealChains")) return 2 * (5 + 2 * artifact.level());
+		if (name.equals("AlchemistsToolkit")) return Math.max(TOOLKIT_EDIT_MAX, artifactValue(artifact, "charge"));
+		return 0;
+	}
+
+	private static final int TOOLKIT_EDIT_MAX = 999;
+
 	static void setArtifactCharge(Artifact artifact, int value) {
 		try {
 			Field f = Artifact.class.getDeclaredField("charge");
 			f.setAccessible(true);
-			f.setInt(artifact, Math.max(0, Math.min(artifactValue(artifact, "chargeCap"), value)));
+			f.setInt(artifact, Math.max(0, Math.min(artifactChargeMax(artifact), value)));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set artifact charge", e);
 		}

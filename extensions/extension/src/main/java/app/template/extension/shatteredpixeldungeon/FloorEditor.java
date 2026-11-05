@@ -581,7 +581,8 @@ public final class FloorEditor {
 	}
 
 	/**
-	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds an Edit Tile button.
+	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds buttons for the common changes to
+	 * that tile or trap, and an Edit Tile button.
 	 */
 	public static void afterInfo(Window window) {
 		Object target = pendingTarget;
@@ -596,6 +597,31 @@ public final class FloorEditor {
 			int width = widthField.getInt(window);
 			int height = heightField.getInt(window);
 
+			float y = height + GAP;
+			for (QuickAction[] row : quickActions(target, cell)) {
+				float buttonWidth = (width - (row.length - 1) * GAP) / (float) row.length;
+				for (int i = 0; i < row.length; i++) {
+					QuickAction action = row[i];
+					com.shatteredpixel.shatteredpixeldungeon.ui.RedButton button = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton(action.label, 6) {
+						@Override
+						public void onClick() {
+							window.hide();
+							try {
+								action.run.run();
+							} catch (Throwable e) {
+								Log.e(TAG, "Could not " + action.label, e);
+							}
+							reopenInfo(target);
+						}
+					};
+					button.enable(action.enabled);
+					button.setRect(i * (buttonWidth + GAP), y, buttonWidth, BUTTON_HEIGHT);
+					window.add(button);
+				}
+				y += BUTTON_HEIGHT + GAP;
+			}
+			height = (int) (y - GAP);
+
 			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit Tile", 7) {
 				@Override
 				public void onClick() {
@@ -609,6 +635,77 @@ public final class FloorEditor {
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the edit tile button", e);
 		}
+	}
+
+	private static final class QuickAction {
+		final String label;
+		final boolean enabled;
+		final Runnable run;
+
+		QuickAction(String label, boolean enabled, Runnable run) {
+			this.label = label;
+			this.enabled = enabled;
+			this.run = run;
+		}
+	}
+
+	private static final int GRASS = 2;
+	private static final int HIGH_GRASS = 15;
+	private static final int FURROWED_GRASS = 30;
+	private static final int BARRICADE = 13;
+	private static final int LOCKED_EXIT = 21;
+	private static final int UNLOCKED_EXIT = 22;
+
+	private static List<QuickAction[]> quickActions(Object target, int cell) {
+		List<QuickAction[]> rows = new ArrayList<>();
+		if (target instanceof Trap) {
+			Trap trap = (Trap) target;
+			rows.add(new QuickAction[] {
+				new QuickAction("Activate", !trap.active, () -> setActive(trap, true)),
+				new QuickAction("Deactivate", trap.active, () -> setActive(trap, false)),
+			});
+			rows.add(new QuickAction[] {
+				new QuickAction("Hidden", trap.visible && trap.canBeHidden, () -> setVisible(trap, false)),
+				new QuickAction("Visible", !trap.visible, () -> setVisible(trap, true)),
+			});
+			return rows;
+		}
+
+		int tile = tileAt(cell);
+		boolean occupied = hasCharacter(cell);
+		if (isDoor(cell) && tile != SECRET_DOOR) {
+			boolean locked = tile == LOCKED_DOOR || tile == HERO_LOCKED_DOOR || tile == CRYSTAL_DOOR;
+			rows.add(new QuickAction[] {
+				new QuickAction("Open", tile != OPEN_DOOR, () -> setDoor(cell, OPEN_DOOR)),
+				new QuickAction("Close", tile != DOOR && !occupied, () -> setDoor(cell, DOOR)),
+				new QuickAction("Lock", !locked && !occupied, () -> setDoor(cell, LOCKED_DOOR)),
+				new QuickAction("Unlock", locked, () -> setDoor(cell, DOOR)),
+			});
+			return rows;
+		}
+		if (tile == GRASS || tile == HIGH_GRASS || tile == FURROWED_GRASS) {
+			rows.add(new QuickAction[] {
+				new QuickAction("Unfurrowed", tile != HIGH_GRASS && !occupied, () -> setDoor(cell, HIGH_GRASS)),
+				new QuickAction("Furrowed", tile != FURROWED_GRASS && !occupied, () -> setDoor(cell, FURROWED_GRASS)),
+				new QuickAction("Trampled", tile != GRASS, () -> setDoor(cell, GRASS)),
+			});
+			return rows;
+		}
+		if (tile == LOCKED_EXIT || tile == UNLOCKED_EXIT) {
+			rows.add(new QuickAction[] {
+				new QuickAction("Lock", tile != LOCKED_EXIT, () -> setDoor(cell, LOCKED_EXIT)),
+				new QuickAction("Unlock", tile != UNLOCKED_EXIT, () -> setDoor(cell, UNLOCKED_EXIT)),
+			});
+			return rows;
+		}
+		if (tile == CHASM) {
+			rows.add(new QuickAction[] { new QuickAction("Fill In", true, () -> setDoor(cell, EMPTY)) });
+			return rows;
+		}
+		if (tile == BARRICADE) {
+			rows.add(new QuickAction[] { new QuickAction("Break", true, () -> setDoor(cell, EMPTY)) });
+		}
+		return rows;
 	}
 
 	private static void reopenInfo(Object target) {
