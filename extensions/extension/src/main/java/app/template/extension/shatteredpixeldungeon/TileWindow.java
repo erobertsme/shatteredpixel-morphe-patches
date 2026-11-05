@@ -41,7 +41,8 @@ public class TileWindow extends EditorWindow {
 		super();
 		this.cell = cell;
 		int width = Dungeon.level.width();
-		addTitle("TILE " + (cell % width) + ", " + (cell / width), INFO[tab]);
+		String terrain = FloorEditor.terrainName(cell);
+		addTitle("TILE " + (cell % width) + ", " + (cell / width) + (terrain == null ? "" : " - " + terrain), INFO[tab]);
 		addButtonRow(TABS, tab, index -> {
 			tab = index;
 			refresh();

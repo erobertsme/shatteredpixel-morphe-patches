@@ -307,6 +307,19 @@ public final class FloorEditor {
 	static final int[] TERRAINS = { EMPTY, 4, 29, 2, 15, 0, 9, 13 };
 	private static final int[] BLOCKING_TERRAINS = { 4, 0, 13 };
 
+	/**
+	 * A short name for the tile's current terrain, such as "Water" or "Locked door".
+	 */
+	static String terrainName(int cell) {
+		if (isDoor(cell)) return doorState(cell);
+		int tile = tileAt(cell);
+		for (int i = 0; i < TERRAINS.length; i++) {
+			if (TERRAINS[i] == tile) return TERRAIN_NAMES[i];
+		}
+		if (tile == SECRET_TRAP || tile == TRAP || tile == INACTIVE_TRAP) return "Trap";
+		return null;
+	}
+
 	static boolean isBlocking(int terrain) {
 		for (int blocking : BLOCKING_TERRAINS) if (blocking == terrain) return true;
 		return false;
