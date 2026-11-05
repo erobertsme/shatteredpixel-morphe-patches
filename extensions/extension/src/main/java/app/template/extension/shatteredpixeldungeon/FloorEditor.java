@@ -581,6 +581,13 @@ public final class FloorEditor {
 	}
 
 	/**
+	 * Called at the start of the WndInfoItem constructor for an item or pile on the floor.
+	 */
+	public static void beforeHeapInfo(Object heap) {
+		pendingTarget = heap;
+	}
+
+	/**
 	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds buttons for the common changes to
 	 * that tile or trap, and an Edit Tile button.
 	 */
@@ -588,7 +595,7 @@ public final class FloorEditor {
 		Object target = pendingTarget;
 		pendingTarget = null;
 		if (!EditorSwitches.floor() || target == null || Dungeon.hero == null) return;
-		int cell = target instanceof Trap ? ((Trap) target).pos : (Integer) target;
+		int cell = target instanceof Trap ? ((Trap) target).pos : target instanceof Heap ? ((Heap) target).pos : (Integer) target;
 		try {
 			Field widthField = Window.class.getDeclaredField("width");
 			Field heightField = Window.class.getDeclaredField("height");
@@ -680,6 +687,11 @@ public final class FloorEditor {
 
 	private static List<QuickAction[]> quickActions(Object target, int cell) {
 		List<QuickAction[]> rows = new ArrayList<>();
+		if (target instanceof Heap) {
+			Heap heap = (Heap) target;
+			rows.add(new QuickAction[] { new QuickAction(heap.size() > 1 ? "Move Pile" : "Move Item", true, () -> FloorItemMover.moveHeap(heap), false) });
+			return rows;
+		}
 		if (target instanceof Trap) {
 			Trap trap = (Trap) target;
 			rows.add(new QuickAction[] {
@@ -737,6 +749,16 @@ public final class FloorEditor {
 
 	private static void reopenInfo(Object target) {
 		try {
+			if (target instanceof Heap) {
+				Heap heap = (Heap) target;
+				Level level = level();
+				if (level != null && level.heaps.get(heap.pos, null) == heap && !heap.isEmpty()) {
+					EditorWindow.show(new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem(heap));
+					return;
+				}
+				EditorWindow.show(new com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoCell(heap.pos));
+				return;
+			}
 			if (target instanceof Trap) {
 				Trap trap = (Trap) target;
 				if (trapAt(trap.pos) == trap) {

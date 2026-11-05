@@ -13,7 +13,7 @@ private const val AFTER_INFO = "invoke-static/range { p0 .. p0 }, $FLOOR_CLASS->
 @Suppress("unused")
 val floorEditorPatch = bytecodePatch(
 	name = "Floor editor",
-	description = "Adds a Floor button to the in-game menu and an Edit tile button when you examine a tile or trap, for removing or adding gases and other area effects and for adding, removing, hiding, revealing and disarming traps. Examining a tile lists everything on it, including every item in a pile and the tile itself.",
+	description = "Adds a Floor button to the in-game menu and an Edit tile button when you examine a tile or trap, for removing or adding gases and other area effects and for adding, removing, hiding, revealing and disarming traps. Examining an item on the floor lets you move it to another tile. Examining a tile lists everything on it, including every item in a pile and the tile itself.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -27,6 +27,8 @@ val floorEditorPatch = bytecodePatch(
 		WndInfoCellConstructorFingerprint.callBeforeReturn(AFTER_INFO)
 		WndInfoTrapConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $FLOOR_CLASS->beforeTrapInfo(Ljava/lang/Object;)V")
 		WndInfoTrapConstructorFingerprint.callBeforeReturn(AFTER_INFO)
+		WndInfoHeapConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $FLOOR_CLASS->beforeHeapInfo(Ljava/lang/Object;)V")
+		WndInfoHeapConstructorFingerprint.callBeforeEveryReturn(AFTER_INFO)
 
 		ExamineCellFingerprint.method.addInstructionsWithLabels(
 			0,

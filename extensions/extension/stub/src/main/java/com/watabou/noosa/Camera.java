@@ -11,4 +11,5 @@ public class Camera extends Gizmo {
 	public synchronized void shift(PointF point) { throw new RuntimeException("Stub"); }
 
 	public PointF screenToCamera(int x, int y) { throw new RuntimeException("Stub"); }
+	public com.watabou.utils.Point cameraToScreen(float x, float y) { throw new RuntimeException("Stub"); }
 }

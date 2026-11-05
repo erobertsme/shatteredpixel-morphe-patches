@@ -8,10 +8,13 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
  */
 public class ConfirmPrompt extends EditorWindow {
 
+	private static final int SCREEN_MARGIN = 8;
+
 	private final String title;
 	private final String message;
 	private final String confirmLabel;
 	private final Runnable onConfirm;
+	private Runnable onClose;
 
 	public ConfirmPrompt(String title, String message, String confirmLabel, Runnable onConfirm) {
 		super();
@@ -39,6 +42,40 @@ public class ConfirmPrompt extends EditorWindow {
 
 	static void ask(String title, String message, String confirmLabel, Runnable onConfirm) {
 		show(new ConfirmPrompt(title, message, confirmLabel, onConfirm));
+	}
+
+	/**
+	 * Asks about a tile on the map. The window moves to the top or bottom of the screen, away from the tile, and
+	 * [onClose] runs however the window closes.
+	 */
+	static void askAboutTile(int cell, String title, String message, String confirmLabel, Runnable onConfirm, Runnable onClose) {
+		ConfirmPrompt prompt = new ConfirmPrompt(title, message, confirmLabel, onConfirm);
+		prompt.onClose = onClose;
+		prompt.moveAwayFrom(cell);
+		show(prompt);
+	}
+
+	private void moveAwayFrom(int cell) {
+		try {
+			int width = com.shatteredpixel.shatteredpixeldungeon.Dungeon.level.width();
+			float worldX = (cell % width + 0.5f) * 16;
+			float worldY = (cell / width + 0.5f) * 16;
+			com.watabou.utils.Point screen = com.watabou.noosa.Camera.main.cameraToScreen(worldX, worldY);
+			com.watabou.noosa.Camera ui = PixelScene.uiCamera;
+			float tileY = screen.y / ui.zoom;
+			float room = ui.height / 2f - pos / 2f - SCREEN_MARGIN;
+			if (room <= 0) return;
+			offset(0, (int) (tileY > ui.height / 2f ? -room : room));
+		} catch (Throwable ignored) {
+		}
+	}
+
+	@Override
+	public void hide() {
+		super.hide();
+		Runnable close = onClose;
+		onClose = null;
+		if (close != null) close.run();
 	}
 
 	@Override

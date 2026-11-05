@@ -481,6 +481,13 @@ object ItemRestoreFromBundleFingerprint : Fingerprint(
 	parameters = listOf("Lcom/watabou/utils/Bundle;"),
 )
 
+object WndInfoHeapConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoItem;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Heap;"),
+)
+
 object BagCollectFingerprint : Fingerprint(
 	definingClass = BAG_CLASS,
 	name = "collect",

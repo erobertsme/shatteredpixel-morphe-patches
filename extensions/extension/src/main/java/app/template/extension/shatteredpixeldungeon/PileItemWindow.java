@@ -41,6 +41,14 @@ public class PileItemWindow extends EditorWindow {
 		addButton("Back", 0, half, () -> replaceWith(new TileContentsWindow(cell)));
 		addButton(Dungeon.hero != null && Dungeon.hero.pos == cell ? "Pick up" : "Go pick up", half + GAP, half, this::pickUp).enable(heap() != null);
 		pos += ROW_HEIGHT;
+		if (EditorSwitches.floor()) {
+			pos += GAP;
+			addButton("Move Item", 0, WIDTH, () -> {
+				hide();
+				FloorItemMover.moveItem(cell, item);
+			}).enable(heap() != null);
+			pos += ROW_HEIGHT;
+		}
 		finish();
 	}
 

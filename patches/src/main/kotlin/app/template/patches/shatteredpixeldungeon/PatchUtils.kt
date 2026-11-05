@@ -62,6 +62,20 @@ internal fun Fingerprint.callBeforeReturn(smali: String) {
 }
 
 /**
+ * Runs [smali] before every return-void in the method.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.callBeforeEveryReturn(smali: String) {
+	val instructions = method.implementation!!.instructions.toList()
+	val indices = instructions.withIndex().filter { it.value.opcode == Opcode.RETURN_VOID }.map { it.index }
+	if (indices.isEmpty()) throw PatchException("${method.name} has no return-void")
+	indices.reversed().forEach { index ->
+		method.replaceInstruction(index, smali)
+		method.addInstruction(index + 1, "return-void")
+	}
+}
+
+/**
  * Passes every value the method returns through [adjust], a static method that takes the value
  * (plus [extraArguments]) and returns the new value. Only works for int and float returns.
  */
