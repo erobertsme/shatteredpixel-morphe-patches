@@ -1,3 +1,9 @@
+## [1.0.0-dev.34](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.33...v1.0.0-dev.34) (2026-11-05)
+
+### ✨ New Features
+
+* Add drag-to-draw with Finish and Cancel to the floor editor ([8d69cbd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8d69cbdfcf897b076e05652c2056d0f4851c881d))
+
 ## [1.0.0-dev.33](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.32...v1.0.0-dev.33) (2026-11-05)
 
 ### ✨ New Features
