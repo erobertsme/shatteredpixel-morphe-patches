@@ -1,3 +1,13 @@
+## [1.0.0-dev.30](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.29...v1.0.0-dev.30) (2026-11-05)
+
+### ✨ New Features
+
+* Show the current terrain in the tile editor title ([439ecc9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/439ecc9e14db60c59f14571d6d83f69c8e303c50))
+
+### 🐛 Bug Fixes
+
+* Restore missing release notes so a half-finished release can't block later ones ([1439d18](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1439d18782f096f9333305cd1991829d107f4d81))
+
 ## [1.0.0-dev.29](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.28...v1.0.0-dev.29) (2026-11-05)
 
 ### ✨ New Features
