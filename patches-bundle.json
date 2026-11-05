@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-05T21:33:06",
-  "description": "## [1.0.0-dev.46](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.45...v1.0.0-dev.46) (2026-11-05)\n\n### ✨ New Features\n\n* Move items and piles on the floor to another tile from their examine window, with the chosen tile highlighted ([d4d72dd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d4d72dd5ba81efc9e2f578006314297000be8b87))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.46/patches-1.0.0-dev.46.mpp",
+  "created_at": "2026-11-05T22:14:27",
+  "description": "## [1.0.0-dev.47](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.46...v1.0.0-dev.47) (2026-11-05)\n\n### ✨ New Features\n\n* Shopkeeper options for banishing enemies, fearless, immune, passive and lenient behavior and buyback count, paged info with icons, and Back buttons on every Extras tab ([240b7b5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/240b7b55f99d916f56a038c929419a307c716067))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.47/patches-1.0.0-dev.47.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.46"
+  "version": "1.0.0-dev.47"
 }

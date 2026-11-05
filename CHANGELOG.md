@@ -1,3 +1,9 @@
+## [1.0.0-dev.47](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.46...v1.0.0-dev.47) (2026-11-05)
+
+### ✨ New Features
+
+* Shopkeeper options for banishing enemies, fearless, immune, passive and lenient behavior and buyback count, paged info with icons, and Back buttons on every Extras tab ([240b7b5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/240b7b55f99d916f56a038c929419a307c716067))
+
 ## [1.0.0-dev.46](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.45...v1.0.0-dev.46) (2026-11-05)
 
 ### ✨ New Features
