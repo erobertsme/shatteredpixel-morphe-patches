@@ -1,3 +1,9 @@
+## [1.0.0-dev.50](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.49...v1.0.0-dev.50) (2026-11-05)
+
+### ✨ New Features
+
+* Save management patch with per-game saves, per-game setting overrides, and an ebony Quantum Chest ([57f68a7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/57f68a7b78ce37d9caf08af24e147b05599e22a1))
+
 ## [1.0.0-dev.49](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.48...v1.0.0-dev.49) (2026-11-05)
 
 ### ✨ New Features
