@@ -10,7 +10,7 @@ private const val PREVIEW_CLASS = "$EXTENSION_PACKAGE/PathPreview;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Quality of life options in the Extras menu. Confirm movement: tapping a distant tile shows the path your hero would take, with Go and Cancel buttons.",
+	description = "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

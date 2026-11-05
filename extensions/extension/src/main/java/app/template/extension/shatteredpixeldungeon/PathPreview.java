@@ -4,9 +4,12 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
@@ -17,13 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shows the route the hero would walk to a tapped tile, with Go and Cancel buttons, before moving.
+ * Asks before a tap moves, attacks, talks, uses stairs or steps into danger, showing what will happen with Go and Cancel buttons.
  */
 @SuppressWarnings("unused")
 public final class PathPreview {
 
 	private static final String TAG = "PathPreview";
-	private static final String KEY_OFF = "qol_confirm_movement_off";
+	private static final int ATTACK_COLOR = 0xFFE06A5A;
+	private static final int DANGER_COLOR = 0xFFFF8844;
+	private static final int ENTRANCE = 7;
+	private static final int EXIT = 8;
+	private static final int UNLOCKED_EXIT = 22;
+	private static final int ENTRANCE_SP = 37;
+	private static final String[] HARMFUL_EFFECTS = {
+		"Fire", "ToxicGas", "CorrosiveGas", "ParalyticGas", "ConfusionGas", "Electricity", "Inferno", "Blizzard", "Freezing", "StenchGas",
+	};
 	private static final int TILE_SIZE = 16;
 	private static final int STEP_SIZE = 4;
 	private static final int TARGET_SIZE = 10;
@@ -54,12 +65,7 @@ public final class PathPreview {
 	}
 
 	static boolean isEnabled() {
-		return isAvailable() && !CloverlordSettings.get(KEY_OFF);
-	}
-
-	static void setEnabled(boolean enabled) {
-		CloverlordSettings.set(KEY_OFF, !enabled);
-		if (!enabled) clear();
+		return isAvailable() && ConfirmSettings.isOn();
 	}
 
 	/**
@@ -78,21 +84,73 @@ public final class PathPreview {
 			Level level = Dungeon.level;
 			if (hero == null || level == null || !hero.isAlive() || !hero.ready) return false;
 			if (cell < 0 || cell >= level.length() || cell == hero.pos) return false;
-			if (!level.visited[cell] && !level.mapped[cell]) return false;
-			if (isAdjacent(hero.pos, cell, level.width())) return false;
-			if (Actor.findChar(cell) != null) return false;
+			if (!level.visited[cell] && !level.mapped[cell] && !hero.fieldOfView[cell]) return false;
 
-			List<Integer> path = findPath(hero, cell, level);
-			if (path == null || path.isEmpty()) return false;
+			boolean adjacent = isAdjacent(hero.pos, cell, level.width());
+			String danger = dangerAt(level, cell);
+			Char ch = Actor.findChar(cell);
+			String message;
+			String goLabel;
+			int color;
+			if (ch instanceof Mob && ch != hero && hero.fieldOfView[cell]) {
+				boolean interact = ((Mob) ch).heroShouldInteract();
+				if (!ConfirmSettings.confirms(interact ? ConfirmSettings.Action.INTERACT : ConfirmSettings.Action.ATTACK)) return false;
+				message = (interact ? "Talk to " : "Attack ") + ch.name() + "?";
+				goLabel = interact ? "Talk" : "Attack";
+				color = interact ? TARGET_COLOR : ATTACK_COLOR;
+			} else if (danger != null && ConfirmSettings.confirms(ConfirmSettings.Action.DANGER)) {
+				message = "Danger: " + danger;
+				goLabel = "Go";
+				color = DANGER_COLOR;
+			} else if (isStairs(level.map[cell])) {
+				if (!ConfirmSettings.confirms(ConfirmSettings.Action.STAIRS)) return false;
+				message = "Use the " + (level.map[cell] == ENTRANCE || level.map[cell] == ENTRANCE_SP ? "stairs up" : "stairs down") + "?";
+				goLabel = "Go";
+				color = TARGET_COLOR;
+			} else if (adjacent) {
+				if (!ConfirmSettings.confirms(ConfirmSettings.Action.STEP)) return false;
+				message = "Step here?";
+				goLabel = "Go";
+				color = TARGET_COLOR;
+			} else {
+				if (!ConfirmSettings.confirms(ConfirmSettings.Action.WALK)) return false;
+				message = null;
+				goLabel = "Go";
+				color = TARGET_COLOR;
+			}
+
+			List<Integer> path = adjacent ? new ArrayList<>() : findPath(hero, cell, level);
+			if (path == null) path = new ArrayList<>();
+			if (message == null) {
+				if (path.isEmpty()) return false;
+				message = "Walk " + path.size() + (path.size() == 1 ? " step?" : " steps?");
+			}
 
 			active = new PathPreview(cell, hero.pos);
-			active.show(path);
+			active.show(path, message, goLabel, color);
 			return true;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not preview the path", e);
 			clear();
 			return false;
 		}
+	}
+
+	private static boolean isStairs(int tile) {
+		return tile == ENTRANCE || tile == EXIT || tile == UNLOCKED_EXIT || tile == ENTRANCE_SP;
+	}
+
+	private static String dangerAt(Level level, int cell) {
+		if (level.map[cell] == 0) return "a chasm. You will fall to the floor below.";
+		com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps == null ? null : level.traps.get(cell, null);
+		if (trap != null && trap.visible && trap.active) return "a " + FloorEditor.trapName(trap).toLowerCase() + ".";
+		for (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob blob : FloorEditor.activeEffects()) {
+			if (FloorEditor.strengthAt(blob, cell) <= 0) continue;
+			for (String harmful : HARMFUL_EFFECTS) {
+				if (blob.getClass().getSimpleName().equals(harmful)) return FloorEditor.effectName(blob.getClass()).toLowerCase() + ".";
+			}
+		}
+		return null;
 	}
 
 	private static boolean isAdjacent(int a, int b, int width) {
@@ -107,13 +165,21 @@ public final class PathPreview {
 		return path == null ? null : new ArrayList<>(path);
 	}
 
-	private void show(List<Integer> path) {
+	private void show(List<Integer> path, String message, String goLabel, int color) {
 		int width = Dungeon.level.width();
 		for (int cell : path) {
 			if (cell == target) continue;
 			addMarker(cell, width, STEP_SIZE, PATH_COLOR);
 		}
-		addMarker(target, width, TARGET_SIZE, TARGET_COLOR);
+		addMarker(target, width, TARGET_SIZE, color);
+
+		RenderedTextBlock label = PixelScene.renderTextBlock(message, 9);
+		label.hardlight(color == ATTACK_COLOR || color == DANGER_COLOR ? 0xFF8866 : 0xFFFF44);
+		label.maxWidth(PixelScene.uiCamera.width - 2 * MARGIN);
+		label.camera = PixelScene.uiCamera;
+		label.setPos(MARGIN, 30);
+		scene.add(label);
+		overlay.add(label);
 
 		Gizmo watcher = new Gizmo() {
 			@Override
@@ -132,7 +198,7 @@ public final class PathPreview {
 		scene.add(cancel);
 		overlay.add(cancel);
 
-		TintedButton go = TintedButton.finish("Go", PathPreview::go);
+		TintedButton go = TintedButton.finish(goLabel, PathPreview::go);
 		go.camera = PixelScene.uiCamera;
 		go.setRect(PixelScene.uiCamera.width - MARGIN - BUTTON_WIDTH, buttonsTop, BUTTON_WIDTH, BUTTON_HEIGHT);
 		scene.add(go);
