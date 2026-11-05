@@ -12,7 +12,7 @@ class TintedButton extends StyledButton {
 	private final Runnable action;
 
 	TintedButton(String label, Icons icon, float red, float green, float blue, Runnable action) {
-		super(Chrome.Type.GREY_BUTTON, label);
+		super(Chrome.Type.GREY_BUTTON, TitleCase.of(label));
 		this.action = action;
 		if (bg != null) bg.hardlight(red, green, blue);
 		if (icon != null) icon(Icons.get(icon));

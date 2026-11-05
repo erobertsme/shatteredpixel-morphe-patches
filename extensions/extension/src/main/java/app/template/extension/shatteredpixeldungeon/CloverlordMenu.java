@@ -4,9 +4,7 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
@@ -17,6 +15,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
+import com.watabou.noosa.PointerArea;
+import com.watabou.input.PointerEvent;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -169,8 +169,8 @@ public final class CloverlordMenu {
 	}
 
 	/**
-	 * Called at the end of the WndHero constructor. Adds a hunger summary when the Hunger editor patch is applied,
-	 * an Edit button that opens the editor for the selected tab, and a Hunger button.
+	 * Called at the end of the WndHero constructor. Adds a hunger summary to the first tab when the Hunger editor
+	 * patch is applied, which opens the hunger settings when tapped, and an Edit button for the selected tab.
 	 */
 	public static void onHeroWindowCreated(Window window) {
 		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
@@ -186,11 +186,49 @@ public final class CloverlordMenu {
 			float y = heightField.getInt(window) + GAP;
 
 			List<Gizmo> summary = new ArrayList<>();
-			if (hunger) y = addHungerSummary(window, width, y, summary) + 2 * GAP;
+			if (hunger) {
+				float top = y;
+				y = addHungerSummary(window, width, y, summary);
+				PointerArea area = new PointerArea(0, top, width, y - top) {
+					@Override
+					public void onClick(PointerEvent event) {
+						window.hide();
+						HungerWindow.open(CloverlordMenu::showHeroWindow);
+					}
+				};
+				window.add(area);
+				summary.add(area);
+				y += 2 * GAP;
+			}
 
-			float editWidth = !character ? 0 : hunger ? (width - GAP) * 0.6f : width;
-			float hungerLeft = character ? editWidth + GAP : 0;
-			RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
+			if (character) {
+				RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
+					private int shownTab = -1;
+
+					@Override
+					public void update() {
+						super.update();
+						if (shownTab == WndHero.lastIdx) return;
+						shownTab = WndHero.lastIdx;
+						icon(Icons.get(tabIcon(shownTab)));
+						text(editLabel(shownTab));
+					}
+
+					@Override
+					public void onClick() {
+						window.hide();
+						CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
+					}
+				};
+				edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
+				edit.setRect(0, y, width, 16);
+				window.add(edit);
+				y += 16;
+			} else {
+				y -= 2 * GAP;
+			}
+
+			Gizmo watcher = new Gizmo() {
 				private int shownTab = -1;
 
 				@Override
@@ -198,36 +236,18 @@ public final class CloverlordMenu {
 					super.update();
 					if (shownTab == WndHero.lastIdx) return;
 					shownTab = WndHero.lastIdx;
-					icon(Icons.get(tabIcon(shownTab)));
-					text(editLabel(shownTab));
-					for (Gizmo gizmo : summary) gizmo.visible = shownTab == 0;
-				}
-
-				@Override
-				public void onClick() {
-					window.hide();
-					CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
+					for (Gizmo gizmo : summary) {
+						gizmo.visible = shownTab == 0;
+						gizmo.active = shownTab == 0;
+					}
 				}
 			};
-			edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
-			edit.setRect(0, y, editWidth, 16);
-			if (character) window.add(edit);
-
-			if (hunger) {
-				RedButton hungerButton = new RedButton("Hunger", 7) {
-					@Override
-					public void onClick() {
-						window.hide();
-						HungerWindow.open(CloverlordMenu::showHeroWindow);
-					}
-				};
-				hungerButton.icon(new ItemSprite(new Food()));
-				hungerButton.setRect(hungerLeft, y, width - hungerLeft, 16);
-				window.add(hungerButton);
+			window.add(watcher);
+			for (Gizmo gizmo : summary) {
+				gizmo.visible = WndHero.lastIdx == 0;
+				gizmo.active = WndHero.lastIdx == 0;
 			}
-
-			for (Gizmo gizmo : summary) gizmo.visible = WndHero.lastIdx == 0;
-			window.resize(width, (int) (y + 16));
+			window.resize(width, (int) y);
 			window.offset(0, 0);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the hero window buttons", e);
@@ -245,6 +265,11 @@ public final class CloverlordMenu {
 		title.hardlight(0xFFFF44);
 		title.setPos(0, y);
 		window.add(title);
+
+		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap to Edit", 6);
+		hint.hardlight(0x999999);
+		hint.setPos(width - hint.width(), y + (title.height() - hint.height()) / 2f);
+		window.add(hint);
 		y = title.bottom() + 2;
 
 		boolean disabled = HungerEditor.isDisabled();
@@ -260,9 +285,9 @@ public final class CloverlordMenu {
 	}
 
 	private static String editLabel(int heroTab) {
-		if (heroTab == 1) return "Edit talents";
-		if (heroTab == 2) return "Edit statuses";
-		return "Edit stats";
+		if (heroTab == 1) return "Edit Talents";
+		if (heroTab == 2) return "Edit Statuses";
+		return "Edit Stats";
 	}
 
 	private static Icons tabIcon(int heroTab) {
@@ -286,7 +311,7 @@ public final class CloverlordMenu {
 	}
 
 	private static int addGameMenuButton(Window window, String label, Icons icon, int width, int height, Runnable action) {
-		RedButton button = new RedButton(label) {
+		RedButton button = new RedButton(TitleCase.of(label)) {
 			@Override
 			public void onClick() {
 				window.hide();

@@ -191,7 +191,7 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected RedButton addButton(String label, float x, float width, Runnable action) {
-		RedButton button = new RedButton(label, 6) {
+		RedButton button = new RedButton(TitleCase.of(label), 6) {
 			@Override
 			public void onClick() {
 				action.run();

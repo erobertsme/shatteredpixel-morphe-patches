@@ -400,9 +400,53 @@ public final class FloorEditor {
 		}
 	}
 
+	private static final String[] LEVEL_METHODS = { "setLevel", "adjustStats", "spawn" };
+	static final int MAX_SPAWN_LEVEL = 30;
+
+	private static int spawnLevel;
+
+	/**
+	 * The level that spawned creatures which scale are set to. 0 follows the current floor.
+	 */
+	static int spawnLevel() {
+		return spawnLevel;
+	}
+
+	static void spawnLevel(int level) {
+		spawnLevel = Math.max(0, Math.min(MAX_SPAWN_LEVEL, level));
+	}
+
+	static int effectiveSpawnLevel() {
+		return spawnLevel > 0 ? spawnLevel : currentLevel();
+	}
+
+	static int currentLevel() {
+		try {
+			return Math.max(1, Dungeon.scalingDepth());
+		} catch (Throwable e) {
+			return Math.max(1, Dungeon.depth);
+		}
+	}
+
+	/**
+	 * Whether creatures of [type] keep a level that their stats scale with.
+	 */
+	static boolean scales(Class<?> type) {
+		for (Class<?> current = type; current != null && current != Mob.class; current = current.getSuperclass()) {
+			for (String name : LEVEL_METHODS) {
+				try {
+					current.getDeclaredMethod(name, int.class);
+					return true;
+				} catch (NoSuchMethodException ignored) {
+				}
+			}
+		}
+		return false;
+	}
+
 	private static void prepare(Mob mob) {
-		int depth = Math.max(1, Dungeon.scalingDepth());
-		if (mob.HT <= 0) callWithLevel(mob, depth, "setLevel", "adjustStats", "spawn");
+		int depth = currentLevel();
+		if (scales(mob.getClass())) callWithLevel(mob, effectiveSpawnLevel(), LEVEL_METHODS);
 		if (mob.HT <= 0) mob.HT = 10 + depth * 5;
 		if (mob.HP <= 0) mob.HP = mob.HT;
 		if (isMimic(mob)) mob.alignment = Char.Alignment.ENEMY;
@@ -414,6 +458,7 @@ public final class FloorEditor {
 			for (Class<?> type = mob.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
 				try {
 					java.lang.reflect.Method method = type.getDeclaredMethod(name, int.class);
+					if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) continue;
 					method.setAccessible(true);
 					method.invoke(mob, level);
 					return;
@@ -536,7 +581,7 @@ public final class FloorEditor {
 	}
 
 	/**
-	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds an Edit tile button.
+	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds an Edit Tile button.
 	 */
 	public static void afterInfo(Window window) {
 		Object target = pendingTarget;
@@ -551,7 +596,7 @@ public final class FloorEditor {
 			int width = widthField.getInt(window);
 			int height = heightField.getInt(window);
 
-			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit tile", 7) {
+			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit Tile", 7) {
 				@Override
 				public void onClick() {
 					window.hide();

@@ -36,7 +36,7 @@ final class DrawingSession {
 	private static final int TILE_SIZE = 16;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
-	private static final String[] BRUSH_NAMES = { "Floor", "Wall", "Eraser", "Move view" };
+	private static final String[] BRUSH_NAMES = { "Floor", "Wall", "Eraser", "Move View" };
 
 	static final int FLOOR = 0;
 	static final int WALL = 1;

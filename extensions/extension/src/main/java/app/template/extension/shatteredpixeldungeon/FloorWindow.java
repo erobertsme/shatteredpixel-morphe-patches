@@ -15,9 +15,9 @@ public class FloorWindow extends EditorWindow {
 
 	private static final String[] TABS = { "Effects", "Traps", "Other" };
 	private static final String[] INFO = {
-		"Effects\n\nEvery gas and area effect on this floor with its total strength. Remove clears one completely, Remove all clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit tile.",
-		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm stops them going off, Re-arm switches them back on. Remove all traps takes every trap off this floor.",
-		"Other\n\nReveal map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move view lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
+		"Effects\n\nEvery gas and area effect on this floor with its total strength. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.",
+		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm All stops them going off, Re-arm All switches them back on. Remove All Traps takes every trap off this floor.",
+		"Other\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
 	};
 
 	private static Runnable backAction;

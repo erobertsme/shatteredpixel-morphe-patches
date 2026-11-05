@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class TileContentsWindow extends EditorWindow {
 
-	private static final String INFO = "On this tile\n\nEverything on the tile you examined. Tap a row to see its details.\n\nWhen several items lie in a pile, each one is listed. Pick one and use Pick up to take that item instead of the one on top.\n\nThe last row is the tile itself, so you can still examine or edit a tile that has an item or a creature on it.";
+	private static final String INFO = "On this tile\n\nEverything on the tile you examined. Tap a row to see its details.\n\nWhen several items lie in a pile, each one is listed. Pick one and use Pick Up to take that item instead of the one on top.\n\nThe last row is the tile itself, so you can still examine or edit a tile that has an item or a creature on it.";
 
 	private final int cell;
 

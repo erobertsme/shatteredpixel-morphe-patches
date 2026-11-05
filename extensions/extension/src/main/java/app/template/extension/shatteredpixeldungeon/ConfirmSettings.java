@@ -7,7 +7,7 @@ final class ConfirmSettings {
 
 	enum Action {
 		MOVE("Moving", "confirm_walk", true, 2, "steps"),
-		ATTACK("Attacking", "confirm_attack", true, 1, "tiles away"),
+		ATTACK("Attacking", "confirm_attack", true, 2, "tiles away"),
 		INTERACT("Talking to allies and NPCs", "confirm_interact", false, 0, null),
 		STAIRS("Using stairs and exits", "confirm_stairs", true, 0, null),
 		DANGER("Stepping into danger", "confirm_danger", true, 0, null);

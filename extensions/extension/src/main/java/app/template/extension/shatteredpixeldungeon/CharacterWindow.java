@@ -47,7 +47,7 @@ public class CharacterWindow extends Window {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
 		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nTap or long-press a talent to read it.",
 		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
-		"Status\n\nTap the number to change how many turns are left.\n\nThe star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove negative clears every negative status.\n\nTap i or long-press a status to read it.",
+		"Status\n\nTap the number to change how many turns are left.\n\nThe star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove Negative clears every negative status.\n\nTap i or long-press a status to read it.",
 	};
 
 	interface IntSetter {
@@ -307,7 +307,7 @@ public class CharacterWindow extends Window {
 			addStepper(mod.label, text, value, mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue), mod.step());
 		}
 
-		RedButton reset = new RedButton("Reset all", 7) {
+		RedButton reset = new RedButton("Reset All", 7) {
 			@Override
 			public void onClick() {
 				HeroExtras.resetMods();
@@ -337,7 +337,7 @@ public class CharacterWindow extends Window {
 		int hunger = StatusEditor.hungerState(hero);
 		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
 		if (EditorSwitches.hunger()) {
-			RedButton hungerSettings = new RedButton("Hunger settings", 6) {
+			RedButton hungerSettings = new RedButton("Hunger Settings", 6) {
 				@Override
 				public void onClick() {
 					hide();
@@ -350,7 +350,7 @@ public class CharacterWindow extends Window {
 		}
 
 		float half = (WIDTH - GAP) / 2f;
-		RedButton removeNegative = new RedButton("Remove negative", 6) {
+		RedButton removeNegative = new RedButton("Remove Negative", 6) {
 			@Override
 			public void onClick() {
 				StatusEditor.removeNegative(hero);
@@ -360,7 +360,7 @@ public class CharacterWindow extends Window {
 		removeNegative.setRect(0, pos, half, ROW_HEIGHT);
 		add(removeNegative);
 
-		RedButton addStatus = new RedButton("Add status", 6) {
+		RedButton addStatus = new RedButton("Add Status", 6) {
 			@Override
 			public void onClick() {
 				hide();
