@@ -1,3 +1,9 @@
+## [1.0.0-dev.36](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.35...v1.0.0-dev.36) (2026-11-05)
+
+### ✨ New Features
+
+* Add waterskin, ankh and alchemy options to the item editor, teleport for creatures, and keep the bag tab when editing ([60caa7d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/60caa7d1f773ffc59668d0210afcb69c85529259))
+
 ## [1.0.0-dev.35](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.34...v1.0.0-dev.35) (2026-11-05)
 
 ### 🐛 Bug Fixes
