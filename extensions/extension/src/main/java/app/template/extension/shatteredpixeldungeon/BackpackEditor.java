@@ -123,7 +123,6 @@ public final class BackpackEditor {
 					}
 				}
 			};
-			shortcut.textColor(EDIT_COLOR);
 			shortcut.setRect(counterLeft(window) - SHORTCUT_WIDTH - 3, 1, SHORTCUT_WIDTH, SHORTCUT_HEIGHT);
 			window.add(shortcut);
 		} catch (Throwable e) {
@@ -185,7 +184,6 @@ public final class BackpackEditor {
 				}
 			}
 		};
-		back.textColor(EDIT_COLOR);
 		back.setRect(0, height + 2, width, BACK_HEIGHT);
 		window.add(back);
 		window.resize(width, height + 2 + BACK_HEIGHT);

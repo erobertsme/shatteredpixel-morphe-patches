@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
@@ -111,7 +112,7 @@ public class TileWindow extends EditorWindow {
 			addButton("Remove", half + GAP, half, () -> {
 				FloorEditor.uproot(cell);
 				refresh();
-			}).textColor(CharacterWindow.NEGATIVE_COLOR);
+			}).icon(Icons.get(Icons.CLOSE));
 		}
 		pos += ROW_HEIGHT + GAP;
 	}
@@ -186,7 +187,7 @@ public class TileWindow extends EditorWindow {
 		addButton("All", nameWidth + small + 2 * GAP, small, () -> {
 			FloorEditor.clearAll(blob);
 			refresh();
-		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}).icon(Icons.get(Icons.CLOSE));
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -231,7 +232,7 @@ public class TileWindow extends EditorWindow {
 		addButton("Remove", 2 * (third + GAP), third, () -> {
 			FloorEditor.removeTrap(trap);
 			refresh();
-		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}).icon(Icons.get(Icons.CLOSE));
 		pos += ROW_HEIGHT + GAP;
 	}
 

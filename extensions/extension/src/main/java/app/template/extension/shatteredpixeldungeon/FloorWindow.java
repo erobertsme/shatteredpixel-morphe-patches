@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 
@@ -94,7 +95,7 @@ public class FloorWindow extends EditorWindow {
 		addButton("Re-arm all", half + GAP, half, () -> run(FloorEditor::rearmAll)).enable(disarmed > 0);
 		pos += ROW_HEIGHT + GAP;
 		RedButton removeAll = addButton("Remove all traps", 0, WIDTH, () -> run(FloorEditor::removeAllTraps));
-		removeAll.textColor(CharacterWindow.NEGATIVE_COLOR);
+		removeAll.icon(Icons.get(Icons.CLOSE));
 		removeAll.enable(!traps.isEmpty());
 		pos += ROW_HEIGHT + GAP;
 	}
@@ -110,7 +111,7 @@ public class FloorWindow extends EditorWindow {
 		float third = (WIDTH - 2 * GAP) / 3f;
 		addButton("Floor", 0, third, () -> draw(DrawingSession.FLOOR));
 		addButton("Wall", third + GAP, third, () -> draw(DrawingSession.WALL));
-		addButton("Eraser", 2 * (third + GAP), third, () -> draw(DrawingSession.ERASER)).textColor(CharacterWindow.NEGATIVE_COLOR);
+		addButton("Eraser", 2 * (third + GAP), third, () -> draw(DrawingSession.ERASER)).icon(Icons.get(Icons.CLOSE));
 		pos += ROW_HEIGHT + GAP;
 
 		addSection("Creatures");
@@ -127,7 +128,7 @@ public class FloorWindow extends EditorWindow {
 	private void addGroupButton(String label, Char.Alignment alignment) {
 		int count = FloorEditor.countCreatures(alignment);
 		RedButton button = addButton(label + " (" + count + ")", 0, WIDTH, () -> run(() -> FloorEditor.defeatCreatures(alignment)));
-		button.textColor(CharacterWindow.NEGATIVE_COLOR);
+		button.icon(Icons.get(Icons.CLOSE));
 		button.enable(count > 0);
 		pos += ROW_HEIGHT + GAP;
 	}
@@ -150,7 +151,7 @@ public class FloorWindow extends EditorWindow {
 		addButton("Remove", nameWidth + GAP, small, () -> {
 			FloorEditor.clearAll(blob);
 			refresh();
-		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}).icon(Icons.get(Icons.CLOSE));
 		pos += ROW_HEIGHT + GAP;
 	}
 

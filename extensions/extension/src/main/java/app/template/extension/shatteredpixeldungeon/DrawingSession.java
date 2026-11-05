@@ -10,7 +10,6 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.input.PointerEvent;
@@ -37,8 +36,6 @@ final class DrawingSession {
 	private static final int TILE_SIZE = 16;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
-	private static final int FINISH_COLOR = 0x7AD35C;
-	private static final int CANCEL_COLOR = 0xE06A5A;
 	private static final String[] BRUSH_NAMES = { "Floor", "Wall", "Eraser" };
 
 	static final int FLOOR = 0;
@@ -121,25 +118,11 @@ final class DrawingSession {
 
 		float sideWidth = 50;
 
-		RedButton cancel = new RedButton("Cancel", 8) {
-			@Override
-			public void onClick() {
-				cancel();
-			}
-		};
-		cancel.icon(Icons.get(Icons.CLOSE));
-		cancel.textColor(CANCEL_COLOR);
+		TintedButton cancel = TintedButton.cancel("Cancel", this::cancel);
 		cancel.setRect(MARGIN, actionsTop, sideWidth, BUTTON_HEIGHT);
 		addToOverlay(cancel);
 
-		RedButton finish = new RedButton("Finish", 8) {
-			@Override
-			public void onClick() {
-				finish();
-			}
-		};
-		finish.icon(Icons.get(Icons.CHECKED));
-		finish.textColor(FINISH_COLOR);
+		TintedButton finish = TintedButton.finish("Finish", this::finish);
 		finish.setRect(width - MARGIN - sideWidth, actionsTop, sideWidth, BUTTON_HEIGHT);
 		addToOverlay(finish);
 

@@ -457,7 +457,6 @@ public class CharacterWindow extends Window {
 				refresh();
 			}
 		};
-		remove.textColor(NEGATIVE_COLOR);
 		remove.setRect(x, pos, smallWidth, ROW_HEIGHT);
 		add(remove);
 		pos += ROW_HEIGHT + GAP;

@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 
 public class ItemEditWindow extends EditorWindow {
 
@@ -87,7 +88,7 @@ public class ItemEditWindow extends EditorWindow {
 		addButton("Delete", third + GAP, third, () -> {
 			InventoryEditor.delete(hero, item);
 			back();
-		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}).icon(Icons.get(Icons.CLOSE));
 		addButton("Back", 2 * (third + GAP), third, this::back);
 		pos += ROW_HEIGHT + GAP;
 

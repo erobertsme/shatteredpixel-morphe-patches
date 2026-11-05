@@ -126,7 +126,7 @@ public class EnemyWindow extends EditorWindow {
 		addButton("Defeat", half + GAP, half, () -> {
 			EnemyEditor.defeat(mob);
 			hide();
-		}).textColor(CharacterWindow.NEGATIVE_COLOR);
+		}).icon(Icons.get(Icons.CLOSE));
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -226,7 +226,6 @@ public class EnemyWindow extends EditorWindow {
 				refresh();
 			}
 		};
-		remove.textColor(CharacterWindow.NEGATIVE_COLOR);
 		remove.setRect(WIDTH - small, pos, small, ROW_HEIGHT);
 		add(remove);
 		pos += ROW_HEIGHT + GAP;

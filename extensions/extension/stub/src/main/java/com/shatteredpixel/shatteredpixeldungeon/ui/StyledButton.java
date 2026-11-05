@@ -4,6 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.watabou.noosa.Image;
 
 public class StyledButton extends Button {
+	protected com.watabou.noosa.NinePatch bg;
+
 	public StyledButton(Chrome.Type type, String label) { throw new RuntimeException("Stub"); }
 	public void icon(Image icon) { throw new RuntimeException("Stub"); }
 	public Image icon() { throw new RuntimeException("Stub"); }
