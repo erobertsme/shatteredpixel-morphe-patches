@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-05T08:25:04",
-  "description": "## [1.0.0-dev.38](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.37...v1.0.0-dev.38) (2026-11-05)\n\n### 🐛 Bug Fixes\n\n* Confirm attacks, stairs and steps into danger as well as walking, with a setting for each ([5e8bbbf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5e8bbbfb2d965cadc66f1414c59bdedc232a790e))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.38/patches-1.0.0-dev.38.mpp",
+  "created_at": "2026-11-05T09:22:16",
+  "description": "## [1.0.0-dev.39](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.38...v1.0.0-dev.39) (2026-11-05)\n\n### 🐛 Bug Fixes\n\n* Give spawned mimics and bees their stats, defeat hidden mimics with enemies, and add minimum distances for confirming moves and attacks ([28637cf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/28637cfb04a9c7d073dcd0a15873670cf6fe3997))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.39/patches-1.0.0-dev.39.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.38"
+  "version": "1.0.0-dev.39"
 }

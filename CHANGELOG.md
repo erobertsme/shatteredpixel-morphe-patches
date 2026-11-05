@@ -1,3 +1,9 @@
+## [1.0.0-dev.39](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.38...v1.0.0-dev.39) (2026-11-05)
+
+### 🐛 Bug Fixes
+
+* Give spawned mimics and bees their stats, defeat hidden mimics with enemies, and add minimum distances for confirming moves and attacks ([28637cf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/28637cfb04a9c7d073dcd0a15873670cf6fe3997))
+
 ## [1.0.0-dev.38](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.37...v1.0.0-dev.38) (2026-11-05)
 
 ### 🐛 Bug Fixes
