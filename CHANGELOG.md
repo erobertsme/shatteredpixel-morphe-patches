@@ -1,3 +1,9 @@
+## [1.0.0-dev.45](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.44...v1.0.0-dev.45) (2026-11-05)
+
+### ✨ New Features
+
+* Teleport from the tile and trap examine windows, infinite charges for wands and artifacts, fixed-height backpack pages filled with empty slots, and one bag of each kind ([6fd0435](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6fd0435bc8a56b5b3d9124021d6c1c3f5d467992))
+
 ## [1.0.0-dev.44](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.43...v1.0.0-dev.44) (2026-11-05)
 
 ### ✨ New Features

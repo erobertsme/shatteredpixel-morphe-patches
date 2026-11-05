@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-05T21:04:13",
-  "description": "## [1.0.0-dev.44](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.43...v1.0.0-dev.44) (2026-11-05)\n\n### ✨ New Features\n\n* Weapons, Armor and Rings backpack tabs, paged bags with unlimited inventory, Cleanse All, and a gear button back to the inventory editor ([e28cc59](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e28cc5986c40d034aa0f23cb3669e267eb6b4a14))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.44/patches-1.0.0-dev.44.mpp",
+  "created_at": "2026-11-05T21:24:02",
+  "description": "## [1.0.0-dev.45](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.44...v1.0.0-dev.45) (2026-11-05)\n\n### ✨ New Features\n\n* Teleport from the tile and trap examine windows, infinite charges for wands and artifacts, fixed-height backpack pages filled with empty slots, and one bag of each kind ([6fd0435](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6fd0435bc8a56b5b3d9124021d6c1c3f5d467992))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.45/patches-1.0.0-dev.45.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.44"
+  "version": "1.0.0-dev.45"
 }

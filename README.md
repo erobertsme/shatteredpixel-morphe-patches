@@ -19,7 +19,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.44](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.44)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
+> **[v1.0.0-dev.45](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.45)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;12 patches</summary>
 <br>
