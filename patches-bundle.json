@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-05T05:56:23",
-  "description": "## [1.0.0-dev.32](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.31...v1.0.0-dev.32) (2026-11-05)\n\n### ✨ New Features\n\n* Add an open and close button for doors in the tile editor ([002e622](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/002e622ca6c3bb191fed998919fe00c89926d2eb))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.32/patches-1.0.0-dev.32.mpp",
+  "created_at": "2026-11-05T06:01:10",
+  "description": "## [1.0.0-dev.33](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.32...v1.0.0-dev.33) (2026-11-05)\n\n### ✨ New Features\n\n* Add floor, wall and eraser drawing to the floor editor and a delete-tile option to the tile editor ([2917584](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/291758417d15da925b5c28d29ac5219cfc4a8b96))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.33/patches-1.0.0-dev.33.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.32"
+  "version": "1.0.0-dev.33"
 }

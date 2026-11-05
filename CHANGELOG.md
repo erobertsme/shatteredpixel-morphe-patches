@@ -1,3 +1,9 @@
+## [1.0.0-dev.33](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.32...v1.0.0-dev.33) (2026-11-05)
+
+### ✨ New Features
+
+* Add floor, wall and eraser drawing to the floor editor and a delete-tile option to the tile editor ([2917584](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/291758417d15da925b5c28d29ac5219cfc4a8b96))
+
 ## [1.0.0-dev.32](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.31...v1.0.0-dev.32) (2026-11-05)
 
 ### ✨ New Features
