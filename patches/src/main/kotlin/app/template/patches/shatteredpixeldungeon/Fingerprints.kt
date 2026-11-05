@@ -376,3 +376,24 @@ object HungerRestoreFromBundleFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(BUNDLE_TYPE),
 )
+
+object FloorEditorAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/FloorWindow;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object WndInfoCellConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoCell;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("I"),
+)
+
+object WndInfoTrapConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoTrap;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap;"),
+)

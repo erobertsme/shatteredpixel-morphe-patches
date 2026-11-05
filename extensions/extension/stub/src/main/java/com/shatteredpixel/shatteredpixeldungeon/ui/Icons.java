@@ -13,7 +13,8 @@ public enum Icons {
 	INFO,
 	BACKPACK,
 	RANKINGS,
-	BUFFS;
+	BUFFS,
+	DEPTH;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

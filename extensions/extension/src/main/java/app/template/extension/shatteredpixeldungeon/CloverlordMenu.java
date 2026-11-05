@@ -159,6 +159,9 @@ public final class CloverlordMenu {
 			if (inRun && EditorSwitches.inventory()) {
 				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
 			}
+			if (inRun && EditorSwitches.floor()) {
+				height = addGameMenuButton(window, "Floor", Icons.DEPTH, width, height, () -> FloorWindow.open(CloverlordMenu::showGameMenu));
+			}
 			window.resize(width, height);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the game menu buttons", e);

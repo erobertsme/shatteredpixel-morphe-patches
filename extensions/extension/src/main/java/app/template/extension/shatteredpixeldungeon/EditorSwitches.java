@@ -9,6 +9,7 @@ final class EditorSwitches {
 	static final String INVENTORY = "editor_off_inventory";
 	static final String ENEMY = "editor_off_enemy";
 	static final String HUNGER = "editor_off_hunger";
+	static final String FLOOR = "editor_off_floor";
 
 	private EditorSwitches() {
 	}
@@ -37,7 +38,11 @@ final class EditorSwitches {
 		return HungerEditor.isAvailable() && isOn(HUNGER);
 	}
 
+	static boolean floor() {
+		return FloorWindow.isAvailable() && isOn(FLOOR);
+	}
+
 	static boolean anyAvailable() {
-		return CharacterWindow.isAvailable() || InventoryWindow.isAvailable() || EnemyWindow.isAvailable() || HungerEditor.isAvailable();
+		return CharacterWindow.isAvailable() || InventoryWindow.isAvailable() || EnemyWindow.isAvailable() || HungerEditor.isAvailable() || FloorWindow.isAvailable();
 	}
 }

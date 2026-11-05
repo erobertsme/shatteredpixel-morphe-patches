@@ -45,8 +45,18 @@ final class Favorites {
 		"actors.buffs.Light",
 	};
 
+	private static final String KEY_EFFECTS = "favorite_effects";
+	private static final String KEY_TRAPS = "favorite_traps";
+	private static final String[] DEFAULT_EFFECTS = { "ToxicGas", "CorrosiveGas", "ParalyticGas", "Fire", "Freezing", "Web" };
+	private static final String[] DEFAULT_TRAPS = {
+		"levels.traps.ChillingTrap", "levels.traps.BurningTrap", "levels.traps.ToxicTrap",
+		"levels.traps.GrippingTrap", "levels.traps.TeleportationTrap", "levels.traps.ExplosiveTrap",
+	};
+
 	private static Set<String> items;
 	private static Set<String> statuses;
+	private static Set<String> effects;
+	private static Set<String> traps;
 
 	private Favorites() {
 	}
@@ -67,21 +77,47 @@ final class Favorites {
 		toggle(statuses(), type.getName(), KEY_STATUSES);
 	}
 
+	static boolean isEffect(String className) {
+		return effects().contains(className);
+	}
+
+	static void toggleEffect(String className) {
+		toggle(effects(), className, KEY_EFFECTS);
+	}
+
+	static boolean isTrap(String className) {
+		return traps().contains(className);
+	}
+
+	static void toggleTrap(String className) {
+		toggle(traps(), className, KEY_TRAPS);
+	}
+
+	private static synchronized Set<String> effects() {
+		if (effects == null) effects = load(KEY_EFFECTS, DEFAULT_EFFECTS, "");
+		return effects;
+	}
+
+	private static synchronized Set<String> traps() {
+		if (traps == null) traps = load(KEY_TRAPS, DEFAULT_TRAPS, PACKAGE);
+		return traps;
+	}
+
 	private static synchronized Set<String> items() {
-		if (items == null) items = load(KEY_ITEMS, DEFAULT_ITEMS);
+		if (items == null) items = load(KEY_ITEMS, DEFAULT_ITEMS, PACKAGE);
 		return items;
 	}
 
 	private static synchronized Set<String> statuses() {
-		if (statuses == null) statuses = load(KEY_STATUSES, DEFAULT_STATUSES);
+		if (statuses == null) statuses = load(KEY_STATUSES, DEFAULT_STATUSES, PACKAGE);
 		return statuses;
 	}
 
-	private static Set<String> load(String key, String[] defaults) {
+	private static Set<String> load(String key, String[] defaults, String prefix) {
 		String stored = CloverlordSettings.getString(key);
 		Set<String> result = new LinkedHashSet<>();
 		if (stored == null) {
-			for (String name : defaults) result.add(PACKAGE + name);
+			for (String name : defaults) result.add(prefix + name);
 			return result;
 		}
 		if (!stored.isEmpty()) result.addAll(Arrays.asList(stored.split(";")));
