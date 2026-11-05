@@ -30,6 +30,7 @@ public class Level {
 
 	public Heap drop(Item item, int cell) { throw new RuntimeException("Stub"); }
 	public Trap setTrap(Trap trap, int pos) { throw new RuntimeException("Stub"); }
+	public int exit() { throw new RuntimeException("Stub"); }
 	public int width() { throw new RuntimeException("Stub"); }
 	public static void set(int cell, int terrain) { throw new RuntimeException("Stub"); }
 }

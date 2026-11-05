@@ -7,4 +7,9 @@ public class Bundle {
 	public void put(String key, int value) { throw new RuntimeException("Stub"); }
 	public void put(String key, boolean value) { throw new RuntimeException("Stub"); }
 	public boolean getBoolean(String key) { throw new RuntimeException("Stub"); }
+	public boolean contains(String key) { throw new RuntimeException("Stub"); }
+	public void put(String key, java.util.Collection<?> value) { throw new RuntimeException("Stub"); }
+	public java.util.Collection<?> getCollection(String key) { throw new RuntimeException("Stub"); }
+	public void put(String key, int[] value) { throw new RuntimeException("Stub"); }
+	public int[] getIntArray(String key) { throw new RuntimeException("Stub"); }
 }

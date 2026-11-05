@@ -8,11 +8,12 @@ import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGE
 
 private const val PREVIEW_CLASS = "$EXTENSION_PACKAGE/PathPreview;"
 private const val SHOPKEEPER_CLASS = "$EXTENSION_PACKAGE/ShopkeeperRules;"
+private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back.",
+	description = "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back. Quantum Chest: a chest beside the exit of each beaten boss floor, all sharing the same storage.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -97,6 +98,19 @@ val qolEnhancementsPatch = bytecodePatch(
 		WndTradeHeapConstructorFingerprint.method.addInstruction(
 			0,
 			"invoke-static/range { p1 .. p1 }, $SHOPKEEPER_CLASS->onTradeWindow(Ljava/lang/Object;)V",
+		)
+
+		GameSceneCreateFingerprint.callBeforeEveryReturn(
+			"invoke-static/range { p0 .. p0 }, $CHEST_CLASS->onSceneCreated(Ljava/lang/Object;)V",
+		)
+		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
+		HeroStoreInBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static/range { p0 .. p1 }, $CHEST_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
+		)
+		HeroRestoreFromBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static/range { p0 .. p1 }, $CHEST_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
 
 		MobGetCloserFingerprint.method.addInstructionsWithLabels(

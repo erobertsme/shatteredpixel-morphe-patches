@@ -79,6 +79,7 @@ public final class PathPreview {
 				return true;
 			}
 			clear();
+			if (cell != null && QuantumChest.interceptTap(cell)) return true;
 			if (cell != null && ShopkeeperRules.interceptTap(cell)) return true;
 			if (cell == null || !isEnabled()) return false;
 

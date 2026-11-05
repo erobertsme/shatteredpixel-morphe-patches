@@ -23,7 +23,7 @@ public class CloverlordWindow extends Window {
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
-	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\n{FOOD}Hunger: change how hunger and starvation work.\n\nList everything on a tile (Editors tab, part of the Floor editor): examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space and the Weapons, Armor and Rings backpack tabs are in the Inventory editor, under Inventory in the in-game menu.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile, trap or item on the floor. Examining an item on the floor also lets you move it, or the whole pile, to another tile.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nShopkeeper (QoL tab): keep enemies out of the shop, stop the shopkeeper running off, and choose how many sold items can be bought back.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
+	private static final String INFO = "Extras holds the options added by Cloverlord Patches. Tabs and sections only appear when their patch is included.\n\nGeneral: hunger settings and save backups. QoL: quality of life options. Unlocks: unlocks and supporter options. Editors: switch each editor on or off.\n\nThe Editors tab switches each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal until you switch it on again.\n\nUnlocks: shows heroes, guide pages, lore, catalog items and bestiary entries as unlocked without changing your save. Untick to get your real progress back.\n\nSaves: export all saves to a zip file or import one. Importing replaces your current saves, keeps a copy of them in the app's cache, and closes the game.\n\n{FOOD}Hunger: change how hunger and starvation work.\n\nList everything on a tile (Editors tab, part of the Floor editor): examining a tile lists every item in a pile, any creature, plant or trap, and the tile itself. Pick an item from a pile to pick up that one instead of the top item.\n\nUnlimited inventory space and the Weapons, Armor and Rings backpack tabs are in the Inventory editor, under Inventory in the in-game menu.\n\nThe Floor editor is in the in-game menu, and on the Edit Tile button when you examine a tile, trap or item on the floor. Examining an item on the floor also lets you move it, or the whole pile, to another tile.\n\nConfirm actions: choose which taps ask first, such as attacking, walking to a distant tile, using stairs or stepping into danger, so a stray tap can't ruin your run.\n\nQuantum Chest (QoL tab): after you beat a boss, a chest appears beside the exit of that floor. Every quantum chest shares the same storage of 25, 50 or 75 items, so you can drop something off on one boss floor and pick it up on another. Tap the chest while next to it to open it.\n\nShopkeeper (QoL tab): keep enemies out of the shop, stop the shopkeeper running off, and choose how many sold items can be bought back.\n\nSupporter options: keep your supporter rewards and hide the Support button.";
 
 	private float pos;
 
@@ -106,6 +106,9 @@ public class CloverlordWindow extends Window {
 			hide();
 			EditorWindow.show(new ShopkeeperWindow());
 		});
+		addLabel("Quantum Chest");
+		addOption("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
+		addChestPageButtons();
 	}
 
 	private void buildUnlocks() {
@@ -194,6 +197,26 @@ public class CloverlordWindow extends Window {
 			};
 			if (i == selected) button.textColor(TITLE_COLOR);
 			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
+			add(button);
+		}
+		pos += BTN_HEIGHT + GAP;
+	}
+
+	private void addChestPageButtons() {
+		int selected = QuantumChest.pages();
+		float width = (WIDTH - (QuantumChest.MAX_PAGES - 1) * GAP) / (float) QuantumChest.MAX_PAGES;
+		for (int i = 1; i <= QuantumChest.MAX_PAGES; i++) {
+			int pages = i;
+			RedButton button = new RedButton(pages + (pages == 1 ? " Page" : " Pages"), 6) {
+				@Override
+				public void onClick() {
+					QuantumChest.pages(pages);
+					hide();
+					CloverlordMenu.show();
+				}
+			};
+			if (i == selected) button.textColor(TITLE_COLOR);
+			button.setRect((i - 1) * (width + GAP), pos, width, BTN_HEIGHT);
 			add(button);
 		}
 		pos += BTN_HEIGHT + GAP;

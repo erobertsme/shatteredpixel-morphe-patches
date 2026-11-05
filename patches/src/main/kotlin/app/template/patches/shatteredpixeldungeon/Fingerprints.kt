@@ -487,6 +487,20 @@ object MobGetCloserFingerprint : Fingerprint(
 	parameters = listOf("I"),
 )
 
+object GameSceneCreateFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "create",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object GameSceneBossSlainFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "bossSlain",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ExamineCellFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
 	name = "examineCell",

@@ -11,5 +11,10 @@ public class WndBag extends Window {
 	public WndBag(Bag bag, ItemSelector selector) { throw new RuntimeException("Stub"); }
 
 	public abstract static class ItemSelector {
+		public abstract String textPrompt();
+
+		public abstract boolean itemSelectable(com.shatteredpixel.shatteredpixeldungeon.items.Item item);
+
+		public abstract void onSelect(com.shatteredpixel.shatteredpixeldungeon.items.Item item);
 	}
 }
