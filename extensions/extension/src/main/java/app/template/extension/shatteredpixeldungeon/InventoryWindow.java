@@ -38,7 +38,7 @@ public class InventoryWindow extends EditorWindow {
 
 		addButton("Open backpack", 0, WIDTH, () -> {
 			hide();
-			BackpackEditor.open(InventoryWindow::open);
+			BackpackEditor.open(InventoryWindow::open, Dungeon.hero.belongings.backpack);
 		});
 		pos += ROW_HEIGHT + GAP;
 

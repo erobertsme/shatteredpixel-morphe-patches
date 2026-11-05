@@ -80,6 +80,30 @@ public final class EnemyEditor {
 		}
 	}
 
+	/**
+	 * Lets the player pick a tile and teleports [mob] there.
+	 */
+	static void chooseTeleport(Mob mob) {
+		GameScene.selectCell(new CellSelector.Listener() {
+			@Override
+			public void onSelect(Integer cell) {
+				if (cell == null || !mob.isAlive() || !FloorEditor.canStandOn(cell)) return;
+				try {
+					com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation.appear(mob, cell);
+					com.shatteredpixel.shatteredpixeldungeon.Dungeon.observe();
+					GameScene.updateFog();
+				} catch (Throwable e) {
+					Log.e(TAG, "Could not teleport " + mob.getClass().getName(), e);
+				}
+			}
+
+			@Override
+			public String prompt() {
+				return "Choose where to teleport " + mob.name();
+			}
+		});
+	}
+
 	static void defeat(Mob mob) {
 		try {
 			mob.die(null);

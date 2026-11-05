@@ -24,7 +24,7 @@ public class ItemEditWindow extends EditorWindow {
 		this.item = item;
 		Hero hero = Dungeon.hero;
 
-		InfoButton.add(this, WIDTH, pos, "Changes apply straight away. Tap a number to type it, with Min and Max buttons.\n\nEnchantment or Glyph picks one for weapons or armor, Curses picks a curse. Augment trades speed for damage on weapons, or evasion for defense on armor.\n\nDuplicate adds a copy to your backpack. Delete removes the item for good, even if it is equipped or cursed.");
+		InfoButton.add(this, WIDTH, pos, "Changes apply straight away. Tap a number to type it, with Min and Max buttons.\n\nEnchantment or Glyph picks one for weapons or armor, Curses picks a curse. Augment trades speed for damage on weapons, or evasion for defense on armor.\n\nWater sets how full a waterskin is. Blessed blesses an ankh, as if you used a full waterskin on it.\n\nAlchemy turns the item into what alchemy would make from it: potions and scrolls into their exotic versions and back, scrolls into runestones, and seeds into potions.\n\nDuplicate adds a copy to your backpack. Delete removes the item for good, even if it is equipped or cursed.");
 		float headerTop = pos;
 		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), null);
 		pos = Math.max(pos, headerTop + InfoButton.SIZE + GAP);
@@ -77,6 +77,27 @@ public class ItemEditWindow extends EditorWindow {
 			int charge = InventoryEditor.artifactValue(artifact, "charge");
 			int cap = InventoryEditor.artifactValue(artifact, "chargeCap");
 			if (cap > 0) addStepper("Charge", charge + " / " + cap, charge, 1, 0, cap, value -> InventoryEditor.setArtifactCharge(artifact, value));
+		}
+
+		if (ItemAlchemy.isWaterskin(item)) {
+			int water = ItemAlchemy.water(item);
+			addStepper("Water", water + " / " + ItemAlchemy.WATERSKIN_MAX, water, 1, 0, ItemAlchemy.WATERSKIN_MAX, value -> ItemAlchemy.setWater(item, value));
+		}
+
+		if (ItemAlchemy.isAnkh(item)) {
+			addCheckBox("Blessed", ItemAlchemy.isBlessed(item), () -> ItemAlchemy.setBlessed(item, !ItemAlchemy.isBlessed(item)));
+		}
+
+		java.util.List<Class<? extends Item>> conversions = ItemAlchemy.conversions(item);
+		if (!conversions.isEmpty()) {
+			addSection("Alchemy");
+			for (Class<? extends Item> target : conversions) {
+				addButton("Turn into " + ItemAlchemy.name(target), 0, WIDTH, () -> {
+					ItemAlchemy.convert(hero, item, target);
+					back();
+				});
+				pos += ROW_HEIGHT + GAP;
+			}
 		}
 
 		pos += GAP;

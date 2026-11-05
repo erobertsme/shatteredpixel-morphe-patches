@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -39,6 +40,7 @@ public final class BackpackEditor {
 	private static boolean openingEditWindow;
 	private static boolean switchingEditTab;
 	private static Runnable backAction;
+	private static Bag editBag;
 
 	private BackpackEditor() {
 	}
@@ -51,11 +53,18 @@ public final class BackpackEditor {
 		open();
 	}
 
+	static void open(Runnable back, Bag bag) {
+		backAction = back;
+		editBag = bag;
+		open();
+	}
+
 	public static void open() {
 		if (Dungeon.hero == null) return;
+		Bag bag = editBag != null ? editBag : Dungeon.hero.belongings.backpack;
 		openingEditWindow = true;
 		try {
-			Game.scene().addToFront(new WndBag(Dungeon.hero.belongings.backpack));
+			Game.scene().addToFront(new WndBag(bag));
 		} finally {
 			openingEditWindow = false;
 		}
@@ -73,6 +82,19 @@ public final class BackpackEditor {
 	}
 
 	/**
+	 * Called at the end of the WndBag constructor for edit windows, to remember which bag tab is open.
+	 */
+	private static void rememberBag() {
+		try {
+			Field field = WndBag.class.getDeclaredField("lastBag");
+			field.setAccessible(true);
+			Bag bag = (Bag) field.get(null);
+			if (bag != null) editBag = bag;
+		} catch (Throwable ignored) {
+		}
+	}
+
+	/**
 	 * Called at the start of the WndBag constructor, before it replaces the open bag window.
 	 */
 	public static void beforeBagCreated() {
@@ -87,6 +109,7 @@ public final class BackpackEditor {
 		if (pendingEditWindow) {
 			editWindows.add(window);
 			decorate(window);
+			rememberBag();
 		}
 		addShortcut(window, pendingEditWindow);
 		pendingEditWindow = false;
@@ -119,7 +142,8 @@ public final class BackpackEditor {
 					if (editing) {
 						ItemPickerWindow.openFromBackpack();
 					} else {
-						open(() -> Game.scene().addToFront(new WndBag(Dungeon.hero.belongings.backpack)));
+						Bag current = currentBag();
+						open(() -> Game.scene().addToFront(new WndBag(current)), current);
 					}
 				}
 			};
@@ -128,6 +152,17 @@ public final class BackpackEditor {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the backpack shortcut", e);
 		}
+	}
+
+	private static Bag currentBag() {
+		try {
+			Field field = WndBag.class.getDeclaredField("lastBag");
+			field.setAccessible(true);
+			Bag bag = (Bag) field.get(null);
+			if (bag != null) return bag;
+		} catch (Throwable ignored) {
+		}
+		return Dungeon.hero.belongings.backpack;
 	}
 
 	@SuppressWarnings("unchecked")
