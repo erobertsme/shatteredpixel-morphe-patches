@@ -1,3 +1,9 @@
+## [1.0.0-dev.43](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.42...v1.0.0-dev.43) (2026-11-05)
+
+### ✨ New Features
+
+* Edit charge on ethereal chains and the alchemist's toolkit, quick tile and trap actions on the examine windows, and QoL and Unlocks tabs in Extras ([72f6c85](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/72f6c852ef0e84cebf82e1a28e2e92af9728a478))
+
 ## [1.0.0-dev.42](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.41...v1.0.0-dev.42) (2026-11-05)
 
 ### 🐛 Bug Fixes
