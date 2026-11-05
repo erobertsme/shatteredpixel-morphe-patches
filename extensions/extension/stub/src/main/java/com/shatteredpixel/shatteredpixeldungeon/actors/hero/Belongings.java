@@ -13,6 +13,7 @@ public class Belongings {
 	public Artifact artifact;
 	public KindofMisc misc;
 	public Ring ring;
+	public KindOfWeapon secondWep;
 	public Backpack backpack;
 
 	public KindOfWeapon weapon() { throw new RuntimeException("Stub"); }

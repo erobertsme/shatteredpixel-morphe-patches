@@ -414,3 +414,48 @@ object DefaultCellListenerFingerprint : Fingerprint(
 		methodCall(definingClass = HERO_CLASS, name = "handle"),
 	),
 )
+
+object ShopkeeperFleeFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper;",
+	name = "flee",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object ExamineCellFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "examineCell",
+	returnType = "V",
+	parameters = listOf("Ljava/lang/Integer;"),
+)
+
+internal const val BAG_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/Bag;"
+
+internal class BagCapacityFingerprint(definingClass: String) : Fingerprint(
+	definingClass = definingClass,
+	name = "capacity",
+	returnType = "I",
+	parameters = listOf(),
+)
+
+internal val BAG_CAPACITY_CLASSES = listOf(
+	BAG_CLASS,
+	"Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/MagicalHolster;",
+	"Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/PotionBandolier;",
+	"Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/ScrollHolder;",
+	"Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/VelvetPouch;",
+)
+
+object BackpackCapacityFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Belongings\$Backpack;",
+	name = "capacity",
+	returnType = "I",
+	parameters = listOf(),
+)
+
+object WndBagConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(BAG_CLASS, "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$ItemSelector;"),
+)

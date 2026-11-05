@@ -19,6 +19,7 @@ public class Item {
 	public Item level(int value) { throw new RuntimeException("Stub"); }
 	public int quantity() { throw new RuntimeException("Stub"); }
 	public Item quantity(int value) { throw new RuntimeException("Stub"); }
+	public String info() { throw new RuntimeException("Stub"); }
 	public String title() { throw new RuntimeException("Stub"); }
 	public final String trueName() { throw new RuntimeException("Stub"); }
 	public final Item upgrade(int n) { throw new RuntimeException("Stub"); }
