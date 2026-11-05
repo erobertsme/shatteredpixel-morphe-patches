@@ -1,3 +1,9 @@
+## [1.0.0-dev.51](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.50...v1.0.0-dev.51) (2026-11-05)
+
+### ✨ New Features
+
+* Keep game saves in game<slot>_<seed> folders and ask what to do with them when a game ends ([9c1f8bd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9c1f8bdf5f3f1156a50ac025d18c410d41026033))
+
 ## [1.0.0-dev.50](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.49...v1.0.0-dev.50) (2026-11-05)
 
 ### ✨ New Features
