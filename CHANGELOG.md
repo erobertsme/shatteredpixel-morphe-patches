@@ -1,3 +1,9 @@
+## [1.0.0-dev.26](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.25...v1.0.0-dev.26) (2026-11-05)
+
+### 🐛 Bug Fixes
+
+* Use US English spellings ([e30236c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e30236cbd756a0239310b5fd4aef8e1d2024a446))
+
 ## [1.0.0-dev.25](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.24...v1.0.0-dev.25) (2026-11-04)
 
 ### 🐛 Bug Fixes
