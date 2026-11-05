@@ -113,6 +113,16 @@ public class SaveLocation {
 		return folder.isDirectory() ? folder : context.getFilesDir();
 	}
 
+	/**
+	 * The folder the game writes its saves to right now, or null when there is no context yet.
+	 */
+	static File currentRoot() {
+		Context context = getContext();
+		if (context == null) return null;
+		if (redirect != null) return redirect ? getSaveFolder() : context.getFilesDir();
+		return getActiveSaveFolder(context);
+	}
+
 	private static boolean shouldRedirect() {
 		if (redirect != null) return redirect;
 

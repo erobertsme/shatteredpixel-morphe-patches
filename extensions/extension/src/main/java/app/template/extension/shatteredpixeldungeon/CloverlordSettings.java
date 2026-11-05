@@ -18,6 +18,8 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized boolean get(String key) {
+		Object override = GameSettings.override(key);
+		if (override instanceof Boolean) return (Boolean) override;
 		Boolean cached = cache.get(key);
 		if (cached != null) return cached;
 
@@ -28,6 +30,7 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized void set(String key, boolean value) {
+		if (GameSettings.store(key, value)) return;
 		cache.put(key, value);
 		SharedPreferences prefs = prefs();
 		if (prefs == null) return;
@@ -35,6 +38,8 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized int getInt(String key) {
+		Object override = GameSettings.override(key);
+		if (override instanceof Integer) return (Integer) override;
 		Integer cached = intCache.get(key);
 		if (cached != null) return cached;
 
@@ -45,6 +50,7 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized void setInt(String key, int value) {
+		if (GameSettings.store(key, value)) return;
 		intCache.put(key, value);
 		SharedPreferences prefs = prefs();
 		if (prefs == null) return;
@@ -52,6 +58,8 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized String getString(String key) {
+		Object override = GameSettings.override(key);
+		if (override instanceof String) return (String) override;
 		if (stringCache.containsKey(key)) return stringCache.get(key);
 		SharedPreferences prefs = prefs();
 		String value = prefs == null ? null : prefs.getString(key, null);
@@ -60,6 +68,7 @@ public final class CloverlordSettings {
 	}
 
 	public static synchronized void setString(String key, String value) {
+		if (GameSettings.store(key, value)) return;
 		stringCache.put(key, value);
 		SharedPreferences prefs = prefs();
 		if (prefs == null) return;

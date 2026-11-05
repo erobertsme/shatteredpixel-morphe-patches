@@ -62,6 +62,10 @@ public class ConfirmPrompt extends EditorWindow {
 		show(new ConfirmPrompt(title, message, confirmLabel, onConfirm));
 	}
 
+	static void ask(String title, String message, String[] labels, Runnable[] actions) {
+		show(new ConfirmPrompt(title, message, labels, actions));
+	}
+
 	/**
 	 * Asks about a tile on the map. The window moves to the top or bottom of the screen, away from the tile, and
 	 * [onClose] runs however the window closes.

@@ -8,6 +8,9 @@ public class Dungeon {
 	public static Level level;
 	public static int gold;
 	public static int depth;
+	public static long seed;
+
+	public static void saveAll() throws java.io.IOException { throw new RuntimeException("Stub"); }
 
 	public static com.watabou.utils.PathFinder.Path findPath(com.shatteredpixel.shatteredpixeldungeon.actors.Char ch, int to, boolean[] pass, boolean[] vis, boolean chars) { throw new RuntimeException("Stub"); }
 	public static boolean bossLevel() { throw new RuntimeException("Stub"); }

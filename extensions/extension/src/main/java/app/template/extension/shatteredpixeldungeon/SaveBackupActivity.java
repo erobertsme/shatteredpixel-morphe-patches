@@ -108,7 +108,7 @@ public class SaveBackupActivity extends Activity {
 	}
 
 	private void export(Uri uri) {
-		File saves = SaveLocation.getActiveSaveFolder(this);
+		File saves = saveRoot();
 		try (OutputStream out = getContentResolver().openOutputStream(uri, "wt"); ZipOutputStream zip = new ZipOutputStream(out)) {
 			int count = zipFolder(zip, saves, "");
 			zip.finish();
@@ -131,7 +131,7 @@ public class SaveBackupActivity extends Activity {
 	}
 
 	private void importBackup(Uri uri) {
-		File saves = SaveLocation.getActiveSaveFolder(this);
+		File saves = saveRoot();
 		File staging = new File(getCacheDir(), "save-import");
 		File previous = new File(getCacheDir(), "save-before-import");
 
@@ -165,6 +165,11 @@ public class SaveBackupActivity extends Activity {
 
 		finishAffinity();
 		new Handler(Looper.getMainLooper()).postDelayed(() -> Process.killProcess(Process.myPid()), 1500);
+	}
+
+	private File saveRoot() {
+		File root = SaveLocation.currentRoot();
+		return root != null ? root : SaveLocation.getActiveSaveFolder(this);
 	}
 
 	private static int zipFolder(ZipOutputStream zip, File folder, String prefix) throws IOException {

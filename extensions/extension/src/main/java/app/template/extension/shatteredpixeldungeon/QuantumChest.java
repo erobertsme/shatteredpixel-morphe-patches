@@ -171,8 +171,7 @@ public final class QuantumChest {
 			chestCell = findCell(Dungeon.level);
 			if (chestCell < 0) return;
 
-			ItemSprite chest = new ItemSprite(ItemSpriteSheet.CHEST);
-			chest.hardlight(0.55f, 0.75f, 1.3f);
+			ItemSprite chest = new ItemSprite(ItemSpriteSheet.EBONY_CHEST);
 			Level level = Dungeon.level;
 			int width = level.width();
 			chest.x = (chestCell % width) * TILE + (TILE - chest.width()) / 2f;
