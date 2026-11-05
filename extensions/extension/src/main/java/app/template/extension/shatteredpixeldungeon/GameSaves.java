@@ -23,13 +23,15 @@ import java.util.Locale;
 import java.util.Properties;
 
 /**
- * Extra saves of the game in progress. Each game gets its own folder, named after its save slot and seed, inside
- * the game's save folder, so saves of one game can never be loaded into another and backups include them.
+ * Extra saves of the game in progress. Each game gets its own folder in the save folder, named after its save slot
+ * and seed (game1_1a2b3c), next to the game's own folder, so saves of one game can never be loaded into another and backups include them.
  */
 final class GameSaves {
 
 	private static final String TAG = "GameSaves";
-	private static final String ROOT = "morphe_saves";
+	private static final String OLD_ROOT = "morphe_saves";
+	private static final String KEPT_PREFIX = "gamesave_kept_";
+	private static final java.util.regex.Pattern FOLDER = java.util.regex.Pattern.compile("game(\\d+)_([0-9a-f]+)");
 	private static final String INFO_FILE = "morphe_save_info.properties";
 	static final int MAX_SAVES = 10;
 
@@ -69,16 +71,124 @@ final class GameSaves {
 	private static File savesFolder() {
 		File root = saveRoot();
 		if (root == null) return null;
+		moveOldFolders(root);
 		String name = GamesInProgress.gameFolder(GamesInProgress.curSlot) + "_" + Long.toHexString(Dungeon.seed);
-		return new File(new File(root, ROOT), name);
+		return new File(root, name);
+	}
+
+	/**
+	 * Earlier versions kept game saves inside a morphe_saves folder. Moves them next to the game folders.
+	 */
+	private static void moveOldFolders(File root) {
+		File old = new File(root, OLD_ROOT);
+		File[] children = old.listFiles();
+		if (children == null) return;
+		for (File child : children) {
+			File target = new File(root, child.getName());
+			if (!target.exists()) child.renameTo(target);
+		}
+		String[] left = old.list();
+		if (left == null || left.length == 0) old.delete();
+	}
+
+	/**
+	 * Called when the title screen opens. Asks what to do with the saves of each game that has ended, one game at
+	 * a time.
+	 */
+	static void checkFinishedGames(com.watabou.noosa.Group scene) {
+		try {
+			if (!SaveBackupActivity.isAvailable()) return;
+			File finished = nextFinished();
+			if (finished == null) return;
+			scene.addToFront(prompt(finished));
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not check for finished games", e);
+		}
+	}
+
+	private static ConfirmPrompt prompt(File folder) {
+		java.util.regex.Matcher matcher = FOLDER.matcher(folder.getName());
+		String slot = matcher.matches() ? matcher.group(1) : "?";
+		List<Save> saves = savesIn(folder);
+		String latest = saves.isEmpty() ? "" : " Its latest save: " + saves.get(0).title() + ".";
+		String message = "Your game in slot " + slot + " has ended. It has " + saves.size() + (saves.size() == 1 ? " save" : " saves") + " left over." + latest
+			+ "\n\nDelete them, or keep them? Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
+		return new ConfirmPrompt("Finished Game", message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] {
+			() -> {
+				deleteRecursively(folder);
+				askNext();
+			},
+			() -> {
+				CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
+				askNext();
+			},
+		});
+	}
+
+	private static void askNext() {
+		File next = nextFinished();
+		if (next != null) EditorWindow.show(prompt(next));
+	}
+
+	private static File nextFinished() {
+		for (File folder : finishedFolders()) {
+			if (!CloverlordSettings.get(KEPT_PREFIX + folder.getName())) return folder;
+		}
+		return null;
+	}
+
+	/**
+	 * Game save folders whose game has ended: the slot is empty, or now holds a different game.
+	 */
+	static List<File> finishedFolders() {
+		List<File> finished = new ArrayList<>();
+		File root = saveRoot();
+		if (root == null) return finished;
+		moveOldFolders(root);
+		File[] children = root.listFiles();
+		if (children == null) return finished;
+		Arrays.sort(children);
+		for (File child : children) {
+			if (!child.isDirectory()) continue;
+			java.util.regex.Matcher matcher = FOLDER.matcher(child.getName());
+			if (!matcher.matches()) continue;
+			if (isRunning(Integer.parseInt(matcher.group(1)), matcher.group(2))) continue;
+			finished.add(child);
+		}
+		return finished;
+	}
+
+	private static boolean isRunning(int slot, String seed) {
+		try {
+			GamesInProgress.Info info = GamesInProgress.check(slot);
+			return info != null && Long.toHexString(info.seed).equals(seed);
+		} catch (Throwable e) {
+			return true;
+		}
+	}
+
+	/**
+	 * Deletes the saves of every finished game.
+	 */
+	static int cleanUp() {
+		int count = 0;
+		for (File folder : finishedFolders()) {
+			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
+			deleteRecursively(folder);
+			count++;
+		}
+		return count;
 	}
 
 	/**
 	 * This game's saves, newest first.
 	 */
 	static List<Save> list() {
+		return savesIn(savesFolder());
+	}
+
+	private static List<Save> savesIn(File folder) {
 		List<Save> saves = new ArrayList<>();
-		File folder = savesFolder();
 		File[] children = folder == null ? null : folder.listFiles();
 		if (children == null) return saves;
 		for (File child : children) {

@@ -55,6 +55,11 @@ public final class CloverlordMenu {
 	 * Landscape: makes the bottom row four buttons wide and adds the menu button at its end.
 	 */
 	public static void onTitleCreated(Group scene) {
+		placeTitleButton(scene);
+		GameSaves.checkFinishedGames(scene);
+	}
+
+	private static void placeTitleButton(Group scene) {
 		try {
 			StyledButton play = titleButton(scene, "btnPlay");
 			StyledButton support = titleButton(scene, "btnSupport");
