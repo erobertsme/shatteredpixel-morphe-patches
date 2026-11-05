@@ -19,7 +19,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.48](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.48)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
+> **[v1.0.0-dev.49](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.49)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;12 patches</summary>
 <br>
@@ -39,7 +39,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Hunger editor](#hunger-editor) | Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game. |  |
 | [Inventory editor](#inventory-editor) | Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). Also adds optional unlimited inventory space with pages, and Weapons, Armor and Rings backpack tabs. |  |
 | [Public save folder](#public-save-folder) | Stores save files in a public folder on the device so they can be opened with any file manager. Asks for storage access on first launch and copies existing saves over. | • Save folder |
-| [QoL enhancements](#qol-enhancements) | Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back. |  |
+| [QoL enhancements](#qol-enhancements) | Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back. Quantum Chest: a chest beside the exit of each beaten boss floor, all sharing the same storage. |  |
 | [Save backup](#save-backup) | Adds Export saves and Import saves to the Extras menu and to the app icon shortcuts (long-press it) for backing up and restoring all saves as a zip file. |  |
 | [Save file access](#save-file-access) | Exposes the game's save folder in the system file picker and Files app so saves can be copied, backed up, and edited. |  |
 | [Supporter options](#supporter-options) | NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!<br><br>Adds Supporter options to the Extras menu: keep your Silver, Golden or Shattered supporter rewards, and hide the Support button on the title screen. Only works on the Google Play version of the game. |  |

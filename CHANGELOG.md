@@ -1,3 +1,9 @@
+## [1.0.0-dev.49](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.48...v1.0.0-dev.49) (2026-11-05)
+
+### ✨ New Features
+
+* Quantum Chest on every beaten boss floor, sharing one storage of 1 to 3 pages across floors ([e1dd3e8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e1dd3e85d62b509fe52c2a03302ecab250f44504))
+
 ## [1.0.0-dev.48](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.47...v1.0.0-dev.48) (2026-11-05)
 
 ### ✨ New Features
