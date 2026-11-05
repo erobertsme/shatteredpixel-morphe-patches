@@ -1,3 +1,9 @@
+## [1.0.0-dev.48](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.47...v1.0.0-dev.48) (2026-11-05)
+
+### ✨ New Features
+
+* Shop window with paged buyback and item info, theft handling, thrown weapons for sale, quieter distant shopkeeper, and keeping traps armed or disarmed when items land on them ([0f2a6bd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0f2a6bd9584fd5f716594145bf3b18e70829aad8))
+
 ## [1.0.0-dev.47](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.46...v1.0.0-dev.47) (2026-11-05)
 
 ### ✨ New Features
