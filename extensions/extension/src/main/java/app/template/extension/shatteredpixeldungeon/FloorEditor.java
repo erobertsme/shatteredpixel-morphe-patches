@@ -486,6 +486,27 @@ public final class FloorEditor {
 		return isHiddenMimic(mob) ? Char.Alignment.ENEMY : mob.alignment;
 	}
 
+	/**
+	 * Drops [item] on [cell] without setting off a trap there. With [keepTrapActive] the trap stays armed,
+	 * otherwise it is deactivated.
+	 */
+	static Heap dropWithoutTrigger(Item item, int cell, boolean keepTrapActive) {
+		Trap trap = trapAt(cell);
+		boolean armed = trap != null && trap.active;
+		if (armed) trap.active = false;
+		try {
+			return level().drop(item, cell);
+		} finally {
+			if (armed && keepTrapActive) trap.active = true;
+			if (armed && !keepTrapActive) setActive(trap, false);
+		}
+	}
+
+	static boolean hasActiveTrap(int cell) {
+		Trap trap = trapAt(cell);
+		return trap != null && trap.active;
+	}
+
 	static Plant plantAt(int cell) {
 		Level level = level();
 		return level == null || level.plants == null ? null : level.plants.get(cell, null);

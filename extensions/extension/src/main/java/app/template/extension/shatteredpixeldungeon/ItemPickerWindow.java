@@ -13,6 +13,7 @@ public class ItemPickerWindow extends EditorWindow {
 	private static int quantity = 1;
 	private static boolean returnToBackpack;
 	private static int dropCell = -1;
+	private static boolean keepTrapActive = true;
 
 	private final InventoryEditor.Category category;
 	private final int page;
@@ -75,7 +76,25 @@ public class ItemPickerWindow extends EditorWindow {
 	static void openForCell(int cell) {
 		dropCell = cell;
 		returnToBackpack = false;
+		keepTrapActive = true;
+		com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = FloorEditor.trapAt(cell);
+		if (trap == null || !trap.active) {
+			show(new ItemPickerWindow(InventoryEditor.Category.FAVORITES, 0));
+			return;
+		}
+		ConfirmPrompt.askAboutTile(cell, "Place item", "There is an active " + FloorEditor.trapName(trap).toLowerCase() + " on this tile. Items you place here won't set it off.",
+			new String[] { "Keep Trap Active", "Deactivate Trap" },
+			new Runnable[] { () -> openPicker(true), () -> openPicker(false) },
+			null);
+	}
+
+	private static void openPicker(boolean keep) {
+		keepTrapActive = keep;
 		show(new ItemPickerWindow(InventoryEditor.Category.FAVORITES, 0));
+	}
+
+	static boolean keepTrapActive() {
+		return keepTrapActive;
 	}
 
 	public static void openFromBackpack() {

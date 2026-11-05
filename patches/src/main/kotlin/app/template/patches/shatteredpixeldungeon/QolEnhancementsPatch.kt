@@ -60,6 +60,45 @@ val qolEnhancementsPatch = bytecodePatch(
 		ShopkeeperStoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 		ShopkeeperRestoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 
+		ShopkeeperInteractFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onInteract(Ljava/lang/Object;Ljava/lang/Object;)Z
+				move-result v0
+				if-eqz v0, :original
+				const/4 v0, 0x1
+				return v0
+			""",
+			ExternalLabel("original", 0),
+		)
+
+		ShopkeeperFleeFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0 }, $SHOPKEEPER_CLASS->onFlee(Ljava/lang/Object;)Z
+				move-result v0
+				if-eqz v0, :original
+				return-void
+			""",
+			ExternalLabel("original", 0),
+		)
+
+		MobYellFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onYell(Ljava/lang/Object;Ljava/lang/String;)Z
+				move-result v0
+				if-eqz v0, :original
+				return-void
+			""",
+			ExternalLabel("original", 0),
+		)
+
+		WndTradeHeapConstructorFingerprint.method.addInstruction(
+			0,
+			"invoke-static/range { p1 .. p1 }, $SHOPKEEPER_CLASS->onTradeWindow(Ljava/lang/Object;)V",
+		)
+
 		MobGetCloserFingerprint.method.addInstructionsWithLabels(
 			0,
 			"""

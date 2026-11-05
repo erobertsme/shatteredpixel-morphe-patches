@@ -14,6 +14,7 @@ public class Heap {
 	public LinkedList<Item> items;
 
 	public void destroy() { throw new RuntimeException("Stub"); }
+	public Item pickUp() { throw new RuntimeException("Stub"); }
 	public Item peek() { throw new RuntimeException("Stub"); }
 	public int size() { throw new RuntimeException("Stub"); }
 	public boolean isEmpty() { throw new RuntimeException("Stub"); }

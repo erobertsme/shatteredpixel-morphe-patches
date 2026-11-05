@@ -175,7 +175,7 @@ final class InventoryEditor {
 			if (item.stackable) item.quantity(Math.max(1, quantity));
 			item.identify();
 			if (cell >= 0) {
-				Heap heap = Dungeon.level.drop(item, cell);
+				Heap heap = FloorEditor.dropWithoutTrigger(item, cell, ItemPickerWindow.keepTrapActive());
 				if (heap != null && heap.sprite != null) heap.sprite.drop();
 				return;
 			}

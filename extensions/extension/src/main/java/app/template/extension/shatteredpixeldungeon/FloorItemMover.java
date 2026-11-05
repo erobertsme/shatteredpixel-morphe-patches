@@ -29,7 +29,7 @@ final class FloorItemMover {
 	private static final float HIGHLIGHT_ALPHA = 0.45f;
 
 	interface Mover {
-		void moveTo(int cell);
+		void moveTo(int cell, boolean keepTrapActive);
 	}
 
 	private FloorItemMover() {
@@ -37,11 +37,11 @@ final class FloorItemMover {
 
 	static void moveHeap(Heap heap) {
 		String name = heap.size() > 1 ? "this pile" : InventoryEditor.capitalize(heap.title());
-		choose(heap.pos, name, cell -> moveHeapTo(heap, cell));
+		choose(heap.pos, name, (cell, keep) -> moveHeapTo(heap, cell, keep));
 	}
 
 	static void moveItem(int from, Item item) {
-		choose(from, InventoryEditor.capitalize(item.title()), cell -> moveItemTo(from, item, cell));
+		choose(from, InventoryEditor.capitalize(item.title()), (cell, keep) -> moveItemTo(from, item, cell, keep));
 	}
 
 	private static void choose(int from, String name, Mover mover) {
@@ -72,14 +72,22 @@ final class FloorItemMover {
 
 	private static void confirm(int cell, String name, Mover mover) {
 		ColorBlock highlight = highlight(cell);
-		String message = "Move " + name + " to the highlighted tile?";
-		Trap trap = FloorEditor.trapAt(cell);
-		if (trap != null && trap.active) message += " There is an active " + FloorEditor.trapName(trap).toLowerCase() + " there, and dropping items on it will set it off.";
-		ConfirmPrompt.askAboutTile(cell, "Move item", message, "Move", () -> mover.moveTo(cell), () -> {
+		Runnable clear = () -> {
 			if (highlight == null) return;
 			highlight.killAndErase();
 			highlight.destroy();
-		});
+		};
+		String message = "Move " + name + " to the highlighted tile?";
+		Trap trap = FloorEditor.trapAt(cell);
+		if (trap == null || !trap.active) {
+			ConfirmPrompt.askAboutTile(cell, "Move item", message, "Move", () -> mover.moveTo(cell, true), clear);
+			return;
+		}
+		message += " There is an active " + FloorEditor.trapName(trap).toLowerCase() + " there. Moving the item won't set it off.";
+		ConfirmPrompt.askAboutTile(cell, "Move item", message,
+			new String[] { "Move, Keep Trap Active", "Move, Deactivate Trap" },
+			new Runnable[] { () -> mover.moveTo(cell, true), () -> mover.moveTo(cell, false) },
+			clear);
 	}
 
 	private static ColorBlock highlight(int cell) {
@@ -98,7 +106,7 @@ final class FloorItemMover {
 		}
 	}
 
-	private static void moveHeapTo(Heap heap, int cell) {
+	private static void moveHeapTo(Heap heap, int cell, boolean keepTrapActive) {
 		Level level = Dungeon.level;
 		if (level == null || heap.items == null || level.heaps.get(heap.pos, null) != heap) return;
 		try {
@@ -107,7 +115,7 @@ final class FloorItemMover {
 			List<Item> items = new ArrayList<>(heap.items);
 			heap.destroy();
 			Heap moved = null;
-			for (int i = items.size() - 1; i >= 0; i--) moved = level.drop(items.get(i), cell);
+			for (int i = items.size() - 1; i >= 0; i--) moved = FloorEditor.dropWithoutTrigger(items.get(i), cell, keepTrapActive);
 			if (moved == null) return;
 			if (wasEmpty && moved.pos == cell) moved.type = type;
 			if (moved.sprite != null) {
@@ -119,7 +127,7 @@ final class FloorItemMover {
 		}
 	}
 
-	private static void moveItemTo(int from, Item item, int cell) {
+	private static void moveItemTo(int from, Item item, int cell, boolean keepTrapActive) {
 		Level level = Dungeon.level;
 		if (level == null) return;
 		Heap heap = level.heaps.get(from, null);
@@ -131,7 +139,7 @@ final class FloorItemMover {
 			} else if (heap.sprite != null) {
 				heap.sprite.view(heap);
 			}
-			Heap moved = level.drop(item, cell);
+			Heap moved = FloorEditor.dropWithoutTrigger(item, cell, keepTrapActive);
 			if (moved != null && moved.sprite != null) moved.sprite.drop();
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not move " + item.getClass().getName(), e);

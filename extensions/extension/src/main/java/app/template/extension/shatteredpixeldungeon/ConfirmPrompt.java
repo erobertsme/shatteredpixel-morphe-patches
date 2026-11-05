@@ -4,7 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 
 /**
- * A yes or no question with Cancel on the left and the action on the right.
+ * A question with Cancel and one or more actions. A single action sits beside Cancel; several actions are stacked
+ * above it.
  */
 public class ConfirmPrompt extends EditorWindow {
 
@@ -12,16 +13,20 @@ public class ConfirmPrompt extends EditorWindow {
 
 	private final String title;
 	private final String message;
-	private final String confirmLabel;
-	private final Runnable onConfirm;
+	private final String[] labels;
+	private final Runnable[] actions;
 	private Runnable onClose;
 
 	public ConfirmPrompt(String title, String message, String confirmLabel, Runnable onConfirm) {
+		this(title, message, new String[] { confirmLabel }, new Runnable[] { onConfirm });
+	}
+
+	public ConfirmPrompt(String title, String message, String[] labels, Runnable[] actions) {
 		super();
 		this.title = title;
 		this.message = message;
-		this.confirmLabel = confirmLabel;
-		this.onConfirm = onConfirm;
+		this.labels = labels;
+		this.actions = actions;
 
 		addTitle(title);
 		RenderedTextBlock text = PixelScene.renderTextBlock(message, 6);
@@ -30,14 +35,27 @@ public class ConfirmPrompt extends EditorWindow {
 		add(text);
 		pos = text.bottom() + 2 * GAP;
 
-		float half = (WIDTH - GAP) / 2f;
-		addButton("Cancel", 0, half, this::hide);
-		addButton(confirmLabel, half + GAP, half, () -> {
-			hide();
-			onConfirm.run();
-		});
+		if (labels.length == 1) {
+			float half = (WIDTH - GAP) / 2f;
+			addButton("Cancel", 0, half, this::hide);
+			addButton(labels[0], half + GAP, half, () -> choose(0));
+			pos += ROW_HEIGHT;
+			finish();
+			return;
+		}
+		for (int i = 0; i < labels.length; i++) {
+			int index = i;
+			addButton(labels[i], 0, WIDTH, () -> choose(index));
+			pos += ROW_HEIGHT + GAP;
+		}
+		addButton("Cancel", 0, WIDTH, this::hide);
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	private void choose(int index) {
+		hide();
+		actions[index].run();
 	}
 
 	static void ask(String title, String message, String confirmLabel, Runnable onConfirm) {
@@ -49,7 +67,11 @@ public class ConfirmPrompt extends EditorWindow {
 	 * [onClose] runs however the window closes.
 	 */
 	static void askAboutTile(int cell, String title, String message, String confirmLabel, Runnable onConfirm, Runnable onClose) {
-		ConfirmPrompt prompt = new ConfirmPrompt(title, message, confirmLabel, onConfirm);
+		askAboutTile(cell, title, message, new String[] { confirmLabel }, new Runnable[] { onConfirm }, onClose);
+	}
+
+	static void askAboutTile(int cell, String title, String message, String[] labels, Runnable[] actions, Runnable onClose) {
+		ConfirmPrompt prompt = new ConfirmPrompt(title, message, labels, actions);
 		prompt.onClose = onClose;
 		prompt.moveAwayFrom(cell);
 		show(prompt);
@@ -80,6 +102,6 @@ public class ConfirmPrompt extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new ConfirmPrompt(title, message, confirmLabel, onConfirm));
+		show(new ConfirmPrompt(title, message, labels, actions));
 	}
 }

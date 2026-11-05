@@ -452,6 +452,34 @@ object ShopkeeperRestoreFingerprint : Fingerprint(
 	parameters = listOf("Lcom/watabou/utils/Bundle;"),
 )
 
+object ShopkeeperInteractFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "interact",
+	returnType = "Z",
+	parameters = listOf(CHAR_CLASS),
+)
+
+object ShopkeeperFleeFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "flee",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object MobYellFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "yell",
+	returnType = "V",
+	parameters = listOf("Ljava/lang/String;"),
+)
+
+object WndTradeHeapConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTradeItem;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Heap;"),
+)
+
 object MobGetCloserFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
 	name = "getCloser",

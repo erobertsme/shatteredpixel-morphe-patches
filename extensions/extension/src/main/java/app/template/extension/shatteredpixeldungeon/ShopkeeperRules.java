@@ -10,7 +10,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -47,7 +51,7 @@ public final class ShopkeeperRules {
 	private static final String BUNDLE_BANNED = "morphe_shop_banned";
 
 	static final int DEFAULT_SOLD_ITEMS = 3;
-	static final int MAX_SOLD_ITEMS = 10;
+	static final int MAX_SOLD_ITEMS = 24;
 	private static final float BANISH_TURNS = 20f;
 	private static final float AREA_REMARK_TURNS = 8f;
 	private static final float REMARK_TURNS = 1f;
@@ -64,6 +68,7 @@ public final class ShopkeeperRules {
 	private static final Map<Object, Float> banishedUntil = Collections.synchronizedMap(new WeakHashMap<>());
 	private static final Random random = new Random();
 
+	private static java.lang.ref.WeakReference<Heap> tradeHeap;
 	private static Level regionLevel;
 	private static int regionShopPos = -1;
 	private static Region region;
@@ -74,7 +79,10 @@ public final class ShopkeeperRules {
 		int strikes;
 		boolean banned;
 		boolean ejectPending;
+		boolean theftPending;
 		float lastStrike = -100;
+		float lastPlayerHarm = -100;
+		final List<Item> forSale = new ArrayList<>();
 		final Map<String, Float> lastRemark = new HashMap<>();
 	}
 
@@ -169,7 +177,10 @@ public final class ShopkeeperRules {
 	public static boolean onDamage(Object shopkeeper, Object source) {
 		try {
 			if (!isAvailable() || !(shopkeeper instanceof Mob)) return false;
-			return handle((Mob) shopkeeper, classify((Mob) shopkeeper, source), areaName((Mob) shopkeeper, source));
+			Mob mob = (Mob) shopkeeper;
+			Harm harm = classify(mob, source);
+			if (harm == Harm.PLAYER) return handlePlayer(mob, thrownWeapon(source));
+			return handle(mob, harm, areaName(mob, source));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not handle harm to the shopkeeper", e);
 			return false;
@@ -185,7 +196,9 @@ public final class ShopkeeperRules {
 			if (((Buff) buff).type != Buff.buffType.NEGATIVE) return false;
 			Mob mob = (Mob) shopkeeper;
 			String area = areaName(mob, null);
-			return handle(mob, area != null ? Harm.AREA : Harm.FIGHT, area);
+			if (area != null) return handle(mob, Harm.AREA, area);
+			if (Actor.now() - state(mob).lastPlayerHarm < 1) return passive() || lenient();
+			return handle(mob, Harm.FIGHT, null);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not handle a status on the shopkeeper", e);
 			return false;
@@ -200,6 +213,14 @@ public final class ShopkeeperRules {
 		return areaName(shopkeeper, source) != null ? Harm.AREA : Harm.FIGHT;
 	}
 
+	private static MissileWeapon thrownWeapon(Object source) {
+		Hero hero = Dungeon.hero;
+		if (source != hero || hero == null || hero.belongings == null) return null;
+		if (!(hero.belongings.thrownWeapon instanceof MissileWeapon)) return null;
+		MissileWeapon weapon = (MissileWeapon) hero.belongings.thrownWeapon;
+		return weapon.spawnedForEffect ? null : weapon;
+	}
+
 	private static String areaName(Mob shopkeeper, Object source) {
 		if (source instanceof Blob) return source.getClass().getSimpleName();
 		for (Blob blob : FloorEditor.activeEffects()) {
@@ -210,26 +231,39 @@ public final class ShopkeeperRules {
 		return null;
 	}
 
+	private static boolean handlePlayer(Mob shopkeeper, MissileWeapon thrown) {
+		if (!passive() && !lenient()) return false;
+		State state = state(shopkeeper);
+		state.lastPlayerHarm = Actor.now();
+		if (thrown != null) state.forSale.add(thrown);
+		if (!heroInShop(shopkeeper)) {
+			remark(shopkeeper, "outside", REMARK_TURNS, "What the hell was that?");
+			return true;
+		}
+		if (passive()) {
+			remark(shopkeeper, "passive", REMARK_TURNS, thrown != null ? "Ooh. Free item!" : "Was that supposed to hurt?");
+			return true;
+		}
+		strike(shopkeeper);
+		return true;
+	}
+
 	private static boolean handle(Mob shopkeeper, Harm harm, String area) {
 		if (harm == Harm.AREA) {
 			if (!immune()) return false;
-			remark(shopkeeper, "area_" + areaKind(area), AREA_REMARK_TURNS, areaRemark(area));
+			if (heroInShop(shopkeeper)) remark(shopkeeper, "area_" + areaKind(area), AREA_REMARK_TURNS, areaRemark(area));
 			return true;
-		}
-		if (harm == Harm.PLAYER) {
-			if (passive()) {
-				remark(shopkeeper, "passive", REMARK_TURNS, "Was that supposed to hurt?");
-				return true;
-			}
-			if (lenient()) {
-				strike(shopkeeper);
-				return true;
-			}
-			return false;
 		}
 		if (!fearless()) return false;
 		remark(shopkeeper, "fearless", REMARK_TURNS, "C'mon... Really?");
 		return true;
+	}
+
+	private static boolean heroInShop(Mob shopkeeper) {
+		Hero hero = Dungeon.hero;
+		Region shop = region(shopkeeper);
+		if (hero == null || shop == null) return false;
+		return shop.cells.contains(hero.pos) || shop.doors.contains(hero.pos);
 	}
 
 	private static String areaKind(String area) {
@@ -294,6 +328,7 @@ public final class ShopkeeperRules {
 			Mob mob = (Mob) shopkeeper;
 			Region shop = region(mob);
 			if (shop == null) return;
+			stockThrownItems(mob, shop);
 			ejectHero(mob, shop);
 			if (banish()) banishEnemies(mob, shop);
 		} catch (Throwable e) {
@@ -328,12 +363,160 @@ public final class ShopkeeperRules {
 			int outside = outsideCell(shop);
 			if (outside < 0) return;
 			if (!spoke) {
-				shopkeeper.yell("Hey! Get out of here!");
+				if (level.heroFOV != null && level.heroFOV[shopkeeper.pos]) {
+					shopkeeper.yell("Hey! Get out of here!");
+				} else {
+					GLog.i("You hear an odd booming sound in the distance.");
+				}
 				spoke = true;
 			}
 			ScrollOfTeleportation.appear(mob, outside);
 			banishedUntil.put(mob, Actor.now() + BANISH_TURNS);
 		}
+	}
+
+	/**
+	 * Puts weapons the hero threw at the shopkeeper up for sale. A thrown weapon lands at the shopkeeper's feet, or
+	 * breaks; a broken one is skipped.
+	 */
+	private static void stockThrownItems(Mob shopkeeper, Region shop) {
+		State state = state(shopkeeper);
+		if (state.forSale.isEmpty()) return;
+		Level level = Dungeon.level;
+		List<Item> items = new ArrayList<>(state.forSale);
+		state.forSale.clear();
+		for (Item item : items) {
+			Heap from = heapHolding(level, item);
+			if (from == null) continue;
+			int cell = saleCell(level, shopkeeper, shop);
+			if (cell < 0) return;
+			from.items.remove(item);
+			if (from.isEmpty()) {
+				from.destroy();
+			} else if (from.sprite != null) {
+				from.sprite.view(from);
+			}
+			Heap heap = level.drop(item, cell);
+			if (heap == null) continue;
+			heap.type = Heap.Type.FOR_SALE;
+			if (heap.sprite != null) heap.sprite.view(heap);
+		}
+	}
+
+	private static Heap heapHolding(Level level, Item item) {
+		if (level.heaps == null) return null;
+		for (Heap heap : level.heaps.valueList()) {
+			if (heap.items != null && heap.items.contains(item)) return heap;
+		}
+		return null;
+	}
+
+	private static int saleCell(Level level, Mob shopkeeper, Region shop) {
+		int width = level.width();
+		int best = -1;
+		int bestDistance = Integer.MAX_VALUE;
+		for (int cell : shop.cells) {
+			if (cell == shopkeeper.pos || !level.passable[cell] || Actor.findChar(cell) != null) continue;
+			if (level.heaps.get(cell, null) != null || FloorEditor.trapAt(cell) != null) continue;
+			int distance = Math.max(Math.abs(cell % width - shopkeeper.pos % width), Math.abs(cell / width - shopkeeper.pos / width));
+			if (distance >= bestDistance) continue;
+			best = cell;
+			bestDistance = distance;
+		}
+		return best;
+	}
+
+	/**
+	 * Called at the start of the WndTradeItem constructor for an item in the shop.
+	 */
+	public static void onTradeWindow(Object heap) {
+		if (heap instanceof Heap) tradeHeap = new java.lang.ref.WeakReference<>((Heap) heap);
+	}
+
+	/**
+	 * Called at the start of Mob.yell. Returns true to stay quiet: a Passive or Lenient shopkeeper has his own words
+	 * when he catches a thief.
+	 */
+	public static boolean onYell(Object mob, String text) {
+		try {
+			if (!(mob instanceof Shopkeeper) || text == null) return false;
+			if (!passive() && !lenient()) return false;
+			if (!text.equals(Messages.get(mob, "thief"))) return false;
+			state(mob).theftPending = true;
+			return true;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Called at the start of Shopkeeper.flee. Returns true to keep the shopkeeper and the shop.
+	 */
+	public static boolean onFlee(Object shopkeeper) {
+		try {
+			if (!isAvailable() || !(shopkeeper instanceof Mob)) return false;
+			Mob mob = (Mob) shopkeeper;
+			State state = state(mob);
+			if (state.theftPending) {
+				state.theftPending = false;
+				caughtStealing(mob);
+				return true;
+			}
+			return fearless() && ascending();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not keep the shopkeeper", e);
+			return false;
+		}
+	}
+
+	private static boolean ascending() {
+		Hero hero = Dungeon.hero;
+		if (hero == null) return false;
+		for (Buff buff : hero.buffs()) {
+			if (buff.getClass().getSimpleName().equals("AscensionChallenge")) return true;
+		}
+		return false;
+	}
+
+	private static void caughtStealing(Mob shopkeeper) {
+		if (passive()) {
+			yell(shopkeeper, "I saw that, you know. Rude.");
+			return;
+		}
+		yell(shopkeeper, "Pay for that or get out!");
+		Heap heap = tradeHeap == null ? null : tradeHeap.get();
+		Level level = Dungeon.level;
+		if (heap == null || heap.isEmpty() || level == null || level.heaps.get(heap.pos, null) != heap) {
+			banishHero(shopkeeper);
+			return;
+		}
+		EditorWindow.show(new TheftWindow(shopkeeper, heap));
+	}
+
+	/**
+	 * Throws the hero out of the shop and bans them until they apologize.
+	 */
+	static void banishHero(Mob shopkeeper) {
+		State state = state(shopkeeper);
+		state.banned = true;
+		state.ejectPending = false;
+		Region shop = region(shopkeeper);
+		Hero hero = Dungeon.hero;
+		if (shop == null || hero == null || !shop.cells.contains(hero.pos)) return;
+		int outside = outsideCell(shop);
+		if (outside < 0) return;
+		ScrollOfTeleportation.appear(hero, outside);
+		Dungeon.observe();
+		GameScene.updateFog();
+	}
+
+	/**
+	 * Called at the start of Shopkeeper.interact. Returns true when the shop window was shown instead of the game's.
+	 */
+	public static boolean onInteract(Object shopkeeper, Object character) {
+		if (!isAvailable() || !(shopkeeper instanceof Shopkeeper) || character == null || character != Dungeon.hero) return false;
+		Game.runOnRenderThread(() -> EditorWindow.show(new ShopWindow((Shopkeeper) shopkeeper, 0)));
+		return true;
 	}
 
 	/**
