@@ -56,6 +56,11 @@ public final class QuickslotRow {
 
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY, on);
+		try {
+			Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getMethod("updateLayout").invoke(null);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not update the toolbar", e);
+		}
 	}
 
 	/**
@@ -133,8 +138,7 @@ public final class QuickslotRow {
 	 */
 	public static void afterToolbarCreated(Object toolbar) {
 		try {
-			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS || SPDSettings.interfaceSize() != 0) return;
-			if (SPDSettings.quickSwapper()) return;
+			if (!wantsRow()) return;
 			Component bar = (Component) toolbar;
 			tallToolbars.add(toolbar);
 			bar.setSize(bar.width(), bar.height() + ROW_HEIGHT);
@@ -143,14 +147,50 @@ public final class QuickslotRow {
 		}
 	}
 
+	private static boolean wantsRow() {
+		return isOn() && QuickSlot.SIZE >= SWAPPER_SLOTS && SPDSettings.interfaceSize() == 0 && !SPDSettings.quickSwapper();
+	}
+
+	private static boolean resizing;
+
+	/**
+	 * Grows or shrinks the toolbar by a row when the setting or the quickslot swapper changes during a game, keeping
+	 * its bottom edge in place, and moves the game log and other indicators to match.
+	 */
+	private static void matchHeight(Component bar) {
+		boolean wanted = wantsRow();
+		boolean tall = tallToolbars.contains(bar);
+		if (wanted == tall) return;
+		float bottom = bar.bottom();
+		float height = bar.height() + (wanted ? ROW_HEIGHT : -ROW_HEIGHT);
+		if (wanted) {
+			tallToolbars.add(bar);
+		} else {
+			tallToolbars.remove(bar);
+		}
+		resizing = true;
+		try {
+			bar.setRect(bar.left(), bottom - height, bar.width(), height);
+		} finally {
+			resizing = false;
+		}
+		try {
+			com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.layoutTags();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not move the game log", e);
+		}
+	}
+
 	/**
 	 * Called at the end of Toolbar.layout. With the quickslot swapper on, the swap button pages through twelve
 	 * slots in place. Otherwise a full-width row of extra quickslots goes below the toolbar.
 	 */
 	public static void afterToolbarLayout(Object toolbar) {
+		if (resizing) return;
 		try {
-			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) return;
 			Component bar = (Component) toolbar;
+			matchHeight(bar);
+			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) return;
 			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
 			if (SPDSettings.quickSwapper() && SPDSettings.interfaceSize() == 0) {
 				pageWithSwapper(bar, quick);
