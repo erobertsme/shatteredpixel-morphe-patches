@@ -16,6 +16,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -31,6 +33,7 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Component;
+import com.watabou.utils.PathFinder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -51,6 +54,7 @@ public final class ForceAttack {
 	private static final int MARKER_SIZE = 10;
 	private static final int MARKER_COLOR = 0xFFE06A5A;
 	private static final String MISS_SOUND = "sounds/miss.mp3";
+	private static final String LIGHTNING_SOUND = "sounds/lightning.mp3";
 	private static final String[] OTHER_TAGS = { "attack", "loot", "action", "resume" };
 	private static final String[] OTHER_FLAGS = { "tagAttack", "tagLoot", "tagAction", "tagResume" };
 	private static final Random random = new Random();
@@ -259,7 +263,40 @@ public final class ForceAttack {
 			Method plantGrass = Blooming.class.getDeclaredMethod("plantGrass", int.class);
 			plantGrass.setAccessible(true);
 			plantGrass.invoke(enchantment, cell);
+		} else if (enchantment instanceof Shocking) {
+			float chance = (1 / 3f) * Weapon.Enchantment.genericProcChanceMultiplier(hero);
+			if (random.nextFloat() >= chance) return;
+			shock(hero, cell, enchantment, Math.max(1f, chance));
 		}
+	}
+
+	private static void shock(Hero hero, int cell, Weapon.Enchantment enchantment, float powerMulti) {
+		Level level = Dungeon.level;
+		boolean[] open = new boolean[level.length()];
+		for (int i = 0; i < open.length; i++) open[i] = !level.solid[i];
+		PathFinder.buildDistanceMap(cell, open, 2);
+
+		ArrayList<Char> affected = new ArrayList<>();
+		ArrayList<Lightning.Arc> arcs = new ArrayList<>();
+		List<Char> first = new ArrayList<>();
+		for (int i = 0; i < PathFinder.distance.length; i++) {
+			if (PathFinder.distance[i] == Integer.MAX_VALUE) continue;
+			Char ch = Actor.findChar(i);
+			if (ch != null && ch != hero && !affected.contains(ch)) first.add(ch);
+		}
+		affected.addAll(first);
+		for (Char ch : first) {
+			arcs.add(new Lightning.Arc(cell, ch.pos));
+			Shocking.arc(hero, ch, level.water[ch.pos] && !ch.flying ? 2 : 1, affected, arcs);
+		}
+
+		int damage = Math.round(hero.damageRoll() * 0.5f * powerMulti);
+		for (Char ch : affected) {
+			if (ch.alignment != hero.alignment && ch.isAlive()) ch.damage(damage, enchantment);
+		}
+		if (arcs.isEmpty()) arcs.add(new Lightning.Arc(hero.pos, cell));
+		hero.sprite.parent.addToFront(new Lightning(arcs, null));
+		Sample.INSTANCE.play(LIGHTNING_SOUND);
 	}
 
 	private static boolean procs(float chance, Hero hero) {

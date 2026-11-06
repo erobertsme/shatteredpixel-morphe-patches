@@ -22,6 +22,7 @@ public class Hero extends Char {
 	public HeroAction lastAction;
 	public HeroAction curAction;
 	public float attackDelay() { throw new RuntimeException("Stub"); }
+	public int damageRoll() { throw new RuntimeException("Stub"); }
 	public void busy() { throw new RuntimeException("Stub"); }
 	public void spendAndNext(float time) { throw new RuntimeException("Stub"); }
 	public void next() { throw new RuntimeException("Stub"); }

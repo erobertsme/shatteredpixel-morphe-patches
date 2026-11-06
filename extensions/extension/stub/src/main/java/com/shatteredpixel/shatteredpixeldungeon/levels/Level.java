@@ -19,6 +19,7 @@ public class Level {
 	public boolean[] visited;
 	public boolean[] heroFOV;
 	public boolean[] solid;
+	public boolean[] water;
 	public int distance(int a, int b) { throw new RuntimeException("Stub"); }
 	public boolean adjacent(int a, int b) { throw new RuntimeException("Stub"); }
 	public boolean[] discoverable;
