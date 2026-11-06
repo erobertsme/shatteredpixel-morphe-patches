@@ -1,3 +1,9 @@
+## [1.0.0-dev.70](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.69...v1.0.0-dev.70) (2026-11-06)
+
+### ✨ New Features
+
+* Separate Backpack and Toolbar windows in the QoL tab ([f3e97d1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f3e97d1ea34754cb1e6ebbe3cf568001ea639bee))
+
 ## [1.0.0-dev.69](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.68...v1.0.0-dev.69) (2026-11-06)
 
 ### ✨ New Features
