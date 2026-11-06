@@ -36,6 +36,8 @@ public final class BackpackEditor {
 	private static final int BACK_HEIGHT = 16;
 	private static final int SHORTCUT_WIDTH = 24;
 	private static final int SHORTCUT_HEIGHT = 12;
+	private static final int TITLE_HEIGHT = 14;
+	private static final int HEADER_SPACE = 3;
 
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
@@ -159,6 +161,7 @@ public final class BackpackEditor {
 			};
 			shortcut.setRect(counterLeft(window) - SHORTCUT_WIDTH - 3, 1, SHORTCUT_WIDTH, SHORTCUT_HEIGHT);
 			window.add(shortcut);
+			spaceBelowHeader(window);
 
 			if (!editing) return;
 			IconButton settings = new IconButton(Icons.get(Icons.PREFS)) {
@@ -172,6 +175,31 @@ public final class BackpackEditor {
 			window.add(settings);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the backpack shortcut", e);
+		}
+	}
+
+	/**
+	 * Moves everything below the header down a little, so the Edit and Add buttons have as much space below them
+	 * as above them.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void spaceBelowHeader(Window window) {
+		try {
+			Field membersField = Group.class.getDeclaredField("members");
+			membersField.setAccessible(true);
+			for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(window))) {
+				if (!(member instanceof com.watabou.noosa.ui.Component)) continue;
+				com.watabou.noosa.ui.Component component = (com.watabou.noosa.ui.Component) member;
+				if (component.top() < TITLE_HEIGHT - 1) continue;
+				component.setPos(component.left(), component.top() + HEADER_SPACE);
+			}
+			Field widthField = Window.class.getDeclaredField("width");
+			Field heightField = Window.class.getDeclaredField("height");
+			widthField.setAccessible(true);
+			heightField.setAccessible(true);
+			window.resize(widthField.getInt(window), heightField.getInt(window) + HEADER_SPACE);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not space the backpack header", e);
 		}
 	}
 

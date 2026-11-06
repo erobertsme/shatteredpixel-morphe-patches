@@ -12,6 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
@@ -159,7 +161,7 @@ public final class CloverlordMenu {
 			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
 			boolean inRun = Dungeon.hero != null && Dungeon.hero.isAlive();
 			if (inRun && EditorSwitches.character()) {
-				height = addGameMenuButton(window, "Character", Icons.STATS, width, height, () -> CharacterWindow.openFrom(CloverlordMenu::showGameMenu, CharacterWindow.TAB_STATS, 1));
+				height = addGameMenuButton(window, "Character", heroAvatar(), width, height, () -> CharacterWindow.openFrom(CloverlordMenu::showGameMenu, CharacterWindow.TAB_STATS, 1));
 			}
 			if (inRun && EditorSwitches.inventory()) {
 				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
@@ -168,10 +170,10 @@ public final class CloverlordMenu {
 				height = addGameMenuButton(window, "Floor", Icons.STAIRS_LARGE, width, height, () -> FloorWindow.open(CloverlordMenu::showGameMenu));
 			}
 			if (inRun && EditorSwitches.teleport()) {
-				height = addGameMenuButton(window, "Teleport", Icons.STAIRS, width, height, () -> EditorWindow.show(new DepthPickerWindow()));
+				height = addGameMenuButton(window, "Teleport", Icons.BUFFS, width, height, () -> EditorWindow.show(new DepthPickerWindow()));
 			}
 			if (inRun && SaveBackupActivity.isAvailable()) {
-				height = addGameMenuButton(window, "Game Saves", Icons.DATA, width, height, () -> EditorWindow.show(new GameSavesWindow(0, true)));
+				height = addGameMenuButton(window, "Game Saves", Icons.SCROLL_COLOR, width, height, () -> EditorWindow.show(new GameSavesWindow(0, true)));
 			}
 			window.resize(width, height);
 		} catch (Exception e) {
@@ -321,7 +323,19 @@ public final class CloverlordMenu {
 		return CharacterWindow.TAB_STATS;
 	}
 
+	private static Image heroAvatar() {
+		try {
+			return HeroSprite.avatar(Dungeon.hero);
+		} catch (Throwable e) {
+			return Icons.get(Icons.STATS);
+		}
+	}
+
 	private static int addGameMenuButton(Window window, String label, Icons icon, int width, int height, Runnable action) {
+		return addGameMenuButton(window, label, Icons.get(icon), width, height, action);
+	}
+
+	private static int addGameMenuButton(Window window, String label, Image icon, int width, int height, Runnable action) {
 		RedButton button = new RedButton(TitleCase.of(label)) {
 			@Override
 			public void onClick() {
@@ -329,7 +343,7 @@ public final class CloverlordMenu {
 				action.run();
 			}
 		};
-		button.icon(Icons.get(icon));
+		button.icon(icon);
 		button.setRect(0, height + GAP, width, BTN_HEIGHT);
 		window.add(button);
 		return height + GAP + BTN_HEIGHT;

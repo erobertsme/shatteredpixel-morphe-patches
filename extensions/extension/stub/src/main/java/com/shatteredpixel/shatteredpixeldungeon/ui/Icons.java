@@ -19,7 +19,8 @@ public enum Icons {
 	CHECKED,
 	COIN_SML,
 	STAIRS,
-	STAIRS_LARGE;
+	STAIRS_LARGE,
+	SCROLL_COLOR;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }
