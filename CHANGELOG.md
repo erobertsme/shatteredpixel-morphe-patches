@@ -1,3 +1,9 @@
+## [1.0.0-dev.61](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.60...v1.0.0-dev.61) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* Swapped quickslot pages keep the end slot's border and always fill every slot ([f50775f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f50775f2333c5e15e53bb898802cf00a419f0665))
+
 ## [1.0.0-dev.60](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.59...v1.0.0-dev.60) (2026-11-06)
 
 ### ✨ New Features
