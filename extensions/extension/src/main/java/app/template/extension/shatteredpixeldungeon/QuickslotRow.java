@@ -185,7 +185,8 @@ public final class QuickslotRow {
 
 	/**
 	 * Shows the swap button beside the quickslots, making room by setting the last slot aside if needed, and fills
-	 * the visible spots with the page of slots the swap button has reached.
+	 * the visible spots with the page of slots the swap button has reached. Only whole pages are used, so every page
+	 * fills every spot: with five spots that is two pages of five.
 	 */
 	private static void pageWithSwapper(Component bar, Object[] quick) throws ReflectiveOperationException {
 		Component swap = (Component) field(bar, "btnSwap").get(bar);
@@ -202,7 +203,11 @@ public final class QuickslotRow {
 		if (!swap.visible) {
 			float needed = swap.width() - 2;
 			if (roomBeside(bar, spots.get(spots.size() - 1), flipped) < needed && spots.size() > 1) {
-				hide(spots.remove(spots.size() - 1));
+				Component removed = spots.remove(spots.size() - 1);
+				Component newEnd = spots.get(spots.size() - 1);
+				float x = flipped ? newEnd.left() : newEnd.right() - removed.width();
+				copyLook(removed, newEnd, x, newEnd.top());
+				hide(removed);
 			}
 			Component end = spots.get(spots.size() - 1);
 			float x = flipped ? end.right() - 2 : end.left() - needed;
@@ -215,7 +220,7 @@ public final class QuickslotRow {
 		swappedField.setAccessible(true);
 		boolean swapped = swappedField.getBoolean(null);
 		int size = spots.size();
-		int pages = (quick.length + size - 1) / size;
+		int pages = Math.max(1, quick.length / size);
 		if (lastSwapped == null) {
 			swapPage = 0;
 		} else if (swapped != lastSwapped) {
@@ -228,7 +233,7 @@ public final class QuickslotRow {
 		for (int k = 0; k < size; k++) places[k] = new float[] { spots.get(k).left(), spots.get(k).top() };
 		int start = swapPage * size;
 		boolean[] used = new boolean[quick.length];
-		for (int k = 0; k < size && start + k < quick.length; k++) {
+		for (int k = 0; k < size && start + k < pages * size; k++) {
 			Component target = (Component) quick[start + k];
 			copyLook(spots.get(k), target, places[k][0], places[k][1]);
 			target.visible = true;
