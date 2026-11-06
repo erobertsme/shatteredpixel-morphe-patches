@@ -4,7 +4,11 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
+import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
@@ -32,6 +36,14 @@ public final class Teleport {
 	private static final Map<Object, RedButton> buttons = Collections.synchronizedMap(new WeakHashMap<>());
 
 	private Teleport() {
+	}
+
+	static Image icon() {
+		try {
+			return new TalentIcon(Talent.LONGRANGE_WARP);
+		} catch (Throwable e) {
+			return Icons.get(Icons.BUFFS);
+		}
 	}
 
 	/**
@@ -63,6 +75,7 @@ public final class Teleport {
 						EditorWindow.show(new DepthPickerWindow());
 					}
 				};
+				button.icon(icon());
 				notes.add(button);
 				buttons.put(notes, button);
 			}

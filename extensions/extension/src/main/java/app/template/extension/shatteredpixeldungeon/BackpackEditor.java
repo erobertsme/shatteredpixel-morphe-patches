@@ -37,7 +37,7 @@ public final class BackpackEditor {
 	private static final int SHORTCUT_WIDTH = 24;
 	private static final int SHORTCUT_HEIGHT = 12;
 	private static final int TITLE_HEIGHT = 14;
-	private static final int HEADER_SPACE = 3;
+	private static final int HEADER_SPACE = 2;
 
 	private static final Set<Window> editWindows = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean pendingEditWindow;
@@ -117,7 +117,6 @@ public final class BackpackEditor {
 	 * Called at the end of the WndBag constructor. Switching bag tabs keeps edit mode.
 	 */
 	public static void afterBagCreated(Window window) {
-		InventorySpace.afterBagCreated(window);
 		if (pendingEditWindow) {
 			editWindows.add(window);
 			decorate(window);

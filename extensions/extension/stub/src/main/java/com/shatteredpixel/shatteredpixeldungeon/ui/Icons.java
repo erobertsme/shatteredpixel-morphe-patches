@@ -20,7 +20,8 @@ public enum Icons {
 	COIN_SML,
 	STAIRS,
 	STAIRS_LARGE,
-	SCROLL_COLOR;
+	SCROLL_COLOR,
+	BACKPACK_LRG;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

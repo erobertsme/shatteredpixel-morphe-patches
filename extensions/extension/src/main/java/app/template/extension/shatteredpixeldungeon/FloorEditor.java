@@ -630,7 +630,7 @@ public final class FloorEditor {
 				float buttonWidth = (width - (row.length - 1) * GAP) / (float) row.length;
 				for (int i = 0; i < row.length; i++) {
 					QuickAction action = row[i];
-					com.shatteredpixel.shatteredpixeldungeon.ui.RedButton button = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton(action.label, 6) {
+					com.shatteredpixel.shatteredpixeldungeon.ui.RedButton button = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton(action.label, action.textSize) {
 						@Override
 						public void onClick() {
 							window.hide();
@@ -670,16 +670,22 @@ public final class FloorEditor {
 		final boolean enabled;
 		final Runnable run;
 		final boolean reopens;
+		final int textSize;
 
 		QuickAction(String label, boolean enabled, Runnable run) {
 			this(label, enabled, run, true);
 		}
 
 		QuickAction(String label, boolean enabled, Runnable run, boolean reopens) {
+			this(label, enabled, run, reopens, 6);
+		}
+
+		QuickAction(String label, boolean enabled, Runnable run, boolean reopens, int textSize) {
 			this.label = label;
 			this.enabled = enabled;
 			this.run = run;
 			this.reopens = reopens;
+			this.textSize = textSize;
 		}
 	}
 
@@ -700,7 +706,7 @@ public final class FloorEditor {
 				return;
 			}
 			ConfirmPrompt.ask("Active trap", "There is an active " + trapName(trap).toLowerCase() + " here. Teleporting onto it will set it off.", "Teleport", () -> teleportHero(cell));
-		}, false);
+		}, false, 7);
 	}
 
 	private static final int GRASS = 2;

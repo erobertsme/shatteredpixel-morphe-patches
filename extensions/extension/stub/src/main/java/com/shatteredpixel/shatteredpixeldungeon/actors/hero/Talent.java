@@ -5,7 +5,8 @@ import java.util.LinkedHashMap;
 
 public enum Talent {
 	HEARTY_MEAL,
-	ENHANCED_RINGS;
+	ENHANCED_RINGS,
+	LONGRANGE_WARP;
 
 	public static int[] tierLevelThresholds;
 

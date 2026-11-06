@@ -164,13 +164,13 @@ public final class CloverlordMenu {
 				height = addGameMenuButton(window, "Character", heroAvatar(), width, height, () -> CharacterWindow.openFrom(CloverlordMenu::showGameMenu, CharacterWindow.TAB_STATS, 1));
 			}
 			if (inRun && EditorSwitches.inventory()) {
-				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK, width, height, InventoryWindow::open);
+				height = addGameMenuButton(window, "Inventory", Icons.BACKPACK_LRG, width, height, InventoryWindow::open);
 			}
 			if (inRun && EditorSwitches.floor()) {
 				height = addGameMenuButton(window, "Floor", Icons.STAIRS_LARGE, width, height, () -> FloorWindow.open(CloverlordMenu::showGameMenu));
 			}
 			if (inRun && EditorSwitches.teleport()) {
-				height = addGameMenuButton(window, "Teleport", Icons.BUFFS, width, height, () -> EditorWindow.show(new DepthPickerWindow()));
+				height = addGameMenuButton(window, "Teleport", Teleport.icon(), width, height, () -> EditorWindow.show(new DepthPickerWindow()));
 			}
 			if (inRun && SaveBackupActivity.isAvailable()) {
 				height = addGameMenuButton(window, "Game Saves", Icons.SCROLL_COLOR, width, height, () -> EditorWindow.show(new GameSavesWindow(0, true)));

@@ -65,6 +65,7 @@ public final class InventorySpace {
 		int index;
 		int pages;
 		int free;
+		int itemRows;
 		List<Item> shown = new ArrayList<>();
 		Set<Item> hidden = Collections.newSetFromMap(new IdentityHashMap<>());
 	}
@@ -91,8 +92,9 @@ public final class InventorySpace {
 	public static int backpackCapacity(int original, Bag bag) {
 		Page page = current;
 		if ((page != null && page.bag == bag) || isOn()) return expand(original, bag);
-		if (!FilterBag.anyOn()) return original;
-		return original + FilterBag.allHeld().size();
+		int capacity = original + QolSettings.extraBagSlots();
+		if (!FilterBag.anyOn()) return capacity;
+		return capacity + FilterBag.allHeld().size();
 	}
 
 	/**
@@ -115,7 +117,8 @@ public final class InventorySpace {
 	private static int expand(int original, Bag bag) {
 		Page page = current;
 		if (page != null && page.bag == bag) return page.bags + page.shown.size() + page.free;
-		if (!isOn() || bag == null || bag.items == null) return original;
+		if (bag == null || bag.items == null) return original;
+		if (!isOn()) return original + QolSettings.extraBagSlots();
 		return Math.max(original, bag.items.size() + 1);
 	}
 
@@ -240,7 +243,7 @@ public final class InventorySpace {
 
 			int slots = EQUIPMENT_SLOTS + page.fixed + page.shown.size() + page.free;
 			int needed = Math.max(rows, divideUp(slots, columns));
-			if (page.pages > 1) needed = Math.max(needed, 1 + MAX_ITEM_ROWS);
+			if (page.pages > 1) needed = Math.max(needed, 1 + page.itemRows);
 
 			int reserved = (page.pages > 1 ? PAGER_HEIGHT + ROW_GAP : 0) + (BackpackEditor.isOpeningEditWindow() ? BACK_HEIGHT : 0);
 			int available = PixelScene.uiCamera.height - SCREEN_MARGIN - TITLE_HEIGHT - reserved - (needed - 1) * SLOT_MARGIN;
@@ -261,7 +264,8 @@ public final class InventorySpace {
 		boolean backpack = bag == hero.belongings.backpack;
 		boolean unlimited = isOn();
 		boolean tabs = backpack && FilterBag.anyOn();
-		if (!filter && !unlimited && !tabs) return null;
+		boolean custom = QolSettings.extraBagSlots() > 0;
+		if (!filter && !unlimited && !tabs && !custom) return null;
 
 		Page page = new Page();
 		page.bag = bag;
@@ -282,9 +286,11 @@ public final class InventorySpace {
 		}
 
 		boolean growing = unlimited && !filter;
-		int perPage = MAX_ITEM_ROWS * COLUMNS - page.fixed;
+		page.itemRows = unlimited ? MAX_ITEM_ROWS : QolSettings.bagRows();
+		int perPage = page.itemRows * COLUMNS - page.fixed;
 		int total = all.size() + (growing ? 1 : 0);
-		page.pages = Math.max(1, divideUp(total, perPage));
+		int minimumPages = !unlimited && QolSettings.extraBagPage() ? 2 : 1;
+		page.pages = Math.max(minimumPages, divideUp(total, perPage));
 		Integer saved = savedPages.get(key(bag));
 		page.index = saved == null ? 0 : Math.max(0, Math.min(page.pages - 1, saved));
 
@@ -300,10 +306,11 @@ public final class InventorySpace {
 		int used = page.fixed + page.shown.size();
 		int target;
 		if (page.pages > 1) {
-			target = MAX_ITEM_ROWS * COLUMNS;
+			target = page.itemRows * COLUMNS;
+		} else if (unlimited) {
+			target = divideUp(Math.max(DEFAULT_ITEM_SLOTS, used + (growing ? 1 : 0)), COLUMNS) * COLUMNS;
 		} else {
-			target = Math.max(DEFAULT_ITEM_SLOTS, used + (growing ? 1 : 0));
-			target = divideUp(target, COLUMNS) * COLUMNS;
+			target = divideUp(Math.max(page.itemRows * COLUMNS, used), COLUMNS) * COLUMNS;
 		}
 		page.free = Math.max(0, target - used);
 		return page;
@@ -330,7 +337,7 @@ public final class InventorySpace {
 	/**
 	 * Called at the end of the WndBag constructor, before the backpack editor adds its own buttons.
 	 */
-	static void afterBagCreated(Window window) {
+	public static void afterBagCreated(Window window) {
 		Page page = current;
 		current = null;
 		if (page == null || page.pages <= 1) return;

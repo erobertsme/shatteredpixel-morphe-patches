@@ -18,7 +18,7 @@ val qolEnhancementsPatch = bytecodePatch(
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
 
-	dependsOn(cloverlordMenuPatch)
+	dependsOn(cloverlordMenuPatch, bagLayoutPatch)
 
 	execute {
 		PathPreviewAvailableFingerprint.returnTrue()

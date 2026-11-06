@@ -5,6 +5,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.watabou.noosa.Game;
 
@@ -28,7 +31,7 @@ public class InventoryWindow extends EditorWindow {
 		super();
 		Hero hero = Dungeon.hero;
 
-		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify All identifies everything you carry. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nThe Weapons, Armor and Rings backpack tabs are switched on and off in Extras, under QoL.\n\nTap a number to type it, with Min and Max buttons.");
+		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify All identifies everything you carry. The Potions, Scrolls and Rings buttons under Identify All Types learn every type of that kind, so you know which color, rune or gem is which even for ones you haven't found. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nThe Weapons, Armor and Rings backpack tabs are switched on and off in Extras, under QoL.\n\nTap a number to type it, with Min and Max buttons.");
 		if (hero == null) {
 			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 			pos += ROW_HEIGHT;
@@ -58,6 +61,13 @@ public class InventoryWindow extends EditorWindow {
 		});
 		pos += ROW_HEIGHT + GAP;
 
+		addSection("Identify All Types");
+		float third = (WIDTH - 2 * GAP) / 3f;
+		addButton("Potions", 0, third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.POTION)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.POTION));
+		addButton("Scrolls", third + GAP, third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.SCROLL)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.SCROLL));
+		addButton("Rings", 2 * (third + GAP), third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING));
+		pos += ROW_HEIGHT + GAP;
+
 		addButton("Cleanse all", 0, WIDTH, () -> {
 			cleanseAll(hero);
 			refresh();
@@ -71,6 +81,53 @@ public class InventoryWindow extends EditorWindow {
 		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	/**
+	 * Learns every type in [category], so each potion color, scroll rune and ring gem shows what it is.
+	 */
+	private void identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category category) {
+		for (Item item : samples(category)) {
+			try {
+				if (item instanceof Potion) ((Potion) item).setKnown();
+				if (item instanceof Scroll) ((Scroll) item).setKnown();
+				if (item instanceof Ring) ((Ring) item).setKnown();
+			} catch (Throwable ignored) {
+			}
+		}
+		Item.updateQuickslot();
+		refresh();
+	}
+
+	private static boolean allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category category) {
+		for (Item item : samples(category)) {
+			try {
+				if (item instanceof Potion && !((Potion) item).isKnown()) return false;
+				if (item instanceof Scroll && !item.isIdentified()) return false;
+				if (item instanceof Ring && !item.isIdentified()) return false;
+			} catch (Throwable ignored) {
+			}
+		}
+		return true;
+	}
+
+	private static List<Item> samples(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category category) {
+		List<Item> items = new ArrayList<>();
+		Class<?>[] classes;
+		try {
+			classes = category.classes;
+		} catch (Throwable e) {
+			return items;
+		}
+		if (classes == null) return items;
+		for (Class<?> type : classes) {
+			try {
+				Object item = type.getConstructor().newInstance();
+				if (item instanceof Item) items.add((Item) item);
+			} catch (Throwable ignored) {
+			}
+		}
+		return items;
 	}
 
 	private static void cleanseAll(Hero hero) {

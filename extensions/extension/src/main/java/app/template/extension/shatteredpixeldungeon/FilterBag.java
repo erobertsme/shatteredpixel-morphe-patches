@@ -72,7 +72,7 @@ final class FilterBag extends Bag {
 	static final int CAPACITY = 19;
 
 	static int tabCapacity() {
-		return InventorySpace.isOn() ? Integer.MAX_VALUE : CAPACITY;
+		return InventorySpace.isOn() ? Integer.MAX_VALUE : CAPACITY + QolSettings.extraBagSlots();
 	}
 
 	/**
