@@ -1,3 +1,9 @@
+## [1.0.0-dev.68](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.67...v1.0.0-dev.68) (2026-11-06)
+
+### ✨ New Features
+
+* Shocking weapons arc lightning from an attacked tile ([875d28a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/875d28a11ae4b90bf57f25dc82cc827aa04f6c97))
+
 ## [1.0.0-dev.67](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.66...v1.0.0-dev.67) (2026-11-06)
 
 ### ✨ New Features
