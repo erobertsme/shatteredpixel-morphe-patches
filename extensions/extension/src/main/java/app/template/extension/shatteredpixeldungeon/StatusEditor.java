@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WellFed;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 import java.lang.reflect.Field;
@@ -27,8 +28,8 @@ final class StatusEditor {
 	private static final String TAG = "StatusEditor";
 	private static final int NO_ICON = 127;
 
-	static final String[] HUNGER_STATES = { "Normal", "Hungry", "Starving" };
-	private static final float[] HUNGER_LEVELS = { 0f, 300f, 450f };
+	static final String[] HUNGER_STATES = { "Well Fed", "Normal", "Hungry", "Starving" };
+	private static final float[] HUNGER_LEVELS = { 0f, 0f, 300f, 450f };
 
 	static final class Entry {
 		final Class<? extends Buff> type;
@@ -200,9 +201,10 @@ final class StatusEditor {
 
 	static int hungerState(Hero hero) {
 		float level = hungerLevel(hero);
+		if (level >= HUNGER_LEVELS[3]) return 3;
 		if (level >= HUNGER_LEVELS[2]) return 2;
-		if (level >= HUNGER_LEVELS[1]) return 1;
-		return 0;
+		if (hero.buff(WellFed.class) != null) return 0;
+		return 1;
 	}
 
 	static void setHungerState(Hero hero, int state) {
@@ -213,6 +215,13 @@ final class StatusEditor {
 			Field field = Hunger.class.getDeclaredField("level");
 			field.setAccessible(true);
 			field.setFloat(hunger, HUNGER_LEVELS[index]);
+			WellFed wellFed = hero.buff(WellFed.class);
+			if (index == 0) {
+				if (wellFed == null) wellFed = Buff.affect(hero, WellFed.class);
+				wellFed.reset();
+			} else if (wellFed != null) {
+				wellFed.detach();
+			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set hunger", e);
 		}

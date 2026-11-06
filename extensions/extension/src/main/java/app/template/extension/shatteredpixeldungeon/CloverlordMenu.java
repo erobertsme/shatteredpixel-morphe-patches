@@ -310,27 +310,9 @@ public final class CloverlordMenu {
 		List<Gizmo> members = (List<Gizmo>) membersField.get(window);
 		int before = members.size();
 
-		RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
-		title.hardlight(0xFFFF44);
-		title.setPos(0, y);
-		window.add(title);
-
-		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap to Edit", 6);
-		hint.hardlight(0x999999);
-		hint.setPos(width - hint.width(), y + (title.height() - hint.height()) / 2f);
-		window.add(hint);
-		y = title.bottom() + 2;
-
-		boolean disabled = HungerEditor.isDisabled();
-		y = HungerWindow.addHungerBar(window, 0, y, width, HungerEditor.notHungryTurns(), HungerEditor.hungryTurns(), disabled) + 2;
-
-		RenderedTextBlock starving = PixelScene.renderTextBlock("Starving: " + HungerEditor.describeStarving(HungerEditor.maxHealth()), 6);
-		starving.maxWidth(width);
-		starving.setPos(0, y);
-		window.add(starving);
-
+		float bottom = HungerWindow.addSummary(window, 0, y, width);
 		added.addAll(members.subList(before, members.size()));
-		return starving.bottom();
+		return bottom;
 	}
 
 	private static String editLabel(int heroTab) {

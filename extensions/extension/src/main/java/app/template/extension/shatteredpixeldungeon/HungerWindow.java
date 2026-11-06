@@ -162,6 +162,28 @@ public class HungerWindow extends EditorWindow {
 	/**
 	 * Draws the hunger stage bar and its legend into [group]. Returns the bottom of the legend.
 	 */
+	static float addSummary(Group group, float x, float y, float width) {
+		RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
+		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.setPos(x, y);
+		group.add(title);
+
+		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap to Edit", 6);
+		hint.hardlight(CharacterWindow.DIM_COLOR);
+		hint.setPos(x + width - hint.width(), y + (title.height() - hint.height()) / 2f);
+		group.add(hint);
+		y = title.bottom() + 2;
+
+		boolean disabled = HungerEditor.isDisabled();
+		y = addHungerBar(group, x, y, width, HungerEditor.notHungryTurns(), HungerEditor.hungryTurns(), disabled) + 2;
+
+		RenderedTextBlock starving = PixelScene.renderTextBlock("Starving: " + HungerEditor.describeStarving(HungerEditor.maxHealth()), 6);
+		starving.maxWidth((int) width);
+		starving.setPos(x, y);
+		group.add(starving);
+		return starving.bottom();
+	}
+
 	static float addHungerBar(Group group, float x, float y, float width, int notHungry, int hungry, boolean disabled) {
 		float starvingShare = (notHungry + hungry) * 0.15f;
 		float total = notHungry + hungry + starvingShare;

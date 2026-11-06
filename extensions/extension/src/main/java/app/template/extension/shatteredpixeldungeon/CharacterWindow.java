@@ -21,6 +21,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
+import com.watabou.noosa.PointerArea;
+import com.watabou.input.PointerEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class CharacterWindow extends Window {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
 		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
-		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.",
+		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Add Status adds a new one and Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.\n\nThe hunger buttons set how hungry you are. Well Fed also gives the Well Fed effect, as if you had just eaten a meat pie.",
 	};
 
 	interface IntSetter {
@@ -271,7 +273,10 @@ public class CharacterWindow extends Window {
 	}
 
 	private void addChoiceRow(String[] labels, int selected, ChoiceSetter setter) {
-		int perRow = labels.length <= 3 ? labels.length : 2;
+		addChoiceRow(labels, selected, labels.length <= 3 ? labels.length : 2, setter);
+	}
+
+	private void addChoiceRow(String[] labels, int selected, int perRow, ChoiceSetter setter) {
 		float width = (WIDTH - (perRow - 1) * GAP) / (float) perRow;
 		for (int i = 0; i < labels.length; i++) {
 			int index = i;
@@ -381,7 +386,14 @@ public class CharacterWindow extends Window {
 
 	private void buildStatus(Hero hero) {
 		List<Buff> active = StatusEditor.active(hero);
-		addSection("Active effects (" + active.size() + ")");
+		RedButton addStatus = new RedButton("Add Status", 6) {
+			@Override
+			public void onClick() {
+				hide();
+				StatusPickerWindow.openFor(Dungeon.hero, () -> open(TAB_STATUS, tier, page));
+			}
+		};
+		addSectionWithButton("Active effects (" + active.size() + ")", addStatus, 50);
 		if (active.isEmpty()) addHint("No active effects.");
 
 		int perPage = PixelScene.landscape() ? 3 : 6;
@@ -394,22 +406,6 @@ public class CharacterWindow extends Window {
 			addPager(current, pages, this::reopenPage);
 		}
 
-		int hunger = StatusEditor.hungerState(hero);
-		addStepper("Hunger", StatusEditor.HUNGER_STATES[hunger], hunger, 0, StatusEditor.HUNGER_STATES.length - 1, value -> StatusEditor.setHungerState(hero, value));
-		if (EditorSwitches.hunger()) {
-			RedButton hungerSettings = new RedButton("Hunger Settings", 6) {
-				@Override
-				public void onClick() {
-					hide();
-					HungerWindow.open(() -> open(TAB_STATUS, tier, page));
-				}
-			};
-			hungerSettings.setRect(0, pos, WIDTH, ROW_HEIGHT);
-			add(hungerSettings);
-			pos += ROW_HEIGHT + GAP;
-		}
-
-		float half = (WIDTH - GAP) / 2f;
 		RedButton removeNegative = new RedButton("Remove Negative", 6) {
 			@Override
 			public void onClick() {
@@ -417,20 +413,42 @@ public class CharacterWindow extends Window {
 				refresh();
 			}
 		};
-		removeNegative.setRect(0, pos, half, ROW_HEIGHT);
+		removeNegative.setRect(0, pos, WIDTH, ROW_HEIGHT);
 		add(removeNegative);
-
-		RedButton addStatus = new RedButton("Add Status", 6) {
-			@Override
-			public void onClick() {
-				hide();
-				StatusPickerWindow.openFor(Dungeon.hero, () -> open(TAB_STATUS, tier, page));
-			}
-		};
-		addStatus.setRect(half + GAP, pos, half, ROW_HEIGHT);
-		add(addStatus);
 		pos += ROW_HEIGHT + GAP;
 
+		pos += GAP;
+		if (EditorSwitches.hunger()) {
+			float top = pos;
+			pos = HungerWindow.addSummary(this, 0, pos, WIDTH) + 2 * GAP;
+			PointerArea area = new PointerArea(0, top, WIDTH, pos - top) {
+				@Override
+				public void onClick(PointerEvent event) {
+					hide();
+					HungerWindow.open(() -> open(TAB_STATUS, tier, page));
+				}
+			};
+			add(area);
+		} else {
+			RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
+			title.hardlight(TITLE_COLOR);
+			title.setPos(0, pos);
+			add(title);
+			pos = title.bottom() + 2 * GAP;
+		}
+		addChoiceRow(StatusEditor.HUNGER_STATES, StatusEditor.hungerState(hero), StatusEditor.HUNGER_STATES.length, index -> StatusEditor.setHungerState(hero, index));
+	}
+
+	private void addSectionWithButton(String text, RedButton button, float buttonWidth) {
+		pos += GAP;
+		RenderedTextBlock block = PixelScene.renderTextBlock(text, 7);
+		block.hardlight(TITLE_COLOR);
+		float rowTop = pos;
+		block.setPos(0, rowTop + (ROW_HEIGHT - block.height()) / 2f);
+		add(block);
+		button.setRect(WIDTH - buttonWidth, rowTop, buttonWidth, ROW_HEIGHT);
+		add(button);
+		pos = rowTop + ROW_HEIGHT + GAP;
 	}
 
 	private void addStatusRow(Buff buff) {

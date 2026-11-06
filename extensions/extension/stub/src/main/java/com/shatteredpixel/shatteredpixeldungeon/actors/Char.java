@@ -24,5 +24,6 @@ public class Char {
 	public int defenseSkill(Char enemy) { throw new RuntimeException("Stub"); }
 	public float speed() { throw new RuntimeException("Stub"); }
 	public synchronized LinkedHashSet<Buff> buffs() { throw new RuntimeException("Stub"); }
+	public synchronized <T extends Buff> T buff(Class<T> c) { throw new RuntimeException("Stub"); }
 	public int shielding() { throw new RuntimeException("Stub"); }
 }
