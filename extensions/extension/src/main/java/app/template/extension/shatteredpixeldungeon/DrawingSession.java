@@ -87,7 +87,7 @@ final class DrawingSession {
 		Camera ui = PixelScene.uiCamera;
 		float width = ui.width;
 		float height = ui.height;
-		float actionsTop = height - BUTTON_HEIGHT - 30;
+		float actionsTop = Math.min(height - 30, ScreenLayout.aboveToolbar()) - BUTTON_HEIGHT;
 		float brushesTop = actionsTop - BUTTON_HEIGHT - MARGIN;
 
 		PointerArea area = new PointerArea(0, 0, width, brushesTop - MARGIN) {

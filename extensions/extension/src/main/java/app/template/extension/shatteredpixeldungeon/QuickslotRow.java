@@ -121,11 +121,13 @@ public final class QuickslotRow {
 	}
 
 	/**
-	 * Called at the end of the Toolbar constructor. Makes room for the extra row above the toolbar.
+	 * Called at the end of the Toolbar constructor. Makes room for the extra row above the toolbar, unless the
+	 * quickslot swapper is in use, where the swap button cycles through all twelve slots instead.
 	 */
 	public static void afterToolbarCreated(Object toolbar) {
 		try {
 			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2 || SPDSettings.interfaceSize() != 0) return;
+			if (swapperShown()) return;
 			Component bar = (Component) toolbar;
 			tallToolbars.add(toolbar);
 			bar.setSize(bar.width(), bar.height() + ROW_HEIGHT);
@@ -134,43 +136,132 @@ public final class QuickslotRow {
 		}
 	}
 
-	/**
-	 * Called at the end of Toolbar.layout. Moves the toolbar down to the bottom row and puts the extra quickslots
-	 * above the ones the game shows.
-	 */
-	@SuppressWarnings("unchecked")
-	public static void afterToolbarLayout(Object toolbar) {
-		if (!tallToolbars.contains(toolbar)) return;
-		try {
-			Component bar = (Component) toolbar;
-			float offscreen = PixelScene.uiCamera.height - 1;
-			Field membersField = Group.class.getDeclaredField("members");
-			membersField.setAccessible(true);
-			for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(bar))) {
-				if (!(member instanceof Component)) continue;
-				Component component = (Component) member;
-				if (component.top() >= offscreen) continue;
-				component.setPos(component.left(), component.top() + ROW_HEIGHT);
-			}
+	private static boolean swapperShown() {
+		int shown = 4;
+		if (PixelScene.uiCamera.width > 152) shown++;
+		if (PixelScene.uiCamera.width > 170) shown++;
+		return SPDSettings.quickSwapper() && shown < GAME_SLOTS;
+	}
 
-			Field quickField = bar.getClass().getDeclaredField("btnQuick");
-			quickField.setAccessible(true);
-			Object[] quick = (Object[]) quickField.get(bar);
-			for (int i = 0; i < GAME_SLOTS && i + GAME_SLOTS < quick.length; i++) {
-				Component shown = (Component) quick[i];
-				Component extra = (Component) quick[i + GAME_SLOTS];
-				if (!shown.visible) {
-					extra.visible = false;
-					extra.setPos(extra.left(), offscreen + 1);
-					continue;
-				}
-				extra.setPos(shown.left(), shown.top() - ROW_HEIGHT);
-				extra.visible = true;
-				enable(extra, shown.active);
+	/**
+	 * Called at the end of Toolbar.layout. With a tall toolbar, moves the toolbar down to the bottom row and puts
+	 * the extra quickslots above the ones the game shows. With the swapper, shows the set of three slots the swap
+	 * button has reached.
+	 */
+	public static void afterToolbarLayout(Object toolbar) {
+		try {
+			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2) return;
+			Component bar = (Component) toolbar;
+			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
+			Object swap = field(bar, "btnSwap").get(bar);
+			if (swap instanceof Component && ((Component) swap).visible) {
+				showSwapGroup(quick);
+				return;
 			}
+			if (tallToolbars.contains(toolbar)) addExtraRow(bar, quick);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not lay out the extra quickslots", e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void addExtraRow(Component bar, Object[] quick) throws ReflectiveOperationException {
+		float offscreen = PixelScene.uiCamera.height - 1;
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(bar))) {
+			if (!(member instanceof Component)) continue;
+			Component component = (Component) member;
+			if (component.top() >= offscreen) continue;
+			component.setPos(component.left(), component.top() + ROW_HEIGHT);
+		}
+		for (int i = 0; i < GAME_SLOTS && i + GAME_SLOTS < quick.length; i++) {
+			Component shown = (Component) quick[i];
+			Component extra = (Component) quick[i + GAME_SLOTS];
+			if (!shown.visible) {
+				hide(extra);
+				continue;
+			}
+			copyLook(shown, extra, shown.left(), shown.top() - ROW_HEIGHT);
+			extra.visible = true;
+			enable(extra, shown.active);
+		}
+	}
+
+	private static final int SWAP_GROUP = 3;
+	private static int swapGroup;
+	private static Boolean lastSwapped;
+
+	private static void showSwapGroup(Object[] quick) throws ReflectiveOperationException {
+		Field swappedField = Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getDeclaredField("swappedQuickslots");
+		swappedField.setAccessible(true);
+		boolean swapped = swappedField.getBoolean(null);
+		int groups = quick.length / SWAP_GROUP;
+		if (lastSwapped == null) {
+			swapGroup = swapped ? 1 : 0;
+		} else if (swapped != lastSwapped) {
+			swapGroup = (swapGroup + 1) % groups;
+		}
+		lastSwapped = swapped;
+
+		int gameStart = swapped ? SWAP_GROUP : 0;
+		int start = swapGroup * SWAP_GROUP;
+		if (start == gameStart) return;
+		Component[] spots = new Component[SWAP_GROUP];
+		float[][] places = new float[SWAP_GROUP][];
+		for (int k = 0; k < SWAP_GROUP; k++) {
+			spots[k] = (Component) quick[gameStart + k];
+			places[k] = new float[] { spots[k].left(), spots[k].top() };
+		}
+		for (int k = 0; k < SWAP_GROUP; k++) {
+			Component target = (Component) quick[start + k];
+			copyLook(spots[k], target, places[k][0], places[k][1]);
+			target.visible = true;
+			enable(target, spots[k].active);
+		}
+		for (int i = 0; i < quick.length; i++) {
+			if (i >= start && i < start + SWAP_GROUP) continue;
+			hide((Component) quick[i]);
+		}
+	}
+
+	private static void hide(Component tool) {
+		tool.visible = false;
+		enable(tool, false);
+		tool.setPos(tool.left(), PixelScene.uiCamera.height);
+	}
+
+	/**
+	 * Gives [target] the same background frame, borders and size as [source], at the given position.
+	 */
+	private static void copyLook(Component source, Component target, float x, float y) {
+		try {
+			Field baseField = field(source, "base");
+			Object sourceBase = baseField.get(source);
+			Object targetBase = baseField.get(target);
+			Method getFrame = sourceBase.getClass().getMethod("frame");
+			Object frame = getFrame.invoke(sourceBase);
+			targetBase.getClass().getMethod("frame", getFrame.getReturnType()).invoke(targetBase, frame);
+			for (String border : new String[] { "borderLeft", "borderRight" }) {
+				Field borderField = field(source, border);
+				borderField.setInt(target, borderField.getInt(source));
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not copy a quickslot's look", e);
+		}
+		target.setRect(x, y, source.width(), source.height());
+	}
+
+	private static Field field(Object target, String name) throws NoSuchFieldException {
+		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
+			try {
+				Field field = type.getDeclaredField(name);
+				field.setAccessible(true);
+				return field;
+			} catch (NoSuchFieldException ignored) {
+			}
+		}
+		throw new NoSuchFieldException(name);
 	}
 
 	private static void enable(Object tool, boolean value) {

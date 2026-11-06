@@ -281,9 +281,26 @@ public final class CloverlordMenu {
 			com.watabou.noosa.ui.Component tab = (com.watabou.noosa.ui.Component) talents;
 			if (bottom <= tab.height()) return;
 			tab.setRect(tab.left(), tab.top(), width, bottom - tab.top());
+			scrollToBottom(tab);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not resize the talents tab", e);
 		}
+	}
+
+	/**
+	 * Scrolls the talents list to the bottom for its new height, as the game does when the window opens.
+	 */
+	private static void scrollToBottom(com.watabou.noosa.ui.Component tab) throws ReflectiveOperationException {
+		Field paneField = tab.getClass().getDeclaredField("pane");
+		paneField.setAccessible(true);
+		Object pane = paneField.get(tab);
+		if (!(pane instanceof com.watabou.noosa.ui.Component)) return;
+		com.watabou.noosa.ui.Component scroll = (com.watabou.noosa.ui.Component) pane;
+		Object content = pane.getClass().getMethod("content").invoke(pane);
+		float contentHeight = content instanceof com.watabou.noosa.ui.Component ? ((com.watabou.noosa.ui.Component) content).height() : 0;
+		float target = Math.max(0, contentHeight - scroll.height());
+		pane.getClass().getMethod("scrollTo", float.class, float.class).invoke(pane, 0f, target);
+		tab.getClass().getMethod("layout").invoke(tab);
 	}
 
 	@SuppressWarnings("unchecked")

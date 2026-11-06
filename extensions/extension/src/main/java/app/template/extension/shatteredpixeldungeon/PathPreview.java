@@ -252,7 +252,7 @@ public final class PathPreview {
 		scene.add(watcher);
 		overlay.add(watcher);
 
-		float buttonsTop = PixelScene.uiCamera.height - BUTTON_HEIGHT - 30;
+		float buttonsTop = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
 		TintedButton cancel = TintedButton.cancel("Cancel", PathPreview::clear);
 		cancel.camera = PixelScene.uiCamera;
 		cancel.setRect(MARGIN, buttonsTop, BUTTON_WIDTH, BUTTON_HEIGHT);

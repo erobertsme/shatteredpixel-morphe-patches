@@ -104,7 +104,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
   - Shop window: buy back up to 24 sold items, 8 per page, with an [i] to examine each.
 - **Quantum Chest:** a chest beside the exit of every beaten boss floor. Every chest opens the same storage of 1, 2 or 3 pages of 25 items. Tap an item for its details and Take Out or Store Item, or turn on Quick Move.
 - **Backpack:** 4 to 8 rows of items in every bag, and an optional extra page for each tab.
-- **Extra quickslot row:** six more quickslots in a row above the toolbar.
+- **Extra quickslot row:** six more quickslots in a row above the toolbar. With the game's Quickslot Swapper on, the swap button cycles through all twelve slots, three at a time, instead.
 
 ### Save management
 - **Export saves** and **Import saves** on the main menu Extras and the app icon shortcuts (long-press the icon) back up and restore every save as one zip file.
