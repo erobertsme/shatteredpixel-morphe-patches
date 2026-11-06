@@ -1,3 +1,9 @@
+## [1.0.0-dev.53](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.52...v1.0.0-dev.53) (2026-11-06)
+
+### ✨ New Features
+
+* Quantum Chest out of the way beside each boss exit, item details with Take Out and Store Item, a Store Items screen, and Quick Move ([6ec9dc8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6ec9dc8c1f1fe3a04712008adc46d39d9d5fbf6a))
+
 ## [1.0.0-dev.52](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.51...v1.0.0-dev.52) (2026-11-06)
 
 ### ✨ New Features
