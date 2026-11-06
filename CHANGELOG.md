@@ -1,3 +1,9 @@
+## [1.0.0-dev.69](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.68...v1.0.0-dev.69) (2026-11-06)
+
+### ✨ New Features
+
+* Attack Tile reaches walls and doors, one enchantment button, Backpack & Toolbar window ([026f84c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/026f84c48bbb3fe7e9a16bbe7adc49236a879935))
+
 ## [1.0.0-dev.68](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.67...v1.0.0-dev.68) (2026-11-06)
 
 ### ✨ New Features
