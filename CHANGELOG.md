@@ -1,3 +1,9 @@
+## [1.0.0-dev.55](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.54...v1.0.0-dev.55) (2026-11-06)
+
+### ✨ New Features
+
+* Hero avatar, BUFFS and SCROLL_COLOR icons on the game menu buttons, and more space below the backpack header ([4316943](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4316943f46a3ad2f2a5ce864dfbe176fc4f36331))
+
 ## [1.0.0-dev.54](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.53...v1.0.0-dev.54) (2026-11-06)
 
 ### ✨ New Features
