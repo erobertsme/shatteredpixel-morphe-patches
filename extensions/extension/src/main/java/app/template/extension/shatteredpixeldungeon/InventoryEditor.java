@@ -310,6 +310,33 @@ final class InventoryEditor {
 		return enchantment.getClass().getSimpleName();
 	}
 
+	/**
+	 * The enchantment, glyph or curse name without the word enchantment, glyph or curse, such as Blazing.
+	 */
+	static String shortEnchantmentName(Object enchantment) {
+		if (enchantment == null) return "None";
+		try {
+			String name = null;
+			if (enchantment instanceof Weapon.Enchantment) name = ((Weapon.Enchantment) enchantment).name("");
+			if (enchantment instanceof Armor.Glyph) name = ((Armor.Glyph) enchantment).name("");
+			if (name != null) {
+				name = name.trim();
+				if (name.startsWith("of ")) name = name.substring(3).trim();
+				if (!name.isEmpty()) return capitalize(name);
+			}
+		} catch (Throwable ignored) {
+		}
+		return enchantmentName(enchantment);
+	}
+
+	static boolean isCurse(Object enchantment, boolean armor) {
+		if (enchantment == null) return false;
+		for (Object curse : enchantments(armor, true)) {
+			if (curse.getClass() == enchantment.getClass()) return true;
+		}
+		return false;
+	}
+
 	static String enchantmentDesc(Object enchantment) {
 		try {
 			if (enchantment instanceof Weapon.Enchantment) return ((Weapon.Enchantment) enchantment).desc();

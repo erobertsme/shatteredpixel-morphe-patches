@@ -90,13 +90,13 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - Edit gold and energy, add any item from a picker with categories and favorites, identify your carried items, learn every potion, scroll or ring type, and remove every curse.
 - **Open Backpack** shows your real backpack in edit mode, with an **Edit** action on every item: level, quantity, identified, cursed, enchantment or glyph, augment, charges with an **infinite charges** option, waterskin water, blessing an ankh, alchemy conversions, duplicate and delete. A gear button returns to the inventory editor.
 - **Unlimited inventory space:** every bag always has room for one more item, shown in pages of 8 rows with arrows that wrap and remember your page.
-- **Weapons, Armor and Rings tabs** (switched on in Extras → QoL): hold those items like the potion bandolier, so they don't use backpack space.
+- **Weapons, Armor and Rings tabs** (switched on in Extras → QoL → Backpack & Toolbar): hold those items like the potion bandolier, so they don't use backpack space.
 - Only one of each bag can be carried; extra copies are refused or dropped.
 
 ### QoL enhancements
 - **Confirm actions:** a tap that would walk somewhere, attack, talk, use stairs or step into danger first shows what will happen, with Go and Cancel. Each action can be switched on or off, and moving and attacking have their own minimum distances. Danger accounts for levitation and immunities.
 - **Interrupted path:** when a walk is interrupted and the game shows its resume arrow, the rest of the route and its destination are drawn on the map, the same way Confirm actions shows a path. Can be switched off in Extras → QoL.
-- **Attack Tile button:** a button above the backpack button that lets you attack any tile in reach of your weapon. A creature there is attacked even if it is hiding, so you can hit a mimic first, often as a surprise attack. An empty tile gets a swing that takes the time of an attack. With **Enchantments affect the tile** on, a Blazing, Chilling, Blooming or Shocking weapon rolls its normal chance and sets the tile alight, freezes it, grows grass there or sends lightning from it that arcs between creatures, further through water. Both are switches in Extras → QoL.
+- **Attack Tile button:** a button above the backpack button that lets you attack any tile in reach of your weapon except a chasm, walls and doors included. A creature there is attacked even if it is hiding, so you can hit a mimic first, often as a surprise attack. An empty tile gets a swing that takes the time of an attack. With **Enchantments affect the tile** on, a Blazing, Chilling, Blooming or Shocking weapon rolls its normal chance and sets the tile alight (doors, bookshelves and grass burn away), freezes it, grows grass there or sends lightning from it that arcs between creatures, further through water. Both are switches in Extras → QoL → Backpack & Toolbar.
 - **Shopkeeper:**
   - Banish Enemies: enemies that walk into the shop are thrown out and stay away for 20 turns.
   - Fearless: he isn't scared off by enemies fighting in the shop, or by you carrying the Amulet back up.
@@ -105,7 +105,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
   - Lenient: two warnings, then you're thrown out until you apologize with gold or a potion of healing. Getting caught stealing means paying for the item or leaving.
   - Shop window: buy back up to 24 sold items, 8 per page, with an [i] to examine each.
 - **Quantum Chest:** a chest beside the exit of every beaten boss floor. Every chest opens the same storage of 1, 2 or 3 pages of 25 items. Tap an item for its details and Take Out or Store Item, or turn on Quick Move.
-- **Backpack:** 4 to 8 rows of items in every bag, and an optional extra page for each tab.
+- **Backpack & Toolbar** (one window in Extras → QoL): 4 to 8 rows of items in every bag, and an optional extra page for each tab.
 - **Extra toolbar item slots:** a row of extra quickslots across the full width of the screen, below the toolbar and lined up with the slots above. With the game's Quickslot Swapper setting on, there's no extra row: the swap button appears beside your quickslots and swaps to the extra slots instead.
 
 ### Save management

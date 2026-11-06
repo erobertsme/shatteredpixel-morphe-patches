@@ -19,6 +19,7 @@ public class Armor extends EquipableItem {
 		public static final Class<?>[] curses = null;
 
 		public String name() { throw new RuntimeException("Stub"); }
+		public String name(String itemName) { throw new RuntimeException("Stub"); }
 		public String desc() { throw new RuntimeException("Stub"); }
 	}
 }

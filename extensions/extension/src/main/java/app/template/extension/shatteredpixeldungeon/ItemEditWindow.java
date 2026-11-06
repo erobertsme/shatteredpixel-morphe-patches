@@ -43,7 +43,7 @@ public class ItemEditWindow extends EditorWindow {
 		if (item instanceof Weapon) {
 			Weapon weapon = (Weapon) item;
 			addSection("Weapon");
-			addPickerRow("Enchantment", InventoryEditor.enchantmentName(weapon.enchantment), false);
+			addPickerRow("Enchantment", weapon.enchantment, false);
 			addSection("Augment");
 			addButtonRow(WEAPON_AUGMENTS, indexOf(WEAPON_AUGMENT_VALUES, weapon.augment), index -> {
 				weapon.augment = WEAPON_AUGMENT_VALUES[index];
@@ -55,7 +55,7 @@ public class ItemEditWindow extends EditorWindow {
 		if (item instanceof Armor) {
 			Armor armor = (Armor) item;
 			addSection("Armor");
-			addPickerRow("Glyph", InventoryEditor.enchantmentName(armor.glyph), true);
+			addPickerRow("Glyph", armor.glyph, true);
 			addSection("Augment");
 			addButtonRow(ARMOR_AUGMENTS, indexOf(ARMOR_AUGMENT_VALUES, armor.augment), index -> {
 				armor.augment = ARMOR_AUGMENT_VALUES[index];
@@ -120,10 +120,10 @@ public class ItemEditWindow extends EditorWindow {
 		finish();
 	}
 
-	private void addPickerRow(String label, String current, boolean armor) {
-		float half = (WIDTH - GAP) / 2f;
-		addButton(label + ": " + current, 0, half, () -> replaceWith(new EnchantPickerWindow(item, armor, false, 0)));
-		addButton("Curses", half + GAP, half, () -> replaceWith(new EnchantPickerWindow(item, armor, true, 0)));
+	private void addPickerRow(String label, Object current, boolean armor) {
+		boolean curse = InventoryEditor.isCurse(current, armor);
+		String text = (curse ? "Curse" : label) + ": " + InventoryEditor.shortEnchantmentName(current);
+		addButton(text, 0, WIDTH, () -> replaceWith(new EnchantPickerWindow(item, armor, curse, 0)));
 		pos += ROW_HEIGHT + GAP;
 	}
 

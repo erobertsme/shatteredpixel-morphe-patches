@@ -32,7 +32,7 @@ public class EnchantPickerWindow extends EditorWindow {
 		addPagedList(options.size(), perPage(6, 3), page, index -> {
 			Object option = options.get(index);
 			boolean selected = current != null && current.getClass() == option.getClass();
-			addListRow(InventoryEditor.enchantmentName(option), null, selected, true, () -> apply(option), () -> showInfo(option));
+			addListRow(InventoryEditor.shortEnchantmentName(option), null, selected, true, () -> apply(option), () -> showInfo(option));
 		}, newPage -> replaceWith(new EnchantPickerWindow(item, armor, curses, newPage)));
 
 		addButton("Back", 0, WIDTH, this::back);

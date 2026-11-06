@@ -159,7 +159,7 @@ public final class ForceAttack {
 		if (cell < 0 || cell >= level.length() || cell == hero.pos) return false;
 		if (!hero.fieldOfView[cell]) return false;
 		Char ch = Actor.findChar(cell);
-		if (level.solid[cell] && ch == null) return false;
+		if (level.pit[cell] && ch == null) return false;
 		if (level.adjacent(hero.pos, cell)) return true;
 		KindOfWeapon weapon = weapon(hero);
 		return weapon != null && weapon.canReach(hero, cell);
