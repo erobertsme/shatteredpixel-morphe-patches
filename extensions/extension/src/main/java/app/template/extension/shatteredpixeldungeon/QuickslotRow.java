@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * A second row of six quickslots above the toolbar. Items in the extra row are saved under their own key, so a
+ * Extra quickslots: a full-width row below the toolbar, or more pages for the quickslot swapper. Items in the extra row are saved under their own key, so a
  * save still loads normally if the patch is removed.
  */
 @SuppressWarnings("unused")
@@ -33,7 +33,14 @@ public final class QuickslotRow {
 	private static final String KEY = "qol_extra_quickslots";
 	private static final String BUNDLE_SLOT = "morphe_quickslot";
 	private static final int GAME_SLOTS = 6;
+	private static final int SWAPPER_SLOTS = GAME_SLOTS * 2;
+	private static final int TOTAL_SLOTS = 30;
 	private static final int ROW_HEIGHT = 24;
+	private static final int TOOL_HEIGHT = 26;
+	private static final int PITCH = 18;
+	private static final int[] FIRST_FRAME = { 86, 20, 2, 1 };
+	private static final int[] MIDDLE_FRAME = { 88, 18, 0, 1 };
+	private static final int[] LAST_FRAME = { 106, 19, 0, 2 };
 
 	private static final Map<Object, Integer> storing = Collections.synchronizedMap(new IdentityHashMap<>());
 	private static final Map<Object, Integer> restoring = Collections.synchronizedMap(new IdentityHashMap<>());
@@ -55,7 +62,7 @@ public final class QuickslotRow {
 	 * Called at the start of AndroidLauncher.onCreate, before any quickslots exist.
 	 */
 	public static void onLaunch() {
-		if (QolSettings.isAvailable()) QuickSlot.SIZE = GAME_SLOTS * 2;
+		if (QolSettings.isAvailable()) QuickSlot.SIZE = TOTAL_SLOTS;
 	}
 
 	/**
@@ -126,7 +133,7 @@ public final class QuickslotRow {
 	 */
 	public static void afterToolbarCreated(Object toolbar) {
 		try {
-			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2 || SPDSettings.interfaceSize() != 0) return;
+			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS || SPDSettings.interfaceSize() != 0) return;
 			if (SPDSettings.quickSwapper()) return;
 			Component bar = (Component) toolbar;
 			tallToolbars.add(toolbar);
@@ -137,13 +144,12 @@ public final class QuickslotRow {
 	}
 
 	/**
-	 * Called at the end of Toolbar.layout. With the quickslot swapper on, the swap button pages through all twelve
-	 * slots in place. Otherwise the toolbar moves down a row and the extra quickslots go above the ones the game
-	 * shows.
+	 * Called at the end of Toolbar.layout. With the quickslot swapper on, the swap button pages through twelve
+	 * slots in place. Otherwise a full-width row of extra quickslots goes below the toolbar.
 	 */
 	public static void afterToolbarLayout(Object toolbar) {
 		try {
-			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2) return;
+			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) return;
 			Component bar = (Component) toolbar;
 			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
 			if (SPDSettings.quickSwapper() && SPDSettings.interfaceSize() == 0) {
@@ -156,28 +162,55 @@ public final class QuickslotRow {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Fills a row below the toolbar, across the whole width of the screen, with extra quickslots. The slots sit on
+	 * the same columns as the quickslots above, so the two rows line up.
+	 */
 	private static void addExtraRow(Component bar, Object[] quick) throws ReflectiveOperationException {
-		float offscreen = PixelScene.uiCamera.height - 1;
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(bar))) {
-			if (!(member instanceof Component)) continue;
-			Component component = (Component) member;
-			if (component.top() >= offscreen) continue;
-			component.setPos(component.left(), component.top() + ROW_HEIGHT);
+		Component anchor = null;
+		boolean enabled = true;
+		for (int i = 0; i < GAME_SLOTS && i < quick.length; i++) {
+			Component slot = (Component) quick[i];
+			if (!slot.visible) continue;
+			anchor = slot;
+			enabled = slot.active;
+			break;
 		}
-		for (int i = 0; i < GAME_SLOTS && i + GAME_SLOTS < quick.length; i++) {
-			Component shown = (Component) quick[i];
-			Component extra = (Component) quick[i + GAME_SLOTS];
-			if (!shown.visible) {
-				hide(extra);
-				continue;
+		for (int i = GAME_SLOTS; i < quick.length; i++) hide((Component) quick[i]);
+		if (anchor == null) return;
+
+		float cell = anchor.left() + (anchor.width() >= FIRST_FRAME[1] ? FIRST_FRAME[2] : 0);
+		float minimum = bar.left() + FIRST_FRAME[2];
+		float maximum = bar.right() - LAST_FRAME[1];
+		while (cell - PITCH >= minimum) cell -= PITCH;
+		List<Float> cells = new ArrayList<>();
+		for (float c = cell; c <= maximum; c += PITCH) cells.add(c);
+
+		int count = Math.min(cells.size(), quick.length - GAME_SLOTS);
+		float y = anchor.top() - 2 + TOOL_HEIGHT;
+		for (int k = 0; k < count; k++) {
+			Component slot = (Component) quick[GAME_SLOTS + k];
+			int[] frame = count == 1 ? MIDDLE_FRAME : k == 0 ? FIRST_FRAME : k == count - 1 ? LAST_FRAME : MIDDLE_FRAME;
+			call(slot, "frame", new Class<?>[] { int.class, int.class, int.class, int.class }, frame[0], 0, frame[1], ROW_HEIGHT);
+			call(slot, "border", new Class<?>[] { int.class, int.class }, frame[2], frame[3]);
+			float x = cells.get(k) - (frame == FIRST_FRAME ? FIRST_FRAME[2] : 0);
+			slot.setPos(x, y);
+			slot.visible = true;
+			enable(slot, enabled);
+		}
+	}
+
+	private static void call(Object target, String name, Class<?>[] types, Object... args) throws ReflectiveOperationException {
+		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
+			try {
+				Method method = type.getDeclaredMethod(name, types);
+				method.setAccessible(true);
+				method.invoke(target, args);
+				return;
+			} catch (NoSuchMethodException ignored) {
 			}
-			copyLook(shown, extra, shown.left(), shown.top() - ROW_HEIGHT);
-			extra.visible = true;
-			enable(extra, shown.active);
 		}
+		throw new NoSuchMethodException(name);
 	}
 
 	private static int swapPage;
@@ -220,7 +253,8 @@ public final class QuickslotRow {
 		swappedField.setAccessible(true);
 		boolean swapped = swappedField.getBoolean(null);
 		int size = spots.size();
-		int pages = Math.max(1, quick.length / size);
+		int usable = Math.min(quick.length, SWAPPER_SLOTS);
+		int pages = Math.max(1, usable / size);
 		if (lastSwapped == null) {
 			swapPage = 0;
 		} else if (swapped != lastSwapped) {
