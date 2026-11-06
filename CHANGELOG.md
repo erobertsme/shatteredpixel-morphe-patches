@@ -1,3 +1,9 @@
+## [1.0.0-dev.63](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.62...v1.0.0-dev.63) (2026-11-06)
+
+### ✨ New Features
+
+* Extra toolbar item slots and the quickslot swapper switch the toolbar layout straight away ([ab970a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ab970a578660c2d88164bc57b9fb6c89a4915180))
+
 ## [1.0.0-dev.62](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.61...v1.0.0-dev.62) (2026-11-06)
 
 ### ✨ New Features
