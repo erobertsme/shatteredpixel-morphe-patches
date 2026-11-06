@@ -1,3 +1,9 @@
+## [1.0.0-dev.67](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.66...v1.0.0-dev.67) (2026-11-06)
+
+### ✨ New Features
+
+* Attack Tile button, tile enchantments and a switch for the interrupted path ([6089086](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6089086d3e61c6710582f4a3f99e9f5a036b48f4))
+
 ## [1.0.0-dev.66](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.65...v1.0.0-dev.66) (2026-11-06)
 
 ### ✨ New Features

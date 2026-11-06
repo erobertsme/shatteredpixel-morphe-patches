@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-06T08:49:01",
-  "description": "## [1.0.0-dev.66](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.65...v1.0.0-dev.66) (2026-11-06)\n\n### ✨ New Features\n\n* Show the rest of an interrupted walk while the resume button is on screen ([ab93694](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ab93694e5322555c59e67ae8d97facc4a35bc5b2))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.66/patches-1.0.0-dev.66.mpp",
+  "created_at": "2026-11-06T09:14:43",
+  "description": "## [1.0.0-dev.67](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.66...v1.0.0-dev.67) (2026-11-06)\n\n### ✨ New Features\n\n* Attack Tile button, tile enchantments and a switch for the interrupted path ([6089086](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6089086d3e61c6710582f4a3f99e9f5a036b48f4))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.67/patches-1.0.0-dev.67.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.66"
+  "version": "1.0.0-dev.67"
 }
