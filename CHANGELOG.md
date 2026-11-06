@@ -1,3 +1,9 @@
+## [1.0.0-dev.57](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.56...v1.0.0-dev.57) (2026-11-06)
+
+### ✨ New Features
+
+* Change subclass and armor ability in the talent editor, clearer inventory editor layout, and updated patch descriptions ([661b9b0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/661b9b016bdc6f33e5b7a22ee16a02cb4c3e7493))
+
 ## [1.0.0-dev.56](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.55...v1.0.0-dev.56) (2026-11-06)
 
 ### ✨ New Features
