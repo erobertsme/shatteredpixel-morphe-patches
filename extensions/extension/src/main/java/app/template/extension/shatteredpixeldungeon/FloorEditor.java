@@ -672,18 +672,11 @@ public final class FloorEditor {
 				}
 				y += BUTTON_HEIGHT + GAP;
 			}
-			height = (int) (y - GAP);
-
-			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit Tile", 7) {
-				@Override
-				public void onClick() {
-					window.hide();
-					TileWindow.open(cell, () -> reopenInfo(target));
-				}
-			};
-			edit.setRect(0, height + GAP, width, BUTTON_HEIGHT);
-			window.add(edit);
-			window.resize(width, height + GAP + BUTTON_HEIGHT);
+			if (y > height + GAP) window.resize(width, (int) (y - GAP));
+			WindowHeader.addEdit(window, () -> {
+				window.hide();
+				TileWindow.open(cell, () -> reopenInfo(target));
+			});
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the edit tile button", e);
 		}

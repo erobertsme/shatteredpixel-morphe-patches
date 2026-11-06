@@ -98,6 +98,15 @@ abstract class EditorWindow extends Window {
 		pos = block.bottom() + 2 * GAP;
 	}
 
+	private Image nextStepperIcon;
+
+	/**
+	 * Shows [icon] to the left of the label of the next stepper.
+	 */
+	protected void stepperIcon(Image icon) {
+		nextStepperIcon = icon;
+	}
+
 	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter) {
 		addStepper(label, display, current, step, min, max, setter, true);
 	}
@@ -110,8 +119,18 @@ abstract class EditorWindow extends Window {
 	 * A stepper row. When [onReset] is given, a small reset button at the end of the row restores that one value.
 	 */
 	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled, Runnable onReset) {
+		float textLeft = 0;
+		Image icon = nextStepperIcon;
+		nextStepperIcon = null;
+		if (icon != null) {
+			icon.x = 0;
+			icon.y = pos + (ROW_HEIGHT - icon.height()) / 2f;
+			PixelScene.align(icon);
+			add(icon);
+			textLeft = icon.width() + GAP;
+		}
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
-		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
+		text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
 		if (!enabled) text.alpha(0.3f);
 		add(text);
 

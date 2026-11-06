@@ -177,12 +177,12 @@ public class EnemyWindow extends EditorWindow {
 		RedButton name = new RedButton("") {
 			@Override
 			public void onClick() {
-				CharacterWindow.showBuffInfo(buff);
+				CharacterWindow.showBuffInfo(buff, EnemyWindow.this::refresh);
 			}
 
 			@Override
 			public boolean onLongClick() {
-				CharacterWindow.showBuffInfo(buff);
+				CharacterWindow.showBuffInfo(buff, EnemyWindow.this::refresh);
 				return true;
 			}
 		};
@@ -221,7 +221,7 @@ public class EnemyWindow extends EditorWindow {
 		IconButton info = new IconButton(Icons.get(Icons.INFO)) {
 			@Override
 			public void onClick() {
-				CharacterWindow.showBuffInfo(buff);
+				CharacterWindow.showBuffInfo(buff, EnemyWindow.this::refresh);
 			}
 		};
 		info.setRect(x, pos, small, ROW_HEIGHT);

@@ -12,6 +12,7 @@ public class Buff {
 	public String desc() { throw new RuntimeException("Stub"); }
 	public String iconTextDisplay() { throw new RuntimeException("Stub"); }
 	public void detach() { throw new RuntimeException("Stub"); }
+	public Char target;
 	public static <T extends Buff> T affect(Char target, Class<T> buffClass) { throw new RuntimeException("Stub"); }
 	public static <T extends FlavourBuff> T affect(Char target, Class<T> buffClass, float duration) { throw new RuntimeException("Stub"); }
 }

@@ -1,5 +1,6 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -39,7 +40,9 @@ public class InventoryWindow extends EditorWindow {
 			return;
 		}
 
+		stepperIcon(Icons.get(Icons.COIN_SML));
 		addStepper("Gold", String.valueOf(Dungeon.gold), Dungeon.gold, 10, 0, 999999, value -> Dungeon.gold = Math.max(0, value));
+		stepperIcon(Icons.get(Icons.ENERGY_SML));
 		addStepper("Energy", String.valueOf(Dungeon.energy), Dungeon.energy, 1, 0, 99999, value -> Dungeon.energy = Math.max(0, value));
 		pos += GAP;
 

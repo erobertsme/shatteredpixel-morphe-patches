@@ -464,12 +464,12 @@ public class CharacterWindow extends Window {
 		RedButton name = new RedButton("") {
 			@Override
 			public void onClick() {
-				showBuffInfo(buff);
+				showBuffInfo(buff, CharacterWindow.this::refresh);
 			}
 
 			@Override
 			public boolean onLongClick() {
-				showBuffInfo(buff);
+				showBuffInfo(buff, CharacterWindow.this::refresh);
 				return true;
 			}
 		};
@@ -523,7 +523,7 @@ public class CharacterWindow extends Window {
 		IconButton info = new IconButton(Icons.get(Icons.INFO)) {
 			@Override
 			public void onClick() {
-				showBuffInfo(buff);
+				showBuffInfo(buff, CharacterWindow.this::refresh);
 			}
 		};
 		info.setRect(x, pos, smallWidth, ROW_HEIGHT);
@@ -574,6 +574,11 @@ public class CharacterWindow extends Window {
 	}
 
 	static void showBuffInfo(Buff buff) {
+		showBuffInfo(buff, null);
+	}
+
+	static void showBuffInfo(Buff buff, Runnable onRemoved) {
+		BuffInfoActions.setOnRemoved(onRemoved);
 		try {
 			Game.scene().addToFront(new WndInfoBuff(buff));
 		} catch (Throwable ignored) {

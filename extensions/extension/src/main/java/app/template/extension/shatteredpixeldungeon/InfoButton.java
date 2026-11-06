@@ -14,13 +14,17 @@ final class InfoButton {
 	private InfoButton() {
 	}
 
-	static void add(Window window, float windowWidth, float y, String text) {
-		IconButton button = new IconButton(Icons.get(Icons.INFO)) {
+	static IconButton create(String text) {
+		return new IconButton(Icons.get(Icons.INFO)) {
 			@Override
 			public void onClick() {
 				InfoWindow.show(text);
 			}
 		};
+	}
+
+	static void add(Window window, float windowWidth, float y, String text) {
+		IconButton button = create(text);
 		button.setRect(windowWidth - SIZE, y, SIZE, SIZE);
 		window.add(button);
 	}

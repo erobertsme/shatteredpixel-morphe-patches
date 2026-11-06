@@ -161,14 +161,10 @@ public final class EnemyEditor {
 		infoMob = null;
 		if (!EditorSwitches.enemy() || !(mob instanceof Mob)) return;
 		try {
-			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit", 7) {
-				@Override
-				public void onClick() {
-					window.hide();
-					EnemyWindow.open((Mob) mob, EnemyWindow.TAB_STATS, 0);
-				}
-			};
-			BottomRow.add(window, edit);
+			WindowHeader.addEdit(window, () -> {
+				window.hide();
+				EnemyWindow.open((Mob) mob, EnemyWindow.TAB_STATS, 0);
+			});
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the edit button", e);
 		}

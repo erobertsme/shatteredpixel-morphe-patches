@@ -131,10 +131,10 @@ val qolEnhancementsPatch = bytecodePatch(
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $FORCE_ATTACK_CLASS->onSceneCreated(Ljava/lang/Object;)V",
 		)
-		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p1 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE$ITEM_TYPE)V")
-		WndJournalItemConstructorFingerprint.callBeforeEveryReturn(
-			"invoke-static/range { p0 .. p3 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE${ITEM_TYPE}Ljava/lang/String;Ljava/lang/String;)V",
-		)
+		WndInfoMobConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $BESTIARY_CLASS->beforeMobInfo($ITEM_TYPE)V")
+		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE)V")
+		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
+		WndJournalItemConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
 		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(

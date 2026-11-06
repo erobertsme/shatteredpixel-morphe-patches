@@ -651,6 +651,13 @@ object WndJournalItemConstructorFingerprint : Fingerprint(
 	parameters = listOf("Lcom/watabou/noosa/Image;", "Ljava/lang/String;", "Ljava/lang/String;"),
 )
 
+object WndInfoBuffConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoBuff;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Buff;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

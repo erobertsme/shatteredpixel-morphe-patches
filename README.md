@@ -56,7 +56,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 Every patch that adds settings puts them in **Extras**, on the title screen and in the in-game menu. Extras has General, QoL, Unlocks and Editors tabs, and each tab only appears when its patch is included. The [i] buttons throughout explain each window, split into pages with icons where it helps.
 
 ### Character editor
-- **Character** button in the in-game menu, shown with your hero's portrait, and an **Edit** button on each tab of the hero info window.
+- **Character** button in the in-game menu, shown with your hero's portrait, and an **Edit** button on each tab of the hero info window. A status's info window, opened from the status icons or the hero info window, has a **Remove** button in its top right corner.
 - **Stats:** health, max health, level, experience, strength and shield.
 - **Talents:** add or remove points and bonus points per tier, swap any talent like a Scroll of Metamorphosis (with an [i] for each choice), and change your **subclass** (bottom of tier 3) or **armor ability** (bottom of tier 4).
 - **Mods:** add or subtract modifiers to accuracy, evasion, damage, armor, speed and regeneration.
@@ -64,14 +64,14 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - Everything is saved with the run.
 
 ### Enemy editor
-- **Edit** button when you examine an enemy, NPC or other creature.
+- Small **Edit** button in the top right corner when you examine an enemy, NPC or other creature. Its status info windows have a **Remove** button.
 - Edit its health and max health, switch it between enemy, neutral and ally, and set what it's doing (sleeping, wandering, hunting, fleeing or passive).
 - **Move to Tile** sends it walking to a tile you tap; **Defeat** kills it.
 - Edit, add or remove its status effects.
 - With the Teleport patch, **Teleport** moves it straight to a tile you tap.
 
 ### Floor editor
-- **Floor** button in the in-game menu, and an **Edit Tile** button when you examine a tile, trap or item on the floor.
+- **Floor** button in the in-game menu, and a small **Edit** button in the top right corner when you examine a tile, trap or item on the floor.
 - **Tile:** add or remove gases and other area effects; add, change, remove, hide, reveal, disarm and trigger traps; plant seeds or remove plants; change the terrain, open, close, lock, unlock or hide doors; spawn any creature, at a chosen level for creatures that scale; place any item, choosing whether a trap there stays armed; delete the tile to an empty pit.
 - **Quick buttons** on examine windows: doors (Open, Close, Lock, Unlock), traps (Activate, Deactivate, Hidden, Visible), grass (Unfurrowed, Furrowed, Trampled), exits (Lock, Unlock), chasms (Fill In) and barricades (Break). Hidden and Visible only show for traps that can be hidden.
 - **Items on the floor:** Move Item or Move Pile to another tile, with the destination highlighted and a choice about any trap there.
@@ -96,7 +96,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 ### QoL enhancements
 - **Confirm actions:** a tap that would walk somewhere, attack, talk, use stairs or step into danger first shows what will happen, with Go and Cancel. Each action can be switched on or off, and moving and attacking have their own minimum distances. Danger accounts for levitation and immunities.
 - **Interrupted path:** when a walk is interrupted and the game shows its resume arrow, the rest of the route and its destination are drawn on the map, the same way Confirm actions shows a path. Can be switched off in Extras → QoL.
-- **Enhanced Bestiary:** examining a creature, or opening one in the bestiary, adds a **Stats** button (health, accuracy, evasion, damage and armor ranges, attack and move speed, sight, experience, drops, and alignment and state for live creatures) and an **[i]** button listing its special abilities, traits, immunities and resistances. Can be switched off in Extras → QoL.
+- **Enhanced Bestiary:** examining a creature, or opening one in the bestiary, adds a **Stats** button at the bottom (health, accuracy, evasion, damage and armor ranges, attack and move speed, sight, experience, drops, and alignment and state for live creatures) and an **[i]** button in the top right corner listing its special abilities, traits, immunities and resistances. Can be switched off in Extras → QoL.
 - **Attack Tile button:** a button above the backpack button that lets you attack any tile in reach of your weapon except a chasm, walls and doors included. A creature there is attacked even if it is hiding, so you can hit a mimic first, often as a surprise attack. An empty tile gets a swing that takes the time of an attack. Tap the button again to cancel. With **Enchantments affect the tile** on, a Blazing, Chilling, Blooming or Shocking weapon rolls its normal chance and sets the tile alight (doors, bookshelves and grass burn away), freezes it, grows grass there or sends lightning from it that arcs between creatures, further through water. Both are switches in Extras → QoL → Toolbar.
 - **Shopkeeper:**
   - Banish Enemies: enemies that walk into the shop are thrown out and stay away for 20 turns.

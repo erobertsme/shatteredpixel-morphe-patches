@@ -19,6 +19,7 @@ public enum Icons {
 	CLOSE,
 	CHECKED,
 	COIN_SML,
+	ENERGY_SML,
 	STAIRS,
 	STAIRS_LARGE,
 	SCROLL_COLOR,

@@ -34,7 +34,6 @@ public final class EnhancedBestiary {
 
 	private static final String TAG = "EnhancedBestiary";
 	private static final String MOB_PREFIX = "com.shatteredpixel.shatteredpixeldungeon.";
-	private static final int GAP = 2;
 	private static final int SAMPLES = 400;
 	private static final Map<String, String> NOTES = new HashMap<>();
 	private static Map<String, Class<?>> bestiaryTitles;
@@ -157,18 +156,39 @@ public final class EnhancedBestiary {
 		return QolSettings.enhancedBestiary();
 	}
 
+	private static Object pendingMob;
+	private static String pendingTitle;
+
+	/**
+	 * Called at the start of the WndInfoMob constructor, which reuses its parameter register before returning.
+	 */
+	public static void beforeMobInfo(Object mob) {
+		pendingMob = mob;
+	}
+
 	/**
 	 * Called at the end of the WndInfoMob constructor.
 	 */
-	public static void afterMobInfo(Object window, Object mob) {
+	public static void afterMobInfo(Object window) {
+		Object mob = pendingMob;
+		pendingMob = null;
 		if (!isOn() || !(window instanceof Window) || !(mob instanceof Mob)) return;
 		decorate((Window) window, (Mob) mob);
 	}
 
 	/**
+	 * Called at the start of the WndJournalItem constructor, which reuses its parameter registers before returning.
+	 */
+	public static void beforeJournalItem(String title) {
+		pendingTitle = title;
+	}
+
+	/**
 	 * Called at the end of the WndJournalItem constructor. Bestiary entries are matched to their creature by title.
 	 */
-	public static void afterJournalItem(Object window, Object icon, String title, String message) {
+	public static void afterJournalItem(Object window) {
+		String title = pendingTitle;
+		pendingTitle = null;
 		if (!isOn() || !(window instanceof Window) || title == null) return;
 		Class<?> type = bestiaryClass(title);
 		if (type == null) return;
@@ -207,44 +227,13 @@ public final class EnhancedBestiary {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void decorate(Window window, Mob mob) {
 		try {
-			Field membersField = Group.class.getDeclaredField("members");
-			membersField.setAccessible(true);
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
-
-			Component title = null;
-			for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
-				if (!(member instanceof Component) || member instanceof com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock) continue;
-				Component component = (Component) member;
-				if (component.top() > 1 || component.width() < width / 2f) continue;
-				title = component;
-				break;
-			}
-			float shift = 0;
-			if (title != null) {
-				float oldBottom = title.bottom();
-				title.setRect(title.left(), title.top(), width - InfoButton.SIZE - GAP, 0);
-				shift = Math.max(0, title.bottom() - oldBottom);
-				if (shift > 0) {
-					for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(window))) {
-						if (member == title || !(member instanceof Component)) continue;
-						Component component = (Component) member;
-						if (component.top() < oldBottom - 1) continue;
-						component.setPos(component.left(), component.top() + shift);
-					}
-				}
-			}
-
-			InfoButton.add(window, width, 0, abilities(mob));
-
-			if (shift > 0) window.resize(width, (int) (height + shift));
+			WindowHeader.add(window, InfoButton.create(abilities(mob)), InfoButton.SIZE, InfoButton.SIZE, WindowHeader.PRIORITY_INFO);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the abilities button", e);
+		}
+		try {
 			RedButton stats = new RedButton("Stats", 7) {
 				@Override
 				public void onClick() {
@@ -253,7 +242,7 @@ public final class EnhancedBestiary {
 			};
 			BottomRow.add(window, stats);
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not add the bestiary buttons", e);
+			Log.e(TAG, "Could not add the stats button", e);
 		}
 	}
 
