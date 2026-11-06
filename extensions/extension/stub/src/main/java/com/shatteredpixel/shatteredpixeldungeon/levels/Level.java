@@ -18,6 +18,9 @@ public class Level {
 	public boolean[] mapped;
 	public boolean[] visited;
 	public boolean[] heroFOV;
+	public boolean[] solid;
+	public int distance(int a, int b) { throw new RuntimeException("Stub"); }
+	public boolean adjacent(int a, int b) { throw new RuntimeException("Stub"); }
 	public boolean[] discoverable;
 	public boolean[] secret;
 	public java.util.HashSet<com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob> mobs;

@@ -44,7 +44,7 @@ public final class ResumePath {
 		try {
 			Hero hero = Dungeon.hero;
 			Scene scene = Game.scene();
-			HeroAction action = hero == null || !hero.isAlive() || !hero.ready || !(scene instanceof GameScene) ? null : hero.lastAction;
+			HeroAction action = !QolSettings.resumePath() || hero == null || !hero.isAlive() || !hero.ready || !(scene instanceof GameScene) ? null : hero.lastAction;
 			if (action == null) {
 				clear();
 				return;

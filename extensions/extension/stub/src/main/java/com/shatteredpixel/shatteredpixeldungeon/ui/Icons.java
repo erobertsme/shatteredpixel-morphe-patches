@@ -10,6 +10,7 @@ public enum Icons {
 	TALENT,
 	STATS,
 	SHUFFLE,
+	TARGET,
 	INFO,
 	BACKPACK,
 	RANKINGS,

@@ -18,5 +18,6 @@ public class Weapon extends KindOfWeapon {
 
 		public String name() { throw new RuntimeException("Stub"); }
 		public String desc() { throw new RuntimeException("Stub"); }
+		public static float genericProcChanceMultiplier(com.shatteredpixel.shatteredpixeldungeon.actors.Char attacker) { throw new RuntimeException("Stub"); }
 	}
 }

@@ -40,7 +40,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Floor editor](#floor-editor) | Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging. |  |
 | [Hunger editor](#hunger-editor) | Change how long each hunger stage lasts and how starving hurts, or switch hunger off. |  |
 | [Inventory editor](#inventory-editor) | Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs. |  |
-| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags and extra toolbar item slots. |  |
+| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots and an Attack Tile button. |  |
 | [Save management](#save-management) | Export and import all saves as a zip, and keep up to 10 saves of each game. Optional public, uncompressed save files. | • Public save folder<br>• Save folder<br>• Uncompressed saves<br>• Save file access |
 | [Supporter options](#supporter-options) | NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!<br><br>Keep your supporter rewards and hide the Support button. Google Play version only. |  |
 | [Teleport](#teleport) | Teleport to any floor, and teleport your hero or other creatures to any tile. |  |
@@ -95,7 +95,8 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 
 ### QoL enhancements
 - **Confirm actions:** a tap that would walk somewhere, attack, talk, use stairs or step into danger first shows what will happen, with Go and Cancel. Each action can be switched on or off, and moving and attacking have their own minimum distances. Danger accounts for levitation and immunities.
-- **Interrupted path:** when a walk is interrupted and the game shows its resume arrow, the rest of the route and its destination are drawn on the map, the same way Confirm actions shows a path.
+- **Interrupted path:** when a walk is interrupted and the game shows its resume arrow, the rest of the route and its destination are drawn on the map, the same way Confirm actions shows a path. Can be switched off in Extras → QoL.
+- **Attack Tile button:** a button above the backpack button that lets you attack any tile in reach of your weapon. A creature there is attacked even if it is hiding, so you can hit a mimic first, often as a surprise attack. An empty tile gets a swing that takes the time of an attack. With **Enchantments affect the tile** on, a Blazing, Chilling or Blooming weapon rolls its normal chance and sets the tile alight, freezes it or grows grass there. Both are switches in Extras → QoL.
 - **Shopkeeper:**
   - Banish Enemies: enemies that walk into the shop are thrown out and stay away for 20 turns.
   - Fearless: he isn't scared off by enemies fighting in the shop, or by you carrying the Amulet back up.

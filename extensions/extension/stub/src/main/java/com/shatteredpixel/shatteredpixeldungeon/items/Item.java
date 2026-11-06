@@ -25,6 +25,7 @@ public class Item {
 	public boolean isIdentified() { throw new RuntimeException("Stub"); }
 	public boolean isUpgradable() { throw new RuntimeException("Stub"); }
 	public int level() { throw new RuntimeException("Stub"); }
+	public int buffedLvl() { throw new RuntimeException("Stub"); }
 	public Item level(int value) { throw new RuntimeException("Stub"); }
 	public int quantity() { throw new RuntimeException("Stub"); }
 	public Item quantity(int value) { throw new RuntimeException("Stub"); }

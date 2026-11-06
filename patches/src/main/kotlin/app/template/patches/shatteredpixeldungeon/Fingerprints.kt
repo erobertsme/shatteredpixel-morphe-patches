@@ -616,6 +616,13 @@ object ResumeIndicatorUpdateFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object GameSceneLayoutTagsFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "layoutTags",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

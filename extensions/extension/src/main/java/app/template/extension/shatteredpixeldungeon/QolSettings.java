@@ -55,5 +55,42 @@ final class QolSettings {
 		return PathPreview.isAvailable();
 	}
 
+	private static final String KEY_RESUME_PATH_OFF = "qol_resume_path_off";
+	private static final String KEY_FORCE_ATTACK_OFF = "qol_force_attack_off";
+	private static final String KEY_FORCE_ATTACK_ENCHANTS_OFF = "qol_force_attack_enchants_off";
+
+	/**
+	 * Whether the rest of an interrupted walk is drawn while the game's resume button shows.
+	 */
+	static boolean resumePath() {
+		return isAvailable() && !CloverlordSettings.get(KEY_RESUME_PATH_OFF);
+	}
+
+	static void resumePath(boolean on) {
+		CloverlordSettings.set(KEY_RESUME_PATH_OFF, !on);
+	}
+
+	/**
+	 * Whether the Attack Tile button shows above the backpack button.
+	 */
+	static boolean forceAttack() {
+		return isAvailable() && !CloverlordSettings.get(KEY_FORCE_ATTACK_OFF);
+	}
+
+	static void forceAttack(boolean on) {
+		CloverlordSettings.set(KEY_FORCE_ATTACK_OFF, !on);
+	}
+
+	/**
+	 * Whether attacking an empty tile can set off the weapon's enchantment on that tile.
+	 */
+	static boolean forceAttackEnchants() {
+		return isAvailable() && !CloverlordSettings.get(KEY_FORCE_ATTACK_ENCHANTS_OFF);
+	}
+
+	static void forceAttackEnchants(boolean on) {
+		CloverlordSettings.set(KEY_FORCE_ATTACK_ENCHANTS_OFF, !on);
+	}
+
 
 }

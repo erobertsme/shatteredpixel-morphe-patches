@@ -11,12 +11,13 @@ private const val SHOPKEEPER_CLASS = "$EXTENSION_PACKAGE/ShopkeeperRules;"
 private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
 private const val QUICKSLOT_CLASS = "$EXTENSION_PACKAGE/QuickslotRow;"
 private const val RESUME_PATH_CLASS = "$EXTENSION_PACKAGE/ResumePath;"
+private const val FORCE_ATTACK_CLASS = "$EXTENSION_PACKAGE/ForceAttack;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags and extra toolbar item slots.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots and an Attack Tile button.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -124,6 +125,10 @@ val qolEnhancementsPatch = bytecodePatch(
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $CHEST_CLASS->onSceneCreated(Ljava/lang/Object;)V",
 		)
+		GameSceneCreateFingerprint.callBeforeEveryReturn(
+			"invoke-static/range { p0 .. p0 }, $FORCE_ATTACK_CLASS->onSceneCreated(Ljava/lang/Object;)V",
+		)
+		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(
 			0,

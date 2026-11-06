@@ -10,6 +10,8 @@ public class Char {
 	public Alignment alignment;
 	public int pos;
 	public boolean[] fieldOfView;
+	public com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite sprite;
+	public int invisible;
 	public int HP;
 	public int HT;
 	public boolean flying;

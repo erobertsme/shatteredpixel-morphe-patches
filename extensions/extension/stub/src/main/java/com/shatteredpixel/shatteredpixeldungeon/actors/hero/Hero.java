@@ -20,14 +20,18 @@ public class Hero extends Char {
 
 	public boolean ready;
 	public HeroAction lastAction;
+	public HeroAction curAction;
+	public float attackDelay() { throw new RuntimeException("Stub"); }
+	public void busy() { throw new RuntimeException("Stub"); }
+	public void spendAndNext(float time) { throw new RuntimeException("Stub"); }
+	public void next() { throw new RuntimeException("Stub"); }
+	public boolean canAttack(com.shatteredpixel.shatteredpixeldungeon.actors.Char enemy) { throw new RuntimeException("Stub"); }
 
 	public boolean handle(int cell) { throw new RuntimeException("Stub"); }
-	public void next() { throw new RuntimeException("Stub"); }
 	public void updateHT(boolean boostHP) { throw new RuntimeException("Stub"); }
 	public int STR() { throw new RuntimeException("Stub"); }
 	public int maxExp() { throw new RuntimeException("Stub"); }
 	public static int maxExp(int lvl) { throw new RuntimeException("Stub"); }
-	public float attackDelay() { throw new RuntimeException("Stub"); }
 	public String className() { throw new RuntimeException("Stub"); }
 	public void interrupt() { throw new RuntimeException("Stub"); }
 	public int talentPointsAvailable(int tier) { throw new RuntimeException("Stub"); }

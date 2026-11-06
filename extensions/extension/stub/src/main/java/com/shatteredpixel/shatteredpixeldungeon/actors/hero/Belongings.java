@@ -21,6 +21,7 @@ public class Belongings implements Iterable<com.shatteredpixel.shatteredpixeldun
 	public Backpack backpack;
 
 	public KindOfWeapon weapon() { throw new RuntimeException("Stub"); }
+	public KindOfWeapon attackingWeapon() { throw new RuntimeException("Stub"); }
 	public Armor armor() { throw new RuntimeException("Stub"); }
 	public void identify() { throw new RuntimeException("Stub"); }
 
