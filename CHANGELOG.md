@@ -1,3 +1,9 @@
+## [1.0.0-dev.66](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.65...v1.0.0-dev.66) (2026-11-06)
+
+### ✨ New Features
+
+* Show the rest of an interrupted walk while the resume button is on screen ([ab93694](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ab93694e5322555c59e67ae8d97facc4a35bc5b2))
+
 ## [1.0.0-dev.65](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.64...v1.0.0-dev.65) (2026-11-06)
 
 ### ✨ New Features
