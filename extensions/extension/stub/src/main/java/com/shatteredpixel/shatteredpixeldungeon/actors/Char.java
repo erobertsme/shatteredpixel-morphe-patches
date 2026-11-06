@@ -7,6 +7,18 @@ import java.util.LinkedHashSet;
 public class Char {
 	public enum Alignment { ENEMY, NEUTRAL, ALLY }
 
+	public enum Property {
+		BOSS, MINIBOSS, BOSS_MINION, UNDEAD, DEMONIC, INORGANIC, FIERY, ICY, ACIDIC, ELECTRIC, LARGE, IMMOVABLE, OBJECT, STATIC;
+
+		public java.util.HashSet<Class> resistances() { throw new RuntimeException("Stub"); }
+		public java.util.HashSet<Class> immunities() { throw new RuntimeException("Stub"); }
+	}
+
+	public int viewDistance;
+	public java.util.HashSet<Property> properties() { throw new RuntimeException("Stub"); }
+	public int damageRoll() { throw new RuntimeException("Stub"); }
+	public int drRoll() { throw new RuntimeException("Stub"); }
+
 	public Alignment alignment;
 	public int pos;
 	public boolean[] fieldOfView;

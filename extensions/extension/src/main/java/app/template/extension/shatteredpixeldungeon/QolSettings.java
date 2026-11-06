@@ -88,6 +88,19 @@ final class QolSettings {
 		return isAvailable() && !CloverlordSettings.get(KEY_FORCE_ATTACK_ENCHANTS_OFF);
 	}
 
+	private static final String KEY_BESTIARY_OFF = "qol_enhanced_bestiary_off";
+
+	/**
+	 * Whether creature info windows get the Enhanced Bestiary's Stats and [i] buttons.
+	 */
+	static boolean enhancedBestiary() {
+		return isAvailable() && !CloverlordSettings.get(KEY_BESTIARY_OFF);
+	}
+
+	static void enhancedBestiary(boolean on) {
+		CloverlordSettings.set(KEY_BESTIARY_OFF, !on);
+	}
+
 	static void forceAttackEnchants(boolean on) {
 		CloverlordSettings.set(KEY_FORCE_ATTACK_ENCHANTS_OFF, !on);
 	}

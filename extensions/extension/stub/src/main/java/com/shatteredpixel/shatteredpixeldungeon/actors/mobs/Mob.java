@@ -14,6 +14,8 @@ public class Mob extends Char {
 	public AiState state;
 	public int EXP;
 	public int defenseSkill;
+	public int maxLvl;
+	public float attackDelay() { throw new RuntimeException("Stub"); }
 
 	public com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite sprite() { throw new RuntimeException("Stub"); }
 	public boolean heroShouldInteract() { throw new RuntimeException("Stub"); }

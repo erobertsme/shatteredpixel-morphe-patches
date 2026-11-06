@@ -184,7 +184,29 @@ public final class ForceAttack {
 		return cells;
 	}
 
+	private static CellSelector.Listener activeListener;
+
+	private static boolean isSelecting() {
+		if (activeListener == null) return false;
+		try {
+			Field selectorField = GameScene.class.getDeclaredField("cellSelector");
+			selectorField.setAccessible(true);
+			Object selector = selectorField.get(null);
+			if (selector == null) return false;
+			Field listenerField = selector.getClass().getField("listener");
+			return listenerField.get(selector) == activeListener;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
 	private static void choose() {
+		if (isSelecting()) {
+			GameScene.cancelCellSelector();
+			clearMarkers();
+			activeListener = null;
+			return;
+		}
 		Hero hero = Dungeon.hero;
 		Level level = Dungeon.level;
 		if (hero == null || level == null || !hero.isAlive() || !hero.ready) return;
@@ -195,9 +217,10 @@ public final class ForceAttack {
 			return;
 		}
 		showMarkers(cells, level.width());
-		GameScene.selectCell(new CellSelector.Listener() {
+		activeListener = new CellSelector.Listener() {
 			@Override
 			public void onSelect(Integer cell) {
+				if (activeListener == this) activeListener = null;
 				clearMarkers();
 				if (cell == null) return;
 				attack(cell);
@@ -207,7 +230,8 @@ public final class ForceAttack {
 			public String prompt() {
 				return "Choose a tile to attack";
 			}
-		});
+		};
+		GameScene.selectCell(activeListener);
 	}
 
 	private static void attack(int cell) {

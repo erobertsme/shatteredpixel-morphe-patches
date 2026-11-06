@@ -644,6 +644,20 @@ object WndQuickBagConstructorFingerprint : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/Bag;"),
 )
 
+object WndInfoMobConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndInfoMob;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;"),
+)
+
+object WndJournalItemConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndJournalItem;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/noosa/Image;", "Ljava/lang/String;", "Ljava/lang/String;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

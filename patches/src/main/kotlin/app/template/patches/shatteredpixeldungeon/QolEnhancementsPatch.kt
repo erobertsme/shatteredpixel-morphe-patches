@@ -12,12 +12,13 @@ private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
 private const val QUICKSLOT_CLASS = "$EXTENSION_PACKAGE/QuickslotRow;"
 private const val RESUME_PATH_CLASS = "$EXTENSION_PACKAGE/ResumePath;"
 private const val FORCE_ATTACK_CLASS = "$EXTENSION_PACKAGE/ForceAttack;"
+private const val BESTIARY_CLASS = "$EXTENSION_PACKAGE/EnhancedBestiary;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots and an Attack Tile button.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button and an Enhanced Bestiary.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -129,6 +130,10 @@ val qolEnhancementsPatch = bytecodePatch(
 		)
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $FORCE_ATTACK_CLASS->onSceneCreated(Ljava/lang/Object;)V",
+		)
+		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p1 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE$ITEM_TYPE)V")
+		WndJournalItemConstructorFingerprint.callBeforeEveryReturn(
+			"invoke-static/range { p0 .. p3 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE${ITEM_TYPE}Ljava/lang/String;Ljava/lang/String;)V",
 		)
 		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
