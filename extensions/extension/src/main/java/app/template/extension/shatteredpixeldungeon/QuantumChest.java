@@ -32,6 +32,7 @@ public final class QuantumChest {
 	private static final String TAG = "QuantumChest";
 	private static final String KEY_OFF = "qol_quantum_chest_off";
 	private static final String KEY_PAGES = "qol_quantum_chest_pages";
+	private static final String KEY_QUICK = "qol_quantum_chest_quick";
 	private static final String BUNDLE_ITEMS = "morphe_quantum_chest";
 	private static final String BUNDLE_BOSSES = "morphe_quantum_chest_bosses";
 	static final int PER_PAGE = 25;
@@ -66,6 +67,35 @@ public final class QuantumChest {
 
 	static void pages(int pages) {
 		CloverlordSettings.setInt(KEY_PAGES, Math.max(1, Math.min(MAX_PAGES, pages)));
+	}
+
+	static boolean quickMove() {
+		return CloverlordSettings.get(KEY_QUICK);
+	}
+
+	static void quickMove(boolean on) {
+		CloverlordSettings.set(KEY_QUICK, on);
+	}
+
+	/**
+	 * Everything in the hero's bags that can go in the chest: not bags, and not equipped.
+	 */
+	static List<Item> storable() {
+		List<Item> found = new ArrayList<>();
+		Hero hero = Dungeon.hero;
+		if (hero != null) collectStorable(hero, hero.belongings.backpack, found);
+		return found;
+	}
+
+	private static void collectStorable(Hero hero, com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag bag, List<Item> found) {
+		if (bag == null || bag.items == null) return;
+		for (Item item : bag.items) {
+			if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag) {
+				collectStorable(hero, (com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag) item, found);
+				continue;
+			}
+			if (!item.isEquipped(hero)) found.add(item);
+		}
 	}
 
 	static int capacity() {
@@ -208,12 +238,59 @@ public final class QuantumChest {
 	}
 
 	/**
-	 * A floor tile beside the exit, the same one every time.
+	 * A floor tile near the exit but out of the way of it, the same one every time.
 	 */
 	private static int findCell(Level level) {
 		int exit = level.exit();
 		if (exit < 0) return -1;
 		int width = level.width();
+		int chosen = chosenCell(level, exit, width);
+		if (chosen >= 0) return chosen;
+		return nearestFloor(level, exit, width);
+	}
+
+	/**
+	 * The approved spot for each boss floor: Prison above the walkway, Caves beside the stairs, City in the hallway
+	 * corner, Halls in the corner of the boss room, and the Sewers beside the exit's wall away from any door.
+	 */
+	private static int chosenCell(Level level, int exit, int width) {
+		switch (Dungeon.depth) {
+			case 5:
+				for (int side : new int[] { -2, 2 }) {
+					int cell = exit + side;
+					if (isFloor(level, cell) && !nextToDoor(level, cell, width)) return cell;
+				}
+				return -1;
+			case 10:
+				return floorOrNone(level, exit - 3 * width);
+			case 15:
+				return floorOrNone(level, exit + 2 + width);
+			case 20:
+				return floorOrNone(level, exit + 3 + width);
+			case 25:
+				return floorOrNone(level, exit - 4 + width);
+			default:
+				return -1;
+		}
+	}
+
+	private static int floorOrNone(Level level, int cell) {
+		return cell >= 0 && cell < level.length() && isFloor(level, cell) ? cell : -1;
+	}
+
+	private static boolean nextToDoor(Level level, int cell, int width) {
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				int next = cell + dx + dy * width;
+				if (next < 0 || next >= level.length()) continue;
+				int tile = level.map[next];
+				if (tile == FloorEditor.DOOR || tile == FloorEditor.OPEN_DOOR || tile == FloorEditor.LOCKED_DOOR) return true;
+			}
+		}
+		return false;
+	}
+
+	private static int nearestFloor(Level level, int exit, int width) {
 		int[][] rings = {
 			{ -width, 1, width, -1 },
 			{ -width - 1, -width + 1, width - 1, width + 1 },
@@ -231,6 +308,7 @@ public final class QuantumChest {
 	}
 
 	private static boolean isFloor(Level level, int cell) {
+		if (cell < 0 || cell >= level.length()) return false;
 		int tile = level.map[cell];
 		if (!level.passable[cell] || tile == FloorEditor.CHASM) return false;
 		if (tile == 7 || tile == 8 || tile == 22 || tile == 37) return false;

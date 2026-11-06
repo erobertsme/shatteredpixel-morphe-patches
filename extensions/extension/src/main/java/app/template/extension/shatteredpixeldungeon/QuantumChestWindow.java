@@ -1,84 +1,135 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ItemSlot;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
 import com.watabou.noosa.ColorBlock;
+import com.watabou.noosa.Image;
 
 import java.util.List;
 
 /**
- * The inside of the Quantum Chest: 25 slots a page. Tap an item to take it, long-press to examine it.
+ * The Quantum Chest, 25 slots a page. It shows either what is in the chest, or the hero's bags for storing items.
+ * Tapping an item shows its details with a button to move it; with Quick Move on, tapping moves it straight away.
  */
 public class QuantumChestWindow extends EditorWindow {
 
-	private static final String INFO = "Quantum Chest"
+	private static final String CHEST_INFO = "Quantum Chest"
 		+ "\n\nEvery quantum chest opens the same storage, so whatever you put in one waits for you in all the others."
-		+ "\n\nTap an item to take it, or long-press it to examine it. Store Item picks something from your bags to put in."
+		+ "\n\nTap an item to see its details, with Take Out at the bottom. Store Items shows your bags so you can put things in."
+		+ "\n\n{CHECKED}Quick Move: tap an item to move it straight away, without the details window. Long-press still shows the details."
 		+ "\n\nThe chest holds 25 items a page. The number of pages is set in Extras, under QoL.";
+	private static final String STORE_INFO = "Store Items"
+		+ "\n\nEverything in your bags that can go in the chest. Equipped items and bags can't be stored."
+		+ "\n\nTap an item to see its details, with Store Item at the bottom. Back returns to the chest."
+		+ "\n\n{CHECKED}Quick Move: tap an item to store it straight away, and keep storing until you tap Back.";
 	private static final int COLUMNS = 5;
 	private static final int SLOT_SIZE = 24;
 	private static final int SLOT_GAP = 1;
 	private static final int SLOT_COLOR = 0x9953564D;
+	private static final int LOCKED_COLOR = 0x44000000;
 	private static final int ARROW_WIDTH = 30;
+	private static final int TOGGLE_SIZE = 12;
 
+	private final boolean storing;
 	private final int page;
 
 	public QuantumChestWindow(int page) {
+		this(false, page);
+	}
+
+	public QuantumChestWindow(boolean storing, int page) {
 		super();
-		List<Item> items = QuantumChest.items();
-		int pages = Math.max(QuantumChest.pages(), (items.size() + QuantumChest.PER_PAGE - 1) / QuantumChest.PER_PAGE);
+		this.storing = storing;
+		List<Item> items = storing ? QuantumChest.storable() : QuantumChest.items();
+		int perPage = QuantumChest.PER_PAGE;
+		int pages = storing
+			? Math.max(1, (items.size() + perPage - 1) / perPage)
+			: Math.max(QuantumChest.pages(), (items.size() + perPage - 1) / perPage);
 		this.page = Math.max(0, Math.min(pages - 1, page));
 
-		addTitle("Quantum Chest", INFO);
+		addHeader(storing ? "Store Items" : "Quantum Chest", storing ? STORE_INFO : CHEST_INFO);
+
 		float left = (WIDTH - (COLUMNS * SLOT_SIZE + (COLUMNS - 1) * SLOT_GAP)) / 2f;
-		int start = this.page * QuantumChest.PER_PAGE;
+		int start = this.page * perPage;
 		int capacity = QuantumChest.capacity();
-		for (int i = 0; i < QuantumChest.PER_PAGE; i++) {
+		for (int i = 0; i < perPage; i++) {
 			int index = start + i;
 			float x = left + (i % COLUMNS) * (SLOT_SIZE + SLOT_GAP);
 			float y = pos + (i / COLUMNS) * (SLOT_SIZE + SLOT_GAP);
-			ColorBlock background = new ColorBlock(SLOT_SIZE, SLOT_SIZE, index < capacity ? SLOT_COLOR : 0x44000000);
+			boolean open = storing || index < capacity;
+			ColorBlock background = new ColorBlock(SLOT_SIZE, SLOT_SIZE, open ? SLOT_COLOR : LOCKED_COLOR);
 			background.x = x;
 			background.y = y;
 			add(background);
-			if (index >= items.size()) continue;
-			addSlot(items.get(index), x, y);
+			if (index < items.size()) addSlot(items.get(index), x, y);
 		}
-		pos += (QuantumChest.PER_PAGE / COLUMNS) * (SLOT_SIZE + SLOT_GAP) + GAP;
+		pos += (perPage / COLUMNS) * (SLOT_SIZE + SLOT_GAP) + GAP;
 
 		if (pages > 1) addPager(pages);
 
-		RenderedTextBlock count = PixelScene.renderTextBlock(items.size() + " / " + capacity + " items", 6);
+		RenderedTextBlock count = PixelScene.renderTextBlock((storing ? "In the chest: " : "") + QuantumChest.items().size() + " / " + capacity + " items", 6);
 		count.hardlight(CharacterWindow.DIM_COLOR);
 		count.setPos((WIDTH - count.width()) / 2f, pos);
 		add(count);
 		pos = count.bottom() + 2 * GAP;
 
-		addButton("Store Item", 0, WIDTH, this::chooseItem).enable(items.size() < capacity || hasStackable());
+		if (storing) {
+			addButton("Back", 0, WIDTH, () -> replaceWith(new QuantumChestWindow(false, 0)));
+		} else {
+			addButton("Store Items", 0, WIDTH, () -> replaceWith(new QuantumChestWindow(true, 0)));
+		}
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	private void addHeader(String text, String info) {
+		RenderedTextBlock title = PixelScene.renderTextBlock(text, 9);
+		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.setPos(0, pos + (InfoButton.SIZE - title.height()) / 2f);
+		add(title);
+		InfoButton.add(this, WIDTH, pos, info);
+
+		boolean quick = QuantumChest.quickMove();
+		RenderedTextBlock label = PixelScene.renderTextBlock("Quick Move", 6);
+		if (!quick) label.alpha(0.6f);
+		Image box = Icons.get(Icons.CHECKED);
+		if (!quick) box.alpha(0.25f);
+		IconButton toggle = new IconButton(box) {
+			@Override
+			public void onClick() {
+				QuantumChest.quickMove(!QuantumChest.quickMove());
+				refresh();
+			}
+		};
+		float toggleRight = WIDTH - InfoButton.SIZE - GAP;
+		toggle.setRect(toggleRight - TOGGLE_SIZE, pos + (InfoButton.SIZE - TOGGLE_SIZE) / 2f, TOGGLE_SIZE, TOGGLE_SIZE);
+		add(toggle);
+		label.setPos(toggle.left() - label.width() - 1, pos + (InfoButton.SIZE - label.height()) / 2f);
+		add(label);
+		pos += InfoButton.SIZE + 2 * GAP;
 	}
 
 	private void addSlot(Item item, float x, float y) {
 		ItemSlot slot = new ItemSlot(item) {
 			@Override
 			public void onClick() {
-				if (!QuantumChest.take(item)) GLog.w("You don't have room for that.");
-				refresh();
+				if (QuantumChest.quickMove()) {
+					move(item);
+					refresh();
+					return;
+				}
+				replaceWith(details(item));
 			}
 
 			@Override
 			public boolean onLongClick() {
-				show(new WndInfoItem(item));
+				replaceWith(details(item));
 				return true;
 			}
 		};
@@ -86,11 +137,26 @@ public class QuantumChestWindow extends EditorWindow {
 		add(slot);
 	}
 
+	private ChestItemWindow details(Item item) {
+		int returnPage = page;
+		boolean fromBags = storing;
+		return new ChestItemWindow(item, fromBags ? "Store Item" : "Take Out", () -> move(item), () -> show(new QuantumChestWindow(fromBags, returnPage)));
+	}
+
+	private void move(Item item) {
+		if (storing) {
+			if (!QuantumChest.store(item)) GLog.w("The quantum chest is full.");
+			return;
+		}
+		if (!QuantumChest.take(item)) GLog.w("You don't have room for that.");
+	}
+
 	private void addPager(int pages) {
+		boolean fromBags = storing;
 		RedButton previous = new RedButton("<-", 7) {
 			@Override
 			public void onClick() {
-				replaceWith(new QuantumChestWindow((page - 1 + pages) % pages));
+				replaceWith(new QuantumChestWindow(fromBags, (page - 1 + pages) % pages));
 			}
 		};
 		previous.setRect(0, pos, ARROW_WIDTH, ROW_HEIGHT);
@@ -99,7 +165,7 @@ public class QuantumChestWindow extends EditorWindow {
 		RedButton next = new RedButton("->", 7) {
 			@Override
 			public void onClick() {
-				replaceWith(new QuantumChestWindow((page + 1) % pages));
+				replaceWith(new QuantumChestWindow(fromBags, (page + 1) % pages));
 			}
 		};
 		next.setRect(WIDTH - ARROW_WIDTH, pos, ARROW_WIDTH, ROW_HEIGHT);
@@ -111,37 +177,8 @@ public class QuantumChestWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	private static boolean hasStackable() {
-		for (Item item : QuantumChest.items()) {
-			if (item.stackable) return true;
-		}
-		return false;
-	}
-
-	private void chooseItem() {
-		hide();
-		int current = page;
-		GameScene.selectItem(new WndBag.ItemSelector() {
-			@Override
-			public String textPrompt() {
-				return "Store in the quantum chest";
-			}
-
-			@Override
-			public boolean itemSelectable(Item item) {
-				return !(item instanceof Bag) && !item.isEquipped(Dungeon.hero);
-			}
-
-			@Override
-			public void onSelect(Item item) {
-				if (item != null && !QuantumChest.store(item)) GLog.w("The quantum chest is full.");
-				show(new QuantumChestWindow(current));
-			}
-		});
-	}
-
 	@Override
 	protected void reopen() {
-		show(new QuantumChestWindow(page));
+		show(new QuantumChestWindow(storing, page));
 	}
 }
