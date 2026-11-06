@@ -22,7 +22,7 @@ private const val WND_BAG_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/win
 @Suppress("unused")
 val inventoryEditorPatch = bytecodePatch(
 	name = "Inventory editor",
-	description = "Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). Also adds optional unlimited inventory space with pages, and Weapons, Armor and Rings backpack tabs.",
+	description = "Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, and opening the backpack with an Edit button on every item (level, quantity, curses, enchantments, glyphs, augments and charges). Also adds optional unlimited inventory space with pages, and Weapons, Armor and Rings backpack tabs that hold those items like the potion bandolier.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -116,6 +116,17 @@ val inventoryEditorPatch = bytecodePatch(
 				move-result v0
 				if-eqz v0, :original
 				return-void
+			""",
+			ExternalLabel("original", 0),
+		)
+
+		BagCanHoldFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->tabHolds(${BAG_CLASS}Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z
+				move-result v0
+				if-eqz v0, :original
+				return v0
 			""",
 			ExternalLabel("original", 0),
 		)

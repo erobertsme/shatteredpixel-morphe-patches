@@ -689,7 +689,7 @@ public final class FloorEditor {
 	}
 
 	private static void addTeleport(List<QuickAction[]> rows, int cell) {
-		if (Teleport.isAvailable()) rows.add(new QuickAction[] { teleportAction(cell) });
+		if (EditorSwitches.teleport()) rows.add(new QuickAction[] { teleportAction(cell) });
 	}
 
 	private static QuickAction teleportAction(int cell) {

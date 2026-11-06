@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A backpack tab that shows every carried item of one kind. It only exists while a bag window shows it: it is
- * never added to the hero's belongings, so items always stay in their real bags and saves never contain it.
+ * A backpack tab that holds items of one kind, like the potion bandolier holds potions. The items it holds stay in
+ * the backpack's own list, so saves never contain this tab, but they are shown here instead of in the backpack and
+ * don't use backpack space. It holds 19 items, or any number with unlimited inventory space.
  */
 final class FilterBag extends Bag {
 
@@ -68,27 +69,67 @@ final class FilterBag extends Bag {
 		return "filter_" + kind;
 	}
 
-	/**
-	 * Fills the tab with the matching items from the backpack and every bag inside it.
-	 */
-	void refresh() {
-		List<Item> found = new ArrayList<>();
-		if (Dungeon.hero != null && Dungeon.hero.belongings != null) collect(Dungeon.hero.belongings.backpack, found);
-		items = new ArrayList<>(found);
+	static final int CAPACITY = 19;
+
+	static int tabCapacity() {
+		return InventorySpace.isOn() ? Integer.MAX_VALUE : CAPACITY;
 	}
 
-	private void collect(Bag bag, List<Item> found) {
-		if (bag == null || bag.items == null) return;
-		for (Item item : bag.items) {
-			if (item instanceof Bag) {
-				collect((Bag) item, found);
-				continue;
-			}
-			if (accepts(item)) found.add(item);
+	/**
+	 * Fills the tab with the items it holds.
+	 */
+	void refresh() {
+		items = new ArrayList<>(held(kind));
+	}
+
+	/**
+	 * The items the tab for [kind] holds: the first matching items in the backpack, up to its capacity. Matching
+	 * items beyond that stay in the backpack.
+	 */
+	static List<Item> held(int kind) {
+		List<Item> found = new ArrayList<>();
+		if (!isOn(kind) || Dungeon.hero == null || Dungeon.hero.belongings == null) return found;
+		Bag backpack = Dungeon.hero.belongings.backpack;
+		if (backpack == null || backpack.items == null) return found;
+		int capacity = tabCapacity();
+		for (Item item : backpack.items) {
+			if (found.size() >= capacity) break;
+			if (!(item instanceof Bag) && accepts(kind, item)) found.add(item);
 		}
+		return found;
+	}
+
+	/**
+	 * Every item held by any switched-on tab.
+	 */
+	static java.util.Set<Item> allHeld() {
+		java.util.Set<Item> held = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+		for (int kind = 0; kind < NAMES.length; kind++) held.addAll(held(kind));
+		return held;
+	}
+
+	/**
+	 * The switched-on tab that [item] belongs in, or -1.
+	 */
+	static int kindOf(Item item) {
+		for (int kind = 0; kind < NAMES.length; kind++) {
+			if (isOn(kind) && accepts(kind, item)) return kind;
+		}
+		return -1;
+	}
+
+	static boolean anyOn() {
+		for (int kind = 0; kind < NAMES.length; kind++) {
+			if (isOn(kind)) return true;
+		}
+		return false;
 	}
 
 	private boolean accepts(Item item) {
+		return accepts(kind, item);
+	}
+
+	private static boolean accepts(int kind, Item item) {
 		if (kind == WEAPONS) return item instanceof Weapon;
 		if (kind == ARMOR) return item instanceof Armor;
 		return item instanceof Ring;
@@ -101,7 +142,7 @@ final class FilterBag extends Bag {
 
 	@Override
 	public String desc() {
-		return "Every " + NAMES[kind].toLowerCase() + " item you are carrying, wherever it is stored.";
+		return "Holds the " + NAMES[kind].toLowerCase() + " you carry, so they don't take up space in your backpack.";
 	}
 
 	@Override

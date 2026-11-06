@@ -567,6 +567,13 @@ object WndInfoHeapConstructorFingerprint : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Heap;"),
 )
 
+object BagCanHoldFingerprint : Fingerprint(
+	definingClass = BAG_CLASS,
+	name = "canHold",
+	returnType = "Z",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
 object BagCollectFingerprint : Fingerprint(
 	definingClass = BAG_CLASS,
 	name = "collect",

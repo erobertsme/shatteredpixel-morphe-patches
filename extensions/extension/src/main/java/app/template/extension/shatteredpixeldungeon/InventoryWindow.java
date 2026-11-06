@@ -28,7 +28,7 @@ public class InventoryWindow extends EditorWindow {
 		super();
 		Hero hero = Dungeon.hero;
 
-		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify All identifies everything you carry. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nWeapons, Armor and Rings tabs: extra backpack tabs that show every item of that kind you carry, wherever it is stored. Items stay in their real bags. These tabs also have pages when they hold more than 40 items, and each tab remembers its page.\n\nTap a number to type it, with Min and Max buttons.");
+		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify All identifies everything you carry. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nThe Weapons, Armor and Rings backpack tabs are switched on and off in Extras, under QoL.\n\nTap a number to type it, with Min and Max buttons.");
 		if (hero == null) {
 			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 			pos += ROW_HEIGHT;
@@ -66,10 +66,6 @@ public class InventoryWindow extends EditorWindow {
 
 		addSection("Backpack");
 		addCheckBox("Unlimited inventory space", InventorySpace.isOn(), () -> InventorySpace.setOn(!InventorySpace.isOn()));
-		for (int kind = 0; kind < FilterBag.count(); kind++) {
-			final int tab = kind;
-			addCheckBox(FilterBag.label(kind) + " tab", FilterBag.isOn(kind), () -> FilterBag.setOn(tab, !FilterBag.isOn(tab)));
-		}
 		pos += GAP;
 
 		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));

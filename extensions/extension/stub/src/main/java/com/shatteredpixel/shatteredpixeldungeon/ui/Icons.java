@@ -17,7 +17,9 @@ public enum Icons {
 	DEPTH,
 	CLOSE,
 	CHECKED,
-	COIN_SML;
+	COIN_SML,
+	STAIRS,
+	STAIRS_LARGE;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

@@ -10,6 +10,7 @@ final class EditorSwitches {
 	static final String ENEMY = "editor_off_enemy";
 	static final String HUNGER = "editor_off_hunger";
 	static final String FLOOR = "editor_off_floor";
+	static final String TELEPORT = "editor_off_teleport";
 
 	private EditorSwitches() {
 	}
@@ -20,6 +21,10 @@ final class EditorSwitches {
 
 	static void setOn(String key, boolean on) {
 		CloverlordSettings.set(key, !on);
+	}
+
+	static boolean teleport() {
+		return Teleport.isAvailable() && isOn(TELEPORT);
 	}
 
 	static boolean character() {
@@ -43,6 +48,6 @@ final class EditorSwitches {
 	}
 
 	static boolean anyAvailable() {
-		return CharacterWindow.isAvailable() || InventoryWindow.isAvailable() || EnemyWindow.isAvailable() || HungerEditor.isAvailable() || FloorWindow.isAvailable();
+		return CharacterWindow.isAvailable() || InventoryWindow.isAvailable() || EnemyWindow.isAvailable() || HungerEditor.isAvailable() || FloorWindow.isAvailable() || Teleport.isAvailable();
 	}
 }

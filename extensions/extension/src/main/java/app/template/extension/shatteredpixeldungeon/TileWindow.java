@@ -138,7 +138,7 @@ public class TileWindow extends EditorWindow {
 
 		addSection("Actions");
 		boolean free = FloorEditor.canStandOn(cell);
-		if (Teleport.isAvailable()) {
+		if (EditorSwitches.teleport()) {
 			addButton("Teleport here", 0, WIDTH, () -> {
 				hide();
 				FloorEditor.teleportHero(cell);

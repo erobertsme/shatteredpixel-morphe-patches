@@ -118,7 +118,7 @@ public class EnemyWindow extends EditorWindow {
 		addStat("Experience", String.valueOf(mob.EXP));
 
 		pos += GAP;
-		boolean teleport = Teleport.isAvailable();
+		boolean teleport = EditorSwitches.teleport();
 		float half = teleport ? (WIDTH - GAP) / 2f : WIDTH;
 		addButton("Move to tile", 0, half, () -> {
 			hide();

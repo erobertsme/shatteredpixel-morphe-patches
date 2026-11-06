@@ -50,6 +50,7 @@ public final class InventorySpace {
 	private static final int ARROW_WIDTH = 30;
 	private static final int BACK_HEIGHT = 18;
 
+	private static final String[] BAG_ORDER = { "VelvetPouch", "ScrollHolder", "PotionBandolier", "MagicalHolster" };
 	private static final Map<String, Integer> savedPages = new HashMap<>();
 
 	private static Page current;
@@ -88,7 +89,27 @@ public final class InventorySpace {
 	 * Wraps the returns of Belongings.Backpack.capacity.
 	 */
 	public static int backpackCapacity(int original, Bag bag) {
-		return expand(original, bag);
+		Page page = current;
+		if ((page != null && page.bag == bag) || isOn()) return expand(original, bag);
+		if (!FilterBag.anyOn()) return original;
+		return original + FilterBag.allHeld().size();
+	}
+
+	/**
+	 * Called at the start of Bag.canHold. Returns true when [item] goes in a Weapons, Armor or Rings tab that still
+	 * has room, even if the rest of the backpack is full.
+	 */
+	public static boolean tabHolds(Bag bag, Item item) {
+		try {
+			Hero hero = Dungeon.hero;
+			if (hero == null || bag == null || item == null || item instanceof Bag) return false;
+			if (bag != hero.belongings.backpack) return false;
+			int kind = FilterBag.kindOf(item);
+			if (kind < 0) return false;
+			return FilterBag.held(kind).size() < FilterBag.tabCapacity();
+		} catch (Throwable e) {
+			return false;
+		}
 	}
 
 	private static int expand(int original, Bag bag) {
@@ -109,10 +130,22 @@ public final class InventorySpace {
 	 */
 	public static ArrayList<Bag> bagTabs(ArrayList<Bag> bags) {
 		if (bags == null || !InventoryWindow.isAvailable()) return bags;
-		ArrayList<Bag> result = withoutDuplicates(bags);
-		for (int kind = 0; kind < FilterBag.count(); kind++) {
-			if (FilterBag.isOn(kind)) result.add(FilterBag.get(kind));
+		ArrayList<Bag> real = withoutDuplicates(bags);
+		ArrayList<Bag> result = new ArrayList<>();
+		for (Bag bag : real) {
+			if (bag instanceof Belongings.Backpack) result.add(bag);
 		}
+		if (FilterBag.isOn(FilterBag.WEAPONS)) result.add(FilterBag.get(FilterBag.WEAPONS));
+		if (FilterBag.isOn(FilterBag.ARMOR)) result.add(FilterBag.get(FilterBag.ARMOR));
+		for (String name : BAG_ORDER) {
+			for (Bag bag : real) {
+				if (bag.getClass().getSimpleName().equals(name)) result.add(bag);
+			}
+		}
+		for (Bag bag : real) {
+			if (!result.contains(bag)) result.add(bag);
+		}
+		if (FilterBag.isOn(FilterBag.RINGS)) result.add(FilterBag.get(FilterBag.RINGS));
 		return result;
 	}
 
@@ -225,24 +258,32 @@ public final class InventorySpace {
 		Hero hero = Dungeon.hero;
 		if (bag == null || bag.items == null || hero == null) return null;
 		boolean filter = bag instanceof FilterBag;
-		if (!filter && !isOn()) return null;
+		boolean backpack = bag == hero.belongings.backpack;
+		boolean unlimited = isOn();
+		boolean tabs = backpack && FilterBag.anyOn();
+		if (!filter && !unlimited && !tabs) return null;
 
 		Page page = new Page();
 		page.bag = bag;
-		boolean backpack = bag == hero.belongings.backpack;
 		page.fixed = filter ? 0 : backpack ? (hero.belongings.secondWep != null ? 1 : 0) : 1;
 
+		Set<Item> held = tabs ? FilterBag.allHeld() : Collections.newSetFromMap(new IdentityHashMap<>());
 		List<Item> all = new ArrayList<>();
 		for (Item item : bag.items) {
 			if (item instanceof Bag) {
 				page.bags++;
 				continue;
 			}
+			if (held.contains(item)) {
+				page.hidden.add(item);
+				continue;
+			}
 			all.add(item);
 		}
 
+		boolean growing = unlimited && !filter;
 		int perPage = MAX_ITEM_ROWS * COLUMNS - page.fixed;
-		int total = all.size() + (filter ? 0 : 1);
+		int total = all.size() + (growing ? 1 : 0);
 		page.pages = Math.max(1, divideUp(total, perPage));
 		Integer saved = savedPages.get(key(bag));
 		page.index = saved == null ? 0 : Math.max(0, Math.min(page.pages - 1, saved));
@@ -261,7 +302,7 @@ public final class InventorySpace {
 		if (page.pages > 1) {
 			target = MAX_ITEM_ROWS * COLUMNS;
 		} else {
-			target = Math.max(DEFAULT_ITEM_SLOTS, used + (filter ? 0 : 1));
+			target = Math.max(DEFAULT_ITEM_SLOTS, used + (growing ? 1 : 0));
 			target = divideUp(target, COLUMNS) * COLUMNS;
 		}
 		page.free = Math.max(0, target - used);

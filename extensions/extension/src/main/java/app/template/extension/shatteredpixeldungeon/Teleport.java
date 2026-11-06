@@ -45,7 +45,7 @@ public final class Teleport {
 	 * Called at the end of WndJournal.NotesTab.updateList and layout. Adds a Teleport to... button below the notes.
 	 */
 	public static void afterNotesLayout(Object tab) {
-		if (!isAvailable() || !(tab instanceof Component) || Dungeon.hero == null) return;
+		if (!EditorSwitches.teleport() || !(tab instanceof Component) || Dungeon.hero == null) return;
 		try {
 			Component notes = (Component) tab;
 			Field gridField = notes.getClass().getDeclaredField("grid");
