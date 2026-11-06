@@ -1,3 +1,9 @@
+## [1.0.0-dev.58](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.57...v1.0.0-dev.58) (2026-11-06)
+
+### ✨ New Features
+
+* Extra quickslot row, arrow icons on every pager, a taller talents list in the hero window, and short patch descriptions with full details in the README ([b20843f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b20843f476371e05f52761d6ab7eb84a17ede0df))
+
 ## [1.0.0-dev.57](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.56...v1.0.0-dev.57) (2026-11-06)
 
 ### ✨ New Features
