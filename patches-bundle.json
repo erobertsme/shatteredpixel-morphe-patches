@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-06T05:02:10",
-  "description": "## [1.0.0-dev.58](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.57...v1.0.0-dev.58) (2026-11-06)\n\n### ✨ New Features\n\n* Extra quickslot row, arrow icons on every pager, a taller talents list in the hero window, and short patch descriptions with full details in the README ([b20843f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b20843f476371e05f52761d6ab7eb84a17ede0df))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.58/patches-1.0.0-dev.58.mpp",
+  "created_at": "2026-11-06T05:54:12",
+  "description": "## [1.0.0-dev.59](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.58...v1.0.0-dev.59) (2026-11-06)\n\n### 🐛 Bug Fixes\n\n* Extra quickslots match the normal slot size, work with the quickslot swapper, and stay clear of the confirm and drawing buttons; the talents list scrolls correctly ([8ee76be](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8ee76be1af3a6428e1de4131e8932160d1dc57d1))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.59/patches-1.0.0-dev.59.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.58"
+  "version": "1.0.0-dev.59"
 }

@@ -1,3 +1,9 @@
+## [1.0.0-dev.59](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.58...v1.0.0-dev.59) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* Extra quickslots match the normal slot size, work with the quickslot swapper, and stay clear of the confirm and drawing buttons; the talents list scrolls correctly ([8ee76be](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8ee76be1af3a6428e1de4131e8932160d1dc57d1))
+
 ## [1.0.0-dev.58](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.57...v1.0.0-dev.58) (2026-11-06)
 
 ### ✨ New Features
