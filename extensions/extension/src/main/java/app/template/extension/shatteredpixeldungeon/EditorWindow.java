@@ -98,6 +98,28 @@ abstract class EditorWindow extends Window {
 		pos = block.bottom() + 2 * GAP;
 	}
 
+	private static final int ICON_SPACE = 10;
+
+	/**
+	 * A row with a small [icon], a label on the left and a value on the right.
+	 */
+	protected void addIconRow(Image icon, String label, String value) {
+		if (icon != null) {
+			icon.x = (ICON_SPACE - icon.width()) / 2f;
+			icon.y = pos + (7 - icon.height()) / 2f;
+			PixelScene.align(icon);
+			add(icon);
+		}
+		RenderedTextBlock left = PixelScene.renderTextBlock(label, 6);
+		left.setPos(ICON_SPACE, pos);
+		add(left);
+		RenderedTextBlock right = PixelScene.renderTextBlock(value, 6);
+		right.maxWidth((int) (WIDTH - ICON_SPACE - left.width() - 2 * GAP));
+		right.setPos(WIDTH - right.width(), pos);
+		add(right);
+		pos = Math.max(left.bottom(), right.bottom()) + GAP;
+	}
+
 	private Image nextStepperIcon;
 
 	/**

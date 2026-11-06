@@ -89,6 +89,18 @@ final class QolSettings {
 	}
 
 	private static final String KEY_BESTIARY_OFF = "qol_enhanced_bestiary_off";
+	private static final String KEY_HERO_STATS_OFF = "qol_hero_stats_off";
+
+	/**
+	 * Whether the hero info window has a button that shows your hero's stats.
+	 */
+	static boolean heroStatsButton() {
+		return isAvailable() && !CloverlordSettings.get(KEY_HERO_STATS_OFF);
+	}
+
+	static void heroStatsButton(boolean on) {
+		CloverlordSettings.set(KEY_HERO_STATS_OFF, !on);
+	}
 
 	/**
 	 * Whether creature info windows get the Enhanced Bestiary's Stats and [i] buttons.

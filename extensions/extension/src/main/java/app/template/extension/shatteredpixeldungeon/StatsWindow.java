@@ -4,9 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Image;
 
 import java.util.Locale;
 
@@ -15,7 +14,6 @@ import java.util.Locale;
  */
 public class StatsWindow extends EditorWindow {
 
-	private static final String INFO = "Stats\n\nHealth, accuracy and evasion are the creature's own numbers. Accuracy and evasion are compared with yours each time someone attacks: the higher the attacker's accuracy against the defender's evasion, the more likely the hit.\n\nDamage and armor are the lowest and highest rolls. Armor is taken off the damage of every hit it receives.\n\nSpeeds are compared with a normal creature: 2x moves or attacks twice as often, 0.5x half as often.\n\nExperience is what you earn for defeating it, until you reach the level shown.\n\nIn the bestiary the stats are for a fresh creature, without buffs, champion powers or anything else that changes them in a game.";
 
 	private final Mob mob;
 
@@ -27,26 +25,26 @@ public class StatsWindow extends EditorWindow {
 		super();
 		this.mob = mob;
 		boolean live = EnhancedBestiary.isLive(mob);
-		addTitle(name(mob), INFO);
+		addTitle(name(mob));
 
 		addSection("Combat");
-		row("Health", live ? mob.HP + " / " + mob.HT : String.valueOf(mob.HT));
-		row("Accuracy", safe(() -> String.valueOf(mob.attackSkill(Dungeon.hero))));
-		row("Evasion", String.valueOf(mob.defenseSkill));
-		row("Damage", range(EnhancedBestiary.range(mob::damageRoll)));
-		row("Armor", range(EnhancedBestiary.range(mob::drRoll)));
-		row("Attack speed", safe(() -> speed(1f / mob.attackDelay())));
-		row("Move speed", safe(() -> speed(mob.speed())));
-		row("Sight", mob.viewDistance + " tiles");
+		addIconRow(StatIcons.item(StatIcons.POTION_HEALING), "Health", live ? mob.HP + " / " + mob.HT : String.valueOf(mob.HT));
+		addIconRow(StatIcons.item(StatIcons.RING_ACCURACY), "Accuracy", safe(() -> String.valueOf(mob.attackSkill(Dungeon.hero))));
+		addIconRow(StatIcons.item(StatIcons.RING_EVASION), "Evasion", String.valueOf(mob.defenseSkill));
+		addIconRow(StatIcons.item(StatIcons.RING_FORCE), "Damage", range(EnhancedBestiary.range(mob::damageRoll)));
+		addIconRow(StatIcons.buff(StatIcons.BUFF_ARMOR), "Armor", range(EnhancedBestiary.range(mob::drRoll)));
+		addIconRow(StatIcons.item(StatIcons.RING_FUROR), "Attack speed", safe(() -> speed(1f / mob.attackDelay())));
+		addIconRow(StatIcons.item(StatIcons.RING_HASTE), "Move speed", safe(() -> speed(mob.speed())));
+		addIconRow(StatIcons.item(StatIcons.POTION_MINDVIS), "Sight", mob.viewDistance + " tiles");
 
 		addSection("Other");
-		row("Experience", mob.EXP + " (until level " + mob.maxLvl + ")");
-		row("Drops", EnhancedBestiary.lootText(mob));
+		addIconRow(StatIcons.item(StatIcons.POTION_EXP), "Experience", mob.EXP + " (until level " + mob.maxLvl + ")");
+		addIconRow(StatIcons.item(StatIcons.RING_WEALTH), "Drops", EnhancedBestiary.lootText(mob));
 		if (live) {
-			row("Alignment", mob.alignment == null ? "Unknown" : titleCase(mob.alignment.name()));
-			row("State", EnhancedBestiary.stateText(mob));
+			addIconRow(alignmentIcon(mob.alignment), "Alignment", mob.alignment == null ? "Unknown" : titleCase(mob.alignment.name()));
+			addIconRow(stateIcon(mob), "State", EnhancedBestiary.stateText(mob));
 		} else {
-			row("Normally", mob.alignment == Char.Alignment.ALLY ? "Ally" : mob.alignment == Char.Alignment.NEUTRAL ? "Neutral" : "Enemy");
+			addIconRow(alignmentIcon(mob.alignment), "Normally", mob.alignment == Char.Alignment.ALLY ? "Ally" : mob.alignment == Char.Alignment.NEUTRAL ? "Neutral" : "Enemy");
 		}
 
 		pos += GAP;
@@ -55,15 +53,19 @@ public class StatsWindow extends EditorWindow {
 		finish();
 	}
 
-	private void row(String label, String value) {
-		RenderedTextBlock left = PixelScene.renderTextBlock(label, 6);
-		left.setPos(0, pos);
-		add(left);
-		RenderedTextBlock right = PixelScene.renderTextBlock(value, 6);
-		right.maxWidth((int) (WIDTH - left.width() - 2 * GAP));
-		right.setPos(WIDTH - right.width(), pos);
-		add(right);
-		pos = Math.max(left.bottom(), right.bottom()) + GAP;
+	private static Image alignmentIcon(Char.Alignment alignment) {
+		if (alignment == Char.Alignment.ALLY) return StatIcons.buff(StatIcons.BUFF_HEART);
+		if (alignment == Char.Alignment.ENEMY) return StatIcons.buff(StatIcons.BUFF_TARGETED);
+		return StatIcons.buff(StatIcons.BUFF_TIME);
+	}
+
+	private static Image stateIcon(Mob mob) {
+		String state = EnhancedBestiary.stateText(mob);
+		if (state.equals("Sleeping")) return StatIcons.buff(StatIcons.BUFF_DROWSY);
+		if (state.equals("Hunting")) return StatIcons.buff(StatIcons.BUFF_TARGETED);
+		if (state.equals("Fleeing")) return StatIcons.buff(StatIcons.BUFF_TERROR);
+		if (state.equals("Passive")) return StatIcons.buff(StatIcons.BUFF_HEART);
+		return StatIcons.item(StatIcons.POTION_MINDVIS);
 	}
 
 	private static String name(Mob mob) {

@@ -188,6 +188,7 @@ final class InfoWindow extends Window {
 
 	private static Image icon(String name) {
 		try {
+			if (name.startsWith("ITEM:") || name.startsWith("BUFF:")) return StatIcons.fromToken(name);
 			if (name.equals("HEART")) return new BuffIcon(HEART_ICON, true);
 			if (name.equals("STAR")) return Icons.get(Icons.TALENT);
 			if (name.equals("FOOD")) return new ItemSprite(new Food());

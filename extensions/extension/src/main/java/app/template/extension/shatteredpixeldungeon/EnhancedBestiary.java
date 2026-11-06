@@ -256,31 +256,49 @@ public final class EnhancedBestiary {
 
 	static String abilities(Mob mob) {
 		StringBuilder text = new StringBuilder();
-		text.append(title(mob)).append("\n\n");
+		text.append(title(mob));
 		String note = NOTES.get(key(mob));
-		if (note == null) {
-			String parent = mob.getClass().getSuperclass() == null ? null : NOTES.get(key(mob.getClass().getSuperclass()));
-			note = parent;
-		}
-		text.append("Abilities: ").append(note == null ? "No special abilities known." : note);
+		if (note == null && mob.getClass().getSuperclass() != null) note = NOTES.get(key(mob.getClass().getSuperclass()));
+		paragraph(text, "BUFFS", "Abilities: " + (note == null ? "No special abilities known." : note));
 
 		Set<Char.Property> properties = properties(mob);
-		List<String> traits = new ArrayList<>();
 		for (Char.Property property : properties) {
 			String trait = traitText(property);
-			if (trait != null) traits.add(trait);
+			if (trait != null) paragraph(text, traitIcon(property), trait);
 		}
-		if (!traits.isEmpty()) {
-			text.append("\n\nTraits:");
-			for (String trait : traits) text.append("\n- ").append(trait);
-		}
-		if (mob.flying) text.append("\n\nFlies over chasms, water and traps.");
+		if (mob.flying) paragraph(text, "BUFF:" + StatIcons.BUFF_LEVITATION, "Flies over chasms, water and traps.");
 
 		Set<String> immune = names(classes(mob, "immunities", properties, true));
 		Set<String> resist = names(classes(mob, "resistances", properties, false));
-		if (!immune.isEmpty()) text.append("\n\nImmune to: ").append(join(immune)).append('.');
-		if (!resist.isEmpty()) text.append("\n\nResists: ").append(join(resist)).append(". Resisted effects do half as much.");
+		if (!immune.isEmpty()) paragraph(text, "BUFF:" + StatIcons.BUFF_IMMUNITY, "Immune to: " + join(immune) + ".");
+		if (!resist.isEmpty()) paragraph(text, "BUFF:" + StatIcons.BUFF_ARMOR, "Resists: " + join(resist) + ". Resisted effects do half as much.");
 		return text.toString();
+	}
+
+	private static void paragraph(StringBuilder text, String icon, String body) {
+		text.append("\n\n");
+		if (icon != null) text.append('{').append(icon).append('}');
+		text.append(body);
+	}
+
+	private static String traitIcon(Char.Property property) {
+		switch (property) {
+			case BOSS:
+			case MINIBOSS:
+			case BOSS_MINION: return "SKULL";
+			case UNDEAD: return "BUFF:" + StatIcons.BUFF_CORRUPT;
+			case DEMONIC: return "BUFF:" + StatIcons.BUFF_BERSERK;
+			case INORGANIC: return "BUFF:" + StatIcons.BUFF_BARKSKIN;
+			case FIERY: return "BUFF:" + StatIcons.BUFF_FIRE;
+			case ICY: return "BUFF:" + StatIcons.BUFF_FROST;
+			case ACIDIC: return "BUFF:" + StatIcons.BUFF_OOZE;
+			case ELECTRIC: return "BUFF:" + StatIcons.BUFF_RECHARGING;
+			case LARGE: return "ITEM:" + StatIcons.RING_MIGHT;
+			case IMMOVABLE: return "BUFF:" + StatIcons.BUFF_ROOTS;
+			case OBJECT: return "ITEM:" + StatIcons.SCROLL_IDENTIFY;
+			case STATIC: return "BUFF:" + StatIcons.BUFF_PARALYSIS;
+			default: return null;
+		}
 	}
 
 	private static String title(Mob mob) {

@@ -18,7 +18,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button and an Enhanced Bestiary.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary and a hero stats button.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -135,6 +135,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE)V")
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
 		WndJournalItemConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
+		WndHeroStatsTabInitializeFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")
 		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(

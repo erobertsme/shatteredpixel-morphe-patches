@@ -658,6 +658,13 @@ object WndInfoBuffConstructorFingerprint : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Buff;"),
 )
 
+object WndHeroStatsTabInitializeFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndHero\$StatsTab;",
+	name = "initialize",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

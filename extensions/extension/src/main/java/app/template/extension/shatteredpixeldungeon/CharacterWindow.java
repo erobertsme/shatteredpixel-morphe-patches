@@ -177,33 +177,35 @@ public class CharacterWindow extends Window {
 		add(title);
 		pos = title.bottom() + 2 * GAP;
 
+		icon(StatIcons.item(StatIcons.POTION_HEALING));
 		addStepper("Health", String.valueOf(hero.HP), hero.HP, 1, hero.HT, value -> hero.HP = clamp(value, 1, hero.HT));
+		icon(StatIcons.item(StatIcons.POTION_HEALING));
 		addStepper("Max health", String.valueOf(hero.HT), hero.HT, 1, 999, value -> {
 			int target = Math.max(1, value);
 			hero.HTBoost += target - hero.HT;
 			hero.updateHT(false);
 		});
+		icon(StatIcons.item(StatIcons.SCROLL_UPGRADE));
 		addStepper("Level", String.valueOf(hero.lvl), hero.lvl, 1, 30, value -> {
 			int previous = hero.lvl;
 			hero.lvl = clamp(value, 1, 30);
 			hero.exp = Math.min(hero.exp, hero.maxExp() - 1);
 			hero.updateHT(hero.lvl > previous);
 		});
+		icon(StatIcons.item(StatIcons.POTION_EXP));
 		addStepper("Experience", hero.exp + " / " + hero.maxExp(), hero.exp, 0, hero.maxExp() - 1, value -> hero.exp = clamp(value, 0, hero.maxExp() - 1));
+		icon(StatIcons.item(StatIcons.POTION_STRENGTH));
 		addStepper("Strength", String.valueOf(hero.STR), hero.STR, 1, 99, value -> hero.STR = clamp(value, 1, 99));
 		int shield = hero.shielding();
+		icon(StatIcons.item(StatIcons.POTION_SHIELDING));
 		addStepper("Shield", String.valueOf(shield), shield, 0, 999, value -> StatusEditor.setShield(hero, clamp(value, 0, 999)));
 
 		addSection("Current totals");
-		int strBonus = hero.STR() - hero.STR;
-		addStat("Strength", strBonus == 0 ? String.valueOf(hero.STR) : hero.STR + (strBonus > 0 ? " + " : " - ") + Math.abs(strBonus));
-		addStat("Accuracy", safe(() -> String.valueOf(hero.attackSkill(null))) + modSuffix(HeroExtras.Mod.ACCURACY));
-		addStat("Evasion", safe(() -> String.valueOf(hero.defenseSkill(null))) + modSuffix(HeroExtras.Mod.EVASION));
-		addStat("Damage", safe(() -> damageRange(hero)) + modSuffix(HeroExtras.Mod.DAMAGE));
-		addStat("Armor", safe(() -> armorRange(hero)) + modSuffix(HeroExtras.Mod.ARMOR));
-		addStat("Attack speed", safe(() -> format(1f / hero.attackDelay()) + "x") + modSuffix(HeroExtras.Mod.ATTACK_SPEED));
-		addStat("Move speed", safe(() -> format(hero.speed()) + "x") + modSuffix(HeroExtras.Mod.MOVE_SPEED));
-		addStat("Shield", safe(() -> String.valueOf(hero.shielding())));
+		for (HeroStat stat : heroStats(hero)) {
+			icon(stat.icon);
+			addStat(stat.label, stat.value);
+		}
+		icon(StatIcons.icon(Icons.COIN_SML));
 		addStat("Gold / Energy", Dungeon.gold + " / " + Dungeon.energy);
 	}
 
@@ -369,6 +371,7 @@ public class CharacterWindow extends Window {
 
 	private void buildModifiers(Hero hero) {
 		for (HeroExtras.Mod mod : HeroExtras.Mod.values()) {
+			icon(modIcon(mod));
 			int value = HeroExtras.mod(mod);
 			String text = (value >= 0 ? "+" : "") + value + (mod.percent ? "%" : "");
 			addStepper(mod.label, text, value, mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue), mod.step());
@@ -589,9 +592,28 @@ public class CharacterWindow extends Window {
 		addStepper(label, display, current, min, max, setter, 1);
 	}
 
+	private static final int ICON_SPACE = 10;
+	private Image nextIcon;
+
+	private void icon(Image image) {
+		nextIcon = image;
+	}
+
+	private float placeIcon(float rowHeight) {
+		Image image = nextIcon;
+		nextIcon = null;
+		if (image == null) return 0;
+		image.x = (ICON_SPACE - image.width()) / 2f;
+		image.y = pos + (rowHeight - image.height()) / 2f;
+		PixelScene.align(image);
+		add(image);
+		return ICON_SPACE;
+	}
+
 	private void addStepper(String label, String display, int current, int min, int max, IntSetter setter, int step) {
+		float left = placeIcon(ROW_HEIGHT);
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
-		text.setPos(0, pos + (ROW_HEIGHT - text.height()) / 2f);
+		text.setPos(left, pos + (ROW_HEIGHT - text.height()) / 2f);
 		add(text);
 
 		float x = WIDTH - 2 * STEP_WIDTH - VALUE_WIDTH - 2 * GAP;
@@ -643,8 +665,9 @@ public class CharacterWindow extends Window {
 	}
 
 	private void addStat(String label, String value) {
+		float iconLeft = placeIcon(7);
 		RenderedTextBlock left = PixelScene.renderTextBlock(label, 6);
-		left.setPos(0, pos);
+		left.setPos(iconLeft, pos);
 		add(left);
 		RenderedTextBlock right = PixelScene.renderTextBlock(value, 6);
 		right.setPos(WIDTH - right.width(), pos);
@@ -669,6 +692,48 @@ public class CharacterWindow extends Window {
 		if (tier == 3) return "Tier 3 unlocks at level " + (Talent.tierLevelThresholds[3] - 1) + " once you choose a subclass.";
 		if (tier == 4) return "Tier 4 unlocks at level " + (Talent.tierLevelThresholds[4] - 1) + " once you choose an armor ability.";
 		return "Tier " + tier + " unlocks at level " + (Talent.tierLevelThresholds[tier] - 1) + ".";
+	}
+
+	static final class HeroStat {
+		final Image icon;
+		final String label;
+		final String value;
+
+		HeroStat(Image icon, String label, String value) {
+			this.icon = icon;
+			this.label = label;
+			this.value = value;
+		}
+	}
+
+	/**
+	 * Your hero's current totals, as shown on the Stats tab and in the hero stats popup.
+	 */
+	static List<HeroStat> heroStats(Hero hero) {
+		List<HeroStat> stats = new ArrayList<>();
+		int strBonus = hero.STR() - hero.STR;
+		stats.add(new HeroStat(StatIcons.item(StatIcons.POTION_STRENGTH), "Strength", strBonus == 0 ? String.valueOf(hero.STR) : hero.STR + (strBonus > 0 ? " + " : " - ") + Math.abs(strBonus)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.RING_ACCURACY), "Accuracy", safe(() -> String.valueOf(hero.attackSkill(null))) + modSuffix(HeroExtras.Mod.ACCURACY)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.RING_EVASION), "Evasion", safe(() -> String.valueOf(hero.defenseSkill(null))) + modSuffix(HeroExtras.Mod.EVASION)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.RING_FORCE), "Damage", safe(() -> damageRange(hero)) + modSuffix(HeroExtras.Mod.DAMAGE)));
+		stats.add(new HeroStat(StatIcons.buff(StatIcons.BUFF_ARMOR), "Armor", safe(() -> armorRange(hero)) + modSuffix(HeroExtras.Mod.ARMOR)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.RING_FUROR), "Attack speed", safe(() -> format(1f / hero.attackDelay()) + "x") + modSuffix(HeroExtras.Mod.ATTACK_SPEED)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.RING_HASTE), "Move speed", safe(() -> format(hero.speed()) + "x") + modSuffix(HeroExtras.Mod.MOVE_SPEED)));
+		stats.add(new HeroStat(StatIcons.item(StatIcons.POTION_SHIELDING), "Shield", safe(() -> String.valueOf(hero.shielding()))));
+		return stats;
+	}
+
+	private static Image modIcon(HeroExtras.Mod mod) {
+		switch (mod) {
+			case ACCURACY: return StatIcons.item(StatIcons.RING_ACCURACY);
+			case EVASION: return StatIcons.item(StatIcons.RING_EVASION);
+			case DAMAGE: return StatIcons.item(StatIcons.RING_FORCE);
+			case ARMOR: return StatIcons.buff(StatIcons.BUFF_ARMOR);
+			case ATTACK_SPEED: return StatIcons.item(StatIcons.RING_FUROR);
+			case MOVE_SPEED: return StatIcons.item(StatIcons.RING_HASTE);
+			case REGEN: return StatIcons.buff(StatIcons.BUFF_HEALING);
+			default: return null;
+		}
 	}
 
 	private static String modSuffix(HeroExtras.Mod mod) {
