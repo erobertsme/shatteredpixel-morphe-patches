@@ -6,6 +6,8 @@ public class Component extends Group {
 	protected float width;
 	protected float height;
 
+	public void layout() { throw new RuntimeException("Stub"); }
+
 	public Component setRect(float x, float y, float width, float height) { throw new RuntimeException("Stub"); }
 	public Component setPos(float x, float y) { throw new RuntimeException("Stub"); }
 	public Component setSize(float width, float height) { throw new RuntimeException("Stub"); }

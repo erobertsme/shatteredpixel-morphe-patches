@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -15,6 +16,8 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.ui.Component;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -34,6 +37,8 @@ public final class Teleport {
 	static final int EXIT = -2;
 
 	private static final Map<Object, RedButton> buttons = Collections.synchronizedMap(new WeakHashMap<>());
+	private static final Map<Object, Boolean> notesGrids = Collections.synchronizedMap(new WeakHashMap<>());
+	private static final String GRID_CLASS = "com.shatteredpixel.shatteredpixeldungeon.ui.ScrollingGridPane";
 
 	private Teleport() {
 	}
@@ -64,6 +69,7 @@ public final class Teleport {
 			gridField.setAccessible(true);
 			Object grid = gridField.get(notes);
 			if (!(grid instanceof Component)) return;
+			notesGrids.put(grid, Boolean.TRUE);
 
 			RedButton button = buttons.get(notes);
 			if (button == null) {
@@ -85,6 +91,44 @@ public final class Teleport {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the Teleport to button", e);
 		}
+	}
+
+	/**
+	 * Called at the start of ScrollingGridPane.onClick. Tapping a floor header in the Adventuring Notes asks to
+	 * teleport to that floor. Returns true when the tap was handled.
+	 */
+	public static boolean onGridClick(Object grid, float x, float y) {
+		if (!EditorSwitches.teleport() || Dungeon.hero == null || !notesGrids.containsKey(grid)) return false;
+		try {
+			int floor = floorHeaderAt(grid, x, y);
+			if (floor <= 0) return false;
+			ConfirmPrompt.ask("Floor " + floor, "Teleport to floor " + floor + "?", new String[] { "Arrive at Entrance", "Arrive at Exit" }, new Runnable[] {
+				() -> toDepth(floor, ENTRANCE),
+				() -> toDepth(floor, EXIT),
+			});
+			return true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not handle the notes tap", e);
+			return false;
+		}
+	}
+
+	private static int floorHeaderAt(Object grid, float x, float y) throws ReflectiveOperationException {
+		Field itemsField = Class.forName(GRID_CLASS).getDeclaredField("items");
+		itemsField.setAccessible(true);
+		List<?> items = (List<?>) itemsField.get(grid);
+		List<Component> headers = new ArrayList<>();
+		for (Object item : items) {
+			if (item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) headers.add((Component) item);
+		}
+		int floors = Math.min(Statistics.deepestFloor, headers.size());
+		int first = headers.size() - floors;
+		for (int i = first; i < headers.size(); i++) {
+			Component header = headers.get(i);
+			if (x < header.left() || x >= header.right() || y < header.top() || y >= header.bottom()) continue;
+			return floors - (i - first);
+		}
+		return 0;
 	}
 
 	private static Window windowOf(Gizmo gizmo) {

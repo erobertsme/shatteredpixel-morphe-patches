@@ -24,7 +24,7 @@ public class ApologyWindow extends EditorWindow {
 		this.shopkeeper = shopkeeper;
 		Hero hero = Dungeon.hero;
 
-		addTitle("No shop for you!");
+		addTitle("Banned");
 		RenderedTextBlock text = PixelScene.renderTextBlock("The shopkeeper won't let you back in until you apologize.", 6);
 		text.maxWidth(WIDTH);
 		text.setPos(0, pos);
@@ -36,7 +36,7 @@ public class ApologyWindow extends EditorWindow {
 
 		PotionOfHealing sample = new PotionOfHealing();
 		int price = goldPrice(sample);
-		RedButton gold = addButton("Apologize: Give " + price, 0, WIDTH, () -> {
+		RedButton gold = addIconRightButton("Apologize: Give " + price, () -> {
 			if (Dungeon.gold < price) return;
 			Dungeon.gold -= price;
 			apologize();
@@ -47,7 +47,7 @@ public class ApologyWindow extends EditorWindow {
 
 		if (isKnown(sample)) {
 			Item potion = hero == null ? null : hero.belongings.getItem(PotionOfHealing.class);
-			RedButton give = addButton("Apologize: Give Health Potion", 0, WIDTH, () -> {
+			RedButton give = addIconRightButton("Apologize: Give Health Potion", () -> {
 				Item carried = Dungeon.hero.belongings.getItem(PotionOfHealing.class);
 				if (carried == null) return;
 				carried.detach(Dungeon.hero.belongings.backpack);
@@ -61,6 +61,13 @@ public class ApologyWindow extends EditorWindow {
 			pos -= GAP;
 		}
 		finish();
+	}
+
+	private RedButton addIconRightButton(String label, Runnable action) {
+		RedButton button = new IconRightButton(label, action);
+		button.setRect(0, pos, WIDTH, ROW_HEIGHT);
+		add(button);
+		return button;
 	}
 
 	private static int goldPrice(Item potion) {

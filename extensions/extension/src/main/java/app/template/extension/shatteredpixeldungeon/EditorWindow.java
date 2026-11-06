@@ -175,12 +175,29 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled) {
+		addCheckBox(label, checked, onToggle, enabled, 0);
+	}
+
+	protected void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled, int textSize) {
 		CheckBox box = new CheckBox(label) {
 			@Override
 			public void onClick() {
 				super.onClick();
 				onToggle.run();
 				refresh();
+			}
+
+			@Override
+			public void layout() {
+				super.layout();
+				if (textSize <= 0 || text == null) return;
+				String value = text.text();
+				remove(text);
+				text = PixelScene.renderTextBlock(value, textSize);
+				float margin = (height() - text.height()) / 2f;
+				text.setPos(left() + margin, top() + margin);
+				PixelScene.align(text);
+				add(text);
 			}
 		};
 		box.checked(checked);

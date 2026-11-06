@@ -602,6 +602,13 @@ object NotesTabLayoutFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object ScrollingGridPaneClickFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/ScrollingGridPane;",
+	name = "onClick",
+	returnType = "V",
+	parameters = listOf("F", "F"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

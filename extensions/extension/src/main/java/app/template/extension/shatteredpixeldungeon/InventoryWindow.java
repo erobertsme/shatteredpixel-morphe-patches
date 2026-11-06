@@ -49,7 +49,7 @@ public class InventoryWindow extends EditorWindow {
 			BackpackEditor.open(InventoryWindow::open, Dungeon.hero.belongings.backpack);
 		});
 		pos += ROW_HEIGHT + GAP;
-		addCheckBox("Unlimited inventory space", InventorySpace.isOn(), () -> InventorySpace.setOn(!InventorySpace.isOn()));
+		addCheckBox("Unlimited inventory space", InventorySpace.isOn(), () -> InventorySpace.setOn(!InventorySpace.isOn()), true, 6);
 
 		addSection("Items");
 		addButton("Add item", 0, WIDTH, () -> {

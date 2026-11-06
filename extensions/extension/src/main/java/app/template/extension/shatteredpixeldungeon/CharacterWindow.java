@@ -14,6 +14,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
@@ -43,14 +45,14 @@ public class CharacterWindow extends Window {
 	private static final int VALUE_WIDTH = 34;
 
 	public static final int TAB_STATS = 0;
-	public static final int TAB_TALENTS = 1;
-	public static final int TAB_MODIFIERS = 2;
+	public static final int TAB_TALENTS = 2;
+	public static final int TAB_MODIFIERS = 1;
 	public static final int TAB_STATUS = 3;
-	private static final String[] TAB_NAMES = { "Stats", "Talents", "Mods", "Status" };
+	private static final String[] TAB_NAMES = { "Stats", "Mods", "Talents", "Status" };
 	private static final String[] TAB_INFO = {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
-		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
+		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Add Status adds a new one and Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.\n\nThe hunger buttons set how hungry you are. Well Fed also gives the Well Fed effect, as if you had just eaten a meat pie.",
 	};
 
@@ -504,7 +506,7 @@ public class CharacterWindow extends Window {
 			x += turnsWidth + GAP;
 		}
 
-		RedButton infiniteButton = new RedButton("") {
+		StyledButton infiniteButton = new StyledButton(infinite ? Chrome.Type.RED_BUTTON : Chrome.Type.GREY_BUTTON, "") {
 			@Override
 			public void onClick() {
 				InfiniteStatuses.setInfinite(buff, !infinite);
@@ -528,7 +530,7 @@ public class CharacterWindow extends Window {
 		add(info);
 		x += smallWidth + GAP;
 
-		RedButton remove = new RedButton("X", 7) {
+		IconButton remove = new IconButton(Icons.get(Icons.CLOSE)) {
 			@Override
 			public void onClick() {
 				InfiniteStatuses.removeForever(buff);

@@ -227,7 +227,7 @@ public class EnemyWindow extends EditorWindow {
 		info.setRect(x, pos, small, ROW_HEIGHT);
 		add(info);
 
-		RedButton remove = new RedButton("X", 7) {
+		IconButton remove = new IconButton(Icons.get(Icons.CLOSE)) {
 			@Override
 			public void onClick() {
 				StatusEditor.remove(buff);

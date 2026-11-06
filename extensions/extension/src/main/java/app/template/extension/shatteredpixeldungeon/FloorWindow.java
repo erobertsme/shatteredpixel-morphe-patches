@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
@@ -134,7 +135,7 @@ public class FloorWindow extends EditorWindow {
 	}
 
 	private void addEffectRow(Blob blob) {
-		float small = 34;
+		float small = 16;
 		float nameWidth = WIDTH - small - GAP;
 		RedButton name = new RedButton("") {
 			@Override
@@ -148,10 +149,15 @@ public class FloorWindow extends EditorWindow {
 		label.maxWidth((int) nameWidth - 6);
 		label.setPos(3, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
-		addButton("Remove", nameWidth + GAP, small, () -> {
-			FloorEditor.clearAll(blob);
-			refresh();
-		}).icon(Icons.get(Icons.CLOSE));
+		IconButton remove = new IconButton(Icons.get(Icons.CLOSE)) {
+			@Override
+			public void onClick() {
+				FloorEditor.clearAll(blob);
+				refresh();
+			}
+		};
+		remove.setRect(nameWidth + GAP, pos, small, ROW_HEIGHT);
+		add(remove);
 		pos += ROW_HEIGHT + GAP;
 	}
 

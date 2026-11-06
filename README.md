@@ -118,7 +118,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 Keep your Silver, Golden or Shattered supporter rewards and hide the Support button on the title screen (Extras → Unlocks). This is meant for supporters keeping what they paid for. Please support the developer. Google Play version only.
 
 ### Teleport
-- **Teleport** in the in-game menu and **Teleport to...** in the Adventuring Notes: travel to any floor, arriving at its entrance or exit.
+- **Teleport** in the in-game menu and **Teleport to...** in the Adventuring Notes: travel to any floor, arriving at its entrance or exit. Tapping a floor number in the Adventuring Notes asks to teleport there.
 - **Teleport Here** for your hero in the floor editor and on tile examine windows, with a warning before landing on an active trap.
 - **Teleport** for creatures in the enemy editor.
 - Can be switched off in Extras → Editors.
