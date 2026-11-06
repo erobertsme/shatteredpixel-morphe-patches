@@ -601,3 +601,24 @@ object NotesTabLayoutFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object ToolbarConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object ToolbarLayoutFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
+	name = "layout",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object QuickSlotStorePlaceholdersFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/QuickSlot;",
+	name = "storePlaceholders",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)

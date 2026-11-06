@@ -10,7 +10,7 @@ private const val INFINITE_CLASS = "$EXTENSION_PACKAGE/InfiniteStatuses;"
 @Suppress("unused")
 val characterEditorPatch = bytecodePatch(
 	name = "Character editor",
-	description = "Adds a Character button to the in-game menu, shown with your hero's portrait, and an Edit button on the hero info window. Edit health, max health, level, experience, strength and shield. Add or remove talent points and bonus points, swap talents like a Scroll of Metamorphosis, and change your subclass and armor ability. Add modifiers to accuracy, evasion, damage, armor, speed and regeneration. Add, remove, time or make infinite any status effect. Changes are saved with the run. Can be switched off in Extras, Editors.",
+	description = "Edit your hero's stats, talents, subclass, armor ability, modifiers and status effects.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

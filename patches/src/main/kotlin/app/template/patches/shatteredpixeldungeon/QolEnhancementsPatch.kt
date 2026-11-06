@@ -9,11 +9,13 @@ import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGE
 private const val PREVIEW_CLASS = "$EXTENSION_PACKAGE/PathPreview;"
 private const val SHOPKEEPER_CLASS = "$EXTENSION_PACKAGE/ShopkeeperRules;"
 private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
+private const val QUICKSLOT_CLASS = "$EXTENSION_PACKAGE/QuickslotRow;"
+private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Quality of life options in Extras, QoL. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons and adjustable distances. Shopkeeper: banish enemies from the shop, keep the shopkeeper calm through fights, area effects and your attacks, a lenient three strikes rule with apologies and theft handling, thrown weapons go up for sale, and a shop window that buys back up to 24 sold items. Quantum Chest: a chest beside the exit of every beaten boss floor, all sharing one storage of 25 to 75 items. Backpack: 4 to 8 rows of items in every bag and an optional extra page. Settings changed during a game are saved with that game.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags and an extra quickslot row.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -99,6 +101,22 @@ val qolEnhancementsPatch = bytecodePatch(
 			0,
 			"invoke-static/range { p1 .. p1 }, $SHOPKEEPER_CLASS->onTradeWindow(Ljava/lang/Object;)V",
 		)
+
+		LauncherOnCreateFingerprint.method.addInstruction(0, "invoke-static { }, $QUICKSLOT_CLASS->onLaunch()V")
+		ItemStoreInBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static { p0, p1 }, $QUICKSLOT_CLASS->beforeItemStore(${ITEM_TYPE}Lcom/watabou/utils/Bundle;)V",
+		)
+		ItemStoreInBundleFingerprint.callBeforeEveryReturn("invoke-static { p0 }, $QUICKSLOT_CLASS->afterItemStore($ITEM_TYPE)V")
+		ItemRestoreFromBundleFingerprint.method.addInstruction(
+			0,
+			"invoke-static { p0, p1 }, $QUICKSLOT_CLASS->beforeItemRestore(${ITEM_TYPE}Lcom/watabou/utils/Bundle;)V",
+		)
+		ItemRestoreFromBundleFingerprint.callBeforeEveryReturn("invoke-static { p0 }, $QUICKSLOT_CLASS->afterItemRestore($ITEM_TYPE)V")
+		QuickSlotStorePlaceholdersFingerprint.method.addInstruction(0, "invoke-static { }, $QUICKSLOT_CLASS->beforePlaceholders()V")
+		QuickSlotStorePlaceholdersFingerprint.callBeforeEveryReturn("invoke-static { }, $QUICKSLOT_CLASS->afterPlaceholders()V")
+		ToolbarConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarCreated($ITEM_TYPE)V")
+		ToolbarLayoutFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarLayout($ITEM_TYPE)V")
 
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $CHEST_CLASS->onSceneCreated(Ljava/lang/Object;)V",

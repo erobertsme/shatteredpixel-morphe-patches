@@ -9,6 +9,7 @@ public class Dungeon {
 	public static int gold;
 	public static int depth;
 	public static long seed;
+	public static QuickSlot quickslot;
 
 	public static void saveAll() throws java.io.IOException { throw new RuntimeException("Stub"); }
 

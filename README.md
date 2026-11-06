@@ -1,12 +1,14 @@
 # 🍀 Cloverlord Patches
 
-Template repository for Morphe Patches.
+Morphe patches for [Shattered Pixel Dungeon](https://github.com/00-Evan/shattered-pixel-dungeon) 4.0.2, Google Play build.
 
 ## ❓ About
 
-Patches for apps I like.
+Cloverlord Patches add an **Extras** menu to Shattered Pixel Dungeon, with editors for your hero, inventory, enemies, floors and hunger, quality of life options, save management, teleporting and unlocks. Every patch is optional, and the editors can be switched on and off in **Extras → Editors**.
 
-<!-- TODO: Update this about section with a brief introduction/summary about this repo and what it offers. -->
+Patch settings work like this: settings changed on the main menu are the defaults for new games, and settings changed during a game are saved with that game. Unlocks, supporter options, favorites and hunger keep their own rules.
+
+The full details of each patch are under [Patch details](#-patch-details).
 
 ### How to use these patches
 
@@ -47,6 +49,86 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 </details>
 
 <!-- PATCHES_END -->
+
+## 📖 Patch details
+
+### Extras menu
+Every patch that adds settings puts them in **Extras**, on the title screen and in the in-game menu. Extras has General, QoL, Unlocks and Editors tabs, and each tab only appears when its patch is included. The [i] buttons throughout explain each window, split into pages with icons where it helps.
+
+### Character editor
+- **Character** button in the in-game menu, shown with your hero's portrait, and an **Edit** button on each tab of the hero info window.
+- **Stats:** health, max health, level, experience, strength and shield.
+- **Talents:** add or remove points and bonus points per tier, swap any talent like a Scroll of Metamorphosis (with an [i] for each choice), and change your **subclass** (bottom of tier 3) or **armor ability** (bottom of tier 4).
+- **Mods:** add or subtract modifiers to accuracy, evasion, damage, armor, speed and regeneration.
+- **Status:** edit the turns left on any status, make one infinite (the star), remove one or all negative ones, and add any status from a picker with favorites.
+- Everything is saved with the run.
+
+### Enemy editor
+- **Edit** button when you examine an enemy, NPC or other creature.
+- Edit its health and max health, switch it between enemy, neutral and ally, and set what it's doing (sleeping, wandering, hunting, fleeing or passive).
+- **Move to Tile** sends it walking to a tile you tap; **Defeat** kills it.
+- Edit, add or remove its status effects.
+- With the Teleport patch, **Teleport** moves it straight to a tile you tap.
+
+### Floor editor
+- **Floor** button in the in-game menu, and an **Edit Tile** button when you examine a tile, trap or item on the floor.
+- **Tile:** add or remove gases and other area effects; add, change, remove, hide, reveal, disarm and trigger traps; plant seeds or remove plants; change the terrain, open, close, lock, unlock or hide doors; spawn any creature, at a chosen level for creatures that scale; place any item, choosing whether a trap there stays armed; delete the tile to an empty pit.
+- **Quick buttons** on examine windows: doors (Open, Close, Lock, Unlock), traps (Activate, Deactivate, Hidden, Visible), grass (Unfurrowed, Furrowed, Trampled), exits (Lock, Unlock), chasms (Fill In) and barricades (Break). Hidden and Visible only show for traps that can be hidden.
+- **Items on the floor:** Move Item or Move Pile to another tile, with the destination highlighted and a choice about any trap there.
+- **Whole floor:** remove all effects or traps, reveal, hide, disarm or re-arm all traps, reveal or forget the map, defeat all enemies, allies or neutral creatures.
+- **Draw:** drag across the map to paint floor, wall or empty pit, move the view around, then Finish to keep or Cancel to undo.
+- **List everything on a tile** (Extras → Editors): examining a tile lists every creature, every item in a pile, plants, traps and the tile itself. Pick an item from a pile to read it, pick it up instead of the top item, or move it.
+
+### Hunger editor
+- **Hunger** window (Extras → General, the character editor, and the hunger summary on the hero info window).
+- Change how many turns you stay full and hungry, with 75%, 50% and 30% presets, or switch hunger off.
+- Starvation damage follows the game's formula or a fixed amount every so many turns, or can be switched off.
+- Main menu settings are the defaults for new games; changes made during a game are saved with that game.
+
+### Inventory editor
+- **Inventory** button in the in-game menu.
+- Edit gold and energy, add any item from a picker with categories and favorites, identify your carried items, learn every potion, scroll or ring type, and remove every curse.
+- **Open Backpack** shows your real backpack in edit mode, with an **Edit** action on every item: level, quantity, identified, cursed, enchantment or glyph, augment, charges with an **infinite charges** option, waterskin water, blessing an ankh, alchemy conversions, duplicate and delete. A gear button returns to the inventory editor.
+- **Unlimited inventory space:** every bag always has room for one more item, shown in pages of 8 rows with arrows that wrap and remember your page.
+- **Weapons, Armor and Rings tabs** (switched on in Extras → QoL): hold those items like the potion bandolier, so they don't use backpack space.
+- Only one of each bag can be carried; extra copies are refused or dropped.
+
+### QoL enhancements
+- **Confirm actions:** a tap that would walk somewhere, attack, talk, use stairs or step into danger first shows what will happen, with Go and Cancel. Each action can be switched on or off, and moving and attacking have their own minimum distances. Danger accounts for levitation and immunities.
+- **Shopkeeper:**
+  - Banish Enemies: enemies that walk into the shop are thrown out and stay away for 20 turns.
+  - Fearless: he isn't scared off by enemies fighting in the shop, or by you carrying the Amulet back up.
+  - Immune: gas, fire and cold don't drive him away.
+  - Passive: your attacks only earn a remark, and thrown weapons go up for sale.
+  - Lenient: two warnings, then you're thrown out until you apologize with gold or a potion of healing. Getting caught stealing means paying for the item or leaving.
+  - Shop window: buy back up to 24 sold items, 8 per page, with an [i] to examine each.
+- **Quantum Chest:** a chest beside the exit of every beaten boss floor. Every chest opens the same storage of 1, 2 or 3 pages of 25 items. Tap an item for its details and Take Out or Store Item, or turn on Quick Move.
+- **Backpack:** 4 to 8 rows of items in every bag, and an optional extra page for each tab.
+- **Extra quickslot row:** six more quickslots in a row above the toolbar.
+
+### Save management
+- **Export saves** and **Import saves** on the main menu Extras and the app icon shortcuts (long-press the icon) back up and restore every save as one zip file.
+- **Game Saves** (Extras and the in-game menu): keep up to 10 saves of the game you're playing and load any of them. Each game's saves are kept in their own folder named after its slot and seed. When a game ends, the title screen asks whether to delete or keep its saves, and **Clean Up Saves** removes any you kept.
+- Options when patching:
+  - **Public save folder:** saves are stored in a folder you can open with any file manager (Documents/ShatteredPixelDungeon by default).
+  - **Uncompressed saves:** save files are plain JSON you can edit in any text editor.
+  - **Save file access:** shows the game's private save folder in the system file picker and Files app.
+
+### Supporter options
+Keep your Silver, Golden or Shattered supporter rewards and hide the Support button on the title screen (Extras → Unlocks). This is meant for supporters keeping what they paid for. Please support the developer. Google Play version only.
+
+### Teleport
+- **Teleport** in the in-game menu and **Teleport to...** in the Adventuring Notes: travel to any floor, arriving at its entrance or exit.
+- **Teleport Here** for your hero in the floor editor and on tile examine windows, with a warning before landing on an active trap.
+- **Teleport** for creatures in the enemy editor.
+- Can be switched off in Extras → Editors.
+
+### Unlock all
+Show all heroes, guide books, intros and lore, catalog items and bestiary entries as unlocked (Extras → Unlocks). Your save is not changed, so switching a toggle off brings back your real progress.
+
+### Shared
+- Unlock toggles, editor switches and other patch settings are stored separately from the game's own settings.
+- The patches never add their own item or bag types to your save, so a save still loads if a patch is removed.
 
 ### 🛠️ Building locally
 

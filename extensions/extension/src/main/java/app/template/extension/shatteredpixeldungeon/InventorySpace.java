@@ -357,21 +357,23 @@ public final class InventorySpace {
 		int height = heightField.getInt(window);
 		float top = height + ROW_GAP;
 
-		RedButton previous = new RedButton("<-", 7) {
+		RedButton previous = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				turn(window, page, -1);
 			}
 		};
+		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
 		previous.setRect(0, top, ARROW_WIDTH, PAGER_HEIGHT);
 		window.add(previous);
 
-		RedButton next = new RedButton("->", 7) {
+		RedButton next = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				turn(window, page, 1);
 			}
 		};
+		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
 		next.setRect(width - ARROW_WIDTH, top, ARROW_WIDTH, PAGER_HEIGHT);
 		window.add(next);
 

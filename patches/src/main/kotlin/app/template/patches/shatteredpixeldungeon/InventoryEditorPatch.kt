@@ -12,7 +12,7 @@ private const val INFINITE_CHARGES_CLASS = "$EXTENSION_PACKAGE/InfiniteCharges;"
 @Suppress("unused")
 val inventoryEditorPatch = bytecodePatch(
 	name = "Inventory editor",
-	description = "Adds an Inventory button to the in-game menu for editing gold and energy, adding any item in the game, identifying carried items, learning every potion, scroll and ring type, and removing every curse. Opens the backpack in edit mode with an Edit button on every item: level, quantity, identified, curses, enchantments and glyphs, augments, charges with an infinite charges option, waterskin water, blessing an ankh, alchemy conversions, duplicating and deleting. Also adds optional unlimited inventory space with pages, Weapons, Armor and Rings backpack tabs that hold those items like the potion bandolier, and keeps you to one bag of each kind. Can be switched off in Extras, Editors.",
+	description = "Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

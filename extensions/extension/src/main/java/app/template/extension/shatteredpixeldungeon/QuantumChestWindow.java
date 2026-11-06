@@ -153,21 +153,23 @@ public class QuantumChestWindow extends EditorWindow {
 
 	private void addPager(int pages) {
 		boolean fromBags = storing;
-		RedButton previous = new RedButton("<-", 7) {
+		RedButton previous = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				replaceWith(new QuantumChestWindow(fromBags, (page - 1 + pages) % pages));
 			}
 		};
+		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
 		previous.setRect(0, pos, ARROW_WIDTH, ROW_HEIGHT);
 		add(previous);
 
-		RedButton next = new RedButton("->", 7) {
+		RedButton next = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				replaceWith(new QuantumChestWindow(fromBags, (page + 1) % pages));
 			}
 		};
+		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
 		next.setRect(WIDTH - ARROW_WIDTH, pos, ARROW_WIDTH, ROW_HEIGHT);
 		add(next);
 

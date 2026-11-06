@@ -98,21 +98,23 @@ final class InfoWindow extends Window {
 
 	private float addPager(float y) {
 		int count = content.pages.size();
-		RedButton previous = new RedButton("<-", 7) {
+		RedButton previous = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				turn((page - 1 + count) % count);
 			}
 		};
+		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
 		previous.setRect(0, y, ARROW_WIDTH, PAGER_HEIGHT);
 		add(previous);
 
-		RedButton next = new RedButton("->", 7) {
+		RedButton next = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				turn((page + 1) % count);
 			}
 		};
+		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
 		next.setRect(WIDTH - ARROW_WIDTH, y, ARROW_WIDTH, PAGER_HEIGHT);
 		add(next);
 

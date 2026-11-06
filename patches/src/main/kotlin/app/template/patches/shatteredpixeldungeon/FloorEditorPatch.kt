@@ -13,7 +13,7 @@ private const val AFTER_INFO = "invoke-static/range { p0 .. p0 }, $FLOOR_CLASS->
 @Suppress("unused")
 val floorEditorPatch = bytecodePatch(
 	name = "Floor editor",
-	description = "Adds a Floor button to the in-game menu and an Edit Tile button when you examine a tile, trap or item on the floor. Add or remove gases and other area effects; add, remove, hide, reveal, disarm and trigger traps; plant seeds; change terrain and doors; spawn creatures at a chosen level; place items, choosing whether a trap there stays armed; and delete tiles to an empty pit. For the whole floor: reveal or forget the map, defeat groups of creatures, and draw floors, walls and pits by dragging, with Finish and Cancel. Examine windows get quick buttons for doors, traps, grass, exits, chasms and barricades, and items on the floor can be moved to another tile. Examining a tile lists everything on it, including every item in a pile and the tile itself. Can be switched off in Extras, Editors.",
+	description = "Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

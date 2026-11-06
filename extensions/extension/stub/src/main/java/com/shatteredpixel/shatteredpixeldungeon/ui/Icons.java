@@ -21,7 +21,9 @@ public enum Icons {
 	STAIRS,
 	STAIRS_LARGE,
 	SCROLL_COLOR,
-	BACKPACK_LRG;
+	BACKPACK_LRG,
+	LEFTARROW,
+	RIGHTARROW;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

@@ -214,6 +214,7 @@ public final class CloverlordMenu {
 				y += 2 * GAP;
 			}
 
+			float listBottom = y - 2 * GAP;
 			if (character) {
 				RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
 					private int shownTab = -1;
@@ -260,10 +261,28 @@ public final class CloverlordMenu {
 				gizmo.visible = WndHero.lastIdx == 0;
 				gizmo.active = WndHero.lastIdx == 0;
 			}
-			window.resize(width, (int) y);
+			fillTalentList(window, width, listBottom);
+			window.resize(width, (int) y + 1);
 			window.offset(0, 0);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the hero window buttons", e);
+		}
+	}
+
+	/**
+	 * Lets the talents tab use the height the hunger summary adds to the window, instead of leaving it blank.
+	 */
+	private static void fillTalentList(Window window, int width, float bottom) {
+		try {
+			Field field = window.getClass().getDeclaredField("talents");
+			field.setAccessible(true);
+			Object talents = field.get(window);
+			if (!(talents instanceof com.watabou.noosa.ui.Component)) return;
+			com.watabou.noosa.ui.Component tab = (com.watabou.noosa.ui.Component) talents;
+			if (bottom <= tab.height()) return;
+			tab.setRect(tab.left(), tab.top(), width, bottom - tab.top());
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not resize the talents tab", e);
 		}
 	}
 

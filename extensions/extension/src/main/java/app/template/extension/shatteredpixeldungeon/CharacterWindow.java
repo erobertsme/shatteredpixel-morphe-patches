@@ -527,12 +527,13 @@ public class CharacterWindow extends Window {
 	}
 
 	void addPager(int current, int pages, PageOpener opener) {
-		RedButton previous = new RedButton("<", 7) {
+		RedButton previous = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				opener.open((current + pages - 1) % pages);
 			}
 		};
+		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
 		previous.setRect(0, pos, 24, ROW_HEIGHT);
 		add(previous);
 
@@ -540,12 +541,13 @@ public class CharacterWindow extends Window {
 		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
 
-		RedButton next = new RedButton(">", 7) {
+		RedButton next = new RedButton("", 7) {
 			@Override
 			public void onClick() {
 				opener.open((current + 1) % pages);
 			}
 		};
+		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
 		next.setRect(WIDTH - 24, pos, 24, ROW_HEIGHT);
 		add(next);
 		pos += ROW_HEIGHT + GAP;
