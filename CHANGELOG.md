@@ -1,3 +1,9 @@
+## [1.0.0-dev.54](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.53...v1.0.0-dev.54) (2026-11-06)
+
+### ✨ New Features
+
+* Weapons, Armor and Rings tabs hold items like the bandolier, Teleport and Game Saves in the game menu, a Teleport switch, and a larger Floor icon ([e367ef1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e367ef1dca3bb10614631f2b91f46be029a2a5e3))
+
 ## [1.0.0-dev.53](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.52...v1.0.0-dev.53) (2026-11-06)
 
 ### ✨ New Features
