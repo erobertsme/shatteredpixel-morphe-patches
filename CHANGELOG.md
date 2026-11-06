@@ -1,3 +1,9 @@
+## [1.0.0-dev.60](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.59...v1.0.0-dev.60) (2026-11-06)
+
+### ✨ New Features
+
+* With the quickslot swapper, the swap button swaps to the extra slots instead of adding a row, and the option is renamed Extra toolbar item slots ([22ffcf8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/22ffcf817156de5a1b0e964f8c50aeab1fb80834))
+
 ## [1.0.0-dev.59](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.58...v1.0.0-dev.59) (2026-11-06)
 
 ### 🐛 Bug Fixes

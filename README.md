@@ -21,7 +21,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.59](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.59)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.0.0-dev.60](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.60)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;10 patches</summary>
 <br>
@@ -40,7 +40,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Floor editor](#floor-editor) | Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging. |  |
 | [Hunger editor](#hunger-editor) | Change how long each hunger stage lasts and how starving hurts, or switch hunger off. |  |
 | [Inventory editor](#inventory-editor) | Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs. |  |
-| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags and an extra quickslot row. |  |
+| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags and extra toolbar item slots. |  |
 | [Save management](#save-management) | Export and import all saves as a zip, and keep up to 10 saves of each game. Optional public, uncompressed save files. | • Public save folder<br>• Save folder<br>• Uncompressed saves<br>• Save file access |
 | [Supporter options](#supporter-options) | NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!<br><br>Keep your supporter rewards and hide the Support button. Google Play version only. |  |
 | [Teleport](#teleport) | Teleport to any floor, and teleport your hero or other creatures to any tile. |  |
