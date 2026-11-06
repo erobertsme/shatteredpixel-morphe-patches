@@ -127,7 +127,7 @@ public final class QuickslotRow {
 	public static void afterToolbarCreated(Object toolbar) {
 		try {
 			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2 || SPDSettings.interfaceSize() != 0) return;
-			if (swapperShown()) return;
+			if (SPDSettings.quickSwapper()) return;
 			Component bar = (Component) toolbar;
 			tallToolbars.add(toolbar);
 			bar.setSize(bar.width(), bar.height() + ROW_HEIGHT);
@@ -136,26 +136,18 @@ public final class QuickslotRow {
 		}
 	}
 
-	private static boolean swapperShown() {
-		int shown = 4;
-		if (PixelScene.uiCamera.width > 152) shown++;
-		if (PixelScene.uiCamera.width > 170) shown++;
-		return SPDSettings.quickSwapper() && shown < GAME_SLOTS;
-	}
-
 	/**
-	 * Called at the end of Toolbar.layout. With a tall toolbar, moves the toolbar down to the bottom row and puts
-	 * the extra quickslots above the ones the game shows. With the swapper, shows the set of three slots the swap
-	 * button has reached.
+	 * Called at the end of Toolbar.layout. With the quickslot swapper on, the swap button pages through all twelve
+	 * slots in place. Otherwise the toolbar moves down a row and the extra quickslots go above the ones the game
+	 * shows.
 	 */
 	public static void afterToolbarLayout(Object toolbar) {
 		try {
 			if (!isOn() || QuickSlot.SIZE < GAME_SLOTS * 2) return;
 			Component bar = (Component) toolbar;
 			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
-			Object swap = field(bar, "btnSwap").get(bar);
-			if (swap instanceof Component && ((Component) swap).visible) {
-				showSwapGroup(quick);
+			if (SPDSettings.quickSwapper() && SPDSettings.interfaceSize() == 0) {
+				pageWithSwapper(bar, quick);
 				return;
 			}
 			if (tallToolbars.contains(toolbar)) addExtraRow(bar, quick);
@@ -188,41 +180,82 @@ public final class QuickslotRow {
 		}
 	}
 
-	private static final int SWAP_GROUP = 3;
-	private static int swapGroup;
+	private static int swapPage;
 	private static Boolean lastSwapped;
 
-	private static void showSwapGroup(Object[] quick) throws ReflectiveOperationException {
+	/**
+	 * Shows the swap button beside the quickslots, making room by setting the last slot aside if needed, and fills
+	 * the visible spots with the page of slots the swap button has reached.
+	 */
+	private static void pageWithSwapper(Component bar, Object[] quick) throws ReflectiveOperationException {
+		Component swap = (Component) field(bar, "btnSwap").get(bar);
+		List<Component> spots = new ArrayList<>();
+		for (Object tool : quick) {
+			Component slot = (Component) tool;
+			if (slot.visible) spots.add(slot);
+		}
+		if (spots.isEmpty()) return;
+		spots.sort((a, b) -> Float.compare(a.left(), b.left()));
+		boolean flipped = SPDSettings.flipToolbar();
+		if (!flipped) Collections.reverse(spots);
+
+		if (!swap.visible) {
+			float needed = swap.width() - 2;
+			if (roomBeside(bar, spots.get(spots.size() - 1), flipped) < needed && spots.size() > 1) {
+				hide(spots.remove(spots.size() - 1));
+			}
+			Component end = spots.get(spots.size() - 1);
+			float x = flipped ? end.right() - 2 : end.left() - needed;
+			swap.setPos(x, end.top() + 1);
+			swap.visible = true;
+			enable(swap, end.active);
+		}
+
 		Field swappedField = Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getDeclaredField("swappedQuickslots");
 		swappedField.setAccessible(true);
 		boolean swapped = swappedField.getBoolean(null);
-		int groups = quick.length / SWAP_GROUP;
+		int size = spots.size();
+		int pages = (quick.length + size - 1) / size;
 		if (lastSwapped == null) {
-			swapGroup = swapped ? 1 : 0;
+			swapPage = 0;
 		} else if (swapped != lastSwapped) {
-			swapGroup = (swapGroup + 1) % groups;
+			swapPage = (swapPage + 1) % pages;
 		}
 		lastSwapped = swapped;
+		swapPage = Math.min(swapPage, pages - 1);
 
-		int gameStart = swapped ? SWAP_GROUP : 0;
-		int start = swapGroup * SWAP_GROUP;
-		if (start == gameStart) return;
-		Component[] spots = new Component[SWAP_GROUP];
-		float[][] places = new float[SWAP_GROUP][];
-		for (int k = 0; k < SWAP_GROUP; k++) {
-			spots[k] = (Component) quick[gameStart + k];
-			places[k] = new float[] { spots[k].left(), spots[k].top() };
-		}
-		for (int k = 0; k < SWAP_GROUP; k++) {
+		float[][] places = new float[size][];
+		for (int k = 0; k < size; k++) places[k] = new float[] { spots.get(k).left(), spots.get(k).top() };
+		int start = swapPage * size;
+		boolean[] used = new boolean[quick.length];
+		for (int k = 0; k < size && start + k < quick.length; k++) {
 			Component target = (Component) quick[start + k];
-			copyLook(spots[k], target, places[k][0], places[k][1]);
+			copyLook(spots.get(k), target, places[k][0], places[k][1]);
 			target.visible = true;
-			enable(target, spots[k].active);
+			enable(target, spots.get(k).active);
+			used[start + k] = true;
 		}
 		for (int i = 0; i < quick.length; i++) {
-			if (i >= start && i < start + SWAP_GROUP) continue;
-			hide((Component) quick[i]);
+			if (!used[i]) hide((Component) quick[i]);
 		}
+	}
+
+	/**
+	 * The free space beside [end], on the side the swap button goes, up to the next toolbar button or the edge.
+	 */
+	@SuppressWarnings("unchecked")
+	private static float roomBeside(Component bar, Component end, boolean flipped) throws ReflectiveOperationException {
+		float limit = flipped ? bar.right() : bar.left();
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(bar)) {
+			if (!(member instanceof Component) || member == end || !member.visible) continue;
+			Component other = (Component) member;
+			if (other.top() >= PixelScene.uiCamera.height - 1) continue;
+			if (flipped && other.left() >= end.right() - 1) limit = Math.min(limit, other.left());
+			if (!flipped && other.right() <= end.left() + 1) limit = Math.max(limit, other.right());
+		}
+		return flipped ? limit - end.right() : end.left() - limit;
 	}
 
 	private static void hide(Component tool) {
