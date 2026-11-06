@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
@@ -16,7 +17,7 @@ public class FloorWindow extends EditorWindow {
 
 	private static final String[] TABS = { "Effects", "Traps", "Other" };
 	private static final String[] INFO = {
-		"Effects\n\nEvery gas and area effect on this floor with its total strength. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.",
+		"Effects\n\nEvery gas and area effect on this floor with its total strength. A Lotus from a Wand of Regrowth shows its range and the turns it has left: it covers every tile in range with falling leaves and helps plants drop seeds and dew there. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.",
 		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm All stops them going off, Re-arm All switches them back on. Remove All Traps takes every trap off this floor.",
 		"Other\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
 	};
@@ -70,12 +71,14 @@ public class FloorWindow extends EditorWindow {
 
 	private void buildEffects() {
 		List<Blob> effects = FloorEditor.activeEffects();
-		if (effects.isEmpty()) addHint("No effects on this floor.");
+		List<Mob> lotuses = FloorEditor.lotuses();
+		if (effects.isEmpty() && lotuses.isEmpty()) addHint("No effects on this floor.");
 		for (Blob blob : effects) addEffectRow(blob);
+		for (Mob lotus : lotuses) addLotusRow(lotus);
 		addButton("Remove all effects", 0, WIDTH, () -> {
 			FloorEditor.clearAllEffects();
 			refresh();
-		}).enable(!effects.isEmpty());
+		}).enable(!effects.isEmpty() || !lotuses.isEmpty());
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -153,6 +156,28 @@ public class FloorWindow extends EditorWindow {
 			@Override
 			public void onClick() {
 				FloorEditor.clearAll(blob);
+				refresh();
+			}
+		};
+		remove.setRect(nameWidth + GAP, pos, small, ROW_HEIGHT);
+		add(remove);
+		pos += ROW_HEIGHT + GAP;
+	}
+
+	private void addLotusRow(Mob lotus) {
+		float small = 16;
+		float nameWidth = WIDTH - small - GAP;
+		RedButton name = new RedButton("");
+		name.setRect(0, pos, nameWidth, ROW_HEIGHT);
+		add(name);
+		RenderedTextBlock label = PixelScene.renderTextBlock("Lotus (range " + FloorEditor.lotusRange(lotus) + ", " + lotus.HP + " turns)", 6);
+		label.maxWidth((int) nameWidth - 6);
+		label.setPos(3, pos + (ROW_HEIGHT - label.height()) / 2f);
+		add(label);
+		IconButton remove = new IconButton(Icons.get(Icons.CLOSE)) {
+			@Override
+			public void onClick() {
+				EnemyEditor.defeat(lotus);
 				refresh();
 			}
 		};

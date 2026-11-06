@@ -118,6 +118,8 @@ val qolEnhancementsPatch = bytecodePatch(
 		QuickSlotStorePlaceholdersFingerprint.method.addInstruction(0, "invoke-static { }, $QUICKSLOT_CLASS->beforePlaceholders()V")
 		QuickSlotStorePlaceholdersFingerprint.callBeforeEveryReturn("invoke-static { }, $QUICKSLOT_CLASS->afterPlaceholders()V")
 		ToolbarConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarCreated($ITEM_TYPE)V")
+		GameScenePromptFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterPrompt($ITEM_TYPE)V")
+		WndQuickBagConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterQuickBag($ITEM_TYPE)V")
 		ToolbarLayoutFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarLayout($ITEM_TYPE)V")
 
 		ResumeIndicatorUpdateFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $RESUME_PATH_CLASS->afterIndicatorUpdate($ITEM_TYPE)V")

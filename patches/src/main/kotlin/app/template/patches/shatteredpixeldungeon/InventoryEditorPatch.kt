@@ -51,6 +51,9 @@ val inventoryEditorPatch = bytecodePatch(
 		WndBagConstructorFingerprint.callBeforeReturn(
 			"invoke-static/range { p0 .. p0 }, $BACKPACK_CLASS->afterBagCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
+		WndUseItemConstructorFingerprint.callBeforeEveryReturn(
+			"invoke-static/range { p0 .. p2 }, $BACKPACK_CLASS->afterUseItemCreated(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V",
+		)
 
 		ItemStoreInBundleFingerprint.method.addInstruction(
 			0,

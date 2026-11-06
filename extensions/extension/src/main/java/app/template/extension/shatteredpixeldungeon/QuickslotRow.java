@@ -157,6 +157,60 @@ public final class QuickslotRow {
 	 * Grows or shrinks the toolbar by a row when the setting or the quickslot swapper changes during a game, keeping
 	 * its bottom edge in place, and moves the game log and other indicators to match.
 	 */
+	/**
+	 * How much taller the toolbar is than normal right now.
+	 */
+	static int extraHeight() {
+		try {
+			java.lang.reflect.Field sceneField = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("scene");
+			sceneField.setAccessible(true);
+			Object scene = sceneField.get(null);
+			if (scene == null) return 0;
+			java.lang.reflect.Field toolbarField = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("toolbar");
+			toolbarField.setAccessible(true);
+			Object bar = toolbarField.get(scene);
+			return bar != null && tallToolbars.contains(bar) ? ROW_HEIGHT : 0;
+		} catch (Throwable e) {
+			return 0;
+		}
+	}
+
+	/**
+	 * Called at the end of GameScene.prompt. Moves the prompt above the extra toolbar row.
+	 */
+	public static void afterPrompt(Object scene) {
+		int extra = extraHeight();
+		if (extra == 0) return;
+		try {
+			java.lang.reflect.Field field = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("prompt");
+			field.setAccessible(true);
+			Object prompt = field.get(scene);
+			if (!(prompt instanceof Component)) return;
+			Component toast = (Component) prompt;
+			toast.setPos(toast.left(), toast.top() - extra);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not move the prompt", e);
+		}
+	}
+
+	/**
+	 * Called at the end of the WndQuickBag constructor. Moves the quick bag above the extra toolbar row.
+	 */
+	public static void afterQuickBag(Object window) {
+		int extra = extraHeight();
+		if (extra == 0 || !(window instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Window)) return;
+		try {
+			com.shatteredpixel.shatteredpixeldungeon.ui.Window bag = (com.shatteredpixel.shatteredpixeldungeon.ui.Window) window;
+			java.lang.reflect.Field x = com.shatteredpixel.shatteredpixeldungeon.ui.Window.class.getDeclaredField("xOffset");
+			java.lang.reflect.Field y = com.shatteredpixel.shatteredpixeldungeon.ui.Window.class.getDeclaredField("yOffset");
+			x.setAccessible(true);
+			y.setAccessible(true);
+			bag.offset(x.getInt(bag), y.getInt(bag) - extra);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not move the quick bag", e);
+		}
+	}
+
 	private static void matchHeight(Component bar) {
 		boolean wanted = wantsRow();
 		boolean tall = tallToolbars.contains(bar);

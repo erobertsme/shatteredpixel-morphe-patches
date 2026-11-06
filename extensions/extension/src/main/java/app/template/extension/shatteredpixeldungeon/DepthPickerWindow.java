@@ -10,6 +10,13 @@ public class DepthPickerWindow extends EditorWindow {
 	private static final String[] REGIONS = { "Sewers", "Prison", "Caves", "Dwarven City", "Demon Halls", "Amulet" };
 	private static final int PER_ROW = 5;
 
+	private static Runnable backAction;
+
+	static void open(Runnable back) {
+		backAction = back;
+		show(new DepthPickerWindow());
+	}
+
 	public DepthPickerWindow() {
 		super();
 		addTitle("Teleport to...", INFO);
@@ -24,9 +31,16 @@ public class DepthPickerWindow extends EditorWindow {
 			addButtonRow(labels, current >= 0 && current < PER_ROW ? current : -1, index -> choose(first + index));
 		}
 		pos += GAP;
-		addButton("Close", 0, WIDTH, this::hide);
+		addButton("Back", 0, WIDTH, this::back);
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	private void back() {
+		hide();
+		Runnable action = backAction;
+		backAction = null;
+		if (action != null) action.run();
 	}
 
 	private void choose(int depth) {

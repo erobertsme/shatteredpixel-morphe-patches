@@ -75,7 +75,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - **Tile:** add or remove gases and other area effects; add, change, remove, hide, reveal, disarm and trigger traps; plant seeds or remove plants; change the terrain, open, close, lock, unlock or hide doors; spawn any creature, at a chosen level for creatures that scale; place any item, choosing whether a trap there stays armed; delete the tile to an empty pit.
 - **Quick buttons** on examine windows: doors (Open, Close, Lock, Unlock), traps (Activate, Deactivate, Hidden, Visible), grass (Unfurrowed, Furrowed, Trampled), exits (Lock, Unlock), chasms (Fill In) and barricades (Break). Hidden and Visible only show for traps that can be hidden.
 - **Items on the floor:** Move Item or Move Pile to another tile, with the destination highlighted and a choice about any trap there.
-- **Whole floor:** remove all effects or traps, reveal, hide, disarm or re-arm all traps, reveal or forget the map, defeat all enemies, allies or neutral creatures.
+- **Whole floor:** list every gas and area effect, including a Wand of Regrowth Lotus with its range and turns left (its falling leaves cover every tile in range), and remove them one at a time or all at once; remove all traps, reveal, hide, disarm or re-arm all traps, reveal or forget the map, defeat all enemies, allies or neutral creatures.
 - **Draw:** drag across the map to paint floor, wall or empty pit, move the view around, then Finish to keep or Cancel to undo.
 - **List everything on a tile** (Extras → Editors): examining a tile lists every creature, every item in a pile, plants, traps and the tile itself. Pick an item from a pile to read it, pick it up instead of the top item, or move it.
 
@@ -88,7 +88,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 ### Inventory editor
 - **Inventory** button in the in-game menu.
 - Edit gold and energy, add any item from a picker with categories and favorites, identify your carried items, learn every potion, scroll or ring type, and remove every curse.
-- **Open Backpack** shows your real backpack in edit mode, with an **Edit** action on every item: level, quantity, identified, cursed, enchantment or glyph, augment, charges with an **infinite charges** option, waterskin water, blessing an ankh, alchemy conversions, duplicate and delete. A gear button returns to the inventory editor.
+- **Open Backpack** shows your real backpack in edit mode, titled *Backpack [Editing]*. Tapping an item goes straight to its editor. Outside edit mode, every item's description has an **Edit** button in its header. The editor covers level, quantity, identified, cursed, enchantment or glyph, augment, charges with an **infinite charges** option, waterskin water, blessing an ankh, alchemy conversions, duplicate and delete. A gear button returns to the inventory editor.
 - **Unlimited inventory space:** every bag always has room for one more item, shown in pages of 8 rows with arrows that wrap and remember your page.
 - **Weapons, Armor and Rings tabs** (switched on in Extras → QoL → Backpack): hold those items like the potion bandolier, so they don't use backpack space.
 - Only one of each bag can be carried; extra copies are refused or dropped.

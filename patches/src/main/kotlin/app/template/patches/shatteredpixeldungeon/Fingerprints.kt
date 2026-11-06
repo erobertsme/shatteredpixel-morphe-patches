@@ -623,6 +623,27 @@ object GameSceneLayoutTagsFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object WndUseItemConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndUseItem;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;", "Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
+object GameScenePromptFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "prompt",
+	returnType = "V",
+	parameters = listOf("Ljava/lang/String;"),
+)
+
+object WndQuickBagConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndQuickBag;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/bags/Bag;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

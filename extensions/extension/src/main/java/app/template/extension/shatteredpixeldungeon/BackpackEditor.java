@@ -242,7 +242,7 @@ public final class BackpackEditor {
 	private static void markTitle(Window window) throws ReflectiveOperationException {
 		RenderedTextBlock title = findTitle(window);
 		if (title == null) return;
-		title.text("[Editing] " + title.text());
+		title.text(title.text() + " [Editing]");
 		title.hardlight(EDIT_COLOR);
 	}
 
@@ -294,7 +294,75 @@ public final class BackpackEditor {
 	 */
 	public static boolean execute(Object item, String action) {
 		if (!ACTION_EDIT.equals(action) || !(item instanceof Item)) return false;
-		Game.scene().addToFront(new ItemEditWindow((Item) item));
+		ItemEditWindow.openFrom((Item) item, BackpackEditor::open);
 		return true;
+	}
+
+	/**
+	 * Called at the end of the WndUseItem constructor. In the backpack editor, tapping an item goes straight to its
+	 * edit window. Anywhere else, an Edit button is added to the header.
+	 */
+	public static void afterUseItemCreated(Object window, Object owner, Object item) {
+		if (!(window instanceof Window) || !(item instanceof Item) || !EditorSwitches.inventory()) return;
+		Window useWindow = (Window) window;
+		Item target = (Item) item;
+		if (owner instanceof Window && isOpenEditWindow((Window) owner)) {
+			useWindow.visible = false;
+			Game.runOnRenderThread(() -> {
+				useWindow.hide();
+				ItemEditWindow.openFrom(target, BackpackEditor::open);
+			});
+			return;
+		}
+		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		try {
+			addHeaderEdit(useWindow, owner instanceof WndBag ? (WndBag) owner : null, target);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the Edit button to the item window", e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void addHeaderEdit(Window window, WndBag owner, Item item) throws ReflectiveOperationException {
+		Field membersField = Group.class.getDeclaredField("members");
+		membersField.setAccessible(true);
+		Field widthField = Window.class.getDeclaredField("width");
+		Field heightField = Window.class.getDeclaredField("height");
+		widthField.setAccessible(true);
+		heightField.setAccessible(true);
+		int width = widthField.getInt(window);
+		int height = heightField.getInt(window);
+
+		com.watabou.noosa.ui.Component title = null;
+		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+			if (member.getClass().getName().endsWith(".IconTitle")) title = (com.watabou.noosa.ui.Component) member;
+		}
+		if (title == null) return;
+
+		float titleWidth = title.width() - SHORTCUT_WIDTH - 4;
+		float oldBottom = title.bottom();
+		title.setRect(title.left(), title.top(), titleWidth, 0);
+		float shift = Math.max(0, title.bottom() - oldBottom);
+		if (shift > 0) {
+			for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(window))) {
+				if (member == title || !(member instanceof com.watabou.noosa.ui.Component)) continue;
+				com.watabou.noosa.ui.Component component = (com.watabou.noosa.ui.Component) member;
+				if (component.top() < oldBottom - 1) continue;
+				component.setPos(component.left(), component.top() + shift);
+			}
+		}
+
+		RedButton edit = new RedButton("Edit", 6) {
+			@Override
+			public void onClick() {
+				window.hide();
+				if (owner != null && owner.parent != null) owner.hide();
+				Bag bag = currentBag();
+				ItemEditWindow.openFrom(item, owner == null ? null : () -> Game.scene().addToFront(new WndBag(bag)));
+			}
+		};
+		edit.setRect(title.right() + 3, 2, SHORTCUT_WIDTH, SHORTCUT_HEIGHT);
+		window.add(edit);
+		if (shift > 0) window.resize(width, (int) (height + shift));
 	}
 }

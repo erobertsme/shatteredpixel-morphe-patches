@@ -328,6 +328,13 @@ public final class ForceAttack {
 	private static final class AttackTag extends Tag {
 		private Image icon;
 		private Object shownWeapon = this;
+		private Object shownLook = "";
+
+		private Object lookOf(KindOfWeapon weapon) {
+			if (weapon == null) return "none";
+			Object enchantment = weapon instanceof Weapon ? ((Weapon) weapon).enchantment : null;
+			return weapon.image() + ":" + (enchantment == null ? "" : enchantment.getClass().getName());
+		}
 
 		AttackTag() {
 			super(COLOR);
@@ -353,8 +360,10 @@ public final class ForceAttack {
 		private void refreshIcon() {
 			Hero hero = Dungeon.hero;
 			KindOfWeapon weapon = hero == null ? null : weapon(hero);
-			if (weapon == shownWeapon) return;
+			Object look = lookOf(weapon);
+			if (weapon == shownWeapon && look.equals(shownLook)) return;
 			shownWeapon = weapon;
+			shownLook = look;
 			if (icon != null) {
 				icon.killAndErase();
 				icon.destroy();

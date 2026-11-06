@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.watabou.noosa.Game;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -134,9 +135,29 @@ public class ItemEditWindow extends EditorWindow {
 		return -1;
 	}
 
+	private static Runnable backAction;
+	private static boolean customBack;
+
+	/**
+	 * Opens the edit window for [item] from outside the backpack editor. Back runs [back], or just closes when it
+	 * is null.
+	 */
+	static void openFrom(Item item, Runnable back) {
+		backAction = back;
+		customBack = true;
+		Game.scene().addToFront(new ItemEditWindow(item));
+	}
+
 	private void back() {
 		hide();
-		BackpackEditor.open();
+		if (!customBack) {
+			BackpackEditor.open();
+			return;
+		}
+		Runnable action = backAction;
+		backAction = null;
+		customBack = false;
+		if (action != null) action.run();
 	}
 
 	@Override

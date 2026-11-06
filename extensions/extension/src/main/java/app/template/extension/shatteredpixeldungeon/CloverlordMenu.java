@@ -170,7 +170,7 @@ public final class CloverlordMenu {
 				height = addGameMenuButton(window, "Floor", Icons.STAIRS_LARGE, width, height, () -> FloorWindow.open(CloverlordMenu::showGameMenu));
 			}
 			if (inRun && EditorSwitches.teleport()) {
-				height = addGameMenuButton(window, "Teleport", Teleport.icon(), width, height, () -> EditorWindow.show(new DepthPickerWindow()));
+				height = addGameMenuButton(window, "Teleport", Teleport.icon(), width, height, () -> DepthPickerWindow.open(CloverlordMenu::showGameMenu));
 			}
 			if (inRun && SaveBackupActivity.isAvailable()) {
 				height = addGameMenuButton(window, "Game Saves", Icons.SCROLL_COLOR, width, height, () -> EditorWindow.show(new GameSavesWindow(0, true)));

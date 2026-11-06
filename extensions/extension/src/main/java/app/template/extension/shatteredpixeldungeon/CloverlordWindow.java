@@ -189,7 +189,7 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void addSwitch(String text, String key) {
-		CheckBox box = new CheckBox(text) {
+		CheckBox box = new ToggleBox(text) {
 			@Override
 			public void onClick() {
 				super.onClick();
@@ -258,7 +258,7 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void addToggle(String text, String key) {
-		CheckBox box = new CheckBox(text) {
+		CheckBox box = new ToggleBox(text) {
 			@Override
 			public void onClick() {
 				super.onClick();
@@ -276,7 +276,7 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void addOption(String text, boolean on, OptionSetter setter) {
-		CheckBox box = new CheckBox(text) {
+		CheckBox box = new ToggleBox(text) {
 			@Override
 			public void onClick() {
 				super.onClick();

@@ -179,7 +179,7 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled, int textSize) {
-		CheckBox box = new CheckBox(label) {
+		CheckBox box = new ToggleBox(label) {
 			@Override
 			public void onClick() {
 				super.onClick();

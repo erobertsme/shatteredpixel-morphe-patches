@@ -6,4 +6,6 @@ public class Chrome {
 		GREY_BUTTON_TR,
 		RED_BUTTON,
 	}
+
+	public static com.watabou.noosa.NinePatch get(Type type) { throw new RuntimeException("Stub"); }
 }

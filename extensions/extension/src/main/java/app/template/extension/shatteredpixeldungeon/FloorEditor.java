@@ -172,6 +172,30 @@ public final class FloorEditor {
 
 	static void clearAllEffects() {
 		for (Blob blob : activeEffects()) blob.fullyClear();
+		for (Mob lotus : lotuses()) EnemyEditor.defeat(lotus);
+	}
+
+	private static final String LOTUS_CLASS = "com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth$Lotus";
+
+	/**
+	 * Lotuses planted by a Wand of Regrowth. Each covers the tiles in its range with falling leaves.
+	 */
+	static List<Mob> lotuses() {
+		List<Mob> result = new ArrayList<>();
+		for (Mob mob : creatures()) {
+			if (mob.getClass().getName().equals(LOTUS_CLASS)) result.add(mob);
+		}
+		return result;
+	}
+
+	static int lotusRange(Mob lotus) {
+		try {
+			Field field = lotus.getClass().getDeclaredField("wandLvl");
+			field.setAccessible(true);
+			return field.getInt(lotus);
+		} catch (Throwable e) {
+			return 0;
+		}
 	}
 
 	static void addEffect(Effect effect, int cell, int amount) {

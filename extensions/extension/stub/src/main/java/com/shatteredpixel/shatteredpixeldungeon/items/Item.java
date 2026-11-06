@@ -8,6 +8,7 @@ public class Item {
 	public boolean levelKnown;
 	public boolean stackable;
 	protected int image;
+	public int image() { throw new RuntimeException("Stub"); }
 
 	public String name() { throw new RuntimeException("Stub"); }
 	public String desc() { throw new RuntimeException("Stub"); }

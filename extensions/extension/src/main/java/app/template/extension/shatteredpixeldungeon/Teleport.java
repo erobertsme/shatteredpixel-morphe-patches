@@ -12,6 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.ui.Component;
 
@@ -78,7 +80,7 @@ public final class Teleport {
 					public void onClick() {
 						Window window = windowOf(this);
 						if (window != null) window.hide();
-						EditorWindow.show(new DepthPickerWindow());
+						DepthPickerWindow.open(() -> GameScene.show(new WndJournal()));
 					}
 				};
 				button.icon(icon());
