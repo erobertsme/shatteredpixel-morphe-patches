@@ -26,8 +26,6 @@ public final class EnemyEditor {
 
 	private static final String TAG = "EnemyEditor";
 	private static final String KEY_ALIGNMENT = "morphe_extras_alignment";
-	private static final int BUTTON_HEIGHT = 16;
-	private static final int GAP = 3;
 
 	private static final Set<Char> editedAlignment = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final ArrayDeque<Object[]> restoring = new ArrayDeque<>();
@@ -163,13 +161,6 @@ public final class EnemyEditor {
 		infoMob = null;
 		if (!EditorSwitches.enemy() || !(mob instanceof Mob)) return;
 		try {
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
-
 			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton edit = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton("Edit", 7) {
 				@Override
 				public void onClick() {
@@ -177,9 +168,7 @@ public final class EnemyEditor {
 					EnemyWindow.open((Mob) mob, EnemyWindow.TAB_STATS, 0);
 				}
 			};
-			edit.setRect(0, height + GAP, width, BUTTON_HEIGHT);
-			window.add(edit);
-			window.resize(width, height + GAP + BUTTON_HEIGHT);
+			BottomRow.add(window, edit);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the edit button", e);
 		}

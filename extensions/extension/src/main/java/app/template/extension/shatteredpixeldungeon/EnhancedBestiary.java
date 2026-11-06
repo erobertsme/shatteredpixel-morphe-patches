@@ -34,7 +34,6 @@ public final class EnhancedBestiary {
 
 	private static final String TAG = "EnhancedBestiary";
 	private static final String MOB_PREFIX = "com.shatteredpixel.shatteredpixeldungeon.";
-	private static final int BUTTON_HEIGHT = 16;
 	private static final int GAP = 2;
 	private static final int SAMPLES = 400;
 	private static final Map<String, String> NOTES = new HashMap<>();
@@ -245,16 +244,14 @@ public final class EnhancedBestiary {
 
 			InfoButton.add(window, width, 0, abilities(mob));
 
-			float top = height + shift + GAP;
+			if (shift > 0) window.resize(width, (int) (height + shift));
 			RedButton stats = new RedButton("Stats", 7) {
 				@Override
 				public void onClick() {
 					StatsWindow.open(mob);
 				}
 			};
-			stats.setRect(0, top, width, BUTTON_HEIGHT);
-			window.add(stats);
-			window.resize(width, (int) (top + BUTTON_HEIGHT + 1));
+			BottomRow.add(window, stats);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the bestiary buttons", e);
 		}
