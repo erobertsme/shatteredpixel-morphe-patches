@@ -1,3 +1,9 @@
+## [1.0.0-dev.52](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.51...v1.0.0-dev.52) (2026-11-06)
+
+### ✨ New Features
+
+* Teleport patch grouping the hero and creature teleports, with Teleport to any floor from the Adventuring Notes ([16ac627](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/16ac6272c6832472a24f2142e3e6da28c4bf4012))
+
 ## [1.0.0-dev.51](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.50...v1.0.0-dev.51) (2026-11-06)
 
 ### ✨ New Features

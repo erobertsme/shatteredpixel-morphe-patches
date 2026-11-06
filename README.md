@@ -19,9 +19,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.51](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.51)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
+> **[v1.0.0-dev.52](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.0.0-dev.52)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
 <details open>
-<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;9 patches</summary>
+<summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;10 patches</summary>
 <br>
 
 **Package name:** `com.shatteredpixel.shatteredpixeldungeon`
@@ -41,6 +41,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [QoL enhancements](#qol-enhancements) | Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back. Quantum Chest: a chest beside the exit of each beaten boss floor, all sharing the same storage. |  |
 | [Save management](#save-management) | Export and import all saves as one zip file from the main menu Extras and the app icon shortcuts, and keep up to 10 saves of each game to load back later. Options: a public save folder, uncompressed saves and save file access. | • Public save folder<br>• Save folder<br>• Uncompressed saves<br>• Save file access |
 | [Supporter options](#supporter-options) | NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!<br><br>Adds Supporter options to the Extras menu: keep your Silver, Golden or Shattered supporter rewards, and hide the Support button on the title screen. Only works on the Google Play version of the game. |  |
+| [Teleport](#teleport) | Teleport features: a Teleport to... button in the Adventuring Notes for travelling to any floor, Teleport Here for the hero in the Floor editor, and Teleport for creatures in the Enemy and NPC editor. |  |
 | [Unlock all](#unlock-all) | Adds toggles to the Extras menu that unlock all heroes, guide books, intros and lore, the item catalog and the bestiary. Your save data is not changed, so turning a toggle off restores your real progress. |  |
 
 </details>

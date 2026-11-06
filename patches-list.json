@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.51",
+  "version": "1.0.0-dev.52",
   "patches": [
     {
       "name": "Character editor",
@@ -280,6 +280,40 @@
     {
       "name": "Supporter options",
       "description": "NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!\n\nAdds Supporter options to the Extras menu: keep your Silver, Golden or Shattered supporter rewards, and hide the Support button on the title screen. Only works on the Google Play version of the game.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.shatteredpixel.shatteredpixeldungeon",
+          "name": "Shattered Pixel Dungeon",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#2B2B2B",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "4.0.2",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Teleport",
+      "description": "Teleport features: a Teleport to... button in the Adventuring Notes for travelling to any floor, Teleport Here for the hero in the Floor editor, and Teleport for creatures in the Enemy and NPC editor.",
       "default": true,
       "category": null,
       "compatiblePackages": [
