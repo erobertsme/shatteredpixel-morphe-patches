@@ -1,3 +1,9 @@
+## [1.0.0-dev.71](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.70...v1.0.0-dev.71) (2026-11-06)
+
+### ✨ New Features
+
+* Item editor shortcuts, grey unticked boxes, Lotus in floor effects, toolbar overlap fixes ([d22690b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d22690bfde616401c011c8b028ac3c64f197d5c8))
+
 ## [1.0.0-dev.70](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.69...v1.0.0-dev.70) (2026-11-06)
 
 ### ✨ New Features
