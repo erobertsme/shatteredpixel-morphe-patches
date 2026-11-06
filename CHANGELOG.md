@@ -1,3 +1,9 @@
+## [1.0.0-dev.64](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.63...v1.0.0-dev.64) (2026-11-06)
+
+### ✨ New Features
+
+* Rework the status editor layout with hunger state buttons and the hunger summary ([bc0f8fd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/bc0f8fd72a438552bbea5cc6f72acd3f41b4cfc4))
+
 ## [1.0.0-dev.63](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.62...v1.0.0-dev.63) (2026-11-06)
 
 ### ✨ New Features
