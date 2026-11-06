@@ -1,3 +1,9 @@
+## [1.0.0-dev.56](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.55...v1.0.0-dev.56) (2026-11-06)
+
+### ✨ New Features
+
+* Rows of items and an extra page for every bag, Identify All Types, and new Inventory, Teleport and Game Saves icons ([6b1cff5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6b1cff52cee21db639fea3a282091fd75e53b7fc))
+
 ## [1.0.0-dev.55](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.54...v1.0.0-dev.55) (2026-11-06)
 
 ### ✨ New Features
