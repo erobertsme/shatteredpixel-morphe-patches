@@ -609,6 +609,13 @@ object ScrollingGridPaneClickFingerprint : Fingerprint(
 	parameters = listOf("F", "F"),
 )
 
+object ResumeIndicatorUpdateFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/ResumeIndicator;",
+	name = "update",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

@@ -19,6 +19,7 @@ public class Hero extends Char {
 	public LinkedHashMap<Talent, Talent> metamorphedTalents;
 
 	public boolean ready;
+	public HeroAction lastAction;
 
 	public boolean handle(int cell) { throw new RuntimeException("Stub"); }
 	public void next() { throw new RuntimeException("Stub"); }

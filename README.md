@@ -95,6 +95,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 
 ### QoL enhancements
 - **Confirm actions:** a tap that would walk somewhere, attack, talk, use stairs or step into danger first shows what will happen, with Go and Cancel. Each action can be switched on or off, and moving and attacking have their own minimum distances. Danger accounts for levitation and immunities.
+- **Interrupted path:** when a walk is interrupted and the game shows its resume arrow, the rest of the route and its destination are drawn on the map, the same way Confirm actions shows a path.
 - **Shopkeeper:**
   - Banish Enemies: enemies that walk into the shop are thrown out and stay away for 20 turns.
   - Fearless: he isn't scared off by enemies fighting in the shop, or by you carrying the Amulet back up.

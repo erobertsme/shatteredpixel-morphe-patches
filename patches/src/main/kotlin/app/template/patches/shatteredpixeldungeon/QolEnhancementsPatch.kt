@@ -10,6 +10,7 @@ private const val PREVIEW_CLASS = "$EXTENSION_PACKAGE/PathPreview;"
 private const val SHOPKEEPER_CLASS = "$EXTENSION_PACKAGE/ShopkeeperRules;"
 private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
 private const val QUICKSLOT_CLASS = "$EXTENSION_PACKAGE/QuickslotRow;"
+private const val RESUME_PATH_CLASS = "$EXTENSION_PACKAGE/ResumePath;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
@@ -117,6 +118,8 @@ val qolEnhancementsPatch = bytecodePatch(
 		QuickSlotStorePlaceholdersFingerprint.callBeforeEveryReturn("invoke-static { }, $QUICKSLOT_CLASS->afterPlaceholders()V")
 		ToolbarConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarCreated($ITEM_TYPE)V")
 		ToolbarLayoutFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarLayout($ITEM_TYPE)V")
+
+		ResumeIndicatorUpdateFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $RESUME_PATH_CLASS->afterIndicatorUpdate($ITEM_TYPE)V")
 
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $CHEST_CLASS->onSceneCreated(Ljava/lang/Object;)V",
