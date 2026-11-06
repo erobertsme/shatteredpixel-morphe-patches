@@ -1,3 +1,9 @@
+## [1.0.0-dev.74](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.73...v1.0.0-dev.74) (2026-11-06)
+
+### ✨ New Features
+
+* Stat icons, a hero stats button, and no info on creature stats ([5f43c48](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5f43c48355a0c146c1a636708849212e202cc00c))
+
 ## [1.0.0-dev.73](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.72...v1.0.0-dev.73) (2026-11-06)
 
 ### 🐛 Bug Fixes

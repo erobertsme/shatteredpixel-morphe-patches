@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.73",
+  "version": "1.0.0-dev.74",
   "patches": [
     {
       "name": "Character editor",
@@ -174,7 +174,7 @@
     },
     {
       "name": "QoL enhancements",
-      "description": "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button and an Enhanced Bestiary.",
+      "description": "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary and a hero stats button.",
       "default": true,
       "category": null,
       "compatiblePackages": [
