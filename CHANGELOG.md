@@ -1,3 +1,13 @@
+## [1.0.0-dev.72](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.71...v1.0.0-dev.72) (2026-11-06)
+
+### ✨ New Features
+
+* Enhanced Bestiary and cancelling Attack Tile with a second tap ([c616277](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6162773ac34e80bde5899708d30d0625eb63a10))
+
+### 🐛 Bug Fixes
+
+* Reuse the WndInfoMob fingerprint and share the bottom row with the Edit button ([7d88d16](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/7d88d16eaed6374685a767ff440be2726dc96966))
+
 ## [1.0.0-dev.71](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.70...v1.0.0-dev.71) (2026-11-06)
 
 ### ✨ New Features
