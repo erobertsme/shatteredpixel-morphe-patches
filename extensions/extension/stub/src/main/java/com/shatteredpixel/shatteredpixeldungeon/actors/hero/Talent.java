@@ -13,5 +13,8 @@ public enum Talent {
 	public String title() { throw new RuntimeException("Stub"); }
 	public int maxPoints() { throw new RuntimeException("Stub"); }
 	public static void initClassTalents(HeroClass cls, ArrayList<LinkedHashMap<Talent, Integer>> talents) { throw new RuntimeException("Stub"); }
+	public static void initSubclassTalents(Hero hero) { throw new RuntimeException("Stub"); }
+	public static void initSubclassTalents(HeroSubClass cls, ArrayList<LinkedHashMap<Talent, Integer>> talents) { throw new RuntimeException("Stub"); }
+	public static void initArmorTalents(Hero hero) { throw new RuntimeException("Stub"); }
 	public static void onTalentUpgraded(Hero hero, Talent talent) { throw new RuntimeException("Stub"); }
 }

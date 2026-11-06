@@ -1,5 +1,8 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -71,5 +74,37 @@ final class TalentEditor {
 
 		hero.talents.set(tier - 1, updated);
 		if (hero.hasTalent(replacement)) Talent.onTalentUpgraded(hero, replacement);
+	}
+
+	/**
+	 * Changes the hero's subclass. The old subclass's talents and the points in them go away, and the new
+	 * subclass's talents are added to tier 3.
+	 */
+	static void setSubclass(Hero hero, HeroSubClass subclass) {
+		if (hero.subClass == subclass) return;
+		if (hero.subClass != null && hero.subClass != HeroSubClass.NONE && hero.talents.size() > 2) {
+			ArrayList<LinkedHashMap<Talent, Integer>> old = new ArrayList<>();
+			Talent.initSubclassTalents(hero.subClass, old);
+			if (old.size() > 2) {
+				for (Talent talent : old.get(2).keySet()) hero.talents.get(2).remove(talent);
+			}
+		}
+		hero.subClass = subclass;
+		Talent.initSubclassTalents(hero);
+		Item.updateQuickslot();
+	}
+
+	/**
+	 * Changes the hero's armor ability. The old ability's talents and the points in them go away, and the new
+	 * ability's talents are added to tier 4.
+	 */
+	static void setArmorAbility(Hero hero, ArmorAbility ability) {
+		if (hero.armorAbility == ability) return;
+		if (hero.armorAbility != null && hero.talents.size() > 3) {
+			for (Talent talent : hero.armorAbility.talents()) hero.talents.get(3).remove(talent);
+		}
+		hero.armorAbility = ability;
+		Talent.initArmorTalents(hero);
+		Item.updateQuickslot();
 	}
 }

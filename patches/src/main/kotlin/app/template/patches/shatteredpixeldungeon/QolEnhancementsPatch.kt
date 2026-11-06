@@ -13,7 +13,7 @@ private const val CHEST_CLASS = "$EXTENSION_PACKAGE/QuantumChest;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Quality of life options in the Extras menu. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons. Shopkeeper: banish enemies from the shop, keep the shopkeeper from fleeing fights, area effects or attacks, a lenient three strikes rule, and how many sold items can be bought back. Quantum Chest: a chest beside the exit of each beaten boss floor, all sharing the same storage.",
+	description = "Quality of life options in Extras, QoL. Confirm actions: a tap that would attack, walk somewhere, use stairs or step into danger first shows what will happen, with Go and Cancel buttons and adjustable distances. Shopkeeper: banish enemies from the shop, keep the shopkeeper calm through fights, area effects and your attacks, a lenient three strikes rule with apologies and theft handling, thrown weapons go up for sale, and a shop window that buys back up to 24 sold items. Quantum Chest: a chest beside the exit of every beaten boss floor, all sharing one storage of 25 to 75 items. Backpack: 4 to 8 rows of items in every bag and an optional extra page. Settings changed during a game are saved with that game.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

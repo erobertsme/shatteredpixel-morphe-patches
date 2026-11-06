@@ -8,7 +8,7 @@ private const val TELEPORT_CLASS = "$EXTENSION_PACKAGE/Teleport;"
 @Suppress("unused")
 val teleportPatch = bytecodePatch(
 	name = "Teleport",
-	description = "Teleport features: a Teleport to... button in the Adventuring Notes for travelling to any floor, Teleport Here for the hero in the Floor editor, and Teleport for creatures in the Enemy and NPC editor.",
+	description = "Adds Teleport to the in-game menu and a Teleport to... button in the Adventuring Notes for travelling to any floor, arriving at its entrance or its exit. Also adds Teleport Here for the hero in the Floor editor and on the tile examine window, and Teleport for creatures in the Enemy and NPC editor. Can be switched off in Extras, Editors.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

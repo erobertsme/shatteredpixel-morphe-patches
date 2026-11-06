@@ -9,7 +9,7 @@ private const val ENEMY_CLASS = "$EXTENSION_PACKAGE/EnemyEditor;"
 @Suppress("unused")
 val enemyEditorPatch = bytecodePatch(
 	name = "Enemy editor",
-	description = "Adds an Edit button when you examine an enemy, NPC or other creature, for editing its health, side, behavior and status effects.",
+	description = "Adds an Edit button when you examine an enemy, NPC or other creature. Edit its health, side and behavior, add, remove or time its status effects, send it walking to a tile, or defeat it. With the Teleport patch, teleport it to any tile. Can be switched off in Extras, Editors.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

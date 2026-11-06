@@ -1,5 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -45,7 +47,7 @@ public class CharacterWindow extends Window {
 	private static final String[] TAB_NAMES = { "Stats", "Talents", "Mods", "Status" };
 	private static final String[] TAB_INFO = {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
-		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nTap or long-press a talent to read it.",
+		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, speeds and regeneration by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.",
 		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.",
 	};
@@ -219,6 +221,7 @@ public class CharacterWindow extends Window {
 
 		if (HeroExtras.isTierLocked(hero, tier)) {
 			addHint(lockedReason(tier));
+			addClassChoices(hero);
 			return;
 		}
 
@@ -229,7 +232,64 @@ public class CharacterWindow extends Window {
 
 		ArrayList<Talent> talents = new ArrayList<>(hero.talents.get(tier - 1).keySet());
 		for (Talent talent : talents) addTalentRow(hero, talent);
+		addClassChoices(hero);
 
+	}
+
+	/**
+	 * The subclass buttons at the bottom of tier 3, and the armor ability buttons at the bottom of tier 4.
+	 */
+	private void addClassChoices(Hero hero) {
+		if (tier == 3) {
+			HeroSubClass[] subclasses = hero.heroClass.subClasses();
+			String[] labels = new String[subclasses.length + 1];
+			int selected = 0;
+			labels[0] = "None";
+			for (int i = 0; i < subclasses.length; i++) {
+				labels[i + 1] = InventoryEditor.capitalize(subclasses[i].title());
+				if (hero.subClass == subclasses[i]) selected = i + 1;
+			}
+			addSection("Subclass");
+			addChoiceRow(labels, selected, index -> TalentEditor.setSubclass(hero, index == 0 ? HeroSubClass.NONE : subclasses[index - 1]));
+			return;
+		}
+		if (tier != 4) return;
+		ArmorAbility[] abilities = hero.heroClass.armorAbilities();
+		String[] labels = new String[abilities.length + 1];
+		int selected = 0;
+		labels[0] = "None";
+		for (int i = 0; i < abilities.length; i++) {
+			labels[i + 1] = InventoryEditor.capitalize(abilities[i].name());
+			if (hero.armorAbility != null && hero.armorAbility.getClass() == abilities[i].getClass()) selected = i + 1;
+		}
+		addSection("Armor Ability");
+		addChoiceRow(labels, selected, index -> TalentEditor.setArmorAbility(hero, index == 0 ? null : abilities[index - 1]));
+	}
+
+	interface ChoiceSetter {
+		void choose(int index);
+	}
+
+	private void addChoiceRow(String[] labels, int selected, ChoiceSetter setter) {
+		int perRow = labels.length <= 3 ? labels.length : 2;
+		float width = (WIDTH - (perRow - 1) * GAP) / (float) perRow;
+		for (int i = 0; i < labels.length; i++) {
+			int index = i;
+			int column = i % perRow;
+			if (i > 0 && column == 0) pos += ROW_HEIGHT + GAP;
+			RedButton button = new RedButton(labels[i], 6) {
+				@Override
+				public void onClick() {
+					if (index == selected) return;
+					setter.choose(index);
+					refresh();
+				}
+			};
+			if (i == selected) button.textColor(TITLE_COLOR);
+			button.setRect(column * (width + GAP), pos, width, ROW_HEIGHT);
+			add(button);
+		}
+		pos += ROW_HEIGHT + GAP;
 	}
 
 	private void addTalentRow(Hero hero, Talent talent) {

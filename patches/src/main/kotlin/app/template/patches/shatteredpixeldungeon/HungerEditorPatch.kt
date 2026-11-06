@@ -11,7 +11,7 @@ private const val HUNGER_CLASS = "$EXTENSION_PACKAGE/HungerEditor;"
 @Suppress("unused")
 val hungerEditorPatch = bytecodePatch(
 	name = "Hunger editor",
-	description = "Adds a Hunger window for changing how long each hunger stage lasts, how often and how hard starvation hurts, or disabling hunger. Main menu settings are the default for every game; changes made during a game are saved to that game.",
+	description = "Adds a Hunger window for changing how long each hunger stage lasts, with presets, how often and how hard starvation hurts, or switching hunger off. Main menu settings are the default for every game; changes made during a game are saved to that game. The hunger summary on the hero info window shows the current settings and opens the window when tapped. Can be switched off in Extras, Editors.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

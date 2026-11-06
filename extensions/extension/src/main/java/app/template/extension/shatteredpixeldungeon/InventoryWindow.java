@@ -31,7 +31,7 @@ public class InventoryWindow extends EditorWindow {
 		super();
 		Hero hero = Dungeon.hero;
 
-		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify All identifies everything you carry. The Potions, Scrolls and Rings buttons under Identify All Types learn every type of that kind, so you know which color, rune or gem is which even for ones you haven't found. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nThe Weapons, Armor and Rings backpack tabs are switched on and off in Extras, under QoL.\n\nTap a number to type it, with Min and Max buttons.");
+		addTitle("INVENTORY", "Open Backpack shows your normal backpack in edit mode, with an Edit button on every item. Back returns here.\n\nAdd Item adds any item in the game. Identify Carried Items identifies everything you carry. The Potions, Scrolls and Rings buttons under Identify All Types learn every type of that kind, so you know which color, rune or gem is which even for ones you haven't found. Cleanse All removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n{PREFS}The gear button in the backpack editor brings you back here.\n\nUnlimited inventory space: every bag always has room for one more item. Bags show up to 8 rows of items, and the arrow buttons at the bottom move between pages when there are more.\n\nThe Weapons, Armor and Rings backpack tabs are switched on and off in Extras, under QoL.\n\nTap a number to type it, with Min and Max buttons.");
 		if (hero == null) {
 			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 			pos += ROW_HEIGHT;
@@ -43,20 +43,28 @@ public class InventoryWindow extends EditorWindow {
 		addStepper("Energy", String.valueOf(Dungeon.energy), Dungeon.energy, 1, 0, 99999, value -> Dungeon.energy = Math.max(0, value));
 		pos += GAP;
 
+		addSection("Backpack");
 		addButton("Open backpack", 0, WIDTH, () -> {
 			hide();
 			BackpackEditor.open(InventoryWindow::open, Dungeon.hero.belongings.backpack);
 		});
 		pos += ROW_HEIGHT + GAP;
+		addCheckBox("Unlimited inventory space", InventorySpace.isOn(), () -> InventorySpace.setOn(!InventorySpace.isOn()));
 
-		float half = (WIDTH - GAP) / 2f;
-		addButton("Add item", 0, half, () -> {
+		addSection("Items");
+		addButton("Add item", 0, WIDTH, () -> {
 			hide();
 			ItemPickerWindow.openFromInventory();
 		});
-		addButton("Identify all", half + GAP, half, () -> {
+		pos += ROW_HEIGHT + GAP;
+		addButton("Identify carried items", 0, WIDTH, () -> {
 			hero.belongings.identify();
 			Item.updateQuickslot();
+			refresh();
+		});
+		pos += ROW_HEIGHT + GAP;
+		addButton("Cleanse all", 0, WIDTH, () -> {
+			cleanseAll(hero);
 			refresh();
 		});
 		pos += ROW_HEIGHT + GAP;
@@ -66,17 +74,7 @@ public class InventoryWindow extends EditorWindow {
 		addButton("Potions", 0, third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.POTION)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.POTION));
 		addButton("Scrolls", third + GAP, third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.SCROLL)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.SCROLL));
 		addButton("Rings", 2 * (third + GAP), third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING));
-		pos += ROW_HEIGHT + GAP;
-
-		addButton("Cleanse all", 0, WIDTH, () -> {
-			cleanseAll(hero);
-			refresh();
-		});
-		pos += ROW_HEIGHT + GAP;
-
-		addSection("Backpack");
-		addCheckBox("Unlimited inventory space", InventorySpace.isOn(), () -> InventorySpace.setOn(!InventorySpace.isOn()));
-		pos += GAP;
+		pos += ROW_HEIGHT + 2 * GAP;
 
 		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
 		pos += ROW_HEIGHT;

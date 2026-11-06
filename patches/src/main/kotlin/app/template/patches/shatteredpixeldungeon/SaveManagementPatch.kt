@@ -185,7 +185,7 @@ private val saveBackupResourcePatch = resourcePatch {
 @Suppress("unused")
 val saveManagementPatch = bytecodePatch(
 	name = "Save management",
-	description = "Export and import all saves as one zip file from the main menu Extras and the app icon shortcuts, and keep up to 10 saves of each game to load back later. Options: a public save folder, uncompressed saves and save file access.",
+	description = "Export and import all saves as one zip file from the main menu Extras and the app icon shortcuts. Game Saves, in Extras and the in-game menu, keeps up to 10 saves of each game to load back later; when a game ends, the title screen asks whether to delete or keep its saves. Options: a public save folder, uncompressed saves and save file access.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

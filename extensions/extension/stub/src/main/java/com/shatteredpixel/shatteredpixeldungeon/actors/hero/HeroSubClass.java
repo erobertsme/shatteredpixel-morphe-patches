@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 public enum HeroSubClass {
-	NONE
+	NONE;
+
+	public String title() { throw new RuntimeException("Stub"); }
 }
