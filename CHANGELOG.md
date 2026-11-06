@@ -1,3 +1,9 @@
+## [1.0.0-dev.73](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.72...v1.0.0-dev.73) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* Bestiary crash and missing [i], header Edit and Remove buttons, currency icons ([99616ca](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/99616cacf64ec75b9269fbb60cdddf32d3a27bb4))
+
 ## [1.0.0-dev.72](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.71...v1.0.0-dev.72) (2026-11-06)
 
 ### ✨ New Features
