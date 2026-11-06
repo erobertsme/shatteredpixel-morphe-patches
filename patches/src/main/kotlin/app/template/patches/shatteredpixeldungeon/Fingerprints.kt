@@ -573,3 +573,24 @@ object BagCollectFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf(BAG_CLASS),
 )
+
+object TeleportAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/Teleport;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object NotesTabUpdateListFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndJournal\$NotesTab;",
+	name = "updateList",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object NotesTabLayoutFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndJournal\$NotesTab;",
+	name = "layout",
+	returnType = "V",
+	parameters = listOf(),
+)

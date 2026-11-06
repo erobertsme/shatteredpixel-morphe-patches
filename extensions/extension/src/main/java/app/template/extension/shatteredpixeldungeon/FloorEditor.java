@@ -688,6 +688,10 @@ public final class FloorEditor {
 		return level != null && level.passable[cell] && tileAt(cell) != CHASM && Dungeon.hero != null && Dungeon.hero.pos != cell;
 	}
 
+	private static void addTeleport(List<QuickAction[]> rows, int cell) {
+		if (Teleport.isAvailable()) rows.add(new QuickAction[] { teleportAction(cell) });
+	}
+
 	private static QuickAction teleportAction(int cell) {
 		return new QuickAction("Teleport Here", canStandOn(cell), () -> {
 			Trap trap = trapAt(cell);
@@ -725,7 +729,7 @@ public final class FloorEditor {
 					new QuickAction("Visible", !trap.visible, () -> setVisible(trap, true)),
 				});
 			}
-			rows.add(new QuickAction[] { teleportAction(cell) });
+			addTeleport(rows, cell);
 			return rows;
 		}
 
@@ -739,7 +743,7 @@ public final class FloorEditor {
 				new QuickAction("Lock", !locked && !occupied, () -> setDoor(cell, LOCKED_DOOR)),
 				new QuickAction("Unlock", locked, () -> setDoor(cell, DOOR)),
 			});
-			if (tile == OPEN_DOOR) rows.add(new QuickAction[] { teleportAction(cell) });
+			if (tile == OPEN_DOOR) addTeleport(rows, cell);
 			return rows;
 		}
 		if (tile == GRASS || tile == HIGH_GRASS || tile == FURROWED_GRASS) {
@@ -748,7 +752,7 @@ public final class FloorEditor {
 				new QuickAction("Furrowed", tile != FURROWED_GRASS && !occupied, () -> setDoor(cell, FURROWED_GRASS)),
 				new QuickAction("Trampled", tile != GRASS, () -> setDoor(cell, GRASS)),
 			});
-			rows.add(new QuickAction[] { teleportAction(cell) });
+			addTeleport(rows, cell);
 			return rows;
 		}
 		if (tile == LOCKED_EXIT || tile == UNLOCKED_EXIT) {
@@ -756,7 +760,7 @@ public final class FloorEditor {
 				new QuickAction("Lock", tile != LOCKED_EXIT, () -> setDoor(cell, LOCKED_EXIT)),
 				new QuickAction("Unlock", tile != UNLOCKED_EXIT, () -> setDoor(cell, UNLOCKED_EXIT)),
 			});
-			if (tile == UNLOCKED_EXIT) rows.add(new QuickAction[] { teleportAction(cell) });
+			if (tile == UNLOCKED_EXIT) addTeleport(rows, cell);
 			return rows;
 		}
 		if (tile == CHASM) {
@@ -766,7 +770,7 @@ public final class FloorEditor {
 		if (tile == BARRICADE) {
 			rows.add(new QuickAction[] { new QuickAction("Break", true, () -> setDoor(cell, EMPTY)) });
 		}
-		if (isWalkable(cell)) rows.add(new QuickAction[] { teleportAction(cell) });
+		if (isWalkable(cell)) addTeleport(rows, cell);
 		return rows;
 	}
 
