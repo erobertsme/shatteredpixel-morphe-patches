@@ -1,3 +1,9 @@
+## [1.0.0-dev.65](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.64...v1.0.0-dev.65) (2026-11-06)
+
+### ✨ New Features
+
+* Banned shop window, tappable notes floors, close icons and button tweaks ([e32a351](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e32a3517448305c0232dab39558153a08252568c))
+
 ## [1.0.0-dev.64](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.63...v1.0.0-dev.64) (2026-11-06)
 
 ### ✨ New Features
