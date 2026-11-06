@@ -1,3 +1,9 @@
+## [1.0.0-dev.62](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.61...v1.0.0-dev.62) (2026-11-06)
+
+### ✨ New Features
+
+* Extra toolbar item slots fill a full-width row below the toolbar, lined up with the slots above ([a0a37ab](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a0a37ab52d52fdb084e9102c1cce592343121f2c))
+
 ## [1.0.0-dev.61](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.60...v1.0.0-dev.61) (2026-11-06)
 
 ### 🐛 Bug Fixes
