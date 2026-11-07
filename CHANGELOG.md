@@ -1,3 +1,9 @@
+## [1.0.0-dev.83](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.82...v1.0.0-dev.83) (2026-11-07)
+
+### ✨ New Features
+
+* Tile list moves to QoL, and an Edit Floor mode for the floor editor ([d5873ea](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d5873eae9f4fd4d8303d92a176101cbf401860ee))
+
 ## [1.0.0-dev.82](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.81...v1.0.0-dev.82) (2026-11-07)
 
 ### 🐛 Bug Fixes
