@@ -1,3 +1,9 @@
+## [1.0.0-dev.88](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.87...v1.0.0-dev.88) (2026-11-07)
+
+### ✨ New Features
+
+* Empty Quickslot button when choosing an item for a quickslot ([5dfd7fa](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5dfd7fac02388d00dcc45a441379642d12be22fd))
+
 ## [1.0.0-dev.87](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.86...v1.0.0-dev.87) (2026-11-07)
 
 ### 🐛 Bug Fixes
