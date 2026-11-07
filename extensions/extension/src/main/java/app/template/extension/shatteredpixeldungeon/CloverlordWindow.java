@@ -121,7 +121,7 @@ public class CloverlordWindow extends Window {
 	private static Image chevron(boolean down, float centerX, float edgeY) {
 		Image image = Icons.get(Icons.CHEVRON);
 		image.origin.set(image.width() / 2f, image.height() / 2f);
-		if (!down) image.angle = 180;
+		if (down) image.angle = 180;
 		image.x = centerX - image.width() / 2f;
 		image.y = down ? edgeY - image.height() : edgeY;
 		return image;
