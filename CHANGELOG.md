@@ -1,3 +1,9 @@
+## [1.0.0-dev.76](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.75...v1.0.0-dev.76) (2026-11-07)
+
+### ✨ New Features
+
+* Experience and Loot rules in the QoL tab ([8261b64](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8261b64901513615491323e60a337dcb9d3a969f))
+
 ## [1.0.0-dev.75](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.74...v1.0.0-dev.75) (2026-11-07)
 
 ### ✨ New Features
