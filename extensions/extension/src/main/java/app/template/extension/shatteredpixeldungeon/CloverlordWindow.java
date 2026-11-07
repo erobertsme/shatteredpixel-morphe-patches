@@ -5,6 +5,7 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.noosa.Visual;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.ColorBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -26,7 +27,8 @@ public class CloverlordWindow extends Window {
 
 	private static final int WIDTH = 128;
 	private static final int BTN_HEIGHT = 18;
-	private static final float MAX_HEIGHT_SHARE = 0.7f;
+	private static final int SHADE_HEIGHT = 8;
+	private static final float MAX_HEIGHT_SHARE = 0.55f;
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
@@ -73,7 +75,56 @@ public class CloverlordWindow extends Window {
 		pos += 2 * GAP;
 		addButton("Back", (Image) null, this::back);
 		resize(WIDTH, (int) (pos - GAP));
-		if (scrollPane != null) scrollPane.setRect(scrollPane.left(), scrollPane.top(), scrollPane.width(), scrollPane.height());
+		if (scrollPane != null) {
+			scrollPane.setRect(scrollPane.left(), scrollPane.top(), scrollPane.width(), scrollPane.height());
+			addScrollHints(scrollPane);
+		}
+	}
+
+	/**
+	 * Arrows and shading at the top and bottom edges of a scrolling page, shown while there is more to scroll to
+	 * in that direction.
+	 */
+	private void addScrollHints(ScrollPane pane) {
+		Component content = pane.content();
+		ColorBlock topShade = new ColorBlock(pane.width(), SHADE_HEIGHT, 0xFF000000);
+		topShade.x = pane.left();
+		topShade.y = pane.top();
+		ColorBlock bottomShade = new ColorBlock(pane.width(), SHADE_HEIGHT, 0xFF000000);
+		bottomShade.x = pane.left();
+		bottomShade.y = pane.bottom() - SHADE_HEIGHT;
+		Image up = arrow(-90, pane.left() + pane.width() / 2f, pane.top() + 1);
+		Image down = arrow(90, pane.left() + pane.width() / 2f, pane.bottom() - 1);
+		Gizmo watcher = new Gizmo() {
+			@Override
+			public void update() {
+				super.update();
+				float scroll = content.camera == null || content.camera.scroll == null ? 0 : content.camera.scroll.y;
+				boolean more = scroll < content.height() - pane.height() - 1;
+				boolean less = scroll > 1;
+				down.visible = more;
+				bottomShade.visible = more;
+				up.visible = less;
+				topShade.visible = less;
+			}
+		};
+		topShade.alpha(0.35f);
+		bottomShade.alpha(0.35f);
+		add(topShade);
+		add(bottomShade);
+		add(up);
+		add(down);
+		add(watcher);
+		up.visible = topShade.visible = false;
+	}
+
+	private static Image arrow(float angle, float centerX, float edgeY) {
+		Image image = Icons.get(Icons.ARROW);
+		image.origin.set(image.width() / 2f, image.height() / 2f);
+		image.angle = angle;
+		image.x = centerX - image.width() / 2f;
+		image.y = angle > 0 ? edgeY - image.height() : edgeY;
+		return image;
 	}
 
 	@SuppressWarnings("unchecked")
