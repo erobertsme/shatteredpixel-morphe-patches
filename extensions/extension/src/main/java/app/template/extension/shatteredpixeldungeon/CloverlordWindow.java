@@ -5,6 +5,8 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.noosa.Visual;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.audio.Sample;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
 import com.watabou.noosa.ColorBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
@@ -28,6 +30,7 @@ public class CloverlordWindow extends Window {
 	private static final int WIDTH = 128;
 	private static final int BTN_HEIGHT = 18;
 	private static final int SHADE_HEIGHT = 8;
+	private static final String CLICK_SOUND = "sounds/click.mp3";
 	private static final float MAX_HEIGHT_SHARE = 0.55f;
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
@@ -154,7 +157,12 @@ public class CloverlordWindow extends Window {
 		if (members == null || pageHeight <= viewHeight || viewHeight < 3 * BTN_HEIGHT) return;
 		try {
 			List<Gizmo> page = new ArrayList<>(members.subList(firstMember, members.size()));
-			ScrollPane pane = new ScrollPane(new Component());
+			ScrollPane pane = new ScrollPane(new Component()) {
+				@Override
+				public void onClick(float x, float y) {
+					tapInside(content(), x, y);
+				}
+			};
 			Component content = pane.content();
 			for (Gizmo gizmo : page) {
 				remove(gizmo);
@@ -173,6 +181,27 @@ public class CloverlordWindow extends Window {
 			pos = pageTop + viewHeight;
 		} catch (Throwable e) {
 			android.util.Log.e("CloverlordWindow", "Could not make the page scroll", e);
+		}
+	}
+
+	/**
+	 * The scroll pane takes every tap itself, so a tap is passed on to the button under it.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void tapInside(Component content, float x, float y) {
+		try {
+			Field field = Group.class.getDeclaredField("members");
+			field.setAccessible(true);
+			for (Gizmo gizmo : new ArrayList<>((List<Gizmo>) field.get(content))) {
+				if (!(gizmo instanceof Button) || !gizmo.visible || !gizmo.active) continue;
+				Button button = (Button) gizmo;
+				if (x < button.left() || x >= button.right() || y < button.top() || y >= button.bottom()) continue;
+				Sample.INSTANCE.play(CLICK_SOUND);
+				button.onClick();
+				return;
+			}
+		} catch (Throwable e) {
+			android.util.Log.e("CloverlordWindow", "Could not pass on the tap", e);
 		}
 	}
 
