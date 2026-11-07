@@ -1,3 +1,9 @@
+## [1.0.0-dev.79](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.78...v1.0.0-dev.79) (2026-11-07)
+
+### ✨ New Features
+
+* Shorter scrolling Extras pages with arrows showing there is more ([6b06c27](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6b06c27a2cc01af4cc4620f8c49fd0287f25c7cf))
+
 ## [1.0.0-dev.78](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.77...v1.0.0-dev.78) (2026-11-07)
 
 ### 🐛 Bug Fixes
