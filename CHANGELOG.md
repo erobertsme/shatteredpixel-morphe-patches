@@ -1,3 +1,9 @@
+## [1.0.0-dev.86](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.85...v1.0.0-dev.86) (2026-11-07)
+
+### ✨ New Features
+
+* Tapping an unexplored area walks to the nearest explored tile ([9845f2a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9845f2a6c61b790ac006cff524d2b060339ff520))
+
 ## [1.0.0-dev.85](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.84...v1.0.0-dev.85) (2026-11-07)
 
 ### ✨ New Features
