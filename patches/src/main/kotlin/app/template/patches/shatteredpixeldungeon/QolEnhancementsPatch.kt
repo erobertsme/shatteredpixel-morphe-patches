@@ -15,6 +15,8 @@ private const val RESUME_PATH_CLASS = "$EXTENSION_PACKAGE/ResumePath;"
 private const val FORCE_ATTACK_CLASS = "$EXTENSION_PACKAGE/ForceAttack;"
 private const val BESTIARY_CLASS = "$EXTENSION_PACKAGE/EnhancedBestiary;"
 private const val REWARDS_CLASS = "$EXTENSION_PACKAGE/KillRewards;"
+private const val TILE_CONTENTS_CLASS = "$EXTENSION_PACKAGE/TileContents;"
+private const val ABSORBED_CLASS = "$EXTENSION_PACKAGE/AbsorbedItems;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
@@ -150,6 +152,19 @@ val qolEnhancementsPatch = bytecodePatch(
 		MobRollToDropLootFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeLootRoll($ITEM_TYPE)V")
 		MobRollToDropLootFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterLootRoll()V")
 		MobLootChanceFingerprint.adjustReturns("$REWARDS_CLASS->adjustLootChance(F$ITEM_TYPE)F", "p0")
+		ExamineCellFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0 }, $TILE_CONTENTS_CLASS->examine(Ljava/lang/Integer;)Z
+				move-result v0
+				if-eqz v0, :original
+				return-void
+			""",
+			ExternalLabel("original", 0),
+		)
+		HeapDropFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->onDrop($ITEM_TYPE$ITEM_TYPE)V")
+		ItemStoreInBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->store($ITEM_TYPE$ITEM_TYPE)V")
+		ItemRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->restore($ITEM_TYPE$ITEM_TYPE)V")
 		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(

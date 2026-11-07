@@ -260,6 +260,50 @@ final class GameSaves {
 		}
 	}
 
+	/**
+	 * Saves the game and keeps a copy of it in [folder], to put back later with [restoreSnapshot].
+	 */
+	static boolean snapshot(File folder) {
+		try {
+			Dungeon.saveAll();
+			File source = gameFolder();
+			if (source == null || !source.isDirectory()) return false;
+			deleteRecursively(folder);
+			copyFolder(source, folder);
+			return true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not take a snapshot", e);
+			return false;
+		}
+	}
+
+	/**
+	 * Replaces the game in progress with the copy in [folder] and continues from it.
+	 */
+	static boolean restoreSnapshot(File folder) {
+		try {
+			File target = gameFolder();
+			if (target == null || !folder.isDirectory()) return false;
+			File[] current = target.listFiles();
+			if (current != null) {
+				for (File file : current) deleteRecursively(file);
+			}
+			copyFolder(folder, target);
+			deleteRecursively(folder);
+			GamesInProgress.setUnknown(GamesInProgress.curSlot);
+			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
+			Game.switchScene(InterlevelScene.class);
+			return true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not restore the snapshot", e);
+			return false;
+		}
+	}
+
+	static void discardSnapshot(File folder) {
+		deleteRecursively(folder);
+	}
+
 	static void delete(Save save) {
 		deleteRecursively(save.folder);
 	}

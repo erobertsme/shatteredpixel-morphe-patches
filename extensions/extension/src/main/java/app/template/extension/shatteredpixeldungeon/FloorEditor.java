@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -673,6 +674,7 @@ public final class FloorEditor {
 				}
 				y += BUTTON_HEIGHT + GAP;
 			}
+			if (target instanceof Integer && FloorEditSession.isActive()) y = addContentButtons(window, cell, width, y);
 			if (y > height + GAP) window.resize(width, (int) (y - GAP));
 			WindowHeader.addEdit(window, () -> {
 				window.hide();
@@ -681,6 +683,47 @@ public final class FloorEditor {
 		} catch (Exception e) {
 			Log.e(TAG, "Could not add the edit tile button", e);
 		}
+	}
+
+	/**
+	 * In Edit Floor mode, a button for each thing on the tile, opening its own info window.
+	 */
+	private static float addContentButtons(Window window, int cell, int width, float y) {
+		List<Object> contents = new ArrayList<>();
+		Char ch = Actor.findChar(cell);
+		if (ch != null) contents.add(ch);
+		Level level = level();
+		Heap heap = level.heaps.get(cell, null);
+		if (heap != null) contents.add(heap);
+		Plant plant = level.plants.get(cell, null);
+		if (plant != null) contents.add(plant);
+		Trap trap = level.traps.get(cell, null);
+		if (trap != null) contents.add(trap);
+		for (Object object : contents) {
+			com.shatteredpixel.shatteredpixeldungeon.ui.RedButton button = new com.shatteredpixel.shatteredpixeldungeon.ui.RedButton(contentName(object), 6) {
+				@Override
+				public void onClick() {
+					window.hide();
+					GameScene.examineObject(object);
+				}
+			};
+			button.setRect(0, y, width, BUTTON_HEIGHT);
+			window.add(button);
+			y += BUTTON_HEIGHT + GAP;
+		}
+		return y;
+	}
+
+	private static String contentName(Object object) {
+		try {
+			if (object instanceof Hero) return "You";
+			if (object instanceof Char) return InventoryEditor.capitalize(((Char) object).name());
+			if (object instanceof Heap) return InventoryEditor.capitalize(((Heap) object).title());
+			if (object instanceof Plant) return InventoryEditor.capitalize(((Plant) object).name());
+			if (object instanceof Trap) return InventoryEditor.capitalize(((Trap) object).name());
+		} catch (Throwable ignored) {
+		}
+		return "Unknown";
 	}
 
 	private static final class QuickAction {

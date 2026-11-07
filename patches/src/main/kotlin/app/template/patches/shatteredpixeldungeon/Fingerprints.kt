@@ -693,6 +693,13 @@ object HeroEarnExpFingerprint : Fingerprint(
 	parameters = listOf("I", "Ljava/lang/Class;"),
 )
 
+object HeapDropFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/Heap;",
+	name = "drop",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

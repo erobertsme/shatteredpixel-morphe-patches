@@ -17,9 +17,9 @@ public class FloorWindow extends EditorWindow {
 
 	private static final String[] TABS = { "Effects", "Traps", "Other" };
 	private static final String[] INFO = {
-		"Effects\n\nEvery gas and area effect on this floor with its total strength. A Lotus from a Wand of Regrowth shows its range and the turns it has left: it covers every tile in range with falling leaves and helps plants drop seeds and dew there. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.",
-		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm All stops them going off, Re-arm All switches them back on. Remove All Traps takes every trap off this floor.",
-		"Other\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.",
+		"Effects\n\nEvery gas and area effect on this floor with its total strength. A Lotus from a Wand of Regrowth shows its range and the turns it has left: it covers every tile in range with falling leaves and helps plants drop seeds and dew there. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
+		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm All stops them going off, Re-arm All switches them back on. Remove All Traps takes every trap off this floor.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
+		"Other\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
 	};
 
 	private static Runnable backAction;
@@ -41,6 +41,11 @@ public class FloorWindow extends EditorWindow {
 	public FloorWindow() {
 		super();
 		addTitle("FLOOR " + Dungeon.depth, INFO[tab]);
+		addButton("Edit Floor", 0, WIDTH, () -> {
+			hide();
+			FloorEditSession.start();
+		});
+		pos += ROW_HEIGHT + GAP;
 		addButtonRow(TABS, tab, index -> {
 			tab = index;
 			refresh();

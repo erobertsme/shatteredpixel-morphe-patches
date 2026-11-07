@@ -116,6 +116,14 @@ public class SaveLocation {
 	/**
 	 * The folder the game writes its saves to right now, or null when there is no context yet.
 	 */
+	/**
+	 * The app's cache folder, or null when the app context isn't available.
+	 */
+	static File cacheDir() {
+		Context context = getContext();
+		return context == null ? null : context.getCacheDir();
+	}
+
 	static File currentRoot() {
 		Context context = getContext();
 		if (context == null) return null;
