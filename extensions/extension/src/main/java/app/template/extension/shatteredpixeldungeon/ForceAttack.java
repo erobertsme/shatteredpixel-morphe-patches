@@ -1,0 +1,410 @@
+package app.template.extension.shatteredpixeldungeon;
+
+import android.util.Log;
+
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
+import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.ColorBlock;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.Scene;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.ui.Component;
+import com.watabou.utils.PathFinder;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * The Attack Tile button: attack any tile in reach of your weapon, including a creature that is hiding, such as a
+ * mimic, or an empty tile.
+ */
+@SuppressWarnings("unused")
+public final class ForceAttack {
+
+	private static final String TAG = "ForceAttack";
+	private static final int COLOR = 0xD9813F;
+	private static final int TILE_SIZE = 16;
+	private static final int MARKER_SIZE = 10;
+	private static final int MARKER_COLOR = 0xFFE06A5A;
+	private static final String MISS_SOUND = "sounds/miss.mp3";
+	private static final String LIGHTNING_SOUND = "sounds/lightning.mp3";
+	private static final String[] OTHER_TAGS = { "attack", "loot", "action", "resume" };
+	private static final String[] OTHER_FLAGS = { "tagAttack", "tagLoot", "tagAction", "tagResume" };
+	private static final Random random = new Random();
+
+	private static AttackTag tag;
+	private static final List<Gizmo> markers = new ArrayList<>();
+
+	private ForceAttack() {
+	}
+
+	static boolean isOn() {
+		return QolSettings.forceAttack();
+	}
+
+	static void setOn(boolean on) {
+		QolSettings.forceAttack(on);
+		GameScene.updateTags = true;
+	}
+
+	/**
+	 * Called at the end of GameScene.create. Adds the Attack Tile button.
+	 */
+	public static void onSceneCreated(Object scene) {
+		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
+		try {
+			tag = new AttackTag();
+			tag.camera = PixelScene.uiCamera;
+			((Scene) scene).add(tag);
+			tag.visible = shouldShow();
+			GameScene.updateTags = true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the Attack Tile button", e);
+		}
+	}
+
+	/**
+	 * Called at the end of GameScene.layoutTags. Puts the Attack Tile button just above the toolbar and moves the
+	 * game's own buttons up to make room.
+	 */
+	public static void afterLayoutTags() {
+		AttackTag current = tag;
+		if (current == null || !current.visible || current.parent == null) return;
+		try {
+			Field sceneField = GameScene.class.getDeclaredField("scene");
+			sceneField.setAccessible(true);
+			Object scene = sceneField.get(null);
+			if (scene == null) return;
+
+			boolean onLeft = SPDSettings.flipTags();
+			float inset = sideInset(onLeft);
+			float width = Tag.SIZE + inset;
+			float left = onLeft ? 0 : PixelScene.uiCamera.width - width;
+			Component base = (Component) field(scene, onLeft && SPDSettings.interfaceSize() > 0 ? "status" : "toolbar");
+			float bottom = base.top();
+
+			current.setRect(left, bottom - Tag.SIZE, width, Tag.SIZE);
+			current.flip(onLeft);
+
+			for (int i = 0; i < OTHER_TAGS.length; i++) {
+				if (!(boolean) field(scene, OTHER_FLAGS[i])) continue;
+				Component other = (Component) field(scene, OTHER_TAGS[i]);
+				other.setPos(other.left(), other.top() - Tag.SIZE);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not place the Attack Tile button", e);
+		}
+	}
+
+	private static Object field(Object scene, String name) throws ReflectiveOperationException {
+		Field field = GameScene.class.getDeclaredField(name);
+		field.setAccessible(true);
+		return field.get(scene);
+	}
+
+	private static float sideInset(boolean left) {
+		try {
+			Object platform = Game.class.getField("platform").get(null);
+			Class<?> support = Class.forName("com.shatteredpixel.shatteredpixeldungeon.PlatformSupport");
+			int all = support.getField("INSET_ALL").getInt(null);
+			Object insets = platform.getClass().getMethod("getSafeInsets", int.class).invoke(platform, all);
+			float value = insets.getClass().getField(left ? "left" : "right").getFloat(insets);
+			return value / PixelScene.uiCamera.zoom;
+		} catch (Throwable e) {
+			return 0;
+		}
+	}
+
+	private static boolean shouldShow() {
+		Hero hero = Dungeon.hero;
+		return isOn() && hero != null && hero.isAlive();
+	}
+
+	private static KindOfWeapon weapon(Hero hero) {
+		try {
+			return hero.belongings.attackingWeapon();
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+
+	private static boolean inReach(Hero hero, Level level, int cell) {
+		if (cell < 0 || cell >= level.length() || cell == hero.pos) return false;
+		if (!hero.fieldOfView[cell]) return false;
+		Char ch = Actor.findChar(cell);
+		if (level.pit[cell] && ch == null) return false;
+		if (level.adjacent(hero.pos, cell)) return true;
+		KindOfWeapon weapon = weapon(hero);
+		return weapon != null && weapon.canReach(hero, cell);
+	}
+
+	private static List<Integer> reachableCells(Hero hero, Level level) {
+		List<Integer> cells = new ArrayList<>();
+		KindOfWeapon weapon = weapon(hero);
+		int reach = Math.max(1, weapon == null ? 1 : weapon.reachFactor(hero));
+		int width = level.width();
+		int x = hero.pos % width;
+		int y = hero.pos / width;
+		for (int dy = -reach; dy <= reach; dy++) {
+			for (int dx = -reach; dx <= reach; dx++) {
+				int cx = x + dx;
+				int cy = y + dy;
+				if (cx < 0 || cx >= width || cy < 0) continue;
+				int cell = cy * width + cx;
+				if (inReach(hero, level, cell)) cells.add(cell);
+			}
+		}
+		return cells;
+	}
+
+	private static CellSelector.Listener activeListener;
+
+	private static boolean isSelecting() {
+		if (activeListener == null) return false;
+		try {
+			Field selectorField = GameScene.class.getDeclaredField("cellSelector");
+			selectorField.setAccessible(true);
+			Object selector = selectorField.get(null);
+			if (selector == null) return false;
+			Field listenerField = selector.getClass().getField("listener");
+			return listenerField.get(selector) == activeListener;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	private static void choose() {
+		if (isSelecting()) {
+			GameScene.cancelCellSelector();
+			clearMarkers();
+			activeListener = null;
+			return;
+		}
+		Hero hero = Dungeon.hero;
+		Level level = Dungeon.level;
+		if (hero == null || level == null || !hero.isAlive() || !hero.ready) return;
+		PathPreview.clear();
+		List<Integer> cells = reachableCells(hero, level);
+		if (cells.isEmpty()) {
+			GLog.w("There is nothing in reach to attack.");
+			return;
+		}
+		showMarkers(cells, level.width());
+		activeListener = new CellSelector.Listener() {
+			@Override
+			public void onSelect(Integer cell) {
+				if (activeListener == this) activeListener = null;
+				clearMarkers();
+				if (cell == null) return;
+				attack(cell);
+			}
+
+			@Override
+			public String prompt() {
+				return "Choose a tile to attack";
+			}
+		};
+		GameScene.selectCell(activeListener);
+	}
+
+	private static void attack(int cell) {
+		Hero hero = Dungeon.hero;
+		Level level = Dungeon.level;
+		if (hero == null || level == null || !hero.isAlive() || !hero.ready) return;
+		if (!inReach(hero, level, cell)) {
+			GLog.w("That tile is out of reach.");
+			return;
+		}
+		try {
+			Char ch = Actor.findChar(cell);
+			if (ch != null && ch != hero && ch.invisible == 0 && hero.canAttack(ch)) {
+				hero.curAction = new HeroAction.Attack(ch);
+				hero.next();
+				return;
+			}
+			swingAt(hero, cell);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not attack tile " + cell, e);
+		}
+	}
+
+	private static void swingAt(Hero hero, int cell) {
+		hero.curAction = null;
+		hero.busy();
+		hero.sprite.attack(cell, () -> {
+			try {
+				Sample.INSTANCE.play(MISS_SOUND);
+				if (QolSettings.forceAttackEnchants()) applyEnchantment(hero, cell);
+			} catch (Throwable e) {
+				Log.e(TAG, "Could not apply the enchantment to tile " + cell, e);
+			}
+			hero.spendAndNext(hero.attackDelay());
+		});
+	}
+
+	private static void applyEnchantment(Hero hero, int cell) throws ReflectiveOperationException {
+		KindOfWeapon kind = weapon(hero);
+		if (!(kind instanceof Weapon)) return;
+		Weapon weapon = (Weapon) kind;
+		Weapon.Enchantment enchantment = weapon.enchantment;
+		if (enchantment == null) return;
+		int level = Math.max(0, weapon.buffedLvl());
+		if (enchantment instanceof Blazing) {
+			if (!procs((level + 1f) / (level + 3f), hero)) return;
+			GameScene.add(Blob.seed(cell, 2, Fire.class, Dungeon.level));
+		} else if (enchantment instanceof Chilling) {
+			if (!procs((level + 1f) / (level + 4f), hero)) return;
+			Freezing.affect(cell);
+		} else if (enchantment instanceof Blooming) {
+			if (!procs((level + 1f) / (level + 3f), hero)) return;
+			Method plantGrass = Blooming.class.getDeclaredMethod("plantGrass", int.class);
+			plantGrass.setAccessible(true);
+			plantGrass.invoke(enchantment, cell);
+		} else if (enchantment instanceof Shocking) {
+			float chance = (1 / 3f) * Weapon.Enchantment.genericProcChanceMultiplier(hero);
+			if (random.nextFloat() >= chance) return;
+			shock(hero, cell, enchantment, Math.max(1f, chance));
+		}
+	}
+
+	private static void shock(Hero hero, int cell, Weapon.Enchantment enchantment, float powerMulti) {
+		Level level = Dungeon.level;
+		boolean[] open = new boolean[level.length()];
+		for (int i = 0; i < open.length; i++) open[i] = !level.solid[i];
+		PathFinder.buildDistanceMap(cell, open, 2);
+
+		ArrayList<Char> affected = new ArrayList<>();
+		ArrayList<Lightning.Arc> arcs = new ArrayList<>();
+		List<Char> first = new ArrayList<>();
+		for (int i = 0; i < PathFinder.distance.length; i++) {
+			if (PathFinder.distance[i] == Integer.MAX_VALUE) continue;
+			Char ch = Actor.findChar(i);
+			if (ch != null && ch != hero && !affected.contains(ch)) first.add(ch);
+		}
+		affected.addAll(first);
+		for (Char ch : first) {
+			arcs.add(new Lightning.Arc(cell, ch.pos));
+			Shocking.arc(hero, ch, level.water[ch.pos] && !ch.flying ? 2 : 1, affected, arcs);
+		}
+
+		int damage = Math.round(hero.damageRoll() * 0.5f * powerMulti);
+		for (Char ch : affected) {
+			if (ch.alignment != hero.alignment && ch.isAlive()) ch.damage(damage, enchantment);
+		}
+		if (arcs.isEmpty()) arcs.add(new Lightning.Arc(hero.pos, cell));
+		hero.sprite.parent.addToFront(new Lightning(arcs, null));
+		Sample.INSTANCE.play(LIGHTNING_SOUND);
+	}
+
+	private static boolean procs(float chance, Hero hero) {
+		return random.nextFloat() < chance * Weapon.Enchantment.genericProcChanceMultiplier(hero);
+	}
+
+	private static void showMarkers(List<Integer> cells, int width) {
+		clearMarkers();
+		Scene scene = Game.scene();
+		if (scene == null) return;
+		for (int cell : cells) {
+			ColorBlock block = new ColorBlock(MARKER_SIZE, MARKER_SIZE, MARKER_COLOR);
+			block.x = (cell % width) * TILE_SIZE + (TILE_SIZE - MARKER_SIZE) / 2f;
+			block.y = (cell / width) * TILE_SIZE + (TILE_SIZE - MARKER_SIZE) / 2f;
+			block.alpha(0.6f);
+			scene.add(block);
+			markers.add(block);
+		}
+	}
+
+	private static void clearMarkers() {
+		for (Gizmo gizmo : markers) {
+			gizmo.killAndErase();
+			gizmo.destroy();
+		}
+		markers.clear();
+	}
+
+	private static final class AttackTag extends Tag {
+		private Image icon;
+		private Object shownWeapon = this;
+		private Object shownLook = "";
+
+		private Object lookOf(KindOfWeapon weapon) {
+			if (weapon == null) return "none";
+			Object enchantment = weapon instanceof Weapon ? ((Weapon) weapon).enchantment : null;
+			return weapon.image() + ":" + (enchantment == null ? "" : enchantment.getClass().getName());
+		}
+
+		AttackTag() {
+			super(COLOR);
+			setSize(Tag.SIZE, Tag.SIZE);
+		}
+
+		@Override
+		public void onClick() {
+			choose();
+		}
+
+		@Override
+		public void update() {
+			boolean show = shouldShow();
+			if (visible != show) {
+				visible = show;
+				GameScene.updateTags = true;
+			}
+			if (visible) refreshIcon();
+			super.update();
+		}
+
+		private void refreshIcon() {
+			Hero hero = Dungeon.hero;
+			KindOfWeapon weapon = hero == null ? null : weapon(hero);
+			Object look = lookOf(weapon);
+			if (weapon == shownWeapon && look.equals(shownLook)) return;
+			shownWeapon = weapon;
+			shownLook = look;
+			if (icon != null) {
+				icon.killAndErase();
+				icon.destroy();
+			}
+			icon = weapon == null ? Icons.get(Icons.TARGET) : new ItemSprite(weapon);
+			add(icon);
+			layout();
+		}
+
+		@Override
+		public void layout() {
+			super.layout();
+			if (icon == null) return;
+			if (!flipped) icon.x = left() + (Tag.SIZE - icon.width()) / 2f + 1;
+			else icon.x = left() + width() - (Tag.SIZE + icon.width()) / 2f - 1;
+			icon.y = top() + (height() - icon.height()) / 2f;
+			PixelScene.align(icon);
+		}
+	}
+}
