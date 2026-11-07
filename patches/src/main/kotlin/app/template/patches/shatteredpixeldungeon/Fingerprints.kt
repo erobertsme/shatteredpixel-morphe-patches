@@ -707,6 +707,12 @@ object ItemEnergyValFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object RenameWindowConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndHero\$StatsTab\$2\$1;",
+	name = "<init>",
+	returnType = "V",
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

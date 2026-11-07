@@ -12,7 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import java.lang.reflect.Field;
 
 /**
- * An Empty Quickslot button at the bottom of the backpack when it is opened to choose an item for a quickslot.
+ * An Empty Quickslot button at the bottom of the backpack when it is opened to choose an item for a quickslot. It
+ * also closes the backpack, so it works as a way out after tapping an empty quickslot by mistake.
  */
 @SuppressWarnings("unused")
 public final class QuickslotEmpty {
@@ -35,7 +36,6 @@ public final class QuickslotEmpty {
 			if (selector == null) return;
 			int slot = quickslotFor(selector);
 			if (slot < 0) return;
-			Item current = Dungeon.quickslot.getItem(slot);
 			RedButton empty = new RedButton("Empty Quickslot", 7) {
 				@Override
 				public void onClick() {
@@ -45,7 +45,6 @@ public final class QuickslotEmpty {
 				}
 			};
 			empty.icon(Icons.get(Icons.CLOSE));
-			empty.enable(current != null);
 			BottomRow.add((Window) window, empty);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the Empty Quickslot button", e);
