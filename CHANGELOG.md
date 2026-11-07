@@ -1,3 +1,9 @@
+## [1.0.0-dev.80](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.79...v1.0.0-dev.80) (2026-11-07)
+
+### ✨ New Features
+
+* Use the chevron icon for the scroll hints ([63d2895](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/63d2895c42d26da77ec80344fd74dd1c6bb0199a))
+
 ## [1.0.0-dev.79](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.78...v1.0.0-dev.79) (2026-11-07)
 
 ### ✨ New Features
