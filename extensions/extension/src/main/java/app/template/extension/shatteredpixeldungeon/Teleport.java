@@ -43,6 +43,15 @@ public final class Teleport {
 	private Teleport() {
 	}
 
+	/**
+	 * The teleport icon at the size of the game's menu icons.
+	 */
+	static Image largeIcon() {
+		Image icon = icon();
+		if (icon.width() < 10) icon.scale.set(2f, 2f);
+		return icon;
+	}
+
 	static Image icon() {
 		Image icon = StatIcons.item(StatIcons.SCROLL_PASSAGE);
 		return icon != null ? icon : Icons.get(Icons.BUFFS);

@@ -121,6 +121,14 @@ abstract class EditorWindow extends Window {
 	}
 
 	private Image nextStepperIcon;
+	private boolean labelAbove;
+
+	/**
+	 * Shows the label of the next stepper as a heading above it instead of beside it.
+	 */
+	protected void stepperLabelAbove() {
+		labelAbove = true;
+	}
 
 	/**
 	 * Shows [icon] to the left of the label of the next stepper.
@@ -151,10 +159,15 @@ abstract class EditorWindow extends Window {
 			add(icon);
 			textLeft = icon.width() + GAP;
 		}
-		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
-		text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
-		if (!enabled) text.alpha(0.3f);
-		add(text);
+		if (labelAbove) {
+			labelAbove = false;
+			addSection(label);
+		} else {
+			RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
+			text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
+			if (!enabled) text.alpha(0.3f);
+			add(text);
+		}
 
 		float right = WIDTH;
 		if (onReset != null) {

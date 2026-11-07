@@ -1,5 +1,11 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import java.lang.reflect.Field;
+import com.watabou.noosa.ui.Component;
+import com.watabou.noosa.Visual;
+import com.watabou.noosa.Group;
+import com.watabou.noosa.Gizmo;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -20,6 +26,7 @@ public class CloverlordWindow extends Window {
 
 	private static final int WIDTH = 128;
 	private static final int BTN_HEIGHT = 18;
+	private static final float MAX_HEIGHT_SHARE = 0.7f;
 	private static final int GAP = 2;
 	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
@@ -55,13 +62,64 @@ public class CloverlordWindow extends Window {
 		if (!tabs.contains(page)) page = TAB_GENERAL;
 		if (tabs.size() > 1) addTabs(tabs);
 
+		float pageTop = pos;
+		int firstMember = memberCount();
 		if (page == TAB_EDITORS) buildEditors();
 		if (page == TAB_QOL) buildQualityOfLife();
 		if (page == TAB_UNLOCKS) buildUnlocks();
 		if (page == TAB_GENERAL) buildGeneral();
+		scrollIfTall(pageTop, firstMember);
 		pos += 2 * GAP;
 		addButton("Back", (Image) null, this::back);
 		resize(WIDTH, (int) (pos - GAP));
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Gizmo> members() {
+		try {
+			Field field = Group.class.getDeclaredField("members");
+			field.setAccessible(true);
+			return (List<Gizmo>) field.get(this);
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+
+	private int memberCount() {
+		List<Gizmo> members = members();
+		return members == null ? 0 : members.size();
+	}
+
+	/**
+	 * Puts the page in a scrolling area when the window would be taller than most of the screen.
+	 */
+	private void scrollIfTall(float pageTop, int firstMember) {
+		float maxHeight = PixelScene.uiCamera.height * MAX_HEIGHT_SHARE;
+		float pageHeight = pos - pageTop;
+		float viewHeight = maxHeight - pageTop - BTN_HEIGHT - 2 * GAP;
+		List<Gizmo> members = members();
+		if (members == null || pageHeight <= viewHeight || viewHeight < 3 * BTN_HEIGHT) return;
+		try {
+			List<Gizmo> page = new ArrayList<>(members.subList(firstMember, members.size()));
+			ScrollPane pane = new ScrollPane(new Component());
+			Component content = pane.content();
+			for (Gizmo gizmo : page) {
+				remove(gizmo);
+				if (gizmo instanceof Component) {
+					Component component = (Component) gizmo;
+					component.setPos(component.left(), component.top() - pageTop);
+				} else if (gizmo instanceof Visual) {
+					((Visual) gizmo).y -= pageTop;
+				}
+				content.add(gizmo);
+			}
+			content.setSize(WIDTH, pageHeight);
+			add(pane);
+			pane.setRect(0, pageTop, WIDTH, viewHeight);
+			pos = pageTop + viewHeight;
+		} catch (Throwable e) {
+			android.util.Log.e("CloverlordWindow", "Could not make the page scroll", e);
+		}
 	}
 
 	private void back() {

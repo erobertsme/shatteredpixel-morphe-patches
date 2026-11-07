@@ -30,7 +30,7 @@ public class RewardRulesWindow extends EditorWindow {
 		}
 
 		pos += GAP;
-		addSection("Setting");
+		stepperLabelAbove();
 		if (mode == KillRewards.RAISE) {
 			int value = KillRewards.raise(kind);
 			addStepper("Extra levels", "+" + value, value, 1, 1, 30, v -> KillRewards.raise(kind, v), true, () -> KillRewards.raise(kind, KillRewards.DEFAULT_RAISE));
@@ -41,6 +41,7 @@ public class RewardRulesWindow extends EditorWindow {
 			int value = KillRewards.multiply(kind);
 			addStepper("Multiplier", value + "%", value, 10, 10, 1000, v -> KillRewards.multiply(kind, v), true, () -> KillRewards.multiply(kind, KillRewards.DEFAULT_MULTIPLY));
 		} else {
+			addSection("Setting");
 			addHint("Nothing to set for this rule.");
 		}
 
