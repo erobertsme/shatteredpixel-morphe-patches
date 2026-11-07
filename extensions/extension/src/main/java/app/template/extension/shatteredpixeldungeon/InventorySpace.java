@@ -363,7 +363,7 @@ public final class InventorySpace {
 				turn(window, page, -1);
 			}
 		};
-		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
+		previous.icon(StatIcons.arrow(true));
 		previous.setRect(0, top, ARROW_WIDTH, PAGER_HEIGHT);
 		window.add(previous);
 
@@ -373,7 +373,7 @@ public final class InventorySpace {
 				turn(window, page, 1);
 			}
 		};
-		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
+		next.icon(StatIcons.arrow(false));
 		next.setRect(width - ARROW_WIDTH, top, ARROW_WIDTH, PAGER_HEIGHT);
 		window.add(next);
 

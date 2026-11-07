@@ -5,10 +5,8 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
 import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
@@ -46,11 +44,8 @@ public final class Teleport {
 	}
 
 	static Image icon() {
-		try {
-			return new TalentIcon(Talent.LONGRANGE_WARP);
-		} catch (Throwable e) {
-			return Icons.get(Icons.BUFFS);
-		}
+		Image icon = StatIcons.item(StatIcons.SCROLL_PASSAGE);
+		return icon != null ? icon : Icons.get(Icons.BUFFS);
 	}
 
 	/**

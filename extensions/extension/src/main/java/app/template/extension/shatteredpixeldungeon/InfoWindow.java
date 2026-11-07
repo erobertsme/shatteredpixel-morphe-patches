@@ -104,7 +104,7 @@ final class InfoWindow extends Window {
 				turn((page - 1 + count) % count);
 			}
 		};
-		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
+		previous.icon(StatIcons.arrow(true));
 		previous.setRect(0, y, ARROW_WIDTH, PAGER_HEIGHT);
 		add(previous);
 
@@ -114,7 +114,7 @@ final class InfoWindow extends Window {
 				turn((page + 1) % count);
 			}
 		};
-		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
+		next.icon(StatIcons.arrow(false));
 		next.setRect(WIDTH - ARROW_WIDTH, y, ARROW_WIDTH, PAGER_HEIGHT);
 		add(next);
 

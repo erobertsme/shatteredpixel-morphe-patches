@@ -8,6 +8,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.noosa.ColorBlock;
+import com.watabou.noosa.Image;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
@@ -25,9 +27,7 @@ public final class ResumePath {
 	private static final String TAG = "ResumePath";
 	private static final int TILE_SIZE = 16;
 	private static final int STEP_SIZE = 4;
-	private static final int TARGET_SIZE = 10;
 	private static final int PATH_COLOR = 0xFFFFFF44;
-	private static final int TARGET_COLOR = 0xFF7AD35C;
 
 	private static final List<Gizmo> markers = new ArrayList<>();
 	private static Scene shownScene;
@@ -41,6 +41,7 @@ public final class ResumePath {
 	 * Called at the end of ResumeIndicator.update.
 	 */
 	public static void afterIndicatorUpdate(Object indicator) {
+		QuickslotRow.verifyRow();
 		try {
 			Hero hero = Dungeon.hero;
 			Scene scene = Game.scene();
@@ -69,7 +70,11 @@ public final class ResumePath {
 		for (int cell : findPath(hero, target, level)) {
 			if (cell != target) addMarker(scene, cell, width, STEP_SIZE, PATH_COLOR);
 		}
-		addMarker(scene, target, width, TARGET_SIZE, TARGET_COLOR);
+		Image icon = Icons.get(Icons.TARGET);
+		icon.x = (target % width) * TILE_SIZE + (TILE_SIZE - icon.width()) / 2f;
+		icon.y = (target / width) * TILE_SIZE + (TILE_SIZE - icon.height()) / 2f;
+		scene.add(icon);
+		markers.add(icon);
 	}
 
 	private static List<Integer> findPath(Hero hero, int cell, Level level) {

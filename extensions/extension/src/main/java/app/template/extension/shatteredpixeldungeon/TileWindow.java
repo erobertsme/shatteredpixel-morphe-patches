@@ -139,10 +139,12 @@ public class TileWindow extends EditorWindow {
 		addSection("Actions");
 		boolean free = FloorEditor.canStandOn(cell);
 		if (EditorSwitches.teleport()) {
-			addButton("Teleport here", 0, WIDTH, () -> {
+			RedButton teleport = addButton("Teleport here", 0, WIDTH, () -> {
 				hide();
 				FloorEditor.teleportHero(cell);
-			}).enable(free);
+			});
+			teleport.icon(Teleport.icon());
+			teleport.enable(free);
 			pos += ROW_HEIGHT + GAP;
 		}
 		float half = (WIDTH - GAP) / 2f;

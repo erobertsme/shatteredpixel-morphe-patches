@@ -244,13 +244,21 @@ public final class QuickslotRow {
 		try {
 			Component bar = (Component) toolbar;
 			matchHeight(bar);
-			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) return;
+			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) {
+				rowSlots.clear();
+				return;
+			}
 			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
 			if (SPDSettings.quickSwapper() && SPDSettings.interfaceSize() == 0) {
+				rowSlots.clear();
 				pageWithSwapper(bar, quick);
 				return;
 			}
-			if (tallToolbars.contains(toolbar)) addExtraRow(bar, quick);
+			if (tallToolbars.contains(toolbar)) {
+				addExtraRow(bar, quick);
+			} else {
+				rowSlots.clear();
+			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not lay out the extra quickslots", e);
 		}
@@ -282,6 +290,8 @@ public final class QuickslotRow {
 
 		int count = Math.min(cells.size(), quick.length - GAME_SLOTS);
 		float y = anchor.top() - 2 + TOOL_HEIGHT;
+		rowSlots.clear();
+		rowY = y;
 		for (int k = 0; k < count; k++) {
 			Component slot = (Component) quick[GAME_SLOTS + k];
 			int[] frame = count == 1 ? MIDDLE_FRAME : k == 0 ? FIRST_FRAME : k == count - 1 ? LAST_FRAME : MIDDLE_FRAME;
@@ -291,6 +301,45 @@ public final class QuickslotRow {
 			slot.setPos(x, y);
 			slot.visible = true;
 			enable(slot, enabled);
+			rowSlots.add(slot);
+		}
+	}
+
+	private static final List<Component> rowSlots = new ArrayList<>();
+	private static float rowY;
+	private static int repairs;
+
+	/**
+	 * Called every frame. Lays the toolbar out again if a slot in the extra row went missing or moved.
+	 */
+	static void verifyRow() {
+		if (rowSlots.isEmpty() || resizing) return;
+		boolean intact = true;
+		for (Component slot : rowSlots) {
+			if (!slot.visible || slot.parent == null || Math.abs(slot.top() - rowY) >= 0.5f) intact = false;
+		}
+		if (intact) {
+			repairs = 0;
+			return;
+		}
+		if (++repairs > 3) {
+			rowSlots.clear();
+			repairs = 0;
+			return;
+		}
+		for (Component slot : rowSlots) {
+			if (slot.visible && slot.parent != null && Math.abs(slot.top() - rowY) < 0.5f) continue;
+			if (slot.parent == null) {
+				rowSlots.clear();
+				return;
+			}
+			try {
+				Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getMethod("updateLayout").invoke(null);
+			} catch (Throwable e) {
+				Log.e(TAG, "Could not restore the extra quickslots", e);
+				rowSlots.clear();
+			}
+			return;
 		}
 	}
 

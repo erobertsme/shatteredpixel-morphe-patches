@@ -77,6 +77,21 @@ final class StatIcons {
 		}
 	}
 
+	static final int SCROLL_PASSAGE = 53;
+	static final int POTION_HASTE = 86;
+
+	/**
+	 * The game's arrow icon, pointing left when [left] is true.
+	 */
+	static Image arrow(boolean left) {
+		Image image = Icons.get(Icons.ARROW);
+		if (left) {
+			image.origin.set(image.width() / 2f, image.height() / 2f);
+			image.angle = 180;
+		}
+		return image;
+	}
+
 	static Image icon(Icons icon) {
 		try {
 			return Icons.get(icon);

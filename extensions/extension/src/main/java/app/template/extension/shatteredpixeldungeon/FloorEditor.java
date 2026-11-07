@@ -666,6 +666,7 @@ public final class FloorEditor {
 							if (action.reopens) reopenInfo(target);
 						}
 					};
+					if (action.label.startsWith("Teleport")) button.icon(Teleport.icon());
 					button.enable(action.enabled);
 					button.setRect(i * (buttonWidth + GAP), y, buttonWidth, BUTTON_HEIGHT);
 					window.add(button);

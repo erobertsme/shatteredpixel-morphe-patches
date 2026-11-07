@@ -349,7 +349,7 @@ public class CharacterWindow extends Window {
 					Game.scene().addToFront(new TalentSwapWindow(talent, tier, null));
 				}
 			};
-			swap.icon(Icons.get(Icons.SHUFFLE));
+			swap.icon(Icons.get(Icons.CHANGES));
 			swap.setRect(x, pos, STEP_WIDTH, rowHeight);
 			add(swap);
 		}
@@ -556,7 +556,7 @@ public class CharacterWindow extends Window {
 				opener.open((current + pages - 1) % pages);
 			}
 		};
-		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
+		previous.icon(StatIcons.arrow(true));
 		previous.setRect(0, pos, 24, ROW_HEIGHT);
 		add(previous);
 
@@ -570,7 +570,7 @@ public class CharacterWindow extends Window {
 				opener.open((current + 1) % pages);
 			}
 		};
-		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
+		next.icon(StatIcons.arrow(false));
 		next.setRect(WIDTH - 24, pos, 24, ROW_HEIGHT);
 		add(next);
 		pos += ROW_HEIGHT + GAP;

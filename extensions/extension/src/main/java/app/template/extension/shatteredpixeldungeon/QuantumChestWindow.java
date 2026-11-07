@@ -159,7 +159,7 @@ public class QuantumChestWindow extends EditorWindow {
 				replaceWith(new QuantumChestWindow(fromBags, (page - 1 + pages) % pages));
 			}
 		};
-		previous.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.LEFTARROW));
+		previous.icon(StatIcons.arrow(true));
 		previous.setRect(0, pos, ARROW_WIDTH, ROW_HEIGHT);
 		add(previous);
 
@@ -169,7 +169,7 @@ public class QuantumChestWindow extends EditorWindow {
 				replaceWith(new QuantumChestWindow(fromBags, (page + 1) % pages));
 			}
 		};
-		next.icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.RIGHTARROW));
+		next.icon(StatIcons.arrow(false));
 		next.setRect(WIDTH - ARROW_WIDTH, pos, ARROW_WIDTH, ROW_HEIGHT);
 		add(next);
 

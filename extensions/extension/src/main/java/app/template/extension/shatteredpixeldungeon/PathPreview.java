@@ -12,6 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.ColorBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
@@ -38,12 +40,12 @@ public final class PathPreview {
 	};
 	private static final int TILE_SIZE = 16;
 	private static final int STEP_SIZE = 4;
-	private static final int TARGET_SIZE = 10;
 	private static final int PATH_COLOR = 0xFFFFFF44;
 	private static final int TARGET_COLOR = 0xFF7AD35C;
 	private static final int BUTTON_WIDTH = 50;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
+	private static final int TEXT_GAP = 6;
 
 	private static PathPreview active;
 
@@ -232,13 +234,15 @@ public final class PathPreview {
 			if (cell == target) continue;
 			addMarker(cell, width, STEP_SIZE, PATH_COLOR);
 		}
-		addMarker(target, width, TARGET_SIZE, color);
+		addTargetIcon(target, width, color);
 
+		float buttonsTop = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
 		RenderedTextBlock label = PixelScene.renderTextBlock(message, 9);
 		label.hardlight(color == ATTACK_COLOR || color == DANGER_COLOR ? 0xFF8866 : 0xFFFF44);
 		label.maxWidth(PixelScene.uiCamera.width - 2 * MARGIN);
 		label.camera = PixelScene.uiCamera;
-		label.setPos(MARGIN, 30);
+		label.setPos((PixelScene.uiCamera.width - label.width()) / 2f, buttonsTop - TEXT_GAP - label.height());
+		PixelScene.align(label);
 		scene.add(label);
 		overlay.add(label);
 
@@ -252,7 +256,6 @@ public final class PathPreview {
 		scene.add(watcher);
 		overlay.add(watcher);
 
-		float buttonsTop = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
 		TintedButton cancel = TintedButton.cancel("Cancel", PathPreview::clear);
 		cancel.camera = PixelScene.uiCamera;
 		cancel.setRect(MARGIN, buttonsTop, BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -260,10 +263,21 @@ public final class PathPreview {
 		overlay.add(cancel);
 
 		TintedButton go = TintedButton.finish(goLabel, PathPreview::go);
+		Image haste = StatIcons.item(StatIcons.POTION_HASTE);
+		if (haste != null) go.icon(haste);
 		go.camera = PixelScene.uiCamera;
 		go.setRect(PixelScene.uiCamera.width - MARGIN - BUTTON_WIDTH, buttonsTop, BUTTON_WIDTH, BUTTON_HEIGHT);
 		scene.add(go);
 		overlay.add(go);
+	}
+
+	private void addTargetIcon(int cell, int width, int color) {
+		Image icon = Icons.get(Icons.TARGET);
+		icon.x = (cell % width) * TILE_SIZE + (TILE_SIZE - icon.width()) / 2f;
+		icon.y = (cell / width) * TILE_SIZE + (TILE_SIZE - icon.height()) / 2f;
+		if (color != TARGET_COLOR) icon.hardlight(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, (color & 0xFF) / 255f);
+		scene.add(icon);
+		overlay.add(icon);
 	}
 
 	private void addMarker(int cell, int width, int size, int color) {

@@ -128,7 +128,7 @@ public class EnemyWindow extends EditorWindow {
 			addButton("Teleport", half + GAP, half, () -> {
 				hide();
 				EnemyEditor.chooseTeleport(mob);
-			});
+			}).icon(Teleport.icon());
 		}
 		pos += ROW_HEIGHT + GAP;
 		addButton("Defeat", 0, WIDTH, () -> {

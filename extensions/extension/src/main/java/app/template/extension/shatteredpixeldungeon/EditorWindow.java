@@ -369,11 +369,11 @@ abstract class EditorWindow extends Window {
 			pos += ROW_HEIGHT + GAP;
 			return;
 		}
-		addButton("", 0, 24, () -> opener.open((current + pages - 1) % pages)).icon(Icons.get(Icons.LEFTARROW));
+		addButton("", 0, 24, () -> opener.open((current + pages - 1) % pages)).icon(StatIcons.arrow(true));
 		RenderedTextBlock label = PixelScene.renderTextBlock("Page " + (current + 1) + " / " + pages, 6);
 		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
-		addButton("", WIDTH - 24, 24, () -> opener.open((current + 1) % pages)).icon(Icons.get(Icons.RIGHTARROW));
+		addButton("", WIDTH - 24, 24, () -> opener.open((current + 1) % pages)).icon(StatIcons.arrow(false));
 		pos += ROW_HEIGHT + GAP;
 	}
 
