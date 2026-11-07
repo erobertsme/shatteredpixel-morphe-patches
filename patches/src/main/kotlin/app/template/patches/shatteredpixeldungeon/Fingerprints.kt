@@ -665,6 +665,34 @@ object WndHeroStatsTabInitializeFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object MobDestroyFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "destroy",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object MobRollToDropLootFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "rollToDropLoot",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object MobLootChanceFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "lootChance",
+	returnType = "F",
+	parameters = listOf(),
+)
+
+object HeroEarnExpFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;",
+	name = "earnExp",
+	returnType = "V",
+	parameters = listOf("I", "Ljava/lang/Class;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

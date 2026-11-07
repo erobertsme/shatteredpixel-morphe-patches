@@ -1,6 +1,7 @@
 package app.template.patches.shatteredpixeldungeon
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.smali.ExternalLabel
@@ -13,12 +14,13 @@ private const val QUICKSLOT_CLASS = "$EXTENSION_PACKAGE/QuickslotRow;"
 private const val RESUME_PATH_CLASS = "$EXTENSION_PACKAGE/ResumePath;"
 private const val FORCE_ATTACK_CLASS = "$EXTENSION_PACKAGE/ForceAttack;"
 private const val BESTIARY_CLASS = "$EXTENSION_PACKAGE/EnhancedBestiary;"
+private const val REWARDS_CLASS = "$EXTENSION_PACKAGE/KillRewards;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary and a hero stats button.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button and experience and loot rules.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -136,6 +138,18 @@ val qolEnhancementsPatch = bytecodePatch(
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
 		WndJournalItemConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
 		WndHeroStatsTabInitializeFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")
+		MobDestroyFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeDestroy($ITEM_TYPE)V")
+		MobDestroyFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterDestroy()V")
+		HeroEarnExpFingerprint.method.addInstructions(
+			0,
+			"""
+				invoke-static { p1, p2 }, $REWARDS_CLASS->adjustExp(ILjava/lang/Class;)I
+				move-result p1
+			""",
+		)
+		MobRollToDropLootFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeLootRoll($ITEM_TYPE)V")
+		MobRollToDropLootFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterLootRoll()V")
+		MobLootChanceFingerprint.adjustReturns("$REWARDS_CLASS->adjustLootChance(F$ITEM_TYPE)F", "p0")
 		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(
