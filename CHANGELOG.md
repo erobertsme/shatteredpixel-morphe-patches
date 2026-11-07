@@ -1,3 +1,9 @@
+## [1.0.0-dev.87](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.86...v1.0.0-dev.87) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+* A second tap on an unexplored area keeps the movement preview open ([d260962](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d260962ca83efa28c2056930c454e18c49e677e2))
+
 ## [1.0.0-dev.86](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.85...v1.0.0-dev.86) (2026-11-07)
 
 ### ✨ New Features
