@@ -26,6 +26,7 @@ public final class ResumePath {
 
 	private static final String TAG = "ResumePath";
 	private static final int TILE_SIZE = 16;
+	private static final float FADED = 0.35f;
 	private static final int STEP_SIZE = 4;
 	private static final int PATH_COLOR = 0xFFFFFF44;
 
@@ -73,6 +74,7 @@ public final class ResumePath {
 		Image icon = Icons.get(Icons.TARGET);
 		icon.x = (target % width) * TILE_SIZE + (TILE_SIZE - icon.width()) / 2f;
 		icon.y = (target / width) * TILE_SIZE + (TILE_SIZE - icon.height()) / 2f;
+		icon.alpha(FADED);
 		scene.add(icon);
 		markers.add(icon);
 	}
@@ -89,7 +91,7 @@ public final class ResumePath {
 		ColorBlock block = new ColorBlock(size, size, color);
 		block.x = (cell % width) * TILE_SIZE + (TILE_SIZE - size) / 2f;
 		block.y = (cell / width) * TILE_SIZE + (TILE_SIZE - size) / 2f;
-		block.alpha(0.8f);
+		block.alpha(FADED);
 		scene.add(block);
 		markers.add(block);
 	}
