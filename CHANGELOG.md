@@ -1,3 +1,9 @@
+## [1.0.0-dev.84](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.83...v1.0.0-dev.84) (2026-11-07)
+
+### ✨ New Features
+
+* Fade the path of an interrupted walk ([768cb8d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/768cb8de19b97831ba3923a7badac932b99960b2))
+
 ## [1.0.0-dev.83](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.82...v1.0.0-dev.83) (2026-11-07)
 
 ### ✨ New Features
