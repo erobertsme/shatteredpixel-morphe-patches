@@ -41,6 +41,7 @@ public class CloverlordWindow extends Window {
 	private static final String[] TAB_NAMES = { "General", "QoL", "Unlocks", "Editors" };
 
 	private static int page;
+	private ScrollPane scrollPane;
 
 	public CloverlordWindow() {
 		super();
@@ -72,6 +73,7 @@ public class CloverlordWindow extends Window {
 		pos += 2 * GAP;
 		addButton("Back", (Image) null, this::back);
 		resize(WIDTH, (int) (pos - GAP));
+		if (scrollPane != null) scrollPane.setRect(scrollPane.left(), scrollPane.top(), scrollPane.width(), scrollPane.height());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -116,6 +118,7 @@ public class CloverlordWindow extends Window {
 			content.setSize(WIDTH, pageHeight);
 			add(pane);
 			pane.setRect(0, pageTop, WIDTH, viewHeight);
+			scrollPane = pane;
 			pos = pageTop + viewHeight;
 		} catch (Throwable e) {
 			android.util.Log.e("CloverlordWindow", "Could not make the page scroll", e);
