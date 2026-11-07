@@ -1,3 +1,9 @@
+## [1.0.0-dev.81](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.80...v1.0.0-dev.81) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+* Point the scroll hint chevrons the right way ([a848b6d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a848b6d51d3c17b669bd1abee62a932c17577a2f))
+
 ## [1.0.0-dev.80](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.79...v1.0.0-dev.80) (2026-11-07)
 
 ### ✨ New Features
