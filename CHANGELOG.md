@@ -1,3 +1,9 @@
+## [1.0.0-dev.85](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.84...v1.0.0-dev.85) (2026-11-07)
+
+### ✨ New Features
+
+* Energize more items in alchemy, starting with the Arcane Stylus ([5190992](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5190992d6d6b1024f0be68d42eaace8880ca4e33))
+
 ## [1.0.0-dev.84](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.83...v1.0.0-dev.84) (2026-11-07)
 
 ### ✨ New Features
