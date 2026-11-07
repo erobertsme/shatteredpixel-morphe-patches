@@ -77,6 +77,7 @@ public final class PathPreview {
 	public static boolean interceptTap(Integer cell) {
 		Integer target = UnexploredTaps.redirect(cell);
 		if (target == null) return handleTap(cell);
+		if (active != null && target.equals(active.target) && active.isCurrent()) return true;
 		if (handleTap(target)) return true;
 		UnexploredTaps.walk(target);
 		return true;
