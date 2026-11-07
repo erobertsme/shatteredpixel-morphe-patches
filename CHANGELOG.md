@@ -1,3 +1,9 @@
+## [1.0.0-dev.75](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.74...v1.0.0-dev.75) (2026-11-07)
+
+### ✨ New Features
+
+* Path preview layout and icons, icon updates, extra row self-repair ([9cde9c6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9cde9c61ab38ca04d9e585abc58e8c2857bdf1b7))
+
 ## [1.0.0-dev.74](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.73...v1.0.0-dev.74) (2026-11-06)
 
 ### ✨ New Features
