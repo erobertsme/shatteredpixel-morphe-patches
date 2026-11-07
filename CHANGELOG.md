@@ -1,3 +1,9 @@
+## [1.0.0-dev.78](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.77...v1.0.0-dev.78) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+* Lay out the scrolling Extras page after the window is centered ([89f0529](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/89f052920d590e106c345d25bd18f48d7a430979))
+
 ## [1.0.0-dev.77](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.76...v1.0.0-dev.77) (2026-11-07)
 
 ### ✨ New Features
