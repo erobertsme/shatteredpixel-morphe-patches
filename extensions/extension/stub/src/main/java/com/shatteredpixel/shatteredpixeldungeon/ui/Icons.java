@@ -11,6 +11,7 @@ public enum Icons {
 	STATS,
 	SHUFFLE,
 	TARGET,
+	CHEVRON,
 	ARROW,
 	INFO,
 	BACKPACK,

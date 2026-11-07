@@ -93,8 +93,8 @@ public class CloverlordWindow extends Window {
 		ColorBlock bottomShade = new ColorBlock(pane.width(), SHADE_HEIGHT, 0xFF000000);
 		bottomShade.x = pane.left();
 		bottomShade.y = pane.bottom() - SHADE_HEIGHT;
-		Image up = arrow(-90, pane.left() + pane.width() / 2f, pane.top() + 1);
-		Image down = arrow(90, pane.left() + pane.width() / 2f, pane.bottom() - 1);
+		Image up = chevron(false, pane.left() + pane.width() / 2f, pane.top() + 1);
+		Image down = chevron(true, pane.left() + pane.width() / 2f, pane.bottom() - 1);
 		Gizmo watcher = new Gizmo() {
 			@Override
 			public void update() {
@@ -118,12 +118,12 @@ public class CloverlordWindow extends Window {
 		up.visible = topShade.visible = false;
 	}
 
-	private static Image arrow(float angle, float centerX, float edgeY) {
-		Image image = Icons.get(Icons.ARROW);
+	private static Image chevron(boolean down, float centerX, float edgeY) {
+		Image image = Icons.get(Icons.CHEVRON);
 		image.origin.set(image.width() / 2f, image.height() / 2f);
-		image.angle = angle;
+		if (!down) image.angle = 180;
 		image.x = centerX - image.width() / 2f;
-		image.y = angle > 0 ? edgeY - image.height() : edgeY;
+		image.y = down ? edgeY - image.height() : edgeY;
 		return image;
 	}
 
