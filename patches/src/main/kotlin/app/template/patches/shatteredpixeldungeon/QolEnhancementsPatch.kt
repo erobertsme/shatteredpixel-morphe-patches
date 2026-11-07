@@ -22,7 +22,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button and experience and loot rules.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules and more items to energize.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -162,6 +162,7 @@ val qolEnhancementsPatch = bytecodePatch(
 			""",
 			ExternalLabel("original", 0),
 		)
+		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		HeapDropFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->onDrop($ITEM_TYPE$ITEM_TYPE)V")
 		ItemStoreInBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->store($ITEM_TYPE$ITEM_TYPE)V")
 		ItemRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->restore($ITEM_TYPE$ITEM_TYPE)V")

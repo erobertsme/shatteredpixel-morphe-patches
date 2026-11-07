@@ -700,6 +700,13 @@ object HeapDropFingerprint : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
 )
 
+object ItemEnergyValFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;",
+	name = "energyVal",
+	returnType = "I",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",
