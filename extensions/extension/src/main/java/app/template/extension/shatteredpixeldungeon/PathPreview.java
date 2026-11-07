@@ -75,6 +75,14 @@ public final class PathPreview {
 	 * Called at the start of the game's default tap handler. Returns true when the tap was used for a preview.
 	 */
 	public static boolean interceptTap(Integer cell) {
+		Integer target = UnexploredTaps.redirect(cell);
+		if (target == null) return handleTap(cell);
+		if (handleTap(target)) return true;
+		UnexploredTaps.walk(target);
+		return true;
+	}
+
+	private static boolean handleTap(Integer cell) {
 		try {
 			if (active != null && cell != null && cell == active.target && active.isCurrent()) {
 				go();
