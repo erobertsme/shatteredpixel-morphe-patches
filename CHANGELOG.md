@@ -1,3 +1,9 @@
+## [1.0.0-dev.82](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.81...v1.0.0-dev.82) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+* Pass taps on the scrolling Extras page to the button underneath ([767bd1f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/767bd1fbee5958954b8a349508ede5f1e60df983))
+
 ## [1.0.0-dev.81](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.80...v1.0.0-dev.81) (2026-11-07)
 
 ### 🐛 Bug Fixes
