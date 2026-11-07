@@ -1,3 +1,9 @@
+## [1.0.0-dev.77](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.76...v1.0.0-dev.77) (2026-11-07)
+
+### ✨ New Features
+
+* Scrolling Extras pages, setting headings, full-size teleport menu icon ([d8127b7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d8127b7f9eb1e64b159bf985a26ae39b4b2be451))
+
 ## [1.0.0-dev.76](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.75...v1.0.0-dev.76) (2026-11-07)
 
 ### ✨ New Features
