@@ -1,3 +1,9 @@
+## [1.0.0-dev.89](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.88...v1.0.0-dev.89) (2026-11-07)
+
+### ✨ New Features
+
+* Empty Quickslot always works, and a close button on the rename window ([1c6a302](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1c6a3028e1e2e883cdee6bd73efc1186ebf6575b))
+
 ## [1.0.0-dev.88](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.87...v1.0.0-dev.88) (2026-11-07)
 
 ### ✨ New Features
