@@ -13,8 +13,6 @@ import com.watabou.noosa.Scene;
 @SuppressWarnings("unused")
 public final class UndoTags {
 
-	private static final int COLOR = 0x8C9EC8;
-
 	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 2);
 
 	private UndoTags() {
@@ -26,8 +24,8 @@ public final class UndoTags {
 	public static void onSceneCreated(Object scene) {
 		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
 		try {
-			IconTag undo = new IconTag(COLOR, StatIcons.arrow(true), UndoHistory::undo);
-			IconTag redo = new IconTag(COLOR, StatIcons.arrow(false), UndoHistory::redo);
+			IconTag undo = new IconTag(StatIcons.arrow(true), UndoHistory::undo);
+			IconTag redo = new IconTag(StatIcons.arrow(false), UndoHistory::redo);
 			Gizmo controller = new Gizmo() {
 				@Override
 				public void update() {

@@ -5,7 +5,7 @@ package app.template.extension.shatteredpixeldungeon;
  */
 public class UndoSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Undo / Redo\n\nEach time your hero is ready for a new action, the game is saved and a copy is kept. Undo goes back one action and Redo goes forward again, each with a short loading screen. A walk of many steps counts as one action. Taking a new action after an undo clears Redo.\n\nRandom rolls are not saved, so repeating an action after an undo can turn out differently. Redo always restores exactly what happened.\n\nKeep: Last actions keeps the number you choose. This floor keeps every action since you arrived on the floor. Unlimited keeps everything until you leave the game.\n\nKeep history across floors: when off, history starts over each time you change floors.\n\nAllow during boss fights: when off, Undo and Redo can't be used while a boss has the floor locked.\n\nTags: choose the screen edge and how far along it the Undo and Redo tags sit.\n\nPerformance shows how long each copy takes. Save is the game's own saving, copy is keeping it in memory.";
+	private static final String INFO = "Undo / Redo\n\nEach time your hero is ready for a new action, the game is saved and a copy is kept. Undo goes back one action and Redo goes forward again, each with a short loading screen. A walk of many steps counts as one action. Taking a new action after an undo clears Redo.\n\nRandom rolls are not saved, so repeating an action after an undo can turn out differently. Redo always restores exactly what happened.\n\nKeep: Last actions keeps the number you choose. This floor keeps every action since you arrived on the floor. Unlimited keeps everything until you leave the game.\n\nKeep history across floors: when off, history starts over each time you change floors.\n\nAllow during boss fights: when off, Undo and Redo can't be used while a boss has the floor locked.\n\nTag Position & Color: choose the screen edge and how far along it the Undo and Redo tags sit, and their colour.\n\nPerformance shows how long each copy takes. Save is the game's own saving, copy is keeping it in memory.";
 
 	public UndoSettingsWindow() {
 		super();
@@ -27,7 +27,8 @@ public class UndoSettingsWindow extends EditorWindow {
 		addCheckBox("Allow during boss fights", UndoHistory.duringBosses(), () -> UndoHistory.duringBosses(!UndoHistory.duringBosses()), on);
 
 		addSection("Tags");
-		addPlacementSettings(UndoTags.PLACEMENT);
+		addButton("Tag Position & Color", 0, WIDTH, () -> replaceWith(new TagSettingsWindow(UndoTags.PLACEMENT, "Undo / Redo Tags", () -> show(new UndoSettingsWindow()))));
+		pos += ROW_HEIGHT + GAP;
 
 		addSection("Performance");
 		addIconRow(null, "Last copy", UndoHistory.lastTiming());
