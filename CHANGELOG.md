@@ -1,3 +1,9 @@
+## [1.0.0-dev.93](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.92...v1.0.0-dev.93) (2026-11-08)
+
+### ✨ New Features
+
+* Undo mode moves to Save management, with a styled tag and Undo, Done and Redo buttons ([fa8d9ea](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/fa8d9ea239ca7b57783b6ffdeb46fcca817f5bac))
+
 ## [1.0.0-dev.92](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.91...v1.0.0-dev.92) (2026-11-08)
 
 ### ✨ New Features
