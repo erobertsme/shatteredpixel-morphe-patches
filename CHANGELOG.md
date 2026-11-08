@@ -1,3 +1,9 @@
+## [1.0.0-dev.92](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.91...v1.0.0-dev.92) (2026-11-08)
+
+### ✨ New Features
+
+* Quickslot-style tags with colour settings and a reusable tag settings page ([c0a60ce](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c0a60ce0d36bfe56e9d9e0850b63f1b6962e5a9d))
+
 ## [1.0.0-dev.91](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.90...v1.0.0-dev.91) (2026-11-08)
 
 ### ✨ New Features
