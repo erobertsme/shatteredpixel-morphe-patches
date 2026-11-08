@@ -1,3 +1,9 @@
+## [1.0.0-dev.99](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.98...v1.0.0-dev.99) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+* Keep item tags separate for each game ([67fe247](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/67fe247ae8f7ad5813ef847665bc9816b244d2e3))
+
 ## [1.0.0-dev.98](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.97...v1.0.0-dev.98) (2026-11-08)
 
 ### ✨ New Features
