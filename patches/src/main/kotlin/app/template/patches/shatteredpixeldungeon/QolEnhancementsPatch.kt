@@ -22,7 +22,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls and item tags.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies and item tags.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -191,6 +191,16 @@ val qolEnhancementsPatch = bytecodePatch(
 				move-result v0
 				if-eqz v0, :original
 				const/4 v0, 0x0
+				return v0
+			""",
+			ExternalLabel("original", 0),
+		)
+		HeroGetCloserFingerprint.method.addInstructionsWithLabels(
+			0,
+			"""
+				invoke-static { p0, p1 }, $EXTENSION_PACKAGE/AllyPathing;->beforeGetCloser(Ljava/lang/Object;I)I
+				move-result v0
+				if-ltz v0, :original
 				return v0
 			""",
 			ExternalLabel("original", 0),

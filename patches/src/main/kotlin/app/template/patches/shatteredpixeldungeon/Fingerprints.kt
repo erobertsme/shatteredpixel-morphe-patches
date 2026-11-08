@@ -789,3 +789,10 @@ object TrinketWindowConstructorFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst;"),
 )
+
+object HeroGetCloserFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;",
+	name = "getCloser",
+	returnType = "Z",
+	parameters = listOf("I"),
+)

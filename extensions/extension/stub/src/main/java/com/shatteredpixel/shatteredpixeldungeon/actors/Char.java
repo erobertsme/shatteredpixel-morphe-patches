@@ -27,6 +27,10 @@ public class Char {
 	public int HP;
 	public int HT;
 	public boolean flying;
+	public int paralysed;
+	public boolean rooted;
+
+	public boolean interact(Char c) { throw new RuntimeException("Stub"); }
 
 	public boolean isImmune(Class effect) { throw new RuntimeException("Stub"); }
 
