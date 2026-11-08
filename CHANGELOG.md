@@ -1,3 +1,9 @@
+## [1.0.0-dev.109](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.108...v1.0.0-dev.109) (2026-11-08)
+
+### ✨ New Features
+
+* ally pathing takes the swap whenever it is shorter ([0012bdf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0012bdf2df02e91173b478cb9b19f1f93bf65761))
+
 ## [1.0.0-dev.108](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.107...v1.0.0-dev.108) (2026-11-08)
 
 ### ✨ New Features
