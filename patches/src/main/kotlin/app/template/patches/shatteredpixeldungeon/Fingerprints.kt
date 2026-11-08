@@ -782,3 +782,10 @@ object QuickSlotStorePlaceholdersFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/watabou/utils/Bundle;"),
 )
+
+object TrinketWindowConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst\$WndTrinket;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst;"),
+)

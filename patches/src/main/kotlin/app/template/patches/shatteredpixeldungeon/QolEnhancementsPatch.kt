@@ -22,7 +22,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize and item tags.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls and item tags.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -165,6 +165,8 @@ val qolEnhancementsPatch = bytecodePatch(
 			""",
 			ExternalLabel("original", 0),
 		)
+		TrinketWindowConstructorFingerprint.method.addInstruction(0, "invoke-static { p1 }, $EXTENSION_PACKAGE/RerollCatalyst;->beforeTrinketWindow($ITEM_TYPE)V")
+		TrinketWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RerollCatalyst;->afterTrinketWindow($ITEM_TYPE)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")
 		RenameWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")
