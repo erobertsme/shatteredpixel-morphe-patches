@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Path through allies: walking to a far tile swaps places with allies and wards in the way when there is no other route.
+ * Path through allies: walking to a far tile swaps places with allies in the way, and walks over wards, when there is no other route.
  */
 @SuppressWarnings("unused")
 public final class AllyPathing {
@@ -57,6 +57,10 @@ public final class AllyPathing {
 			}
 			Char ally = Actor.findChar(path.getFirst());
 			if (!swappable(ally)) return CONTINUE;
+			if (isWard(ally)) {
+				stepOnto(walker, path.removeFirst());
+				return MOVED;
+			}
 			int from = walker.pos;
 			swap(walker, ally);
 			if (walker.pos == from) {
@@ -83,10 +87,6 @@ public final class AllyPathing {
 	}
 
 	private static void swap(Char walker, Char ally) throws ReflectiveOperationException {
-		if (isWard(ally)) {
-			swapWithWard(walker, ally);
-			return;
-		}
 		if (!ally.getClass().getName().equals(GHOST_CLASS)) {
 			ally.interact(walker);
 			return;
@@ -112,20 +112,15 @@ public final class AllyPathing {
 		}
 	}
 
-	private static void swapWithWard(Char walker, Char ward) throws ReflectiveOperationException {
+	private static void stepOnto(Char walker, int to) throws ReflectiveOperationException {
 		Method moveSprite = Char.class.getDeclaredMethod("moveSprite", int.class, int.class);
 		moveSprite.setAccessible(true);
 		Method spend = Actor.class.getDeclaredMethod("spend", float.class);
 		spend.setAccessible(true);
-		int from = walker.pos;
-		int to = ward.pos;
-		ward.pos = from;
-		moveSprite.invoke(walker, from, to);
+		moveSprite.invoke(walker, walker.pos, to);
 		walker.move(to);
-		ward.pos = to;
-		moveSprite.invoke(ward, to, from);
-		ward.move(from);
 		spend.invoke(walker, 1f / walker.speed());
+		walker.getClass().getMethod("search", boolean.class).invoke(walker, false);
 	}
 
 	private static boolean isWard(Char c) {
