@@ -1,3 +1,9 @@
+## [1.0.0-dev.94](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.93...v1.0.0-dev.94) (2026-11-08)
+
+### ✨ New Features
+
+* Tags face their screen edge, and tag and icon opacity settings ([b90436c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b90436c957e3ff2c04740ccdd19e7d87db853745))
+
 ## [1.0.0-dev.93](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.92...v1.0.0-dev.93) (2026-11-08)
 
 ### ✨ New Features
