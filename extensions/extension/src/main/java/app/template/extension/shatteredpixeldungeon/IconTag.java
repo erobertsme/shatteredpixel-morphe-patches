@@ -20,6 +20,7 @@ class IconTag extends Tag {
 	private boolean onTop;
 	private float tagAlpha = -1;
 	private float iconAlpha = -1;
+	private int iconScale = -1;
 
 	IconTag(Runnable action) {
 		super(TagPlacement.DEFAULT_COLOR);
@@ -76,6 +77,12 @@ class IconTag extends Tag {
 			iconColor = -2;
 			rotation = -1;
 			iconAlpha = -1;
+			iconScale = -1;
+		}
+		int newIconScale = placement.iconScale();
+		if (newIconScale != iconScale) {
+			iconScale = newIconScale;
+			icon.scale.set(newIconScale / 100f, newIconScale / 100f);
 		}
 		int newIconColor = placement.iconColor();
 		if (newIconColor != iconColor) {
@@ -85,7 +92,6 @@ class IconTag extends Tag {
 		int newRotation = placement.iconRotation();
 		if (newRotation != rotation) {
 			rotation = newRotation;
-			icon.origin.set(icon.width() / 2f, icon.height() / 2f);
 			icon.angle = newRotation;
 		}
 		float newTagAlpha = placement.tagOpacity() / 100f;
@@ -110,18 +116,31 @@ class IconTag extends Tag {
 	public void layout() {
 		super.layout();
 		if (bg != null) {
-			bg.origin.set(width() / 2f, height() / 2f);
-			bg.angle = onTop ? -90 : 0;
+			if (onTop) {
+				bg.size(height(), width());
+				bg.x = left() + (width() - height()) / 2f;
+				bg.y = top() + (height() - width()) / 2f;
+				bg.origin.set(height() / 2f, width() / 2f);
+				bg.angle = -90;
+			} else {
+				bg.origin.set(width() / 2f, height() / 2f);
+				bg.angle = 0;
+			}
 		}
 		if (icon == null) return;
+		float scale = icon.scale.x == 0 ? 1 : icon.scale.x;
+		float rawWidth = icon.width() / scale;
+		float rawHeight = icon.height() / scale;
+		float centerX = left() + width() / 2f;
+		float centerY = top() + height() / 2f;
 		if (onTop) {
-			icon.x = left() + (width() - icon.width()) / 2f;
-			icon.y = top() + (height() - icon.height()) / 2f - 1;
+			centerY -= 1;
 		} else {
-			if (!flipped) icon.x = left() + (Tag.SIZE - icon.width()) / 2f + 1;
-			else icon.x = left() + width() - (Tag.SIZE + icon.width()) / 2f - 1;
-			icon.y = top() + (height() - icon.height()) / 2f;
+			centerX += flipped ? -1 : 1;
 		}
+		icon.origin.set(rawWidth / 2f, rawHeight / 2f);
+		icon.x = centerX - rawWidth / 2f;
+		icon.y = centerY - rawHeight / 2f;
 		PixelScene.align(icon);
 	}
 }

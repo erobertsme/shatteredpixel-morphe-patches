@@ -1,7 +1,6 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Image;
 
@@ -10,9 +9,9 @@ import com.watabou.noosa.Image;
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: pick the icon and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
-	private static final String[] TABS_TOP = { "Position", "Color", "Icon" };
-	private static final String[] TABS_BOTTOM = { "Icon Color", "Opacity" };
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: pick the icon and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
+	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
 		TagPlacement.DEFAULT_COLOR, 0xC0392B, 0xE67E22, 0xD4B92A, 0x3E9B4F, 0x2A9D8F,
 		0x3A6EC8, 0x8E44AD, 0xD9579A, 0x8B5A2B, 0xE0E0E0, 0x303030,
@@ -49,10 +48,11 @@ public class TagSettingsWindow extends EditorWindow {
 		});
 		pos += GAP;
 		if (tab == 0) addPlacementSettings(placement);
-		if (tab == 1) addColorChooser(placement.color(), placement::color, placement::resetColor, false);
-		if (tab == 2) addIconChooser();
-		if (tab == 3) addColorChooser(placement.iconColor(), placement::iconColor, placement::resetIconColor, true);
-		if (tab == 4) addOpacity();
+		if (tab == 1) addSizes();
+		if (tab == 2) addColorChooser(placement.color(), placement::color, placement::resetColor, false);
+		if (tab == 3) addIconChooser();
+		if (tab == 4) addColorChooser(placement.iconColor(), placement::iconColor, placement::resetIconColor, true);
+		if (tab == 5) addOpacity();
 
 		pos += GAP;
 		addButton("Back", 0, WIDTH, () -> {
@@ -65,12 +65,14 @@ public class TagSettingsWindow extends EditorWindow {
 
 	private void addPreview() {
 		IconTag preview = new IconTag(() -> { });
-		preview.setRect((WIDTH - Tag.SIZE) / 2f, pos, Tag.SIZE, Tag.SIZE);
+		int width = placement.tagWidth();
+		int height = placement.tagHeight();
+		preview.setRect((WIDTH - width) / 2f, pos, width, height);
 		preview.flip(placement.side() == TagPlacement.Side.LEFT);
 		preview.onTop(placement.side() == TagPlacement.Side.TOP);
 		preview.style(placement);
 		add(preview);
-		pos += Tag.SIZE + 2 * GAP;
+		pos += height + 2 * GAP;
 	}
 
 	private void addColorChooser(int current, ColorSetter setter, Runnable reset, boolean original) {
@@ -163,6 +165,15 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += ICON_CELL + 2 * GAP;
 		int rotation = placement.iconRotation();
 		addStepper("Rotation", rotation + " deg", rotation, 15, 0, 345, value -> placement.iconRotation(value), true, placement::resetIconRotation);
+	}
+
+	private void addSizes() {
+		int width = placement.tagWidth();
+		int height = placement.tagHeight();
+		int scale = placement.iconScale();
+		addStepper("Tag width", width + " px", width, 1, TagPlacement.MIN_SIZE, TagPlacement.MAX_SIZE, placement::tagWidth, true, placement::resetSize);
+		addStepper("Tag height", height + " px", height, 1, TagPlacement.MIN_SIZE, TagPlacement.MAX_SIZE, placement::tagHeight, true, placement::resetSize);
+		addStepper("Icon scale", scale + "%", scale, 25, TagPlacement.MIN_ICON_SCALE, TagPlacement.MAX_ICON_SCALE, placement::iconScale, true, placement::resetIconScale);
 	}
 
 	private void addOpacity() {

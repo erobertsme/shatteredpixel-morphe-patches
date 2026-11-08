@@ -84,7 +84,7 @@ final class TagPlacement {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
 		float span = side == Side.TOP ? ui.width : ui.height;
-		float length = tagCount * com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE;
+		float length = tagCount * (side == Side.TOP ? tagWidth() : tagHeight());
 		return Math.max(0, (int) (span - length));
 	}
 
@@ -139,6 +139,59 @@ final class TagPlacement {
 		CloverlordSettings.setInt(key + "_icon_rotation", 0);
 	}
 
+	static final int MIN_SIZE = 12;
+	static final int MAX_SIZE = 64;
+	static final int MIN_ICON_SCALE = 25;
+	static final int MAX_ICON_SCALE = 400;
+
+	/**
+	 * How wide the tag is on screen, in pixels.
+	 */
+	int tagWidth() {
+		return storedSize("_width");
+	}
+
+	void tagWidth(int value) {
+		CloverlordSettings.setInt(key + "_width", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
+	}
+
+	/**
+	 * How tall the tag is on screen, in pixels.
+	 */
+	int tagHeight() {
+		return storedSize("_height");
+	}
+
+	void tagHeight(int value) {
+		CloverlordSettings.setInt(key + "_height", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
+	}
+
+	void resetSize() {
+		CloverlordSettings.setInt(key + "_width", 0);
+		CloverlordSettings.setInt(key + "_height", 0);
+	}
+
+	private int storedSize(String suffix) {
+		int stored = CloverlordSettings.getInt(key + suffix) - 1;
+		return stored < MIN_SIZE ? com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE : Math.min(MAX_SIZE, stored);
+	}
+
+	/**
+	 * The icon's size as a percentage of its normal size.
+	 */
+	int iconScale() {
+		int stored = CloverlordSettings.getInt(key + "_icon_scale") - 1;
+		return stored < MIN_ICON_SCALE ? 100 : Math.min(MAX_ICON_SCALE, stored);
+	}
+
+	void iconScale(int value) {
+		CloverlordSettings.setInt(key + "_icon_scale", Math.max(MIN_ICON_SCALE, Math.min(MAX_ICON_SCALE, value)) + 1);
+	}
+
+	void resetIconScale() {
+		CloverlordSettings.setInt(key + "_icon_scale", 0);
+	}
+
 	/**
 	 * Opacity of the tag's base, from 0 to 100.
 	 */
@@ -188,16 +241,17 @@ final class TagPlacement {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
 		float start = offset();
-		int size = com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE;
+		int width = tagWidth();
+		int height = tagHeight();
 		for (int i = 0; i < tags.length; i++) {
 			IconTag tag = tags[i];
 			tag.onTop(side == Side.TOP);
 			if (side == Side.TOP) {
-				tag.setRect(start + i * size, 0, size, size);
+				tag.setRect(start + i * width, 0, width, height);
 				tag.flip(false);
 			} else {
-				float x = side == Side.LEFT ? 0 : ui.width - size;
-				tag.setRect(x, start + i * size, size, size);
+				float x = side == Side.LEFT ? 0 : ui.width - width;
+				tag.setRect(x, start + i * height, width, height);
 				tag.flip(side == Side.LEFT);
 			}
 			tag.style(this);
