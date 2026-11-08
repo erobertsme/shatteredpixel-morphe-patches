@@ -1,3 +1,9 @@
+## [1.0.0-dev.95](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.94...v1.0.0-dev.95) (2026-11-08)
+
+### ✨ New Features
+
+* Tag width, tag height and icon scale settings ([aaaa59a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/aaaa59ab2719d15ceb362e6f2dd908f92c30e1ac))
+
 ## [1.0.0-dev.94](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.93...v1.0.0-dev.94) (2026-11-08)
 
 ### ✨ New Features
