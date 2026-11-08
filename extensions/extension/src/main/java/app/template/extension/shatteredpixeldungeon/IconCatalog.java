@@ -1,6 +1,9 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
@@ -55,6 +58,11 @@ final class IconCatalog {
 	private static final Set<String> SKIPPED_INTERFACE = new HashSet<>(Arrays.asList(
 		"LIBGDX", "ALEKS", "WATA", "PUMPKINVOLT", "CELESTI", "LUMINE", "CUBE_CODE", "PURIGRO", "ARCNOR", "ALASTAIR"));
 
+	/**
+	 * Shows the weapon your hero attacks with, or a target when unarmed.
+	 */
+	static final String WEAPON = "WEAPON";
+
 	private static List<List<String>> categories;
 
 	private IconCatalog() {
@@ -67,6 +75,7 @@ final class IconCatalog {
 
 	private static void build() {
 		List<String> interfaceIcons = new ArrayList<>();
+		interfaceIcons.add(WEAPON);
 		for (Object value : enumValues("com.shatteredpixel.shatteredpixeldungeon.ui.Icons")) {
 			String name = ((Enum<?>) value).name();
 			if (!SKIPPED_INTERFACE.contains(name)) interfaceIcons.add(name);
@@ -105,10 +114,29 @@ final class IconCatalog {
 	}
 
 	/**
+	 * Changes whenever the image for [token] would look different, for icons that follow the game, like your weapon.
+	 */
+	static String look(String token) {
+		if (!token.equals(WEAPON)) return token;
+		try {
+			KindOfWeapon weapon = Dungeon.hero == null ? null : Dungeon.hero.belongings.attackingWeapon();
+			if (weapon == null) return WEAPON + ":none";
+			Object enchantment = weapon instanceof Weapon ? ((Weapon) weapon).enchantment : null;
+			return WEAPON + ":" + System.identityHashCode(weapon) + ":" + weapon.image() + ":" + (enchantment == null ? "" : enchantment.getClass().getName());
+		} catch (Throwable e) {
+			return WEAPON;
+		}
+	}
+
+	/**
 	 * The image for [token], or the arrow icon when it can't be made.
 	 */
 	static Image image(String token) {
 		try {
+			if (token.equals(WEAPON)) {
+				KindOfWeapon weapon = Dungeon.hero == null ? null : Dungeon.hero.belongings.attackingWeapon();
+				return weapon == null ? Icons.get(Icons.TARGET) : new ItemSprite(weapon);
+			}
 			if (token.startsWith("SPRITE:")) return new ItemSprite(Integer.parseInt(token.substring(7)));
 			if (token.startsWith("TALENT:")) return new TalentIcon(Talent.valueOf(token.substring(7)));
 			Image stat = StatIcons.fromToken(token);

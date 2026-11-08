@@ -22,14 +22,10 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Image;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Component;
@@ -59,7 +55,10 @@ public final class ForceAttack {
 	private static final String[] OTHER_FLAGS = { "tagAttack", "tagLoot", "tagAction", "tagResume" };
 	private static final Random random = new Random();
 
-	private static AttackTag tag;
+	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.RIGHT, 0.5f, 1, IconCatalog.WEAPON, 0, COLOR, true);
+
+	private static IconTag tag;
+	private static boolean wasAuto = true;
 	private static final List<Gizmo> markers = new ArrayList<>();
 
 	private ForceAttack() {
@@ -80,7 +79,29 @@ public final class ForceAttack {
 	public static void onSceneCreated(Object scene) {
 		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
 		try {
-			tag = new AttackTag();
+			tag = new IconTag(ForceAttack::choose) {
+				@Override
+				public void update() {
+					boolean show = shouldShow();
+					if (visible != show) {
+						visible = show;
+						GameScene.updateTags = true;
+					}
+					boolean auto = PLACEMENT.isAuto();
+					if (auto != wasAuto) {
+						wasAuto = auto;
+						GameScene.updateTags = true;
+					}
+					if (visible) {
+						if (auto) {
+							style(PLACEMENT);
+						} else {
+							PLACEMENT.place(this);
+						}
+					}
+					super.update();
+				}
+			};
 			tag.camera = PixelScene.uiCamera;
 			((Scene) scene).add(tag);
 			tag.visible = shouldShow();
@@ -95,8 +116,8 @@ public final class ForceAttack {
 	 * game's own buttons up to make room.
 	 */
 	public static void afterLayoutTags() {
-		AttackTag current = tag;
-		if (current == null || !current.visible || current.parent == null) return;
+		IconTag current = tag;
+		if (current == null || !current.visible || current.parent == null || !PLACEMENT.isAuto()) return;
 		try {
 			Field sceneField = GameScene.class.getDeclaredField("scene");
 			sceneField.setAccessible(true);
@@ -105,18 +126,21 @@ public final class ForceAttack {
 
 			boolean onLeft = SPDSettings.flipTags();
 			float inset = sideInset(onLeft);
-			float width = Tag.SIZE + inset;
+			float width = PLACEMENT.tagWidth() + inset;
+			float height = PLACEMENT.tagHeight();
 			float left = onLeft ? 0 : PixelScene.uiCamera.width - width;
 			Component base = (Component) field(scene, onLeft && SPDSettings.interfaceSize() > 0 ? "status" : "toolbar");
 			float bottom = base.top();
 
-			current.setRect(left, bottom - Tag.SIZE, width, Tag.SIZE);
+			current.onTop(false);
+			current.setRect(left, bottom - height, width, height);
 			current.flip(onLeft);
+			current.style(PLACEMENT);
 
 			for (int i = 0; i < OTHER_TAGS.length; i++) {
 				if (!(boolean) field(scene, OTHER_FLAGS[i])) continue;
 				Component other = (Component) field(scene, OTHER_TAGS[i]);
-				other.setPos(other.left(), other.top() - Tag.SIZE);
+				other.setPos(other.left(), other.top() - height);
 			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not place the Attack Tile button", e);
@@ -347,64 +371,5 @@ public final class ForceAttack {
 			gizmo.destroy();
 		}
 		markers.clear();
-	}
-
-	private static final class AttackTag extends Tag {
-		private Image icon;
-		private Object shownWeapon = this;
-		private Object shownLook = "";
-
-		private Object lookOf(KindOfWeapon weapon) {
-			if (weapon == null) return "none";
-			Object enchantment = weapon instanceof Weapon ? ((Weapon) weapon).enchantment : null;
-			return weapon.image() + ":" + (enchantment == null ? "" : enchantment.getClass().getName());
-		}
-
-		AttackTag() {
-			super(COLOR);
-			setSize(Tag.SIZE, Tag.SIZE);
-		}
-
-		@Override
-		public void onClick() {
-			choose();
-		}
-
-		@Override
-		public void update() {
-			boolean show = shouldShow();
-			if (visible != show) {
-				visible = show;
-				GameScene.updateTags = true;
-			}
-			if (visible) refreshIcon();
-			super.update();
-		}
-
-		private void refreshIcon() {
-			Hero hero = Dungeon.hero;
-			KindOfWeapon weapon = hero == null ? null : weapon(hero);
-			Object look = lookOf(weapon);
-			if (weapon == shownWeapon && look.equals(shownLook)) return;
-			shownWeapon = weapon;
-			shownLook = look;
-			if (icon != null) {
-				icon.killAndErase();
-				icon.destroy();
-			}
-			icon = weapon == null ? Icons.get(Icons.TARGET) : new ItemSprite(weapon);
-			add(icon);
-			layout();
-		}
-
-		@Override
-		public void layout() {
-			super.layout();
-			if (icon == null) return;
-			if (!flipped) icon.x = left() + (Tag.SIZE - icon.width()) / 2f + 1;
-			else icon.x = left() + width() - (Tag.SIZE + icon.width()) / 2f - 1;
-			icon.y = top() + (height() - icon.height()) / 2f;
-			PixelScene.align(icon);
-		}
 	}
 }

@@ -59,14 +59,14 @@ class IconTag extends Tag {
 			color = newColor;
 			setColor(newColor);
 		}
-		String name = placement.icon();
+		String name = IconCatalog.look(placement.icon());
 		if (!name.equals(iconName)) {
 			if (icon != null) {
 				icon.killAndErase();
 				icon.destroy();
 			}
 			iconName = name;
-			icon = iconImage(name);
+			icon = iconImage(placement.icon());
 			add(icon);
 			iconColor = -2;
 			rotation = -1;

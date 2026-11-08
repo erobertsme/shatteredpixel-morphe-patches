@@ -32,6 +32,23 @@ final class TagPlacement {
 
 	private final String defaultIcon;
 	private final int defaultRotation;
+	private final int defaultColor;
+	private final boolean autoPlacement;
+
+	/**
+	 * Like the other constructor, with the tag's own default colour, and [autoPlacement] for a tag whose default
+	 * position is worked out elsewhere, such as next to the game's own tags. Choosing an edge overrides it.
+	 */
+	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount, String defaultIcon, int defaultRotation, int defaultColor, boolean autoPlacement) {
+		this.key = key;
+		this.defaultSide = defaultSide;
+		this.defaultShare = defaultShare;
+		this.tagCount = tagCount;
+		this.defaultIcon = defaultIcon;
+		this.defaultRotation = defaultRotation;
+		this.defaultColor = defaultColor;
+		this.autoPlacement = autoPlacement;
+	}
 
 	/**
 	 * [key] prefixes the saved settings. The tags start [defaultShare] of the way along [defaultSide], and show
@@ -40,6 +57,8 @@ final class TagPlacement {
 	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount, String defaultIcon, int defaultRotation) {
 		this.defaultIcon = defaultIcon;
 		this.defaultRotation = defaultRotation;
+		this.defaultColor = DEFAULT_COLOR;
+		this.autoPlacement = false;
 		this.key = key;
 		this.defaultSide = defaultSide;
 		this.defaultShare = defaultShare;
@@ -50,6 +69,26 @@ final class TagPlacement {
 		int stored = CloverlordSettings.getInt(key + "_side") - 1;
 		Side[] sides = Side.values();
 		return stored < 0 || stored >= sides.length ? defaultSide : sides[stored];
+	}
+
+	boolean supportsAuto() {
+		return autoPlacement;
+	}
+
+	/**
+	 * Whether the tag keeps its default position, for a placement that has one.
+	 */
+	boolean isAuto() {
+		return autoPlacement && CloverlordSettings.getInt(key + "_side") == 0;
+	}
+
+	void setAuto() {
+		CloverlordSettings.setInt(key + "_side", 0);
+		CloverlordSettings.setInt(key + "_offset", 0);
+	}
+
+	int defaultColor() {
+		return defaultColor;
 	}
 
 	void side(Side side) {
@@ -84,7 +123,7 @@ final class TagPlacement {
 
 	int color() {
 		int stored = CloverlordSettings.getInt(key + "_color");
-		return (stored & COLOR_SET) == 0 ? DEFAULT_COLOR : stored & 0xFFFFFF;
+		return (stored & COLOR_SET) == 0 ? defaultColor : stored & 0xFFFFFF;
 	}
 
 	void color(int rgb) {

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
@@ -80,8 +80,9 @@ public class TagSettingsWindow extends EditorWindow {
 		int width = placement.tagWidth();
 		int height = placement.tagHeight();
 		preview.setRect((WIDTH - width) / 2f, pos, width, height);
-		preview.flip(placement.side() == TagPlacement.Side.LEFT);
-		preview.onTop(placement.side() == TagPlacement.Side.TOP);
+		boolean auto = placement.isAuto();
+		preview.flip(!auto && placement.side() == TagPlacement.Side.LEFT);
+		preview.onTop(!auto && placement.side() == TagPlacement.Side.TOP);
 		preview.style(placement);
 		add(preview);
 		pos += height + 2 * GAP;
@@ -93,10 +94,12 @@ public class TagSettingsWindow extends EditorWindow {
 		for (int i = 0; i < count; i++) {
 			boolean isOriginal = original && i == 0;
 			int color = isOriginal ? -1 : SWATCHES[original ? i - 1 : i];
+			if (!original && i == 0) color = placement.defaultColor();
+			int swatch = color;
 			int column = i % PER_ROW;
 			if (i > 0 && column == 0) pos += SWATCH_HEIGHT + GAP;
 			float x = column * (width + GAP);
-			boolean selected = color == current || (!original && color == TagPlacement.DEFAULT_COLOR && current == TagPlacement.DEFAULT_COLOR);
+			boolean selected = color == current;
 			if (selected) {
 				ColorBlock outline = new ColorBlock(width, SWATCH_HEIGHT, SELECTED_COLOR);
 				outline.x = x;
@@ -117,10 +120,10 @@ public class TagSettingsWindow extends EditorWindow {
 			Button button = new Button() {
 				@Override
 				public void onClick() {
-					if (color < 0 || (!original && color == TagPlacement.DEFAULT_COLOR)) {
+					if (swatch < 0 || (!original && swatch == placement.defaultColor())) {
 						reset.run();
 					} else {
-						setter.set(color);
+						setter.set(swatch);
 					}
 					refresh();
 				}

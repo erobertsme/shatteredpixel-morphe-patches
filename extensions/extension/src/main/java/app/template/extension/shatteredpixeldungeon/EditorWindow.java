@@ -126,12 +126,24 @@ abstract class EditorWindow extends Window {
 	protected void addPlacementSettings(TagPlacement placement) {
 		TagPlacement.Side current = placement.side();
 		TagPlacement.Side[] sides = TagPlacement.Side.values();
-		String[] labels = new String[sides.length];
-		for (int i = 0; i < sides.length; i++) labels[i] = sides[i].label;
-		addButtonRow(labels, current.ordinal(), index -> {
-			placement.side(sides[index]);
+		boolean auto = placement.supportsAuto();
+		int shift = auto ? 1 : 0;
+		String[] labels = new String[sides.length + shift];
+		if (auto) labels[0] = "Auto";
+		for (int i = 0; i < sides.length; i++) labels[i + shift] = sides[i].label;
+		int selected = placement.isAuto() ? 0 : current.ordinal() + shift;
+		addButtonRow(labels, selected, index -> {
+			if (auto && index == 0) {
+				placement.setAuto();
+			} else {
+				placement.side(sides[index - shift]);
+			}
 			refresh();
 		});
+		if (placement.isAuto()) {
+			addHint("Auto: next to the game's own tags, just above the toolbar.");
+			return;
+		}
 		int offset = placement.offset();
 		String from = current == TagPlacement.Side.TOP ? "from the left" : "from the top";
 		stepperLabelAbove();
