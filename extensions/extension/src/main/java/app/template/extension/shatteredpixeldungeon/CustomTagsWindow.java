@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class CustomTagsWindow extends EditorWindow {
 
-	private static final String INFO = "Item Tags\n\nAdd Tag lets you pick an item from your backpack. A tag for it appears on the screen edge, and tapping the tag uses the item, like a quickslot. The tag follows the kind of item, using the first one you carry, and hides while you carry none. Item tags are shared by all your games.\n\nTap a tag in the list to change its position, size, colour, icon and opacity, or to delete it. Default Icon on the Icon tab shows the item again.";
+	private static final String INFO = "Item Tags\n\nAdd Tag lets you pick an item from your backpack. A tag for it appears on the screen edge, and tapping the tag uses the item, like a quickslot. The tag follows the kind of item, using the first one you carry, and hides while you carry none. Each game keeps its own item tags.\n\nTap a tag in the list to change its position, size, colour, icon and opacity, or to delete it. Default Icon on the Icon tab shows the item again.";
 
 	public CustomTagsWindow() {
 		super();
