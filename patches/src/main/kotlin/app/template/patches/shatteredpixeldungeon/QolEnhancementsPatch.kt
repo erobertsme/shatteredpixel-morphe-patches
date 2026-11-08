@@ -22,7 +22,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize and Undo / Redo.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules and more items to energize.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -135,10 +135,6 @@ val qolEnhancementsPatch = bytecodePatch(
 		GameSceneCreateFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $FORCE_ATTACK_CLASS->onSceneCreated(Ljava/lang/Object;)V",
 		)
-		GameSceneCreateFingerprint.callBeforeEveryReturn(
-			"invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/UndoTags;->onSceneCreated(Ljava/lang/Object;)V",
-		)
-		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->onHeroReady()V")
 		WndInfoMobConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $BESTIARY_CLASS->beforeMobInfo($ITEM_TYPE)V")
 		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE)V")
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")

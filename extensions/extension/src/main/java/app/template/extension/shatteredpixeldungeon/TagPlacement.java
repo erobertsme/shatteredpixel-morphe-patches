@@ -22,7 +22,13 @@ final class TagPlacement {
 		}
 	}
 
-	static final int DEFAULT_COLOR = 0x72766A;
+	static final int DEFAULT_COLOR = 0xA3A695;
+	static final String[] ICONS = {
+		"ARROW", "CHEVRON", "CHANGES", "REPEAT", "SHUFFLE", "TARGET",
+		"MAGNIFY", "INFO", "WARNING", "PLUS", "CLOSE", "CHECKED",
+		"PREFS", "JOURNAL", "BUFFS", "TALENT", "STAIRS", "SCROLL_COLOR",
+		"BACKPACK_LRG", "COPY", "PASTE", "ENTER", "EXIT", "CALENDAR",
+	};
 	private static final int COLOR_SET = 0x1000000;
 
 	private final String key;
@@ -30,10 +36,16 @@ final class TagPlacement {
 	private final float defaultShare;
 	private final int tagCount;
 
+	private final String defaultIcon;
+	private final int defaultRotation;
+
 	/**
-	 * [key] prefixes the saved settings. The tags start [defaultShare] of the way along [defaultSide].
+	 * [key] prefixes the saved settings. The tags start [defaultShare] of the way along [defaultSide], and show
+	 * [defaultIcon] turned by [defaultRotation] degrees until changed.
 	 */
-	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount) {
+	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount, String defaultIcon, int defaultRotation) {
+		this.defaultIcon = defaultIcon;
+		this.defaultRotation = defaultRotation;
 		this.key = key;
 		this.defaultSide = defaultSide;
 		this.defaultShare = defaultShare;
@@ -72,7 +84,7 @@ final class TagPlacement {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
 		float span = side == Side.TOP ? ui.width : ui.height;
-		float length = side == Side.TOP ? tagCount * IconTag.WIDTH : tagCount * IconTag.HEIGHT;
+		float length = tagCount * com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE;
 		return Math.max(0, (int) (span - length));
 	}
 
@@ -89,23 +101,63 @@ final class TagPlacement {
 		CloverlordSettings.setInt(key + "_color", 0);
 	}
 
+	String icon() {
+		String stored = CloverlordSettings.getString(key + "_icon");
+		return stored == null || stored.isEmpty() ? defaultIcon : stored;
+	}
+
+	void icon(String name) {
+		CloverlordSettings.setString(key + "_icon", name);
+	}
+
 	/**
-	 * Lines [tags] up along the chosen edge, in order, and colours them.
+	 * The icon's tint, or -1 for its own colours.
+	 */
+	int iconColor() {
+		int stored = CloverlordSettings.getInt(key + "_icon_color");
+		return (stored & COLOR_SET) == 0 ? -1 : stored & 0xFFFFFF;
+	}
+
+	void iconColor(int rgb) {
+		CloverlordSettings.setInt(key + "_icon_color", (rgb & 0xFFFFFF) | COLOR_SET);
+	}
+
+	void resetIconColor() {
+		CloverlordSettings.setInt(key + "_icon_color", 0);
+	}
+
+	int iconRotation() {
+		int stored = CloverlordSettings.getInt(key + "_icon_rotation") - 1;
+		return stored < 0 ? defaultRotation : stored % 360;
+	}
+
+	void iconRotation(int degrees) {
+		CloverlordSettings.setInt(key + "_icon_rotation", (((degrees % 360) + 360) % 360) + 1);
+	}
+
+	void resetIconRotation() {
+		CloverlordSettings.setInt(key + "_icon_rotation", 0);
+	}
+
+	/**
+	 * Lines [tags] up along the chosen edge, in order, and styles them.
 	 */
 	void place(IconTag... tags) {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
 		float start = offset();
-		int color = color();
+		int size = com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE;
 		for (int i = 0; i < tags.length; i++) {
 			IconTag tag = tags[i];
-			tag.color(color);
 			if (side == Side.TOP) {
-				tag.setRect(start + i * IconTag.WIDTH, 0, IconTag.WIDTH, IconTag.HEIGHT);
+				tag.setRect(start + i * size, 0, size, size);
+				tag.flip(false);
 			} else {
-				float x = side == Side.LEFT ? 0 : ui.width - IconTag.WIDTH;
-				tag.setRect(x, start + i * IconTag.HEIGHT, IconTag.WIDTH, IconTag.HEIGHT);
+				float x = side == Side.LEFT ? 0 : ui.width - size;
+				tag.setRect(x, start + i * size, size, size);
+				tag.flip(side == Side.LEFT);
 			}
+			tag.style(this);
 		}
 	}
 }

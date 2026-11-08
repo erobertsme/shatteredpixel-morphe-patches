@@ -185,7 +185,7 @@ private val saveBackupResourcePatch = resourcePatch {
 @Suppress("unused")
 val saveManagementPatch = bytecodePatch(
 	name = "Save management",
-	description = "Export and import all saves as a zip, and keep up to 10 saves of each game. Optional public, uncompressed save files.",
+	description = "Export and import all saves as a zip, keep up to 10 saves of each game, and Undo / Redo. Optional public, uncompressed save files.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -199,6 +199,11 @@ val saveManagementPatch = bytecodePatch(
 
 	execute {
 		SaveBackupAvailableFingerprint.returnTrue()
+
+		GameSceneCreateFingerprint.callBeforeEveryReturn(
+			"invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/UndoTags;->onSceneCreated(Ljava/lang/Object;)V",
+		)
+		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->onHeroReady()V")
 
 		val uncompressed by uncompressedSavesOption
 		if (uncompressed == true) BundleWriteFingerprint.method.addInstruction(0, "const/4 p2, 0x0")

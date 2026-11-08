@@ -74,8 +74,12 @@ public final class UndoHistory {
 	private UndoHistory() {
 	}
 
+	static boolean isAvailable() {
+		return SaveBackupActivity.isAvailable();
+	}
+
 	static boolean isOn() {
-		return QolSettings.isAvailable() && CloverlordSettings.get(KEY_ON);
+		return isAvailable() && CloverlordSettings.get(KEY_ON);
 	}
 
 	static void setOn(boolean on) {
@@ -217,6 +221,14 @@ public final class UndoHistory {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not restore a snapshot", e);
 		}
+	}
+
+	/**
+	 * Where you are in the history, for the undo mode label.
+	 */
+	static String positionText() {
+		if (history.isEmpty()) return "Undo mode  -  no history yet";
+		return "Undo mode  -  action " + (index + 1) + " of " + history.size();
 	}
 
 	static void clear() {
