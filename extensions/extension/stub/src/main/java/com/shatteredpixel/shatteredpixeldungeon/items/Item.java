@@ -17,6 +17,7 @@ public class Item {
 	public String desc() { throw new RuntimeException("Stub"); }
 	public final Item detach(Bag container) { throw new RuntimeException("Stub"); }
 	public final boolean doPickUp(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero) { throw new RuntimeException("Stub"); }
+	public boolean doPickUp(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, int pos) { throw new RuntimeException("Stub"); }
 	public boolean isEquipped(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero) { throw new RuntimeException("Stub"); }
 	public boolean isSimilar(Item item) { throw new RuntimeException("Stub"); }
 	public int value() { throw new RuntimeException("Stub"); }

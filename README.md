@@ -90,7 +90,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - Edit gold and energy, add any item from a picker with categories and favorites, identify your carried items, learn every potion, scroll or ring type, and remove every curse.
 - **Open Backpack** shows your real backpack in edit mode, titled *Backpack [Editing]*. Tapping an item goes straight to its editor. Outside edit mode, every item's description has an **Edit** button in its header. The editor covers level, quantity, identified, cursed, enchantment or glyph, augment, charges with an **infinite charges** option, waterskin water, blessing an ankh, alchemy conversions, duplicate and delete. A gear button returns to the inventory editor.
 - **Unlimited inventory space:** every bag always has room for one more item, shown in pages of 8 rows with arrows that wrap and remember your page.
-- **Weapons, Armor and Rings tabs** (switched on in Extras → QoL → Backpack): hold those items like the potion bandolier, so they don't use backpack space.
+- **Weapons, Armor and Rings tabs** (switched on in Extras → QoL → Backpack): hold those items like the potion bandolier, so they don't use backpack space. The shopkeeper button beside each tab makes it something you buy: every shop sells a weapon, armor or ring pouch for 1000 gold (a backpack with the tab's item in the corner), and once you buy one the other shops stop selling it.
 - Only one of each bag can be carried; extra copies are refused or dropped.
 
 ### QoL enhancements

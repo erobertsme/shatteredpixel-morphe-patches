@@ -8,6 +8,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGE
 
 private const val BACKPACK_CLASS = "$EXTENSION_PACKAGE/BackpackEditor;"
 private const val INFINITE_CHARGES_CLASS = "$EXTENSION_PACKAGE/InfiniteCharges;"
+private const val POUCHES_CLASS = "$EXTENSION_PACKAGE/TabPouches;"
 
 @Suppress("unused")
 val inventoryEditorPatch = bytecodePatch(
@@ -45,6 +46,15 @@ val inventoryEditorPatch = bytecodePatch(
 			""",
 			ExternalLabel("original", 0),
 		)
+
+		ShopRoomGenerateItemsFingerprint.adjustObjectReturns("$POUCHES_CLASS->addToShop(Ljava/util/ArrayList;)Ljava/util/ArrayList;")
+		ShopkeeperSellPriceFingerprint.method.addInstruction(0, "invoke-static { p0 }, $POUCHES_CLASS->beforePrice(Ljava/lang/Object;)V")
+		ShopkeeperSellPriceFingerprint.adjustReturns("$POUCHES_CLASS->adjustPrice(I)I")
+		LevelStoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $POUCHES_CLASS->beforeStore(Ljava/lang/Object;Ljava/lang/Object;)V")
+		LevelStoreFingerprint.callBeforeEveryReturn("invoke-static { p0 }, $POUCHES_CLASS->afterStore(Ljava/lang/Object;)V")
+		LevelRestoreFingerprint.method.addInstruction(0, "invoke-static { p1 }, $POUCHES_CLASS->beforeRestore(Ljava/lang/Object;)V")
+		LevelRestoreFingerprint.callBeforeEveryReturn("invoke-static { p0 }, $POUCHES_CLASS->afterRestore(Ljava/lang/Object;)V")
+		GameSceneCreateFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $POUCHES_CLASS->onSceneCreated(Ljava/lang/Object;)V")
 
 		WndBagConstructorFingerprint.method.addInstruction(0, "invoke-static { }, $BACKPACK_CLASS->beforeBagCreated()V")
 		WndBagTabClickFingerprint.method.addInstruction(0, "invoke-static { p0 }, $BACKPACK_CLASS->beforeTabSwitch(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V")

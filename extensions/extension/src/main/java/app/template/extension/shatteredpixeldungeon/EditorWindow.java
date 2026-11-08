@@ -286,9 +286,25 @@ abstract class EditorWindow extends Window {
 		};
 		box.checked(checked);
 		box.enable(enabled);
-		box.setRect(0, pos, WIDTH, ROW_HEIGHT);
+		float boxWidth = WIDTH;
+		if (nextSideButton != null) {
+			boxWidth = WIDTH - ROW_HEIGHT - GAP;
+			nextSideButton.setRect(boxWidth + GAP, pos, ROW_HEIGHT, ROW_HEIGHT);
+			add(nextSideButton);
+			nextSideButton = null;
+		}
+		box.setRect(0, pos, boxWidth, ROW_HEIGHT);
 		add(box);
 		pos += ROW_HEIGHT + GAP;
+	}
+
+	private com.watabou.noosa.ui.Component nextSideButton;
+
+	/**
+	 * Puts [button], a square the height of a row, to the right of the next check box.
+	 */
+	protected void checkBoxSideButton(com.watabou.noosa.ui.Component button) {
+		nextSideButton = button;
 	}
 
 	protected RedButton addButton(String label, float x, float width, Runnable action) {

@@ -43,8 +43,18 @@ final class FilterBag extends Bag {
 		return NAMES[kind];
 	}
 
-	static boolean isOn(int kind) {
+	/**
+	 * Whether the tab for [kind] is switched on in the settings.
+	 */
+	static boolean enabled(int kind) {
 		return InventoryWindow.isAvailable() && !CloverlordSettings.get(KEYS[kind]);
+	}
+
+	/**
+	 * Whether the tab for [kind] is in use: switched on, and bought if it has to be bought from a shop.
+	 */
+	static boolean isOn(int kind) {
+		return enabled(kind) && (!TabPouches.soldInShops(kind) || TabPouches.owned(kind));
 	}
 
 	static void setOn(int kind, boolean on) {

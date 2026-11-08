@@ -734,6 +734,34 @@ object GameSceneGameOverFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object ShopRoomGenerateItemsFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ShopRoom;",
+	name = "generateItems",
+	returnType = "Ljava/util/ArrayList;",
+	parameters = listOf(),
+)
+
+object ShopkeeperSellPriceFingerprint : Fingerprint(
+	definingClass = SHOPKEEPER_TYPE,
+	name = "sellPrice",
+	returnType = "I",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
+object LevelStoreFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;",
+	name = "storeInBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
+object LevelRestoreFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;",
+	name = "restoreFromBundle",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/utils/Bundle;"),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",
