@@ -1,3 +1,9 @@
+## [1.0.0-dev.105](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.104...v1.0.0-dev.105) (2026-11-08)
+
+### ✨ New Features
+
+* Reroll Catalyst button on the trinket choice window ([3a300dc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3a300dc486e781ebe77baf6f8199575ed8bd8dc5))
+
 ## [1.0.0-dev.104](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.103...v1.0.0-dev.104) (2026-11-08)
 
 ### ✨ New Features
