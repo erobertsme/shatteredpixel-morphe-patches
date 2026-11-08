@@ -1,3 +1,9 @@
+## [1.0.0-dev.91](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.90...v1.0.0-dev.91) (2026-11-08)
+
+### ✨ New Features
+
+* Undo / Redo with a settings page, and a reusable tag placement helper ([0a2e104](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0a2e104f928a19ce0f34706b1a3cbf282f8f1b8d))
+
 ## [1.0.0-dev.90](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.89...v1.0.0-dev.90) (2026-11-08)
 
 ### 🐛 Bug Fixes
