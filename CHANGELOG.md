@@ -1,3 +1,9 @@
+## [1.0.0-dev.100](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.99...v1.0.0-dev.100) (2026-11-08)
+
+### ✨ New Features
+
+* Item tags auto-target like quickslots, and a screen map of all tags on the Position tab ([31cd6a1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/31cd6a106cb10153c22356d5e73df894dc6fa510))
+
 ## [1.0.0-dev.99](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.98...v1.0.0-dev.99) (2026-11-08)
 
 ### 🐛 Bug Fixes
