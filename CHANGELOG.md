@@ -1,3 +1,9 @@
+## [1.0.0-dev.103](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.102...v1.0.0-dev.103) (2026-11-08)
+
+### ✨ New Features
+
+* Stand-in game screen behind the tag style page on the main menu ([b43c8ae](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b43c8ae0fb5ba966fcca0b361211589a1cac3f67))
+
 ## [1.0.0-dev.102](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.101...v1.0.0-dev.102) (2026-11-08)
 
 ### ✨ New Features
