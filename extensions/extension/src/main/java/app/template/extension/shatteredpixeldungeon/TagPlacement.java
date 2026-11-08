@@ -139,6 +139,10 @@ final class TagPlacement {
 		return stored == null || stored.isEmpty() ? defaultIcon : stored;
 	}
 
+	void resetIcon() {
+		CloverlordSettings.setString(key + "_icon", "");
+	}
+
 	void icon(String name) {
 		CloverlordSettings.setString(key + "_icon", name);
 	}

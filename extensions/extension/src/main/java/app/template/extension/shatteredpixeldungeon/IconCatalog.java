@@ -2,6 +2,7 @@ package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -117,6 +118,10 @@ final class IconCatalog {
 	 * Changes whenever the image for [token] would look different, for icons that follow the game, like your weapon.
 	 */
 	static String look(String token) {
+		if (token.startsWith(CustomItemTags.HELD_PREFIX)) {
+			Item item = CustomItemTags.held(token.substring(CustomItemTags.HELD_PREFIX.length()));
+			return item == null ? token : token + ":" + System.identityHashCode(item) + ":" + item.image();
+		}
 		if (!token.equals(WEAPON)) return token;
 		try {
 			KindOfWeapon weapon = Dungeon.hero == null ? null : Dungeon.hero.belongings.attackingWeapon();
@@ -136,6 +141,12 @@ final class IconCatalog {
 			if (token.equals(WEAPON)) {
 				KindOfWeapon weapon = Dungeon.hero == null ? null : Dungeon.hero.belongings.attackingWeapon();
 				return weapon == null ? Icons.get(Icons.TARGET) : new ItemSprite(weapon);
+			}
+			if (token.startsWith(CustomItemTags.HELD_PREFIX)) {
+				String className = token.substring(CustomItemTags.HELD_PREFIX.length());
+				Item item = CustomItemTags.held(className);
+				if (item == null) item = CustomItemTags.sample(className);
+				return item == null ? Icons.get(Icons.BACKPACK_LRG) : new ItemSprite(item);
 			}
 			if (token.startsWith("SPRITE:")) return new ItemSprite(Integer.parseInt(token.substring(7)));
 			if (token.startsWith("TALENT:")) return new TalentIcon(Talent.valueOf(token.substring(7)));

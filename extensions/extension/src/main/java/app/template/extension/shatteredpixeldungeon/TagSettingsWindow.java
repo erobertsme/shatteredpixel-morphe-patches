@@ -41,12 +41,21 @@ public class TagSettingsWindow extends EditorWindow {
 	private final TagPlacement placement;
 	private final String title;
 	private final Runnable back;
+	private final Runnable onDelete;
 
 	public TagSettingsWindow(TagPlacement placement, String title, Runnable back) {
+		this(placement, title, back, null);
+	}
+
+	/**
+	 * With [onDelete], the page also has a Delete Tag button that asks first.
+	 */
+	public TagSettingsWindow(TagPlacement placement, String title, Runnable back, Runnable onDelete) {
 		super();
 		this.placement = placement;
 		this.title = title;
 		this.back = back;
+		this.onDelete = onDelete;
 		addTitle(title, INFO);
 		addPreview();
 		addButtonRow(TABS_TOP, tab, index -> {
@@ -66,6 +75,14 @@ public class TagSettingsWindow extends EditorWindow {
 		if (tab == 5) addOpacity();
 
 		pos += GAP;
+		if (onDelete != null) {
+			addButton("Delete Tag", 0, WIDTH, () -> ConfirmPrompt.ask("Delete Tag", "Delete this tag?", "Delete", () -> {
+				hide();
+				onDelete.run();
+				back.run();
+			})).icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.CLOSE));
+			pos += ROW_HEIGHT + GAP;
+		}
 		addButton("Back", 0, WIDTH, () -> {
 			hide();
 			back.run();
@@ -146,6 +163,11 @@ public class TagSettingsWindow extends EditorWindow {
 	private void addIconChooser() {
 		String[] first = { IconCatalog.CATEGORIES[0], IconCatalog.CATEGORIES[1], IconCatalog.CATEGORIES[2] };
 		String[] second = { IconCatalog.CATEGORIES[3], IconCatalog.CATEGORIES[4], IconCatalog.CATEGORIES[5] };
+		addButton("Default Icon", 0, WIDTH, () -> {
+			placement.resetIcon();
+			refresh();
+		});
+		pos += ROW_HEIGHT + GAP;
 		addButtonRow(first, category, index -> chooseCategory(index));
 		addButtonRow(second, category - first.length, index -> chooseCategory(first.length + index));
 
@@ -240,6 +262,6 @@ public class TagSettingsWindow extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new TagSettingsWindow(placement, title, back));
+		show(new TagSettingsWindow(placement, title, back, onDelete));
 	}
 }

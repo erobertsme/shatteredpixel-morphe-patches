@@ -25,6 +25,8 @@ public final class UndoTags {
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
 	private static final int TEXT_GAP = 6;
+	private static final int DEATH_BUTTON_WIDTH = 80;
+	private static final float DEATH_FADE = 2f;
 
 	private static boolean modeOpen;
 	private static final List<Gizmo> overlay = new ArrayList<>();
@@ -117,6 +119,36 @@ public final class UndoTags {
 			}
 		};
 		addToOverlay(scene, watcher);
+	}
+
+	/**
+	 * Adds an Undo button below the game over screen's New Game and Menu buttons. It fades in with them.
+	 */
+	static void addDeathButton() {
+		Scene scene = com.watabou.noosa.Game.scene();
+		if (scene == null) return;
+		Camera ui = PixelScene.uiCamera;
+		com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton undo = new com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton(com.shatteredpixel.shatteredpixeldungeon.Chrome.Type.GREY_BUTTON_TR, "Undo") {
+			private float shown;
+
+			@Override
+			public void onClick() {
+				UndoHistory.undoDeath();
+			}
+
+			@Override
+			public void update() {
+				shown = Math.min(DEATH_FADE, shown + com.watabou.noosa.Game.elapsed);
+				alpha((float) Math.pow(shown / DEATH_FADE, 2));
+				super.update();
+			}
+		};
+		undo.icon(StatIcons.arrow(true));
+		undo.alpha(0);
+		undo.camera = ui;
+		undo.setRect((ui.width - DEATH_BUTTON_WIDTH) / 2f, (ui.height - BUTTON_HEIGHT) / 2f + 8 + 2 * (BUTTON_HEIGHT + 2), DEATH_BUTTON_WIDTH, BUTTON_HEIGHT);
+		PixelScene.align(undo);
+		scene.add(undo);
 	}
 
 	private static void addToOverlay(Scene scene, Gizmo gizmo) {

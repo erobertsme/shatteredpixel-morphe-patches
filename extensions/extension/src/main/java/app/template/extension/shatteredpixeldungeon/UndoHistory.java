@@ -231,6 +231,89 @@ public final class UndoHistory {
 		return "Undo mode  -  action " + (index + 1) + " of " + history.size();
 	}
 
+	private static final String DEATH_BACKUP = "undo-death-backup";
+	private static boolean deathBackup;
+
+	/**
+	 * Called at the start of Dungeon.deleteGame, which removes the floors of a game that has ended. When the hero
+	 * has just died, the game's folder is copied first so Undo can bring it back.
+	 */
+	public static void beforeDeleteGame(int slot) {
+		deathBackup = false;
+		Hero hero = Dungeon.hero;
+		if (!isOn() || hero == null || hero.isAlive() || index < 0 || slot != GamesInProgress.curSlot) return;
+		try {
+			File root = SaveLocation.currentRoot();
+			File cache = SaveLocation.cacheDir();
+			if (root == null || cache == null) return;
+			File backup = new File(cache, DEATH_BACKUP);
+			deleteRecursively(backup);
+			copyFolder(new File(root, GamesInProgress.gameFolder(slot)), backup);
+			deathBackup = true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not back up the game before it was deleted", e);
+		}
+	}
+
+	static boolean canUndoDeath() {
+		if (!deathBackup || index < 0 || index >= history.size()) return false;
+		return duringBosses() || Dungeon.level == null || !Dungeon.level.locked;
+	}
+
+	/**
+	 * Brings the game back to the moment before the action that killed the hero.
+	 */
+	static void undoDeath() {
+		if (!canUndoDeath()) return;
+		try {
+			File root = SaveLocation.currentRoot();
+			File cache = SaveLocation.cacheDir();
+			if (root == null || cache == null) return;
+			File backup = new File(cache, DEATH_BACKUP);
+			File folder = new File(root, GamesInProgress.gameFolder(GamesInProgress.curSlot));
+			copyFolder(backup, folder);
+			deleteRecursively(backup);
+			deathBackup = false;
+			restore(index);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not undo the death", e);
+		}
+	}
+
+	/**
+	 * Called at the end of GameScene.gameOver. Adds an Undo button below the game's own buttons.
+	 */
+	public static void afterGameOver() {
+		if (!canUndoDeath()) return;
+		try {
+			UndoTags.addDeathButton();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the Undo button", e);
+		}
+	}
+
+	private static void copyFolder(File source, File target) throws IOException {
+		if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Could not create " + target);
+		File[] children = source.listFiles();
+		if (children == null) return;
+		for (File child : children) {
+			File destination = new File(target, child.getName());
+			if (child.isDirectory()) {
+				copyFolder(child, destination);
+				continue;
+			}
+			write(destination, read(child));
+		}
+	}
+
+	private static void deleteRecursively(File file) {
+		File[] children = file.listFiles();
+		if (children != null) {
+			for (File child : children) deleteRecursively(child);
+		}
+		file.delete();
+	}
+
 	static void clear() {
 		history.clear();
 		index = -1;

@@ -720,6 +720,20 @@ object HeroReadyFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object DungeonDeleteGameFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/Dungeon;",
+	name = "deleteGame",
+	returnType = "V",
+	parameters = listOf("I", "Z"),
+)
+
+object GameSceneGameOverFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
+	name = "gameOver",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

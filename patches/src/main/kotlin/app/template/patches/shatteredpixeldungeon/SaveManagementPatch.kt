@@ -204,6 +204,8 @@ val saveManagementPatch = bytecodePatch(
 			"invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/UndoTags;->onSceneCreated(Ljava/lang/Object;)V",
 		)
 		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->onHeroReady()V")
+		DungeonDeleteGameFingerprint.method.addInstruction(0, "invoke-static { p0 }, $EXTENSION_PACKAGE/UndoHistory;->beforeDeleteGame(I)V")
+		GameSceneGameOverFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->afterGameOver()V")
 
 		val uncompressed by uncompressedSavesOption
 		if (uncompressed == true) BundleWriteFingerprint.method.addInstruction(0, "const/4 p2, 0x0")
