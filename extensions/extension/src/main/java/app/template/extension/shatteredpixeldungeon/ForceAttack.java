@@ -64,6 +64,15 @@ public final class ForceAttack {
 	private ForceAttack() {
 	}
 
+	/**
+	 * Where the button sits while its position is Auto, or null when it isn't on screen.
+	 */
+	static float[] autoRect() {
+		IconTag current = tag;
+		if (current == null || current.parent == null || !current.visible) return null;
+		return new float[] { current.left(), current.top(), current.width(), current.height() };
+	}
+
 	static boolean isOn() {
 		return QolSettings.forceAttack();
 	}

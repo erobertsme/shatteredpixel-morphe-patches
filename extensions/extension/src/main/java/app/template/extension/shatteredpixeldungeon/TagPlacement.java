@@ -272,6 +272,24 @@ final class TagPlacement {
 	}
 
 	/**
+	 * Where tag number [index] of this group sits on screen, as x, y, width and height.
+	 */
+	float[] rect(int index) {
+		Camera ui = PixelScene.uiCamera;
+		Side side = side();
+		float start = offset();
+		int width = tagWidth();
+		int height = tagHeight();
+		if (side == Side.TOP) return new float[] { start + index * width, 0, width, height };
+		float x = side == Side.LEFT ? 0 : ui.width - width;
+		return new float[] { x, start + index * height, width, height };
+	}
+
+	int tagCount() {
+		return tagCount;
+	}
+
+	/**
 	 * Lines [tags] up along the chosen edge, in order, and styles them.
 	 */
 	void place(IconTag... tags) {

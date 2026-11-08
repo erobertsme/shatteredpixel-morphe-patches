@@ -3,12 +3,19 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,16 +136,91 @@ public final class CustomItemTags {
 		}
 	}
 
-	private static void use(int id) {
+	private static int targetingTag = -1;
+	private static Object targetingListener;
+	private static Image targetMark;
+	private static Image tagMark;
+
+	/**
+	 * Uses the tag's item, like tapping a quickslot. An item that needs a target aims at your last target, marked
+	 * with a crosshair, and tapping the tag again throws or zaps at it.
+	 */
+	private static void use(int id, IconTag tag) {
 		Hero hero = Dungeon.hero;
 		Item item = held(itemClass(id));
 		if (hero == null || item == null || !hero.isAlive() || !hero.ready) return;
 		try {
+			Char target = QuickSlotButton.lastTarget;
+			if (targetingTag == id && isTargeting() && target != null) {
+				int cell = QuickSlotButton.autoAim(target, item);
+				clearTargeting();
+				GameScene.handleCell(cell != -1 ? cell : target.pos);
+				return;
+			}
+			clearTargeting();
+			if (GameScene.cancel()) return;
 			item.execute(hero);
 			Item.updateQuickslot();
+			if (item.usesTargeting) startTargeting(id, tag);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not use " + item.getClass().getName(), e);
 		}
+	}
+
+	private static void startTargeting(int id, IconTag tag) {
+		Char target = QuickSlotButton.lastTarget;
+		Level level = Dungeon.level;
+		if (target == null || !target.isAlive() || target.alignment == Char.Alignment.ALLY || target.sprite == null) return;
+		if (level == null || target.pos < 0 || target.pos >= level.length() || !level.heroFOV[target.pos]) return;
+		Object listener = currentListener();
+		if (listener == null) return;
+		targetingTag = id;
+		targetingListener = listener;
+		targetMark = Icons.get(Icons.TARGET);
+		if (target.sprite.parent != null) target.sprite.parent.addToFront(targetMark);
+		tagMark = Icons.get(Icons.TARGET);
+		tagMark.camera = PixelScene.uiCamera;
+		if (tag.parent != null) tag.parent.addToFront(tagMark);
+		updateMarks(tag);
+	}
+
+	private static boolean isTargeting() {
+		return targetingTag != -1 && targetingListener != null && currentListener() == targetingListener;
+	}
+
+	private static Object currentListener() {
+		try {
+			Field selectorField = GameScene.class.getDeclaredField("cellSelector");
+			selectorField.setAccessible(true);
+			Object selector = selectorField.get(null);
+			return selector == null ? null : selector.getClass().getField("listener").get(selector);
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+
+	private static void updateMarks(IconTag tag) {
+		Char target = QuickSlotButton.lastTarget;
+		if (targetMark != null && target != null && target.sprite != null) {
+			targetMark.x = target.sprite.x + (target.sprite.width() - targetMark.width()) / 2f;
+			targetMark.y = target.sprite.y + (target.sprite.height() - targetMark.height()) / 2f;
+		}
+		if (tagMark != null && tag != null) {
+			tagMark.x = tag.left() + (tag.width() - tagMark.width()) / 2f;
+			tagMark.y = tag.top() + (tag.height() - tagMark.height()) / 2f;
+		}
+	}
+
+	private static void clearTargeting() {
+		targetingTag = -1;
+		targetingListener = null;
+		for (Image mark : new Image[] { targetMark, tagMark }) {
+			if (mark == null) continue;
+			mark.killAndErase();
+			mark.destroy();
+		}
+		targetMark = null;
+		tagMark = null;
 	}
 
 	/**
@@ -161,18 +243,28 @@ public final class CustomItemTags {
 					IconTag tag = entry.getValue();
 					tag.visible = alive && held(itemClass(entry.getKey())) != null;
 					if (tag.visible) placement(entry.getKey()).place(tag);
+					if (targetingTag == entry.getKey()) {
+						if (isTargeting() && tag.visible) {
+							updateMarks(tag);
+						} else {
+							clearTargeting();
+						}
+					}
 				}
 			}
 
 			private void rebuild() {
 				built = version;
+				clearTargeting();
 				for (IconTag tag : tags.values()) {
 					tag.killAndErase();
 					tag.destroy();
 				}
 				tags.clear();
 				for (int id : ids()) {
-					IconTag tag = new IconTag(() -> use(id));
+					IconTag[] holder = new IconTag[1];
+					IconTag tag = new IconTag(() -> use(id, holder[0]));
+					holder[0] = tag;
 					tag.camera = PixelScene.uiCamera;
 					tag.visible = false;
 					target.add(tag);

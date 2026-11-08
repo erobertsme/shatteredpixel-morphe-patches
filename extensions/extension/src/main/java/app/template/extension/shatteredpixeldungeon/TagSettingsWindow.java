@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it. The small screen below shows the toolbar and where every tag sits: this one outlined in yellow, the others in their own colours.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
@@ -67,7 +67,10 @@ public class TagSettingsWindow extends EditorWindow {
 			refresh();
 		});
 		pos += GAP;
-		if (tab == 0) addPlacementSettings(placement);
+		if (tab == 0) {
+			addPlacementSettings(placement);
+			addScreenMap();
+		}
 		if (tab == 1) addSizes();
 		if (tab == 2) addColorChooser(placement.color(), placement::color, placement::resetColor, false);
 		if (tab == 3) addIconChooser();
@@ -237,6 +240,69 @@ public class TagSettingsWindow extends EditorWindow {
 		iconPane.setRect(iconPane.left(), iconPane.top(), iconPane.width(), iconPane.height());
 		float maxScroll = Math.max(0, iconContentHeight - viewHeight);
 		iconPane.scrollTo(0, Math.max(0, Math.min(maxScroll, iconScroll)));
+	}
+
+	private static final int MAP_MAX_HEIGHT = 90;
+	private static final int MAP_BORDER = 0xFF555555;
+	private static final int MAP_SCREEN = 0xFF1E1E1E;
+	private static final int MAP_TOOLBAR = 0xFF6E7162;
+
+	/**
+	 * A small picture of the screen with the toolbar and every tag, this one outlined in yellow, so tags can be
+	 * kept from covering each other.
+	 */
+	private void addScreenMap() {
+		pos += GAP;
+		com.watabou.noosa.Camera ui = com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene.uiCamera;
+		float scale = Math.min((WIDTH - 2) / (float) ui.width, (MAP_MAX_HEIGHT - 2) / (float) ui.height);
+		float mapWidth = ui.width * scale;
+		float mapHeight = ui.height * scale;
+		float left = (WIDTH - mapWidth) / 2f;
+		float top = pos + 1;
+		addBlock(left - 1, top - 1, mapWidth + 2, mapHeight + 2, MAP_BORDER);
+		addBlock(left, top, mapWidth, mapHeight, MAP_SCREEN);
+		float toolbarTop = Math.min(ui.height, ScreenLayout.aboveToolbar() + 4);
+		addBlock(left, top + toolbarTop * scale, mapWidth, (ui.height - toolbarTop) * scale, MAP_TOOLBAR);
+
+		for (TagPlacement other : otherPlacements()) {
+			if (other == placement) continue;
+			for (int i = 0; i < other.tagCount(); i++) addTagBlock(other, rectOf(other, i), left, top, scale, false);
+		}
+		for (int i = 0; i < placement.tagCount(); i++) addTagBlock(placement, rectOf(placement, i), left, top, scale, true);
+		pos = top + mapHeight + 1 + GAP;
+		addHint("Yellow: this tag. Others show where your other tags sit.");
+	}
+
+	private static float[] rectOf(TagPlacement target, int index) {
+		if (target.isAuto() && target == ForceAttack.PLACEMENT) return ForceAttack.autoRect();
+		return target.rect(index);
+	}
+
+	private void addTagBlock(TagPlacement target, float[] rect, float left, float top, float scale, boolean selected) {
+		if (rect == null) return;
+		float x = left + rect[0] * scale;
+		float y = top + rect[1] * scale;
+		float w = Math.max(2, rect[2] * scale);
+		float h = Math.max(2, rect[3] * scale);
+		if (selected) addBlock(x - 1, y - 1, w + 2, h + 2, SELECTED_COLOR);
+		ColorBlock block = addBlock(x, y, w, h, 0xFF000000 | target.color());
+		if (!selected) block.alpha(0.75f);
+	}
+
+	private ColorBlock addBlock(float x, float y, float w, float h, int color) {
+		ColorBlock block = new ColorBlock(w, h, color);
+		block.x = x;
+		block.y = y;
+		add(block);
+		return block;
+	}
+
+	private static List<TagPlacement> otherPlacements() {
+		List<TagPlacement> list = new java.util.ArrayList<>();
+		if (UndoHistory.isOn()) list.add(UndoTags.PLACEMENT);
+		if (ForceAttack.isOn()) list.add(ForceAttack.PLACEMENT);
+		for (int id : CustomItemTags.ids()) list.add(CustomItemTags.placement(id));
+		return list;
 	}
 
 	private void addSizes() {

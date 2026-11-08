@@ -8,6 +8,7 @@ public class Item {
 	public boolean levelKnown;
 	public boolean stackable;
 	protected int image;
+	public boolean usesTargeting;
 	public int image() { throw new RuntimeException("Stub"); }
 	public String defaultAction() { throw new RuntimeException("Stub"); }
 	public void execute(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero) { throw new RuntimeException("Stub"); }
