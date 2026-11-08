@@ -1,3 +1,9 @@
+## [1.0.0-dev.97](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.96...v1.0.0-dev.97) (2026-11-08)
+
+### ✨ New Features
+
+* Tag style settings for the Attack Tile button ([7716da5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/7716da5066f396064d3242b0db4b9889fca7add9))
+
 ## [1.0.0-dev.96](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.95...v1.0.0-dev.96) (2026-11-08)
 
 ### ✨ New Features
