@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Path through allies: walking to a far tile swaps places with allies in the way, and walks over wards, when there is no other route.
+ * Path through allies: walking to a far tile swaps places with allies in the way, and walks over wards, when that is the shorter route.
  */
 @SuppressWarnings("unused")
 public final class AllyPathing {
@@ -50,9 +50,10 @@ public final class AllyPathing {
 			PathFinder.Path path = path(walker);
 			if (needsNewPath(walker, level, path, target)) {
 				boolean[] known = knownPassable(level);
-				if (Dungeon.findPath(walker, target, known, walker.fieldOfView, true) != null) return CONTINUE;
+				PathFinder.Path normal = Dungeon.findPath(walker, target, known, walker.fieldOfView, true);
+				int normalSize = normal == null ? Integer.MAX_VALUE : normal.size();
 				path = allyPath(walker, target, known);
-				if (path == null) return CONTINUE;
+				if (path == null || path.size() >= normalSize) return CONTINUE;
 				pathField.set(walker, path);
 			}
 			Char ally = Actor.findChar(path.getFirst());
@@ -76,14 +77,16 @@ public final class AllyPathing {
 	}
 
 	/**
-	 * The route the hero takes to [target]: the game's own, or one through allies and wards when that is the only way.
+	 * The route the hero takes to [target]: the game's own, or one through allies and wards when that is shorter.
 	 */
 	static PathFinder.Path route(Char walker, int target) {
 		Level level = Dungeon.level;
 		boolean[] known = knownPassable(level);
 		PathFinder.Path path = Dungeon.findPath(walker, target, known, walker.fieldOfView, true);
-		if (path != null || !isOn()) return path;
-		return allyPath(walker, target, known);
+		if (!isOn()) return path;
+		PathFinder.Path through = allyPath(walker, target, known);
+		if (through == null || path != null && through.size() >= path.size()) return path;
+		return through;
 	}
 
 	private static void swap(Char walker, Char ally) throws ReflectiveOperationException {
