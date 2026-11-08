@@ -1,3 +1,9 @@
+## [1.0.0-dev.98](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.97...v1.0.0-dev.98) (2026-11-08)
+
+### ✨ New Features
+
+* Undo after death, and custom item tags ([1843711](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/184371195d65cd067c82bab9748ee743dd7926a6))
+
 ## [1.0.0-dev.97](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.96...v1.0.0-dev.97) (2026-11-08)
 
 ### ✨ New Features
