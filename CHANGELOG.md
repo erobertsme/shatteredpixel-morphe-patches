@@ -1,3 +1,9 @@
+## [1.0.0-dev.90](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.89...v1.0.0-dev.90) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+* Teleport Here on examine windows follows the Teleport switch ([57a6c7c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/57a6c7c15bf882185ca3a71e73593276bcbdaa37))
+
 ## [1.0.0-dev.89](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.88...v1.0.0-dev.89) (2026-11-07)
 
 ### ✨ New Features
