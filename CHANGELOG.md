@@ -1,3 +1,9 @@
+## [1.0.0-dev.106](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.105...v1.0.0-dev.106) (2026-11-08)
+
+### ✨ New Features
+
+* walk through allies when they block the only route ([b2262f1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b2262f1d0ef15bd7be593cb44f3d3fea68dec5a3))
+
 ## [1.0.0-dev.105](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.104...v1.0.0-dev.105) (2026-11-08)
 
 ### ✨ New Features
