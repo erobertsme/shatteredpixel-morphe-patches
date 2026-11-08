@@ -120,6 +120,24 @@ abstract class EditorWindow extends Window {
 		pos = Math.max(left.bottom(), right.bottom()) + GAP;
 	}
 
+	/**
+	 * Controls for where a group of toolbar tags sits: the screen edge, and how far along it.
+	 */
+	protected void addPlacementSettings(TagPlacement placement) {
+		TagPlacement.Side current = placement.side();
+		TagPlacement.Side[] sides = TagPlacement.Side.values();
+		String[] labels = new String[sides.length];
+		for (int i = 0; i < sides.length; i++) labels[i] = sides[i].label;
+		addButtonRow(labels, current.ordinal(), index -> {
+			placement.side(sides[index]);
+			refresh();
+		});
+		int offset = placement.offset();
+		String from = current == TagPlacement.Side.TOP ? "from the left" : "from the top";
+		stepperLabelAbove();
+		addStepper("Distance " + from + " (0 - " + placement.maxOffset() + ")", offset + " px", offset, 1, 0, placement.maxOffset(), placement::offset, true, placement::resetOffset);
+	}
+
 	private Image nextStepperIcon;
 	private boolean labelAbove;
 

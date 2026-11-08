@@ -713,6 +713,13 @@ object RenameWindowConstructorFingerprint : Fingerprint(
 	returnType = "V",
 )
 
+object HeroReadyFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;",
+	name = "ready",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object ToolbarConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/Toolbar;",
 	name = "<init>",

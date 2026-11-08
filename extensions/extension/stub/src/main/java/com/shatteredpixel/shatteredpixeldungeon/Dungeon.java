@@ -8,6 +8,7 @@ public class Dungeon {
 	public static Level level;
 	public static int gold;
 	public static int depth;
+	public static int branch;
 	public static long seed;
 	public static QuickSlot quickslot;
 
