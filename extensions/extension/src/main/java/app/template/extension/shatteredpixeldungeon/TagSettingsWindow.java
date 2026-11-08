@@ -10,8 +10,9 @@ import com.watabou.noosa.Image;
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: pick the icon and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.";
-	private static final String[] TABS = { "Position", "Color", "Icon", "Icon Color" };
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: pick the icon and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String[] TABS_TOP = { "Position", "Color", "Icon" };
+	private static final String[] TABS_BOTTOM = { "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
 		TagPlacement.DEFAULT_COLOR, 0xC0392B, 0xE67E22, 0xD4B92A, 0x3E9B4F, 0x2A9D8F,
 		0x3A6EC8, 0x8E44AD, 0xD9579A, 0x8B5A2B, 0xE0E0E0, 0x303030,
@@ -38,8 +39,12 @@ public class TagSettingsWindow extends EditorWindow {
 		this.back = back;
 		addTitle(title, INFO);
 		addPreview();
-		addButtonRow(TABS, tab, index -> {
+		addButtonRow(TABS_TOP, tab, index -> {
 			tab = index;
+			refresh();
+		});
+		addButtonRow(TABS_BOTTOM, tab - TABS_TOP.length, index -> {
+			tab = TABS_TOP.length + index;
 			refresh();
 		});
 		pos += GAP;
@@ -47,6 +52,7 @@ public class TagSettingsWindow extends EditorWindow {
 		if (tab == 1) addColorChooser(placement.color(), placement::color, placement::resetColor, false);
 		if (tab == 2) addIconChooser();
 		if (tab == 3) addColorChooser(placement.iconColor(), placement::iconColor, placement::resetIconColor, true);
+		if (tab == 4) addOpacity();
 
 		pos += GAP;
 		addButton("Back", 0, WIDTH, () -> {
@@ -61,6 +67,7 @@ public class TagSettingsWindow extends EditorWindow {
 		IconTag preview = new IconTag(() -> { });
 		preview.setRect((WIDTH - Tag.SIZE) / 2f, pos, Tag.SIZE, Tag.SIZE);
 		preview.flip(placement.side() == TagPlacement.Side.LEFT);
+		preview.onTop(placement.side() == TagPlacement.Side.TOP);
 		preview.style(placement);
 		add(preview);
 		pos += Tag.SIZE + 2 * GAP;
@@ -156,6 +163,14 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += ICON_CELL + 2 * GAP;
 		int rotation = placement.iconRotation();
 		addStepper("Rotation", rotation + " deg", rotation, 15, 0, 345, value -> placement.iconRotation(value), true, placement::resetIconRotation);
+	}
+
+	private void addOpacity() {
+		addCheckBox("Link tag and icon", placement.opacityLinked(), () -> placement.opacityLinked(!placement.opacityLinked()));
+		int tagOpacity = placement.tagOpacity();
+		int iconOpacity = placement.iconOpacity();
+		addStepper("Tag", tagOpacity + "%", tagOpacity, 5, 0, 100, placement::tagOpacity, true, placement::resetOpacity);
+		addStepper("Icon", iconOpacity + "%", iconOpacity, 5, 0, 100, placement::iconOpacity, true, placement::resetOpacity);
 	}
 
 	private static int clamp(int value) {

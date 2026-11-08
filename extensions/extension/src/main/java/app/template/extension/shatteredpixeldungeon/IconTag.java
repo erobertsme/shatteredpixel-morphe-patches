@@ -17,6 +17,9 @@ class IconTag extends Tag {
 	private int color = -1;
 	private int iconColor = -2;
 	private int rotation = -1;
+	private boolean onTop;
+	private float tagAlpha = -1;
+	private float iconAlpha = -1;
 
 	IconTag(Runnable action) {
 		super(TagPlacement.DEFAULT_COLOR);
@@ -45,6 +48,16 @@ class IconTag extends Tag {
 		image.hardlight(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, (color & 0xFF) / 255f);
 	}
 
+	/**
+	 * Turns the tag's base to face the top edge. The base is drawn for the right edge, and flip() mirrors it for
+	 * the left edge.
+	 */
+	void onTop(boolean value) {
+		if (onTop == value) return;
+		onTop = value;
+		layout();
+	}
+
 	void style(TagPlacement placement) {
 		int newColor = placement.color();
 		if (newColor != color) {
@@ -62,6 +75,7 @@ class IconTag extends Tag {
 			add(icon);
 			iconColor = -2;
 			rotation = -1;
+			iconAlpha = -1;
 		}
 		int newIconColor = placement.iconColor();
 		if (newIconColor != iconColor) {
@@ -74,6 +88,16 @@ class IconTag extends Tag {
 			icon.origin.set(icon.width() / 2f, icon.height() / 2f);
 			icon.angle = newRotation;
 		}
+		float newTagAlpha = placement.tagOpacity() / 100f;
+		if (newTagAlpha != tagAlpha && bg != null) {
+			tagAlpha = newTagAlpha;
+			bg.alpha(newTagAlpha);
+		}
+		float newIconAlpha = placement.iconOpacity() / 100f;
+		if (newIconAlpha != iconAlpha) {
+			iconAlpha = newIconAlpha;
+			icon.alpha(newIconAlpha);
+		}
 		layout();
 	}
 
@@ -85,10 +109,19 @@ class IconTag extends Tag {
 	@Override
 	public void layout() {
 		super.layout();
+		if (bg != null) {
+			bg.origin.set(width() / 2f, height() / 2f);
+			bg.angle = onTop ? -90 : 0;
+		}
 		if (icon == null) return;
-		if (!flipped) icon.x = left() + (Tag.SIZE - icon.width()) / 2f + 1;
-		else icon.x = left() + width() - (Tag.SIZE + icon.width()) / 2f - 1;
-		icon.y = top() + (height() - icon.height()) / 2f;
+		if (onTop) {
+			icon.x = left() + (width() - icon.width()) / 2f;
+			icon.y = top() + (height() - icon.height()) / 2f - 1;
+		} else {
+			if (!flipped) icon.x = left() + (Tag.SIZE - icon.width()) / 2f + 1;
+			else icon.x = left() + width() - (Tag.SIZE + icon.width()) / 2f - 1;
+			icon.y = top() + (height() - icon.height()) / 2f;
+		}
 		PixelScene.align(icon);
 	}
 }

@@ -140,6 +140,48 @@ final class TagPlacement {
 	}
 
 	/**
+	 * Opacity of the tag's base, from 0 to 100.
+	 */
+	int tagOpacity() {
+		int stored = CloverlordSettings.getInt(key + "_tag_opacity") - 1;
+		return stored < 0 ? 100 : Math.min(100, stored);
+	}
+
+	void tagOpacity(int value) {
+		int clamped = Math.max(0, Math.min(100, value));
+		CloverlordSettings.setInt(key + "_tag_opacity", clamped + 1);
+		if (opacityLinked()) CloverlordSettings.setInt(key + "_icon_opacity", clamped + 1);
+	}
+
+	/**
+	 * Opacity of the tag's icon, from 0 to 100.
+	 */
+	int iconOpacity() {
+		int stored = CloverlordSettings.getInt(key + "_icon_opacity") - 1;
+		return stored < 0 ? 100 : Math.min(100, stored);
+	}
+
+	void iconOpacity(int value) {
+		int clamped = Math.max(0, Math.min(100, value));
+		CloverlordSettings.setInt(key + "_icon_opacity", clamped + 1);
+		if (opacityLinked()) CloverlordSettings.setInt(key + "_tag_opacity", clamped + 1);
+	}
+
+	boolean opacityLinked() {
+		return !CloverlordSettings.get(key + "_opacity_unlinked");
+	}
+
+	void opacityLinked(boolean linked) {
+		CloverlordSettings.set(key + "_opacity_unlinked", !linked);
+		if (linked) iconOpacity(tagOpacity());
+	}
+
+	void resetOpacity() {
+		CloverlordSettings.setInt(key + "_tag_opacity", 0);
+		CloverlordSettings.setInt(key + "_icon_opacity", 0);
+	}
+
+	/**
 	 * Lines [tags] up along the chosen edge, in order, and styles them.
 	 */
 	void place(IconTag... tags) {
@@ -149,6 +191,7 @@ final class TagPlacement {
 		int size = com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE;
 		for (int i = 0; i < tags.length; i++) {
 			IconTag tag = tags[i];
+			tag.onTop(side == Side.TOP);
 			if (side == Side.TOP) {
 				tag.setRect(start + i * size, 0, size, size);
 				tag.flip(false);
