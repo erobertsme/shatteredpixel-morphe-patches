@@ -1,3 +1,9 @@
+## [1.0.0-dev.96](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.95...v1.0.0-dev.96) (2026-11-08)
+
+### ✨ New Features
+
+* Choose a tag icon from every icon in the game, with category filters ([e3cdba0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e3cdba05c5d05b3240612c2ccec9676eea59f6a4))
+
 ## [1.0.0-dev.95](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.94...v1.0.0-dev.95) (2026-11-08)
 
 ### ✨ New Features

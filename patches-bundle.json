@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-08T06:42:29",
-  "description": "## [1.0.0-dev.95](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.94...v1.0.0-dev.95) (2026-11-08)\n\n### ✨ New Features\n\n* Tag width, tag height and icon scale settings ([aaaa59a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/aaaa59ab2719d15ceb362e6f2dd908f92c30e1ac))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.95/patches-1.0.0-dev.95.mpp",
+  "created_at": "2026-11-08T06:49:14",
+  "description": "## [1.0.0-dev.96](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.95...v1.0.0-dev.96) (2026-11-08)\n\n### ✨ New Features\n\n* Choose a tag icon from every icon in the game, with category filters ([e3cdba0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e3cdba05c5d05b3240612c2ccec9676eea59f6a4))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.96/patches-1.0.0-dev.96.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.95"
+  "version": "1.0.0-dev.96"
 }
