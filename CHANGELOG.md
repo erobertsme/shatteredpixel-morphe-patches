@@ -1,3 +1,9 @@
+## [1.0.0-dev.102](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.101...v1.0.0-dev.102) (2026-11-08)
+
+### ✨ New Features
+
+* Buy the Weapons, Armor and Rings tabs from shops ([17a75bc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/17a75bccd66b93850d89177331a94e01ef2fe8b2))
+
 ## [1.0.0-dev.101](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.100...v1.0.0-dev.101) (2026-11-08)
 
 ### ✨ New Features
