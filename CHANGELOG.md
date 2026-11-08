@@ -1,3 +1,9 @@
+## [1.0.0-dev.107](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.106...v1.0.0-dev.107) (2026-11-08)
+
+### ✨ New Features
+
+* ally pathing passes wards, skips the ghost intro and asks for confirmation ([de19ae3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/de19ae3672f1820a312bc9dd1606a0b0b8227c08))
+
 ## [1.0.0-dev.106](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.105...v1.0.0-dev.106) (2026-11-08)
 
 ### ✨ New Features
