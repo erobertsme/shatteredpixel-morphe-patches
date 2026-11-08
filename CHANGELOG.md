@@ -1,3 +1,9 @@
+## [1.0.0-dev.104](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.103...v1.0.0-dev.104) (2026-11-08)
+
+### ✨ New Features
+
+* New Undo / Redo and Attack Tile tag defaults, and drag to position tags ([a6bbe13](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a6bbe13f73a7aab84bfe71bf9fc4ed5973b727c0))
+
 ## [1.0.0-dev.103](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.102...v1.0.0-dev.103) (2026-11-08)
 
 ### ✨ New Features
