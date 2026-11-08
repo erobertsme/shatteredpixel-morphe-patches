@@ -634,13 +634,14 @@ public final class FloorEditor {
 	}
 
 	/**
-	 * Called at the end of the WndInfoCell and WndInfoTrap constructors. Adds buttons for the common changes to
-	 * that tile or trap, and an Edit Tile button.
+	 * Called at the end of the WndInfoCell, WndInfoTrap and heap info constructors. Adds buttons for the common
+	 * changes to that tile or trap and an Edit button when the Floor editor is on, and Teleport Here when Teleport is on.
 	 */
 	public static void afterInfo(Window window) {
 		Object target = pendingTarget;
 		pendingTarget = null;
-		if (!EditorSwitches.floor() || target == null || Dungeon.hero == null) return;
+		boolean floor = EditorSwitches.floor();
+		if ((!floor && !EditorSwitches.teleport()) || target == null || Dungeon.hero == null) return;
 		int cell = target instanceof Trap ? ((Trap) target).pos : target instanceof Heap ? ((Heap) target).pos : (Integer) target;
 		try {
 			Field widthField = Window.class.getDeclaredField("width");
@@ -652,6 +653,7 @@ public final class FloorEditor {
 
 			float y = height + GAP;
 			for (QuickAction[] row : quickActions(target, cell)) {
+				if (!floor && !isTeleportRow(row)) continue;
 				float buttonWidth = (width - (row.length - 1) * GAP) / (float) row.length;
 				for (int i = 0; i < row.length; i++) {
 					QuickAction action = row[i];
@@ -674,8 +676,9 @@ public final class FloorEditor {
 				}
 				y += BUTTON_HEIGHT + GAP;
 			}
-			if (target instanceof Integer && FloorEditSession.isActive()) y = addContentButtons(window, cell, width, y);
+			if (floor && target instanceof Integer && FloorEditSession.isActive()) y = addContentButtons(window, cell, width, y);
 			if (y > height + GAP) window.resize(width, (int) (y - GAP));
+			if (!floor) return;
 			WindowHeader.addEdit(window, () -> {
 				window.hide();
 				TileWindow.open(cell, () -> reopenInfo(target));
@@ -753,6 +756,10 @@ public final class FloorEditor {
 	private static boolean isWalkable(int cell) {
 		Level level = level();
 		return level != null && level.passable[cell] && tileAt(cell) != CHASM && Dungeon.hero != null && Dungeon.hero.pos != cell;
+	}
+
+	private static boolean isTeleportRow(QuickAction[] row) {
+		return row.length == 1 && row[0].label.startsWith("Teleport");
 	}
 
 	private static void addTeleport(List<QuickAction[]> rows, int cell) {
