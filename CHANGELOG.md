@@ -1,3 +1,9 @@
+## [1.0.0-dev.101](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.100...v1.0.0-dev.101) (2026-11-08)
+
+### ✨ New Features
+
+* Show the game's own situational buttons while styling a tag, instead of a map ([caddd11](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/caddd11e4764f02b620c56f1c48c81a1a4b19cc9))
+
 ## [1.0.0-dev.100](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.99...v1.0.0-dev.100) (2026-11-08)
 
 ### ✨ New Features
