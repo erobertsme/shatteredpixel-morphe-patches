@@ -1,3 +1,9 @@
+## [1.0.0-dev.108](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.107...v1.0.0-dev.108) (2026-11-08)
+
+### ✨ New Features
+
+* walk over wards instead of swapping with them ([75cb551](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/75cb55149f97d7f1a21faf3f62f02e569ecf7852))
+
 ## [1.0.0-dev.107](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.106...v1.0.0-dev.107) (2026-11-08)
 
 ### ✨ New Features
