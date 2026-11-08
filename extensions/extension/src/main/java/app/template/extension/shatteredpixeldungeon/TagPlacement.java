@@ -30,6 +30,9 @@ final class TagPlacement {
 	private final float defaultShare;
 	private final int tagCount;
 
+	private int defaultOffset = -1;
+	private int defaultOpacity = 100;
+	private static final int AUTO_SIDE = 99;
 	private final String defaultIcon;
 	private final int defaultRotation;
 	private final int defaultColor;
@@ -71,6 +74,19 @@ final class TagPlacement {
 		return stored < 0 || stored >= sides.length ? defaultSide : sides[stored];
 	}
 
+	/**
+	 * Starts the tags [pixels] along their edge until moved, instead of a share of the edge.
+	 */
+	TagPlacement defaultOffset(int pixels) {
+		defaultOffset = pixels;
+		return this;
+	}
+
+	TagPlacement defaultOpacity(int percent) {
+		defaultOpacity = percent;
+		return this;
+	}
+
 	boolean supportsAuto() {
 		return autoPlacement;
 	}
@@ -79,11 +95,11 @@ final class TagPlacement {
 	 * Whether the tag keeps its default position, for a placement that has one.
 	 */
 	boolean isAuto() {
-		return autoPlacement && CloverlordSettings.getInt(key + "_side") == 0;
+		return autoPlacement && CloverlordSettings.getInt(key + "_side") == AUTO_SIDE;
 	}
 
 	void setAuto() {
-		CloverlordSettings.setInt(key + "_side", 0);
+		CloverlordSettings.setInt(key + "_side", AUTO_SIDE);
 		CloverlordSettings.setInt(key + "_offset", 0);
 	}
 
@@ -98,7 +114,7 @@ final class TagPlacement {
 	int offset() {
 		int max = maxOffset();
 		int stored = CloverlordSettings.getInt(key + "_offset") - 1;
-		int value = stored < 0 ? Math.round(max * defaultShare) : stored;
+		int value = stored < 0 ? (defaultOffset >= 0 ? defaultOffset : Math.round(max * defaultShare)) : stored;
 		return Math.max(0, Math.min(max, value));
 	}
 
@@ -234,7 +250,7 @@ final class TagPlacement {
 	 */
 	int tagOpacity() {
 		int stored = CloverlordSettings.getInt(key + "_tag_opacity") - 1;
-		return stored < 0 ? 100 : Math.min(100, stored);
+		return stored < 0 ? defaultOpacity : Math.min(100, stored);
 	}
 
 	void tagOpacity(int value) {
@@ -248,7 +264,7 @@ final class TagPlacement {
 	 */
 	int iconOpacity() {
 		int stored = CloverlordSettings.getInt(key + "_icon_opacity") - 1;
-		return stored < 0 ? 100 : Math.min(100, stored);
+		return stored < 0 ? defaultOpacity : Math.min(100, stored);
 	}
 
 	void iconOpacity(int value) {

@@ -45,7 +45,6 @@ import java.util.Random;
 public final class ForceAttack {
 
 	private static final String TAG = "ForceAttack";
-	private static final int COLOR = 0xD9813F;
 	private static final int TILE_SIZE = 16;
 	private static final int MARKER_SIZE = 10;
 	private static final int MARKER_COLOR = 0xFFE06A5A;
@@ -55,10 +54,10 @@ public final class ForceAttack {
 	private static final String[] OTHER_FLAGS = { "tagAttack", "tagLoot", "tagAction", "tagResume" };
 	private static final Random random = new Random();
 
-	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.RIGHT, 0.5f, 1, IconCatalog.WEAPON, 0, COLOR, true);
+	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(UndoTags.UNDO_TOP + com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
 
 	private static IconTag tag;
-	private static boolean wasAuto = true;
+	private static boolean wasAuto = false;
 	private static final List<Gizmo> markers = new ArrayList<>();
 
 	private ForceAttack() {

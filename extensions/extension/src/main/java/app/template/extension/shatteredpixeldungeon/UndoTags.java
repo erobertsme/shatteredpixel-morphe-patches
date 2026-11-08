@@ -19,7 +19,12 @@ import java.util.List;
 @SuppressWarnings("unused")
 public final class UndoTags {
 
-	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 1, "ARROW", 180);
+	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 1, "CHANGES", 0).defaultOffset(52).defaultOpacity(70);
+
+	/**
+	 * Below the hero portrait and the busy circle under it.
+	 */
+	static final int UNDO_TOP = 52;
 
 	private static final int BUTTON_WIDTH = 50;
 	private static final int BUTTON_HEIGHT = 20;
