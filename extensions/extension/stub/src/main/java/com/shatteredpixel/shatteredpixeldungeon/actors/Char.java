@@ -31,6 +31,7 @@ public class Char {
 	public boolean rooted;
 
 	public boolean interact(Char c) { throw new RuntimeException("Stub"); }
+	public final void move(int step) { throw new RuntimeException("Stub"); }
 
 	public boolean isImmune(Class effect) { throw new RuntimeException("Stub"); }
 

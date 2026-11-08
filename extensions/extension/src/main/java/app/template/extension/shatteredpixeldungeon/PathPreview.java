@@ -230,10 +230,7 @@ public final class PathPreview {
 	}
 
 	private static List<Integer> findPath(Hero hero, int cell, Level level) {
-		int length = level.length();
-		boolean[] passable = new boolean[length];
-		for (int i = 0; i < length; i++) passable[i] = level.passable[i] && (level.visited[i] || level.mapped[i]);
-		PathFinder.Path path = Dungeon.findPath(hero, cell, passable, hero.fieldOfView, true);
+		PathFinder.Path path = AllyPathing.route(hero, cell);
 		return path == null ? null : new ArrayList<>(path);
 	}
 

@@ -10,9 +10,10 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.PathFinder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
- * Path through allies: walking to a far tile swaps places with allies in the way when there is no other route.
+ * Path through allies: walking to a far tile swaps places with allies and wards in the way when there is no other route.
  */
 @SuppressWarnings("unused")
 public final class AllyPathing {
@@ -21,6 +22,8 @@ public final class AllyPathing {
 	private static final int CONTINUE = -1;
 	private static final int STOPPED = 0;
 	private static final int MOVED = 1;
+	private static final String WARD_CLASS = "com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding$Ward";
+	private static final String GHOST_CLASS = "com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose$GhostHero";
 
 	private static Field pathField;
 
@@ -55,7 +58,7 @@ public final class AllyPathing {
 			Char ally = Actor.findChar(path.getFirst());
 			if (!swappable(ally)) return CONTINUE;
 			int from = walker.pos;
-			ally.interact(walker);
+			swap(walker, ally);
 			if (walker.pos == from) {
 				pathField.set(walker, null);
 				return STOPPED;
@@ -66,6 +69,70 @@ public final class AllyPathing {
 			Log.e("AllyPathing", "Could not path through allies", e);
 			return CONTINUE;
 		}
+	}
+
+	/**
+	 * The route the hero takes to [target]: the game's own, or one through allies and wards when that is the only way.
+	 */
+	static PathFinder.Path route(Char walker, int target) {
+		Level level = Dungeon.level;
+		boolean[] known = knownPassable(level);
+		PathFinder.Path path = Dungeon.findPath(walker, target, known, walker.fieldOfView, true);
+		if (path != null || !isOn()) return path;
+		return allyPath(walker, target, known);
+	}
+
+	private static void swap(Char walker, Char ally) throws ReflectiveOperationException {
+		if (isWard(ally)) {
+			swapWithWard(walker, ally);
+			return;
+		}
+		if (!ally.getClass().getName().equals(GHOST_CLASS)) {
+			ally.interact(walker);
+			return;
+		}
+		Method update = ally.getClass().getDeclaredMethod("updateRose");
+		update.setAccessible(true);
+		update.invoke(ally);
+		Field roseField = ally.getClass().getDeclaredField("rose");
+		roseField.setAccessible(true);
+		Object rose = roseField.get(ally);
+		if (rose == null) {
+			ally.interact(walker);
+			return;
+		}
+		Field talked = rose.getClass().getDeclaredField("talkedTo");
+		talked.setAccessible(true);
+		boolean wasTalked = talked.getBoolean(rose);
+		talked.setBoolean(rose, true);
+		try {
+			ally.interact(walker);
+		} finally {
+			talked.setBoolean(rose, wasTalked);
+		}
+	}
+
+	private static void swapWithWard(Char walker, Char ward) throws ReflectiveOperationException {
+		Method moveSprite = Char.class.getDeclaredMethod("moveSprite", int.class, int.class);
+		moveSprite.setAccessible(true);
+		Method spend = Actor.class.getDeclaredMethod("spend", float.class);
+		spend.setAccessible(true);
+		int from = walker.pos;
+		int to = ward.pos;
+		ward.pos = from;
+		moveSprite.invoke(walker, from, to);
+		walker.move(to);
+		ward.pos = to;
+		moveSprite.invoke(ward, to, from);
+		ward.move(from);
+		spend.invoke(walker, 1f / walker.speed());
+	}
+
+	private static boolean isWard(Char c) {
+		for (Class<?> type = c.getClass(); type != null; type = type.getSuperclass()) {
+			if (type.getName().equals(WARD_CLASS)) return true;
+		}
+		return false;
 	}
 
 	private static PathFinder.Path path(Char walker) throws ReflectiveOperationException {
@@ -105,6 +172,7 @@ public final class AllyPathing {
 
 	private static boolean swappable(Char c) {
 		if (!(c instanceof Mob) || c.alignment != Char.Alignment.ALLY || !c.isAlive()) return false;
+		if (isWard(c)) return true;
 		if (c.properties().contains(Char.Property.IMMOVABLE)) return false;
 		return !c.rooted && c.paralysed <= 0;
 	}
