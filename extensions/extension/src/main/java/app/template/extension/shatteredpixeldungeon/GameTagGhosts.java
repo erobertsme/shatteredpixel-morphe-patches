@@ -45,13 +45,14 @@ final class GameTagGhosts {
 	static void show() {
 		hide();
 		Scene scene = Game.scene();
-		if (!(scene instanceof GameScene)) return;
+		if (scene == null) return;
 		Camera ui = PixelScene.uiCamera;
 		boolean onLeft = SPDSettings.flipTags();
 		float left = onLeft ? 0 : ui.width - Tag.SIZE;
 		float pos = ScreenLayout.aboveToolbar() + 4;
 		float[] attackTile = ForceAttack.PLACEMENT.isAuto() ? ForceAttack.autoRect() : null;
 		if (attackTile != null) pos -= attackTile[3];
+		else if (!(scene instanceof GameScene) && ForceAttack.PLACEMENT.isAuto()) pos -= ForceAttack.PLACEMENT.tagHeight();
 		for (int i = 0; i < LABELS.length; i++) {
 			pos -= Tag.SIZE;
 			Ghost ghost = new Ghost(COLORS[i]);

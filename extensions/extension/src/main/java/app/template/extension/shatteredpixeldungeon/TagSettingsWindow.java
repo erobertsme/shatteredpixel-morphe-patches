@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it. While this page is open in a game, faded outlines show where the game's own buttons appear when they're needed (Attack, Pick Up, Action and Resume), so you can keep your tags clear of them.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it. While this page is open in a game, faded outlines show where the game's own buttons appear when they're needed (Attack, Pick Up, Action and Resume), so you can keep your tags clear of them. On the main menu a stand-in game screen with the status pane, toolbar and all your tags is shown behind this page.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
@@ -90,12 +90,14 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += ROW_HEIGHT;
 		finish();
 		relayoutIcons();
+		MenuPreview.show();
 		GameTagGhosts.show();
 	}
 
 	@Override
 	public void destroy() {
 		GameTagGhosts.hide();
+		MenuPreview.hide();
 		super.destroy();
 	}
 
