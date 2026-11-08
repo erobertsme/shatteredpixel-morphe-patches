@@ -1,15 +1,19 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
+import com.watabou.noosa.ui.Component;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Image;
+
+import java.util.List;
 
 /**
  * Position, colour and icon settings for a toolbar tag. Any tag that uses a [TagPlacement] can open this page.
  */
 public class TagSettingsWindow extends EditorWindow {
 
-	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: pick the icon and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
+	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the game's grey.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final int[] SWATCHES = {
@@ -26,6 +30,13 @@ public class TagSettingsWindow extends EditorWindow {
 	}
 
 	private static int tab;
+	private static int category;
+	private static float iconScroll;
+	private static final int ICON_ROWS_SHOWN = 5;
+
+	private ScrollPane iconPane;
+	private float iconContentHeight;
+	private float viewHeight;
 
 	private final TagPlacement placement;
 	private final String title;
@@ -61,6 +72,7 @@ public class TagSettingsWindow extends EditorWindow {
 		});
 		pos += ROW_HEIGHT;
 		finish();
+		relayoutIcons();
 	}
 
 	private void addPreview() {
@@ -129,42 +141,77 @@ public class TagSettingsWindow extends EditorWindow {
 	}
 
 	private void addIconChooser() {
+		String[] first = { IconCatalog.CATEGORIES[0], IconCatalog.CATEGORIES[1], IconCatalog.CATEGORIES[2] };
+		String[] second = { IconCatalog.CATEGORIES[3], IconCatalog.CATEGORIES[4], IconCatalog.CATEGORIES[5] };
+		addButtonRow(first, category, index -> chooseCategory(index));
+		addButtonRow(second, category - first.length, index -> chooseCategory(first.length + index));
+
+		List<String> tokens = IconCatalog.tokens(category);
 		String current = placement.icon();
-		float width = (WIDTH - (PER_ROW - 1) * GAP) / (float) PER_ROW;
-		for (int i = 0; i < TagPlacement.ICONS.length; i++) {
-			String name = TagPlacement.ICONS[i];
-			int column = i % PER_ROW;
-			if (i > 0 && column == 0) pos += ICON_CELL + GAP;
-			float x = column * (width + GAP);
-			if (name.equals(current)) {
-				ColorBlock outline = new ColorBlock(width, ICON_CELL, SELECTED_COLOR);
+		float cellWidth = (WIDTH - (PER_ROW - 1) * GAP) / (float) PER_ROW;
+		Component content = new Component();
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = tokens.get(i);
+			float x = (i % PER_ROW) * (cellWidth + GAP);
+			float y = (i / PER_ROW) * (ICON_CELL + GAP);
+			if (token.equals(current)) {
+				ColorBlock outline = new ColorBlock(cellWidth, ICON_CELL, SELECTED_COLOR);
 				outline.x = x;
-				outline.y = pos;
-				add(outline);
-				ColorBlock inner = new ColorBlock(width - 2, ICON_CELL - 2, 0xFF3A3A3A);
+				outline.y = y;
+				content.add(outline);
+				ColorBlock inner = new ColorBlock(cellWidth - 2, ICON_CELL - 2, 0xFF3A3A3A);
 				inner.x = x + 1;
-				inner.y = pos + 1;
-				add(inner);
+				inner.y = y + 1;
+				content.add(inner);
 			}
-			Image icon = IconTag.iconImage(name);
-			float scale = Math.min(1f, Math.min((width - 2) / icon.width(), (ICON_CELL - 2) / icon.height()));
+			Image icon = IconTag.iconImage(token);
+			float scale = Math.min(1f, Math.min((cellWidth - 2) / icon.width(), (ICON_CELL - 2) / icon.height()));
 			icon.scale.set(scale, scale);
-			icon.x = x + (width - icon.width()) / 2f;
-			icon.y = pos + (ICON_CELL - icon.height()) / 2f;
-			add(icon);
-			Button button = new Button() {
-				@Override
-				public void onClick() {
-					placement.icon(name);
-					refresh();
-				}
-			};
-			button.setRect(x, pos, width, ICON_CELL);
-			add(button);
+			icon.x = x + (cellWidth - icon.width()) / 2f;
+			icon.y = y + (ICON_CELL - icon.height()) / 2f;
+			content.add(icon);
 		}
-		pos += ICON_CELL + 2 * GAP;
+		int rows = (tokens.size() + PER_ROW - 1) / PER_ROW;
+		float contentHeight = rows * (ICON_CELL + GAP);
+		content.setSize(WIDTH, contentHeight);
+		ScrollPane pane = new ScrollPane(content) {
+			@Override
+			public void onClick(float x, float y) {
+				int column = (int) (x / (cellWidth + GAP));
+				int row = (int) (y / (ICON_CELL + GAP));
+				int index = row * PER_ROW + column;
+				if (column < 0 || column >= PER_ROW || index < 0 || index >= tokens.size()) return;
+				placement.icon(tokens.get(index));
+				iconScroll = content.camera == null ? 0 : content.camera.scroll.y;
+				refresh();
+			}
+		};
+		add(pane);
+		viewHeight = Math.min(contentHeight, ICON_ROWS_SHOWN * (ICON_CELL + GAP));
+		pane.setRect(0, pos, WIDTH, viewHeight);
+		iconPane = pane;
+		iconContentHeight = contentHeight;
+		pos += viewHeight + 2 * GAP;
+
 		int rotation = placement.iconRotation();
 		addStepper("Rotation", rotation + " deg", rotation, 15, 0, 345, value -> placement.iconRotation(value), true, placement::resetIconRotation);
+	}
+
+	private void chooseCategory(int index) {
+		if (index != category) iconScroll = 0;
+		category = index;
+		refresh();
+	}
+
+	/**
+	 * The scroll area takes its screen position when laid out, so it is laid out again once the window has its
+	 * final size and place, then scrolled back to where it was.
+	 */
+	private void relayoutIcons() {
+		if (iconPane == null) return;
+		iconPane.setRect(iconPane.left(), iconPane.top(), iconPane.width(), iconPane.height());
+		float maxScroll = Math.max(0, iconContentHeight - viewHeight);
+		iconPane.scrollTo(0, Math.max(0, Math.min(maxScroll, iconScroll)));
 	}
 
 	private void addSizes() {

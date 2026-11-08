@@ -32,13 +32,7 @@ class IconTag extends Tag {
 	 * Builds the icon for [name]: an Icons name, or ITEM:id or BUFF:id for item and status icons.
 	 */
 	static Image iconImage(String name) {
-		Image image = StatIcons.fromToken(name);
-		if (image != null) return image;
-		try {
-			return Icons.get(Icons.valueOf(name));
-		} catch (Throwable e) {
-			return Icons.get(Icons.ARROW);
-		}
+		return IconCatalog.image(name);
 	}
 
 	static void tintIcon(Image image, int color) {

@@ -23,12 +23,6 @@ final class TagPlacement {
 	}
 
 	static final int DEFAULT_COLOR = 0xA3A695;
-	static final String[] ICONS = {
-		"ARROW", "CHEVRON", "CHANGES", "REPEAT", "SHUFFLE", "TARGET",
-		"MAGNIFY", "INFO", "WARNING", "PLUS", "CLOSE", "CHECKED",
-		"PREFS", "JOURNAL", "BUFFS", "TALENT", "STAIRS", "SCROLL_COLOR",
-		"BACKPACK_LRG", "COPY", "PASTE", "ENTER", "EXIT", "CALENDAR",
-	};
 	private static final int COLOR_SET = 0x1000000;
 
 	private final String key;
