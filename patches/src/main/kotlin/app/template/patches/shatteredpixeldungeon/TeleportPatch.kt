@@ -1,6 +1,7 @@
 package app.template.patches.shatteredpixeldungeon
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.smali.ExternalLabel
@@ -22,6 +23,13 @@ val teleportPatch = bytecodePatch(
 
 	execute {
 		TeleportAvailableFingerprint.returnTrue()
+		DungeonSwitchLevelFingerprint.method.addInstructions(
+			0,
+			"""
+				invoke-static { p0, p1 }, $TELEPORT_CLASS->arrivalCell(Ljava/lang/Object;I)I
+				move-result p1
+			""",
+		)
 
 		NotesTabUpdateListFingerprint.callBeforeEveryReturn(
 			"invoke-static/range { p0 .. p0 }, $TELEPORT_CLASS->afterNotesLayout(Ljava/lang/Object;)V",

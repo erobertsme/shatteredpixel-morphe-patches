@@ -796,3 +796,10 @@ object HeroGetCloserFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf("I"),
 )
+
+object DungeonSwitchLevelFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/Dungeon;",
+	name = "switchLevel",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;", "I"),
+)

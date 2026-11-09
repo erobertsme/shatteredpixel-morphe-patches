@@ -20,6 +20,7 @@ public enum Icons {
 	DEPTH,
 	CLOSE,
 	CHECKED,
+	UNCHECKED,
 	COIN_SML,
 	ENERGY_SML,
 	STAIRS,

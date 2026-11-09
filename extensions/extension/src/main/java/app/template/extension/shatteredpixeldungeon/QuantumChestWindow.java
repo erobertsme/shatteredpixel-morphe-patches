@@ -98,8 +98,8 @@ public class QuantumChestWindow extends EditorWindow {
 		boolean quick = QuantumChest.quickMove();
 		RenderedTextBlock label = PixelScene.renderTextBlock("Quick Move", 6);
 		if (!quick) label.alpha(0.6f);
-		Image box = Icons.get(Icons.CHECKED);
-		if (!quick) box.alpha(0.25f);
+		Image box = Icons.get(quick ? Icons.CHECKED : Icons.UNCHECKED);
+		if (!quick) box.alpha(0.5f);
 		IconButton toggle = new IconButton(box) {
 			@Override
 			public void onClick() {

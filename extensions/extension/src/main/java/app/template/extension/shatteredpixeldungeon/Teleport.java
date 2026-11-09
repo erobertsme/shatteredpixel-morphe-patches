@@ -3,6 +3,8 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -35,6 +37,8 @@ public final class Teleport {
 	private static final int GAP = 2;
 	static final int ENTRANCE = -1;
 	static final int EXIT = -2;
+
+	private static int pendingArrival;
 
 	private static final Map<Object, RedButton> buttons = Collections.synchronizedMap(new WeakHashMap<>());
 	private static final Map<Object, Boolean> notesGrids = Collections.synchronizedMap(new WeakHashMap<>());
@@ -154,9 +158,27 @@ public final class Teleport {
 			InterlevelScene.returnDepth = Math.max(1, Math.min(MAX_DEPTH, depth));
 			InterlevelScene.returnBranch = 0;
 			InterlevelScene.returnPos = arrival;
+			pendingArrival = arrival;
 			Game.switchScene(InterlevelScene.class);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not teleport to depth " + depth, e);
 		}
+	}
+
+	/**
+	 * Called at the start of Dungeon.switchLevel. After a teleport, puts the hero on the stairs to the floor above (Entrance) or below (Exit).
+	 */
+	public static int arrivalCell(Object target, int pos) {
+		int arrival = pendingArrival;
+		pendingArrival = 0;
+		if (arrival == 0 || !(target instanceof Level)) return pos;
+		Level level = (Level) target;
+		if (level.transitions == null) return pos;
+		for (LevelTransition transition : level.transitions) {
+			boolean up = transition.destDepth < Dungeon.depth;
+			boolean down = transition.destDepth > Dungeon.depth;
+			if (arrival == ENTRANCE && up || arrival == EXIT && down) return transition.cell();
+		}
+		return pos;
 	}
 }

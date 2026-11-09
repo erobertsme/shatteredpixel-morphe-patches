@@ -9,6 +9,7 @@ import com.watabou.utils.SparseArray;
 import java.util.HashMap;
 
 public class Level {
+	public java.util.ArrayList<com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition> transitions;
 	public boolean locked;
 	public int[] map;
 	public boolean[] passable;
