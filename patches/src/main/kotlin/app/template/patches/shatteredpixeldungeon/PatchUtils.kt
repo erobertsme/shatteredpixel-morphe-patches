@@ -11,6 +11,7 @@ import app.morphe.patcher.util.smali.ExternalLabel
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
 internal const val EXTENSION_PACKAGE = "Lapp/template/extension/shatteredpixeldungeon"
 
@@ -123,6 +124,30 @@ internal fun Fingerprint.adjustObjectReturns(adjust: String) {
 			"""
 				move-result-object v$register
 				return-object v$register
+			""",
+		)
+	}
+}
+
+/**
+ * Passes the object result of every call to [called] in the method through [adjust], a static method that takes
+ * the result and returns the one to use.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.adjustCallResults(called: String, adjust: String) {
+	val instructions = method.implementation!!.instructions.toList()
+	val indices = instructions.withIndex()
+		.filter { (it.value as? ReferenceInstruction)?.reference?.toString() == called }
+		.map { it.index + 1 }
+		.filter { it < instructions.size && instructions[it].opcode == Opcode.MOVE_RESULT_OBJECT }
+	if (indices.isEmpty()) throw PatchException("${method.name} never calls $called")
+	indices.reversed().forEach { index ->
+		val register = (instructions[index] as OneRegisterInstruction).registerA
+		method.addInstructions(
+			index + 1,
+			"""
+				invoke-static/range { v$register .. v$register }, $adjust
+				move-result-object v$register
 			""",
 		)
 	}

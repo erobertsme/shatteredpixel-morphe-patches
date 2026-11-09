@@ -174,7 +174,7 @@ public class TileWindow extends EditorWindow {
 		RedButton name = new RedButton("") {
 			@Override
 			public void onClick() {
-				showEffectInfo(blob);
+				showEffectInfo(blob, cell);
 			}
 		};
 		name.setRect(0, pos, nameWidth, ROW_HEIGHT);
@@ -244,9 +244,9 @@ public class TileWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	static void showEffectInfo(Blob blob) {
+	static void showEffectInfo(Blob blob, int cell) {
 		try {
-			String desc = blob.tileDesc();
+			String desc = EffectTurns.withTurns(blob.tileDesc(), blob, cell);
 			show(new WndMessage(FloorEditor.effectName(blob.getClass()) + (desc == null ? "" : "\n\n" + desc)));
 		} catch (Throwable ignored) {
 		}

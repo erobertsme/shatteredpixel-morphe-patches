@@ -148,7 +148,7 @@ public class FloorWindow extends EditorWindow {
 		RedButton name = new RedButton("") {
 			@Override
 			public void onClick() {
-				TileWindow.showEffectInfo(blob);
+				TileWindow.showEffectInfo(blob, -1);
 			}
 		};
 		name.setRect(0, pos, nameWidth, ROW_HEIGHT);

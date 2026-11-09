@@ -8,6 +8,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +37,7 @@ final class GameSaves {
 	private static final String KEPT_PREFIX = "gamesave_kept_";
 	private static final java.util.regex.Pattern FOLDER = java.util.regex.Pattern.compile("game(\\d+)_([0-9a-f]+)");
 	private static final String INFO_FILE = "morphe_save_info.properties";
+	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
 	static final int MAX_SAVES = 10;
 
 	static final class Save {
@@ -44,6 +49,19 @@ final class GameSaves {
 			this.folder = folder;
 			this.label = label;
 			this.time = time;
+		}
+
+		/**
+		 * What the game looked like when this save was made, or null for saves made before previews were kept.
+		 */
+		UndoScene preview() {
+			File file = new File(folder, PREVIEW_FILE);
+			if (!file.isFile()) return null;
+			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+				return UndoScene.read(in);
+			} catch (IOException e) {
+				return null;
+			}
 		}
 
 		String title() {
@@ -229,10 +247,20 @@ final class GameSaves {
 			try (OutputStream out = new FileOutputStream(new File(target, INFO_FILE))) {
 				info.store(out, null);
 			}
+			writePreview(new File(target, PREVIEW_FILE));
 			return null;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not save", e);
 			return "Saving failed: " + e.getMessage();
+		}
+	}
+
+	private static void writePreview(File file) {
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+			UndoScene.capture(false).write(out);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not keep a preview of the save", e);
+			file.delete();
 		}
 	}
 
@@ -250,6 +278,7 @@ final class GameSaves {
 			}
 			copyFolder(save.folder, target);
 			new File(target, INFO_FILE).delete();
+			new File(target, PREVIEW_FILE).delete();
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
 			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
 			Game.switchScene(InterlevelScene.class);

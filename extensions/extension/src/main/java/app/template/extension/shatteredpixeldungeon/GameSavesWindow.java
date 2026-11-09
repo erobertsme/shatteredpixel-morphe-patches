@@ -8,7 +8,7 @@ public class GameSavesWindow extends EditorWindow {
 
 	private static final String INFO = "Game Saves"
 		+ "\n\nKeep up to 10 saves of the game you're playing, and load any of them later. Saves belong to this game only: another game can't see or load them."
-		+ "\n\nSave Now saves the game and keeps a copy. Tap a save to load it or delete it. Loading replaces where you are now, so save first if you want to come back to it."
+		+ "\n\nSave Now saves the game and keeps a copy. Tap a save to see a picture of the dungeon when it was made, the last game messages, and buttons to load or delete it. Loading replaces where you are now, so save first if you want to come back to it."
 		+ "\n\nSaves are kept in the save folder, in a folder for each game named after its slot followed by its seed, so the first slot's saves start with game1. They are included when you export saves from the main menu."
 		+ "\n\nWhen this game ends, the title screen asks whether to delete or keep its saves.";
 	private static final int PER_PAGE = 5;
@@ -53,17 +53,8 @@ public class GameSavesWindow extends EditorWindow {
 	}
 
 	private void choose(GameSaves.Save save) {
-		ConfirmPrompt.ask(save.title(), "Load this save? Anything since your last save of this game will be lost.", new String[] { "Load", "Delete" }, new Runnable[] {
-			() -> {
-				hide();
-				String error = GameSaves.load(save);
-				if (error != null) GLog.w(error);
-			},
-			() -> {
-				GameSaves.delete(save);
-				refresh();
-			},
-		});
+		hide();
+		show(new SavePreviewWindow(save, page, fromGameMenu));
 	}
 
 	@Override

@@ -282,7 +282,7 @@ public final class UndoTags {
 				PointerArea toggle = new PointerArea(pictureLeft, pictureTop, pictureSize, pictureSize) {
 					@Override
 					public void onClick(PointerEvent event) {
-						CloverlordSettings.set(KEY_MAP_VIEW, !showsMap());
+						toggleMap();
 					}
 				};
 				addDetail(scene, toggle);
@@ -304,7 +304,7 @@ public final class UndoTags {
 	/**
 	 * [text] shortened with ".." until it fits in [width] at [size].
 	 */
-	private static String fit(String text, int size, float width) {
+	static String fit(String text, int size, float width) {
 		RenderedTextBlock probe = PixelScene.renderTextBlock(text, size);
 		float full = probe.width();
 		probe.destroy();
@@ -398,8 +398,12 @@ public final class UndoTags {
 		scene.add(undo);
 	}
 
-	private static boolean showsMap() {
+	static boolean showsMap() {
 		return CloverlordSettings.get(KEY_MAP_VIEW);
+	}
+
+	static void toggleMap() {
+		CloverlordSettings.set(KEY_MAP_VIEW, !showsMap());
 	}
 
 	private static void addToOverlay(Scene scene, Gizmo gizmo) {

@@ -167,6 +167,11 @@ val qolEnhancementsPatch = bytecodePatch(
 		)
 		TrinketWindowConstructorFingerprint.method.addInstruction(0, "invoke-static { p1 }, $EXTENSION_PACKAGE/RerollCatalyst;->beforeTrinketWindow($ITEM_TYPE)V")
 		TrinketWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RerollCatalyst;->afterTrinketWindow($ITEM_TYPE)V")
+		WndInfoCellConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/EffectTurns;->beforeCellInfo(I)V")
+		WndInfoCellConstructorFingerprint.adjustCallResults(
+			"Lcom/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blob;->tileDesc()Ljava/lang/String;",
+			"$EXTENSION_PACKAGE/EffectTurns;->describe(Ljava/lang/String;)Ljava/lang/String;",
+		)
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")
 		RenameWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")

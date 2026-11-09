@@ -25,6 +25,9 @@ import com.watabou.noosa.Visual;
 import com.watabou.utils.RectF;
 import com.watabou.utils.Signal;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,10 +143,17 @@ final class UndoScene {
 	 * Copies what the game looks like now. Returns null if it can't be read.
 	 */
 	static UndoScene capture() {
+		return capture(true);
+	}
+
+	/**
+	 * Copies what the game looks like now. With [takeLines], the log lines gathered so far belong to this copy and the next copy starts afresh.
+	 */
+	static UndoScene capture(boolean takeLines) {
 		UndoScene scene = new UndoScene();
 		synchronized (pendingLines) {
 			scene.lines.addAll(pendingLines);
-			pendingLines.clear();
+			if (takeLines) pendingLines.clear();
 		}
 		try {
 			Hero hero = Dungeon.hero;
@@ -263,6 +273,123 @@ final class UndoScene {
 			markers.add(new Marker(mob.pos, color));
 		}
 		markers.add(new Marker(hero.pos, HERO_COLOR));
+	}
+
+	private static final int FORMAT = 1;
+
+	/**
+	 * Writes this scene to [out], to be read back with [read].
+	 */
+	void write(DataOutputStream out) throws IOException {
+		out.writeInt(FORMAT);
+		out.writeBoolean(tiles != null);
+		if (tiles != null) {
+			out.writeUTF(tilesTex == null ? "" : tilesTex);
+			out.writeUTF(waterTex == null ? "" : waterTex);
+			writeInts(out, tiles);
+			writeInts(out, walls);
+			writeInts(out, features);
+			for (boolean wet : water) out.writeBoolean(wet);
+			out.write(fog);
+			out.writeUTF(heroClass == null ? "" : heroClass);
+			out.writeInt(heroTier);
+			out.writeInt(areaLeft);
+			out.writeInt(areaTop);
+			writeFigures(out, figures);
+			writeFigures(out, heaps);
+		}
+		out.writeBoolean(map != null);
+		if (map != null) {
+			out.writeInt(mapWidth);
+			out.writeInt(mapHeight);
+			out.writeInt(heroPos);
+			out.writeInt(map.length);
+			out.write(map);
+			out.writeInt(markers.size());
+			for (Marker marker : markers) {
+				out.writeInt(marker.pos);
+				out.writeInt(marker.color);
+			}
+		}
+		out.writeInt(lines.size());
+		for (String line : lines) out.writeUTF(line);
+	}
+
+	/**
+	 * Reads a scene written by [write], or returns null if it can't be read.
+	 */
+	static UndoScene read(DataInputStream in) {
+		try {
+			if (in.readInt() != FORMAT) return null;
+			UndoScene scene = new UndoScene();
+			if (in.readBoolean()) {
+				scene.tilesTex = in.readUTF();
+				String water = in.readUTF();
+				scene.waterTex = water.isEmpty() ? null : water;
+				scene.tiles = readInts(in, AREA * AREA);
+				scene.walls = readInts(in, AREA * AREA);
+				scene.features = readInts(in, AREA * AREA);
+				scene.water = new boolean[AREA * AREA];
+				for (int i = 0; i < scene.water.length; i++) scene.water[i] = in.readBoolean();
+				scene.fog = new byte[AREA * AREA];
+				in.readFully(scene.fog);
+				scene.heroClass = in.readUTF();
+				scene.heroTier = in.readInt();
+				scene.areaLeft = in.readInt();
+				scene.areaTop = in.readInt();
+				readFigures(in, scene.figures);
+				readFigures(in, scene.heaps);
+			}
+			if (in.readBoolean()) {
+				scene.mapWidth = in.readInt();
+				scene.mapHeight = in.readInt();
+				scene.heroPos = in.readInt();
+				scene.map = new byte[in.readInt()];
+				in.readFully(scene.map);
+				int markers = in.readInt();
+				for (int i = 0; i < markers; i++) scene.markers.add(new Marker(in.readInt(), in.readInt()));
+			}
+			int lines = in.readInt();
+			for (int i = 0; i < lines; i++) scene.lines.add(in.readUTF());
+			return scene;
+		} catch (Throwable e) {
+			Log.e("UndoScene", "Could not read a scene", e);
+			return null;
+		}
+	}
+
+	private static void writeInts(DataOutputStream out, int[] values) throws IOException {
+		for (int value : values) out.writeInt(value);
+	}
+
+	private static int[] readInts(DataInputStream in, int count) throws IOException {
+		int[] values = new int[count];
+		for (int i = 0; i < count; i++) values[i] = in.readInt();
+		return values;
+	}
+
+	private static void writeFigures(DataOutputStream out, List<Figure> list) throws IOException {
+		out.writeInt(list.size());
+		for (Figure figure : list) {
+			out.writeUTF(figure.spriteClass == null ? "" : figure.spriteClass);
+			out.writeFloat(figure.frame.left);
+			out.writeFloat(figure.frame.top);
+			out.writeFloat(figure.frame.right);
+			out.writeFloat(figure.frame.bottom);
+			out.writeBoolean(figure.flipped);
+			out.writeInt(figure.cell);
+		}
+	}
+
+	private static void readFigures(DataInputStream in, List<Figure> list) throws IOException {
+		int count = in.readInt();
+		for (int i = 0; i < count; i++) {
+			String spriteClass = in.readUTF();
+			RectF frame = new RectF(in.readFloat(), in.readFloat(), in.readFloat(), in.readFloat());
+			boolean flipped = in.readBoolean();
+			int cell = in.readInt();
+			list.add(new Figure(spriteClass.isEmpty() ? null : spriteClass, frame, flipped, cell));
+		}
 	}
 
 	boolean hasArea() {
