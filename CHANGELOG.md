@@ -1,3 +1,9 @@
+## [1.0.0-dev.118](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.117...v1.0.0-dev.118) (2026-11-09)
+
+### 🔧 Improvements
+
+* place the quantum chest when the boss falls instead of checking every frame ([14daf6e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/14daf6e5b9bb7733ab8fe32fab9c1a0d970e8685))
+
 ## [1.0.0-dev.117](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.116...v1.0.0-dev.117) (2026-11-09)
 
 ### 🐛 Bug Fixes
