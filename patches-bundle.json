@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-09T20:03:03",
-  "description": "## [1.0.0-dev.118](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.117...v1.0.0-dev.118) (2026-11-09)\n\n### 🔧 Improvements\n\n* place the quantum chest when the boss falls instead of checking every frame ([14daf6e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/14daf6e5b9bb7733ab8fe32fab9c1a0d970e8685))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.118/patches-1.0.0-dev.118.mpp",
+  "created_at": "2026-11-09T21:42:52",
+  "description": "## [1.0.0-dev.119](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.118...v1.0.0-dev.119) (2026-11-09)\n\n### ✨ New Features\n\n* undo panel shows the hero, talents and backpack at each step; Cancel above the panel; 11x11 previews with webs drawn as strands ([11e935e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/11e935e32e27372fe25a991a864b74f78b3b37a4))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.119/patches-1.0.0-dev.119.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.118"
+  "version": "1.0.0-dev.119"
 }

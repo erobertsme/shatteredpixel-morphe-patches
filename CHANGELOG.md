@@ -1,3 +1,9 @@
+## [1.0.0-dev.119](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.118...v1.0.0-dev.119) (2026-11-09)
+
+### ✨ New Features
+
+* undo panel shows the hero, talents and backpack at each step; Cancel above the panel; 11x11 previews with webs drawn as strands ([11e935e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/11e935e32e27372fe25a991a864b74f78b3b37a4))
+
 ## [1.0.0-dev.118](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.117...v1.0.0-dev.118) (2026-11-09)
 
 ### 🔧 Improvements
