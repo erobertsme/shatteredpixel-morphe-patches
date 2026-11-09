@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-09T03:30:39",
-  "description": "## [1.0.0-dev.110](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.109...v1.0.0-dev.110) (2026-11-09)\n\n### ✨ New Features\n\n* Undo History window listing every kept step ([8c4dedd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8c4dedd40780406aef288ae12cbdee8f17be677e))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.110/patches-1.0.0-dev.110.mpp",
+  "created_at": "2026-11-09T03:51:39",
+  "description": "## [1.0.0-dev.111](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.110...v1.0.0-dev.111) (2026-11-09)\n\n### 🐛 Bug Fixes\n\n* split stacks no longer steal extra quickslots; feat: undo step previews, Done loads the picked step ([8cdda61](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8cdda61b1da0a3d344daf99fa2069cf990cb086c))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.111/patches-1.0.0-dev.111.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.110"
+  "version": "1.0.0-dev.111"
 }

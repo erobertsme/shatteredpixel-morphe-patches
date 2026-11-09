@@ -1,3 +1,9 @@
+## [1.0.0-dev.111](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.110...v1.0.0-dev.111) (2026-11-09)
+
+### 🐛 Bug Fixes
+
+* split stacks no longer steal extra quickslots; feat: undo step previews, Done loads the picked step ([8cdda61](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8cdda61b1da0a3d344daf99fa2069cf990cb086c))
+
 ## [1.0.0-dev.110](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.109...v1.0.0-dev.110) (2026-11-09)
 
 ### ✨ New Features
