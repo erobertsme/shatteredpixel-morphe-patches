@@ -303,13 +303,12 @@ public final class UndoHistory {
 	}
 
 	/**
-	 * Where you are in the history, for the undo mode label.
+	 * Depth, turn, HP and max HP of a step, or null if there is no such step.
 	 */
-	static String positionText() {
-		if (history.isEmpty()) return "Undo mode  -  no history yet";
-		if (selected < 0 || selected >= history.size()) return "Undo mode  -  action " + (index + 1) + " of " + history.size();
-		String text = "Action " + (selected + 1) + " of " + history.size() + ": " + describe(selected);
-		return selected == index ? text + " (now)" : text + "\nTap Done to load it";
+	static int[] stats(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		Snapshot snapshot = history.get(position);
+		return new int[] { snapshot.depth, snapshot.turn, snapshot.hp, snapshot.ht };
 	}
 
 	private static final String DEATH_BACKUP = "undo-death-backup";

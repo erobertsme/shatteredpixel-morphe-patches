@@ -2,7 +2,9 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.util.Log;
 
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
@@ -10,8 +12,14 @@ import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.input.PointerEvent;
+import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.Scene;
+import com.watabou.noosa.ui.Component;
+import com.watabou.utils.PointF;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +46,18 @@ public final class UndoTags {
 	private static final float DEATH_FADE = 2f;
 	private static final String KEY_MAP_VIEW = "qol_undo_map_view";
 	private static final int PREVIEW_MAX = 150;
+	private static final String[] STAT_CAPTIONS = { "STEP", "DEPTH", "TURN", "HP" };
+	private static final int PANEL_PADDING = 6;
+	private static final int CAPTION_HEIGHT = 8;
+	private static final int VALUE_HEIGHT = 10;
+	private static final int STATUS_HEIGHT = 8;
+	private static final int LOG_LINES = 4;
+	private static final int LOG_LINE_HEIGHT = 8;
+	private static final int LOG_PADDING = 2;
+	private static final int LOG_BACK_COLOR = 0x66000000;
+	private static final int CAPTION_COLOR = 0x999999;
+	private static final int PENDING_COLOR = 0xFFFF44;
+	private static final int CURRENT_COLOR = 0x44FF44;
 	private static final int PREVIEW_MIN = 48;
 	private static final int PREVIEW_BORDER = 1;
 
@@ -100,6 +120,57 @@ public final class UndoTags {
 	private static void buildMode(Scene scene) {
 		Camera ui = PixelScene.uiCamera;
 		float top = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
+		float listTop = top - BUTTON_HEIGHT - 2;
+
+		PointerArea blocker = new PointerArea(0, 0, ui.width, ui.height) {
+			@Override
+			public void onClick(PointerEvent event) {
+				if (tappedMenu(event)) openGameMenu();
+			}
+		};
+		blocker.blockLevel = PointerArea.ALWAYS_BLOCK;
+		addToOverlay(scene, blocker);
+
+		float panelLeft = MARGIN;
+		float panelWidth = ui.width - 2 * MARGIN;
+		float panelTop = ScreenLayout.belowStatus();
+		float panelBottom = listTop - 3;
+		NinePatch panel = Chrome.get(Chrome.Type.WINDOW);
+		panel.x = panelLeft;
+		panel.y = panelTop;
+		panel.size(panelWidth, panelBottom - panelTop);
+		addToOverlay(scene, panel);
+
+		float innerLeft = panelLeft + PANEL_PADDING;
+		float innerWidth = panelWidth - 2 * PANEL_PADDING;
+		float y = panelTop + PANEL_PADDING;
+		float column = innerWidth / STAT_CAPTIONS.length;
+		for (int k = 0; k < STAT_CAPTIONS.length; k++) {
+			RenderedTextBlock caption = PixelScene.renderTextBlock(STAT_CAPTIONS[k], 6);
+			caption.hardlight(CAPTION_COLOR);
+			caption.setPos(innerLeft + column * k + (column - caption.width()) / 2f, y);
+			PixelScene.align(caption);
+			addToOverlay(scene, caption);
+		}
+		float valuesTop = y + CAPTION_HEIGHT;
+		float statusTop = valuesTop + VALUE_HEIGHT + 2;
+		float logTop = statusTop + STATUS_HEIGHT + 2;
+		float logHeight = LOG_LINES * LOG_LINE_HEIGHT + 2 * LOG_PADDING;
+		ColorBlock logBack = new ColorBlock(innerWidth, logHeight, LOG_BACK_COLOR);
+		logBack.x = innerLeft;
+		logBack.y = logTop;
+		addToOverlay(scene, logBack);
+
+		float pictureTop = logTop + logHeight + 4 + PREVIEW_BORDER;
+		float pictureSize = Math.min(PREVIEW_MAX, Math.min(innerWidth - 2 * PREVIEW_BORDER, panelBottom - PANEL_PADDING - PREVIEW_BORDER - pictureTop));
+		boolean hasPicture = pictureSize >= PREVIEW_MIN;
+		float pictureLeft = (ui.width - pictureSize) / 2f;
+		if (hasPicture) {
+			ColorBlock frame = new ColorBlock(pictureSize + 2 * PREVIEW_BORDER, pictureSize + 2 * PREVIEW_BORDER, 0xFF000000);
+			frame.x = pictureLeft - PREVIEW_BORDER;
+			frame.y = pictureTop - PREVIEW_BORDER;
+			addToOverlay(scene, frame);
+		}
 
 		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));
@@ -110,7 +181,6 @@ public final class UndoTags {
 		done.setRect((ui.width - BUTTON_WIDTH) / 2f, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, done);
 
-		float listTop = top - BUTTON_HEIGHT - 2;
 		TintedButton list = new TintedButton("History", null, 1f, 1f, 1f, () -> Game.scene().addToFront(new UndoListWindow()));
 		list.setRect((ui.width - BUTTON_WIDTH) / 2f, listTop, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, list);
@@ -121,8 +191,9 @@ public final class UndoTags {
 		addToOverlay(scene, redo);
 
 		Gizmo watcher = new Gizmo() {
-			private String shown;
 			private int shownFor = -2;
+			private int shownCount = -1;
+			private boolean shownPending;
 			private UndoScene shownScene;
 			private boolean shownMap;
 			private final List<Gizmo> details = new ArrayList<>();
@@ -137,70 +208,78 @@ public final class UndoTags {
 				undo.enable(UndoHistory.canSelectPrevious());
 				redo.enable(UndoHistory.canSelectNext());
 				list.enable(UndoHistory.count() > 1);
-				String text = UndoHistory.positionText();
 				int selected = UndoHistory.selected();
+				int count = UndoHistory.count();
+				boolean pending = UndoHistory.selectionPending();
 				UndoScene step = UndoHistory.scene(selected);
 				boolean showMap = showsMap();
-				if (text.equals(shown) && selected == shownFor && step == shownScene && showMap == shownMap) return;
-				shown = text;
+				if (selected == shownFor && count == shownCount && pending == shownPending && step == shownScene && showMap == shownMap) return;
 				shownFor = selected;
+				shownCount = count;
+				shownPending = pending;
 				shownScene = step;
 				shownMap = showMap;
-				rebuild(scene, text, step, showMap);
+				rebuild(scene, selected, count, pending, step, showMap);
 			}
 
-			private void rebuild(Scene scene, String text, UndoScene step, boolean showMap) {
+			private void rebuild(Scene scene, int selected, int count, boolean pending, UndoScene step, boolean showMap) {
 				for (Gizmo old : details) {
 					overlay.remove(old);
 					old.killAndErase();
 					old.destroy();
 				}
 				details.clear();
-				float width = ui.width - 2 * MARGIN;
-				float bottom = listTop - TEXT_GAP;
-				if (step != null) {
-					for (int k = step.lines.size() - 1; k >= 0; k--) {
-						String line = step.lines.get(k);
-						RenderedTextBlock block = PixelScene.renderTextBlock(UndoScene.plain(line), 6);
-						block.hardlight(UndoScene.lineColor(line));
-						block.maxWidth((int) width);
-						block.setPos(MARGIN, bottom - block.height());
-						PixelScene.align(block);
-						addDetail(scene, block);
-						bottom = block.top() - 1;
-					}
+				int[] stats = UndoHistory.stats(selected);
+				String[] values = stats == null
+					? new String[] { "-", "-", "-", "-" }
+					: new String[] { (selected + 1) + "/" + count, String.valueOf(stats[0]), String.valueOf(stats[1]), stats[2] + "/" + stats[3] };
+				for (int k = 0; k < values.length; k++) {
+					RenderedTextBlock value = PixelScene.renderTextBlock(fit(values[k], 9, column - 2), 9);
+					value.setPos(innerLeft + column * k + (column - value.width()) / 2f, valuesTop);
+					PixelScene.align(value);
+					addDetail(scene, value);
 				}
-				RenderedTextBlock header = PixelScene.renderTextBlock(text, 9);
-				header.hardlight(0xFFFF44);
-				header.maxWidth((int) width);
-				header.setPos((ui.width - header.width()) / 2f, bottom - TEXT_GAP / 2f - header.height());
-				PixelScene.align(header);
-				addDetail(scene, header);
-				if (step == null) return;
+
+				String status = stats == null ? "No steps kept yet" : pending ? "Not loaded - tap Done to load this step" : "You are here";
+				RenderedTextBlock statusText = PixelScene.renderTextBlock(fit(status, 6, innerWidth), 6);
+				statusText.hardlight(stats == null ? CAPTION_COLOR : pending ? PENDING_COLOR : CURRENT_COLOR);
+				statusText.setPos((ui.width - statusText.width()) / 2f, statusTop);
+				PixelScene.align(statusText);
+				addDetail(scene, statusText);
+
+				List<String> lines = step == null ? new ArrayList<>() : step.lines;
+				if (lines.isEmpty()) {
+					RenderedTextBlock none = PixelScene.renderTextBlock("No messages for this step", 6);
+					none.hardlight(CAPTION_COLOR);
+					none.setPos(innerLeft + LOG_PADDING, logTop + LOG_PADDING);
+					PixelScene.align(none);
+					addDetail(scene, none);
+				}
+				for (int k = 0; k < lines.size() && k < LOG_LINES; k++) {
+					String line = lines.get(k);
+					RenderedTextBlock block = PixelScene.renderTextBlock(fit(UndoScene.plain(line), 6, innerWidth - 2 * LOG_PADDING), 6);
+					block.hardlight(UndoScene.lineColor(line));
+					block.setPos(innerLeft + LOG_PADDING, logTop + LOG_PADDING + k * LOG_LINE_HEIGHT);
+					PixelScene.align(block);
+					addDetail(scene, block);
+				}
+
+				if (!hasPicture || step == null) return;
 				boolean map = showMap ? step.hasMap() : !step.hasArea() && step.hasMap();
 				if (!map && !step.hasArea()) return;
-				float pictureBottom = header.top() - TEXT_GAP;
-				float size = Math.min(PREVIEW_MAX, Math.min(width, pictureBottom - ScreenLayout.belowStatus() - 2 * PREVIEW_BORDER));
-				if (size < PREVIEW_MIN) return;
-				float left = (ui.width - size) / 2f;
-				float top = pictureBottom - size - PREVIEW_BORDER;
-				ColorBlock frame = new ColorBlock(size + 2 * PREVIEW_BORDER, size + 2 * PREVIEW_BORDER, 0xFF000000);
-				frame.x = left - PREVIEW_BORDER;
-				frame.y = top - PREVIEW_BORDER;
-				addDetail(scene, frame);
 				List<Gizmo> picture = new ArrayList<>();
 				try {
 					if (map) {
-						step.drawMap(picture, ui, left, top, size);
+						step.drawMap(picture, ui, pictureLeft, pictureTop, pictureSize);
 					} else {
-						step.drawArea(picture, ui, left, top, size);
+						step.drawArea(picture, ui, pictureLeft, pictureTop, pictureSize);
 					}
 				} catch (Throwable e) {
 					Log.e("UndoTags", "Could not draw the step", e);
 				}
 				for (Gizmo part : picture) addDetail(scene, part);
 				if (!step.hasMap() || !step.hasArea()) return;
-				PointerArea toggle = new PointerArea(left, top, size, size) {
+				PointerArea toggle = new PointerArea(pictureLeft, pictureTop, pictureSize, pictureSize) {
 					@Override
 					public void onClick(PointerEvent event) {
 						CloverlordSettings.set(KEY_MAP_VIEW, !showsMap());
@@ -209,7 +288,7 @@ public final class UndoTags {
 				addDetail(scene, toggle);
 				RenderedTextBlock hint = PixelScene.renderTextBlock(map ? "Tap for area" : "Tap for map", 6);
 				hint.hardlight(0xCCCCCC);
-				hint.setPos(left + size - hint.width() - 2, top + 2);
+				hint.setPos(pictureLeft + pictureSize - hint.width() - 2, pictureTop + 2);
 				PixelScene.align(hint);
 				addDetail(scene, hint);
 			}
@@ -220,6 +299,73 @@ public final class UndoTags {
 			}
 		};
 		addToOverlay(scene, watcher);
+	}
+
+	/**
+	 * [text] shortened with ".." until it fits in [width] at [size].
+	 */
+	private static String fit(String text, int size, float width) {
+		RenderedTextBlock probe = PixelScene.renderTextBlock(text, size);
+		float full = probe.width();
+		probe.destroy();
+		if (full <= width) return text;
+		int keep = Math.max(1, (int) (text.length() * width / full));
+		while (keep > 1) {
+			String shorter = text.substring(0, keep).trim() + "..";
+			RenderedTextBlock test = PixelScene.renderTextBlock(shorter, size);
+			float measured = test.width();
+			test.destroy();
+			if (measured <= width) return shorter;
+			keep--;
+		}
+		return "..";
+	}
+
+	private static boolean tappedMenu(PointerEvent event) {
+		try {
+			Component button = menuButton();
+			if (button == null || event == null) return false;
+			PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+			return point.x >= button.left() && point.x <= button.right() && point.y >= button.top() && point.y <= button.bottom();
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	private static Component menuButton() throws ReflectiveOperationException {
+		Field sceneField = GameScene.class.getDeclaredField("scene");
+		sceneField.setAccessible(true);
+		Object scene = sceneField.get(null);
+		if (scene == null) return null;
+		Field menuField = GameScene.class.getDeclaredField("menu");
+		menuField.setAccessible(true);
+		Object menu = menuField.get(scene);
+		if (menu == null) return null;
+		Field buttonField = menu.getClass().getDeclaredField("btnMenu");
+		buttonField.setAccessible(true);
+		return (Component) buttonField.get(menu);
+	}
+
+	/**
+	 * Closes undo mode and opens the game menu, as the menu button would.
+	 */
+	private static void openGameMenu() {
+		closeMode();
+		try {
+			Component button = menuButton();
+			if (button == null) return;
+			for (Class<?> type = button.getClass(); type != null; type = type.getSuperclass()) {
+				try {
+					Method click = type.getDeclaredMethod("onClick");
+					click.setAccessible(true);
+					click.invoke(button);
+					return;
+				} catch (NoSuchMethodException ignored) {
+				}
+			}
+		} catch (Throwable e) {
+			Log.e("UndoTags", "Could not open the game menu", e);
+		}
 	}
 
 	/**
