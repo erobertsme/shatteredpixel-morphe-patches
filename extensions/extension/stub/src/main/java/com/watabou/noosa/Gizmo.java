@@ -7,6 +7,7 @@ public class Gizmo {
 	public Camera camera;
 
 	public void update() { throw new RuntimeException("Stub"); }
+	public void draw() { throw new RuntimeException("Stub"); }
 	public void killAndErase() { throw new RuntimeException("Stub"); }
 	public void destroy() { throw new RuntimeException("Stub"); }
 }

@@ -6,12 +6,12 @@ package app.template.extension.shatteredpixeldungeon;
 public class UndoListWindow extends EditorWindow {
 
 	private static final String INFO = "Undo History"
-		+ "\n\nEvery step kept for this game, newest first. The step you are on now is highlighted."
-		+ "\n\nTap a step to go back or forward to it. Steps after the one you pick stay in the list until you take a new action, so you can still return to them.";
+		+ "\n\nEvery step kept for this game, newest first. The step you are on now is marked (now) and the step you have picked is highlighted."
+		+ "\n\nTap a step to pick it and see its picture. Tap Done in undo mode to load it. Steps after the one you load stay in the list until you take a new action, so you can still return to them.";
 	private final int page;
 
 	public UndoListWindow() {
-		this(pageOf(UndoHistory.current()));
+		this(pageOf(UndoHistory.selected()));
 	}
 
 	public UndoListWindow(int page) {
@@ -25,9 +25,9 @@ public class UndoListWindow extends EditorWindow {
 			int position = count - 1 - row;
 			boolean current = position == UndoHistory.current();
 			String label = (position + 1) + ". " + UndoHistory.describe(position) + (current ? "  (now)" : "");
-			addListRow(label, null, current, UndoHistory.canJumpTo(position), () -> {
+			addListRow(label, null, position == UndoHistory.selected(), UndoHistory.canSelect(position), () -> {
 				hide();
-				UndoHistory.jumpTo(position);
+				UndoHistory.select(position);
 			}, null);
 		}, newPage -> replaceWith(new UndoListWindow(newPage)));
 

@@ -13,6 +13,7 @@ final class ScreenLayout {
 
 	private static final int TOOLBAR_SPACE = 30;
 	private static final int GAP = 4;
+	private static final int STATUS_SPACE = 40;
 
 	private ScreenLayout() {
 	}
@@ -34,6 +35,25 @@ final class ScreenLayout {
 			return Math.min(fallback, ((Component) toolbar).top() - GAP);
 		} catch (Throwable e) {
 			return fallback;
+		}
+	}
+
+	/**
+	 * The highest y on the UI camera below the hero's status pane.
+	 */
+	static float belowStatus() {
+		try {
+			Field sceneField = GameScene.class.getDeclaredField("scene");
+			sceneField.setAccessible(true);
+			Object scene = sceneField.get(null);
+			if (scene == null) return STATUS_SPACE;
+			Field statusField = GameScene.class.getDeclaredField("status");
+			statusField.setAccessible(true);
+			Object status = statusField.get(scene);
+			if (!(status instanceof Component)) return STATUS_SPACE;
+			return ((Component) status).bottom() + GAP;
+		} catch (Throwable e) {
+			return STATUS_SPACE;
 		}
 	}
 }

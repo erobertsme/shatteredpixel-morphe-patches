@@ -5,6 +5,7 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.QuickSlot;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Gizmo;
@@ -97,11 +98,12 @@ public final class QuickslotRow {
 	}
 
 	/**
-	 * Called at the start of Item.restoreFromBundle.
+	 * Called at the start of Item.restoreFromBundle. Like the game's own slots, only items loaded with the hero's belongings take their slot back, so a
+	 * copy made when a stack is split never steals the slot.
 	 */
 	public static void beforeItemRestore(Object item, Bundle bundle) {
 		try {
-			if (bundle == null || !bundle.contains(BUNDLE_SLOT)) return;
+			if (bundle == null || !Belongings.bundleRestoring || !bundle.contains(BUNDLE_SLOT)) return;
 			restoring.put(item, bundle.getInt(BUNDLE_SLOT));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not read a quickslot", e);

@@ -1,6 +1,7 @@
 package com.watabou.noosa;
 
 public class Visual extends Gizmo {
+	public com.watabou.utils.PointF center() { throw new RuntimeException("Stub"); }
 	public float x;
 	public float y;
 	public float angle;

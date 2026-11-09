@@ -8,6 +8,8 @@ public class Camera extends Gizmo {
 	public int width;
 	public int height;
 	public float zoom;
+	public int x;
+	public int y;
 
 	public synchronized void shift(PointF point) { throw new RuntimeException("Stub"); }
 

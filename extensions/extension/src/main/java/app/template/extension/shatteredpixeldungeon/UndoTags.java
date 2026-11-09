@@ -6,8 +6,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.Scene;
 
 import java.util.ArrayList;
@@ -33,6 +35,9 @@ public final class UndoTags {
 	private static final int TEXT_GAP = 6;
 	private static final int DEATH_BUTTON_WIDTH = 80;
 	private static final float DEATH_FADE = 2f;
+	private static final int PREVIEW_MAX = 150;
+	private static final int PREVIEW_MIN = 48;
+	private static final int PREVIEW_BORDER = 1;
 
 	private static boolean modeOpen;
 	private static final List<Gizmo> overlay = new ArrayList<>();
@@ -61,6 +66,7 @@ public final class UndoTags {
 			};
 			target.add(tag);
 			target.add(controller);
+			UndoPreview.install(target);
 			if (modeOpen && UndoHistory.isOn()) buildMode(target);
 		} catch (Throwable e) {
 			Log.e("UndoTags", "Could not add the Undo / Redo tag", e);
@@ -70,6 +76,7 @@ public final class UndoTags {
 	private static void openMode(Scene scene) {
 		if (modeOpen) return;
 		modeOpen = true;
+		UndoHistory.resetSelection();
 		buildMode(scene);
 	}
 
@@ -80,6 +87,13 @@ public final class UndoTags {
 			gizmo.destroy();
 		}
 		overlay.clear();
+		UndoPreview.release();
+	}
+
+	private static void finishMode() {
+		boolean load = UndoHistory.selectionPending();
+		closeMode();
+		if (load) UndoHistory.loadSelected();
 	}
 
 	private static void buildMode(Scene scene) {
@@ -88,14 +102,15 @@ public final class UndoTags {
 
 		RenderedTextBlock label = PixelScene.renderTextBlock("", 9);
 		label.hardlight(0xFFFF44);
+		label.maxWidth((int) ui.width - 2 * MARGIN);
 		addToOverlay(scene, label);
 
-		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::undo);
+		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));
 		undo.setRect(MARGIN, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, undo);
 
-		TintedButton done = new TintedButton("Done", null, 1f, 1f, 1f, UndoTags::closeMode);
+		TintedButton done = new TintedButton("Done", null, 1f, 1f, 1f, UndoTags::finishMode);
 		done.setRect((ui.width - BUTTON_WIDTH) / 2f, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, done);
 
@@ -104,13 +119,17 @@ public final class UndoTags {
 		list.setRect((ui.width - BUTTON_WIDTH) / 2f, listTop, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, list);
 
-		TintedButton redo = new TintedButton("Redo", null, 1f, 1f, 1f, UndoHistory::redo);
+		TintedButton redo = new TintedButton("Redo", null, 1f, 1f, 1f, UndoHistory::selectNext);
 		redo.icon(StatIcons.arrow(false));
 		redo.setRect(ui.width - MARGIN - BUTTON_WIDTH, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, redo);
 
 		Gizmo watcher = new Gizmo() {
 			private String shown;
+			private int shownFor = -2;
+			private byte[] shownImage;
+			private Image preview;
+			private ColorBlock frame;
 
 			@Override
 			public void update() {
@@ -119,15 +138,57 @@ public final class UndoTags {
 					closeMode();
 					return;
 				}
-				undo.enable(UndoHistory.canUndo());
-				redo.enable(UndoHistory.canRedo());
-				list.enable(UndoHistory.count() > 1 && UndoHistory.isOn());
+				undo.enable(UndoHistory.canSelectPrevious());
+				redo.enable(UndoHistory.canSelectNext());
+				list.enable(UndoHistory.count() > 1);
 				String text = UndoHistory.positionText();
-				if (text.equals(shown)) return;
-				shown = text;
-				label.text(text);
-				label.setPos((ui.width - label.width()) / 2f, listTop - TEXT_GAP - label.height());
-				PixelScene.align(label);
+				if (!text.equals(shown)) {
+					shown = text;
+					label.text(text);
+					label.setPos((ui.width - label.width()) / 2f, listTop - TEXT_GAP - label.height());
+					PixelScene.align(label);
+					shownFor = -2;
+				}
+				int selected = UndoHistory.selected();
+				byte[] image = UndoHistory.image(selected);
+				if (selected == shownFor && image == shownImage) return;
+				shownFor = selected;
+				shownImage = image;
+				showPreview(scene, image, label.top() - TEXT_GAP);
+			}
+
+			private void showPreview(Scene scene, byte[] image, float bottom) {
+				removePreview();
+				Image picture = UndoPreview.image(image);
+				if (picture == null) return;
+				float room = Math.min(ui.width - 2 * MARGIN, bottom - ScreenLayout.belowStatus() - 2 * PREVIEW_BORDER);
+				float size = Math.min(PREVIEW_MAX, room);
+				if (size < PREVIEW_MIN) {
+					UndoPreview.release();
+					return;
+				}
+				float scale = size / UndoPreview.SIZE;
+				picture.scale.x = scale;
+				picture.scale.y = scale;
+				picture.x = (ui.width - size) / 2f;
+				picture.y = bottom - size - PREVIEW_BORDER;
+				frame = new ColorBlock(size + 2 * PREVIEW_BORDER, size + 2 * PREVIEW_BORDER, 0xFF000000);
+				frame.x = picture.x - PREVIEW_BORDER;
+				frame.y = picture.y - PREVIEW_BORDER;
+				addToOverlay(scene, frame);
+				addToOverlay(scene, picture);
+				preview = picture;
+			}
+
+			private void removePreview() {
+				for (Gizmo old : new Gizmo[] { frame, preview }) {
+					if (old == null) continue;
+					overlay.remove(old);
+					old.killAndErase();
+					old.destroy();
+				}
+				frame = null;
+				preview = null;
 			}
 		};
 		addToOverlay(scene, watcher);

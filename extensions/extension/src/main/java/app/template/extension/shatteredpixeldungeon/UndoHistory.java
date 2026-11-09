@@ -49,6 +49,7 @@ public final class UndoHistory {
 		final int turn;
 		final int hp;
 		final int ht;
+		volatile byte[] image;
 
 		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
 			this.game = game;
@@ -62,12 +63,14 @@ public final class UndoHistory {
 		}
 
 		int size() {
-			return game.length + level.length;
+			byte[] picture = image;
+			return game.length + level.length + (picture == null ? 0 : picture.length);
 		}
 	}
 
 	private static final List<Snapshot> history = new ArrayList<>();
 	private static int index = -1;
+	private static int selected = -1;
 	private static String gameId;
 	private static boolean skipNext;
 	private static boolean pending;
@@ -165,7 +168,9 @@ public final class UndoHistory {
 			byte[] game = read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
 			byte[] level = read(new File(root, levelFile));
 			long copied = System.nanoTime();
-			push(new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) Actor.now(), hero.HP, hero.HT));
+			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) Actor.now(), hero.HP, hero.HT);
+			push(snapshot);
+			UndoPreview.request(image -> snapshot.image = image);
 			recordTiming(saved - start, copied - saved);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not take a snapshot", e);
@@ -180,6 +185,7 @@ public final class UndoHistory {
 		history.add(snapshot);
 		index = history.size() - 1;
 		trim();
+		selected = index;
 	}
 
 	private static void trim() {
@@ -189,28 +195,13 @@ public final class UndoHistory {
 			index--;
 		}
 		if (index < -1) index = -1;
+		selected = index;
 	}
 
 	private static boolean allowedNow() {
 		Hero hero = Dungeon.hero;
 		if (!isOn() || hero == null || !hero.isAlive() || !hero.ready) return false;
 		return duringBosses() || Dungeon.level == null || !Dungeon.level.locked;
-	}
-
-	static boolean canUndo() {
-		return index > 0 && allowedNow();
-	}
-
-	static boolean canRedo() {
-		return index >= 0 && index < history.size() - 1 && allowedNow();
-	}
-
-	static void undo() {
-		if (canUndo()) restore(index - 1);
-	}
-
-	static void redo() {
-		if (canRedo()) restore(index + 1);
 	}
 
 	private static void restore(int target) {
@@ -221,6 +212,7 @@ public final class UndoHistory {
 			write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), snapshot.game);
 			write(new File(root, snapshot.levelFile), snapshot.level);
 			index = target;
+			selected = target;
 			skipNext = true;
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
 			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
@@ -243,12 +235,58 @@ public final class UndoHistory {
 		return "Depth " + snapshot.depth + ", turn " + snapshot.turn + ", HP " + snapshot.hp + "/" + snapshot.ht;
 	}
 
-	static boolean canJumpTo(int position) {
-		return position >= 0 && position < history.size() && position != index && allowedNow();
+	static int selected() {
+		return selected;
 	}
 
-	static void jumpTo(int position) {
-		if (canJumpTo(position)) restore(position);
+	/**
+	 * Starts choosing from the step the game is on now.
+	 */
+	static void resetSelection() {
+		selected = index;
+	}
+
+	static boolean canSelect(int position) {
+		return position >= 0 && position < history.size() && allowedNow();
+	}
+
+	static void select(int position) {
+		if (canSelect(position)) selected = position;
+	}
+
+	static boolean canSelectPrevious() {
+		return canSelect(selected - 1);
+	}
+
+	static boolean canSelectNext() {
+		return selected >= 0 && canSelect(selected + 1);
+	}
+
+	static void selectPrevious() {
+		select(selected - 1);
+	}
+
+	static void selectNext() {
+		select(selected + 1);
+	}
+
+	/**
+	 * Whether the chosen step is a different one from where the game is now.
+	 */
+	static boolean selectionPending() {
+		return selected >= 0 && selected != index && selected < history.size();
+	}
+
+	/**
+	 * Loads the chosen step, if it isn't the one the game is on.
+	 */
+	static void loadSelected() {
+		if (selectionPending() && allowedNow()) restore(selected);
+	}
+
+	static byte[] image(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		return history.get(position).image;
 	}
 
 	/**
@@ -256,7 +294,9 @@ public final class UndoHistory {
 	 */
 	static String positionText() {
 		if (history.isEmpty()) return "Undo mode  -  no history yet";
-		return "Undo mode  -  action " + (index + 1) + " of " + history.size();
+		if (selected < 0 || selected >= history.size()) return "Undo mode  -  action " + (index + 1) + " of " + history.size();
+		String text = "Action " + (selected + 1) + " of " + history.size() + ": " + describe(selected);
+		return selected == index ? text + " (now)" : text + "\nTap Done to load it";
 	}
 
 	private static final String DEATH_BACKUP = "undo-death-backup";
@@ -345,6 +385,7 @@ public final class UndoHistory {
 	static void clear() {
 		history.clear();
 		index = -1;
+		selected = -1;
 		skipNext = false;
 	}
 
