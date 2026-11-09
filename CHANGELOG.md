@@ -1,3 +1,9 @@
+## [1.0.0-dev.117](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.116...v1.0.0-dev.117) (2026-11-09)
+
+### 🐛 Bug Fixes
+
+* previews draw special floor tiles, area effects and the real turn; quantum chest appears after the boss and opens from afar; Cancel in undo mode ([14f9cf5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/14f9cf5624d6251debd7c048d7cc16f5b194516e))
+
 ## [1.0.0-dev.116](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.115...v1.0.0-dev.116) (2026-11-09)
 
 ### ✨ New Features
