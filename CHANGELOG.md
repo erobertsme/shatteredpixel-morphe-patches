@@ -1,3 +1,9 @@
+## [1.0.0-dev.113](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.112...v1.0.0-dev.113) (2026-11-09)
+
+### ✨ New Features
+
+* fixed undo mode panel and block game taps while it is open ([8e9417e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8e9417ed3afeed98ebb016cba384a440b5e49090))
+
 ## [1.0.0-dev.112](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.111...v1.0.0-dev.112) (2026-11-09)
 
 ### ✨ New Features
