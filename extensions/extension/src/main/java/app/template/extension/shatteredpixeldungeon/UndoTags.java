@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
 
@@ -98,6 +99,11 @@ public final class UndoTags {
 		done.setRect((ui.width - BUTTON_WIDTH) / 2f, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, done);
 
+		float listTop = top - BUTTON_HEIGHT - 2;
+		TintedButton list = new TintedButton("History", null, 1f, 1f, 1f, () -> Game.scene().addToFront(new UndoListWindow()));
+		list.setRect((ui.width - BUTTON_WIDTH) / 2f, listTop, BUTTON_WIDTH, BUTTON_HEIGHT);
+		addToOverlay(scene, list);
+
 		TintedButton redo = new TintedButton("Redo", null, 1f, 1f, 1f, UndoHistory::redo);
 		redo.icon(StatIcons.arrow(false));
 		redo.setRect(ui.width - MARGIN - BUTTON_WIDTH, top, BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -115,11 +121,12 @@ public final class UndoTags {
 				}
 				undo.enable(UndoHistory.canUndo());
 				redo.enable(UndoHistory.canRedo());
+				list.enable(UndoHistory.count() > 1 && UndoHistory.isOn());
 				String text = UndoHistory.positionText();
 				if (text.equals(shown)) return;
 				shown = text;
 				label.text(text);
-				label.setPos((ui.width - label.width()) / 2f, top - TEXT_GAP - label.height());
+				label.setPos((ui.width - label.width()) / 2f, listTop - TEXT_GAP - label.height());
 				PixelScene.align(label);
 			}
 		};

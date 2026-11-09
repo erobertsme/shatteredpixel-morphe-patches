@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
@@ -45,13 +46,19 @@ public final class UndoHistory {
 		final byte[] level;
 		final int depth;
 		final int branch;
+		final int turn;
+		final int hp;
+		final int ht;
 
-		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch) {
+		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
 			this.game = game;
 			this.levelFile = levelFile;
 			this.level = level;
 			this.depth = depth;
 			this.branch = branch;
+			this.turn = turn;
+			this.hp = hp;
+			this.ht = ht;
 		}
 
 		int size() {
@@ -158,7 +165,7 @@ public final class UndoHistory {
 			byte[] game = read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
 			byte[] level = read(new File(root, levelFile));
 			long copied = System.nanoTime();
-			push(new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch));
+			push(new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) Actor.now(), hero.HP, hero.HT));
 			recordTiming(saved - start, copied - saved);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not take a snapshot", e);
@@ -221,6 +228,27 @@ public final class UndoHistory {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not restore a snapshot", e);
 		}
+	}
+
+	static int count() {
+		return history.size();
+	}
+
+	static int current() {
+		return index;
+	}
+
+	static String describe(int position) {
+		Snapshot snapshot = history.get(position);
+		return "Depth " + snapshot.depth + ", turn " + snapshot.turn + ", HP " + snapshot.hp + "/" + snapshot.ht;
+	}
+
+	static boolean canJumpTo(int position) {
+		return position >= 0 && position < history.size() && position != index && allowedNow();
+	}
+
+	static void jumpTo(int position) {
+		if (canJumpTo(position)) restore(position);
 	}
 
 	/**
