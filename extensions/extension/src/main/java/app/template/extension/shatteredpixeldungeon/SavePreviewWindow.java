@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * A game save shown the way undo mode shows a step: the hero at the time with their talents and backpack, the dungeon around them, the last
- * game messages, and buttons to load or delete it. Cancel sits above the window.
+ * game messages, and buttons to load, delete or go back. In landscape the picture sits beside the rest.
  */
 public class SavePreviewWindow extends EditorWindow {
 
@@ -40,31 +40,38 @@ public class SavePreviewWindow extends EditorWindow {
 	private final GameSaves.Save save;
 	private final int page;
 	private final boolean fromGameMenu;
-	private final TopButton cancel;
 
 	public SavePreviewWindow(GameSaves.Save save, int page, boolean fromGameMenu) {
 		super();
 		this.save = save;
 		this.page = page;
 		this.fromGameMenu = fromGameMenu;
-		cancel = new TopButton(this, "Cancel", this::back);
 		addTitle(save.title());
+		float columnTop = pos;
 
 		UndoScene scene = save.preview();
 		Hero hero = save.hero();
+		boolean hasPicture = scene != null && (scene.hasArea() || scene.hasMap());
+		boolean wide = PixelScene.landscape() && hasPicture;
 		addHero(hero, scene);
-		if (scene == null || !scene.hasArea() && !scene.hasMap()) {
+		if (!hasPicture) {
 			addHint("No picture for this save. Saves made from now on keep one.");
 		} else {
 			addLog(scene.lines);
-			addPicture(scene);
 		}
+		float pictureBottom = pos;
+		if (hasPicture && !wide) {
+			addPicture(scene, 0, pos);
+			pictureBottom = pos;
+		}
+		if (wide) pictureBottom = addPicture(scene, WIDTH + 2 * GAP, columnTop);
 
-		float half = (WIDTH - GAP) / 2f;
-		addButton("Load", 0, half, this::load);
-		addButton("Delete", half + GAP, half, this::delete);
+		float third = (WIDTH - 2 * GAP) / 3f;
+		addButton("Load", 0, third, this::load);
+		addButton("Delete", third + GAP, third, this::delete);
+		addButton("Back", 2 * (third + GAP), third, this::back);
 		pos += ROW_HEIGHT;
-		finish();
+		resize(wide ? 2 * WIDTH + 2 * GAP : WIDTH, (int) Math.max(pos, pictureBottom));
 	}
 
 	private void addHero(Hero hero, UndoScene scene) {
@@ -107,14 +114,17 @@ public class SavePreviewWindow extends EditorWindow {
 		pos += BACKPACK_HEIGHT + 2 * GAP;
 	}
 
-	private void addPicture(UndoScene scene) {
+	/**
+	 * Adds the picture with its top left corner at [x], [y]. Returns the bottom of the picture. Below the rest, it also moves pos past it.
+	 */
+	private float addPicture(UndoScene scene, float x, float y) {
 		boolean map = UndoTags.showsMap() ? scene.hasMap() : !scene.hasArea();
 		float size = WIDTH - 2 * BORDER;
-		float left = BORDER;
-		float top = pos + BORDER;
+		float left = x + BORDER;
+		float top = y + BORDER;
 		ColorBlock frame = new ColorBlock(size + 2 * BORDER, size + 2 * BORDER, 0xFF000000);
-		frame.x = 0;
-		frame.y = pos;
+		frame.x = x;
+		frame.y = y;
 		add(frame);
 		List<Gizmo> parts = new ArrayList<>();
 		try {
@@ -141,7 +151,9 @@ public class SavePreviewWindow extends EditorWindow {
 			PixelScene.align(hint);
 			add(hint);
 		}
-		pos += size + 2 * BORDER + 2 * GAP;
+		float bottom = y + size + 2 * BORDER + 2 * GAP;
+		if (x == 0) pos = bottom;
+		return bottom;
 	}
 
 	private void addLog(List<String> lines) {
@@ -185,18 +197,6 @@ public class SavePreviewWindow extends EditorWindow {
 	private void back() {
 		hide();
 		show(new GameSavesWindow(page, fromGameMenu));
-	}
-
-	@Override
-	public void update() {
-		super.update();
-		cancel.place();
-	}
-
-	@Override
-	public void destroy() {
-		cancel.remove();
-		super.destroy();
 	}
 
 	@Override
