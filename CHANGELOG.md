@@ -1,3 +1,9 @@
+## [1.0.0-dev.122](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.121...v1.0.0-dev.122) (2026-11-09)
+
+### ✨ New Features
+
+* display margins for each screen edge ([8135407](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/813540781079cd2f7f8c8baf35e6e9c5451e71d2))
+
 ## [1.0.0-dev.121](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.120...v1.0.0-dev.121) (2026-11-09)
 
 ### ✨ New Features
