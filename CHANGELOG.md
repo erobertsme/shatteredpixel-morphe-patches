@@ -1,3 +1,9 @@
+## [1.0.0-dev.114](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.113...v1.0.0-dev.114) (2026-11-09)
+
+### 🐛 Bug Fixes
+
+* teleport arrives at the stairs up or down as chosen; Quick Move shows an unchecked box when off ([972f4bf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/972f4bf047008e3f2f990cb9df86ee7bcdbd191f))
+
 ## [1.0.0-dev.113](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.112...v1.0.0-dev.113) (2026-11-09)
 
 ### ✨ New Features
