@@ -1,3 +1,9 @@
+## [1.0.0-dev.112](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.111...v1.0.0-dev.112) (2026-11-09)
+
+### ✨ New Features
+
+* undo steps show the dungeon in game art, a floor map and the step's log lines ([6fcfd1a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6fcfd1a112d25cbd81036fe639c96fed81e1889e))
+
 ## [1.0.0-dev.111](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.110...v1.0.0-dev.111) (2026-11-09)
 
 ### 🐛 Bug Fixes
