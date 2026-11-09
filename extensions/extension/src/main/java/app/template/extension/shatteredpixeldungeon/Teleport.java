@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
@@ -20,6 +21,8 @@ import com.watabou.noosa.ui.Component;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -126,19 +129,28 @@ public final class Teleport {
 	private static int floorHeaderAt(Object grid, float x, float y) throws ReflectiveOperationException {
 		Field itemsField = Class.forName(GRID_CLASS).getDeclaredField("items");
 		itemsField.setAccessible(true);
-		List<?> items = (List<?>) itemsField.get(grid);
-		List<Component> headers = new ArrayList<>();
-		for (Object item : items) {
-			if (item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) headers.add((Component) item);
-		}
-		int floors = Math.min(Statistics.deepestFloor, headers.size());
-		int first = headers.size() - floors;
-		for (int i = first; i < headers.size(); i++) {
-			Component header = headers.get(i);
+		Field textField = Class.forName(GRID_CLASS + "$GridHeader").getDeclaredField("text");
+		textField.setAccessible(true);
+		for (Object item : (List<?>) itemsField.get(grid)) {
+			if (!item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) continue;
+			Component header = (Component) item;
 			if (x < header.left() || x >= header.right() || y < header.top() || y >= header.bottom()) continue;
-			return floors - (i - first);
+			Object text = textField.get(header);
+			if (!(text instanceof RenderedTextBlock)) return 0;
+			return floorNumber(((RenderedTextBlock) text).text());
 		}
 		return 0;
+	}
+
+	/**
+	 * The floor number in a floor header such as "Floor 8", or 0 if the header holds no single floor number.
+	 */
+	private static int floorNumber(String text) {
+		Matcher matcher = Pattern.compile("\\d+").matcher(text == null ? "" : text);
+		if (!matcher.find()) return 0;
+		int floor = Integer.parseInt(matcher.group());
+		if (matcher.find()) return 0;
+		return floor >= 1 && floor <= Statistics.deepestFloor ? floor : 0;
 	}
 
 	private static Window windowOf(Gizmo gizmo) {
