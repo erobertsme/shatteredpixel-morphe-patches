@@ -1,3 +1,9 @@
+## [1.0.0-dev.121](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.120...v1.0.0-dev.121) (2026-11-09)
+
+### ✨ New Features
+
+* save preview lays out side by side in landscape, Back beside Load and Delete ([1df18f7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1df18f73131ddda60e136ddf7fdeaa39f0c58ee8))
+
 ## [1.0.0-dev.120](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.119...v1.0.0-dev.120) (2026-11-09)
 
 ### ✨ New Features
