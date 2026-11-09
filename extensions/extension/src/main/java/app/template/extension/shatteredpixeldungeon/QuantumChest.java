@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Scene;
@@ -59,6 +60,9 @@ public final class QuantumChest {
 
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY_OFF, !on);
+		ItemSprite chest = sprite.get();
+		if (chest != null) chest.visible = isHere();
+		if (on && chest == null && bossDefeated()) placeAfterBoss();
 	}
 
 	static int pages() {
@@ -166,6 +170,7 @@ public final class QuantumChest {
 			if (!Dungeon.bossLevel()) return;
 			syncOwner();
 			defeatedBosses.add(Dungeon.depth);
+			placeAfterBoss();
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not record the boss", e);
 		}
@@ -192,40 +197,39 @@ public final class QuantumChest {
 	}
 
 	/**
-	 * Called at the end of GameScene.create. Places the chest sprite beside the exit of a boss floor once the boss is defeated. Some boss floors
-	 * only get their exit when the boss falls, so the spot is looked for again until it is found.
+	 * Called at the end of GameScene.create. Places the chest sprite beside the exit of a boss floor whose boss is already defeated.
 	 */
 	public static void onSceneCreated(Object scene) {
 		chestCell = -1;
 		pendingOpen = false;
 		sprite = new WeakReference<>(null);
+		sceneRef = new WeakReference<>(null);
 		try {
 			if (!isAvailable() || !(scene instanceof Scene) || Dungeon.level == null || !Dungeon.bossLevel()) return;
-			Scene target = (Scene) scene;
-			Level level = Dungeon.level;
-			boolean[] shown = { false };
-			if (isOn() && bossDefeated()) {
-				place(target, level);
-				shown[0] = isHere();
-			}
-			target.add(new Gizmo() {
-				@Override
-				public void update() {
-					super.update();
-					if (Dungeon.level != level) return;
-					if (chestCell < 0 && isOn() && bossDefeated()) place(target, level);
-					ItemSprite chest = sprite.get();
-					boolean here = isHere();
-					if (chest != null) chest.visible = here;
-					if (here && !shown[0]) GLog.i("A quantum chest shimmers into being beside the exit.");
-					shown[0] = here;
-					openWhenArrived();
-				}
-			});
+			sceneRef = new WeakReference<>((Scene) scene);
+			if (isOn() && bossDefeated()) place((Scene) scene, Dungeon.level);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not place the quantum chest", e);
 		}
 	}
+
+	/**
+	 * Places the chest once the boss falls. The floor is back to its final layout by then, so the spot beside the exit can be found.
+	 */
+	private static void placeAfterBoss() {
+		Game.runOnRenderThread(() -> {
+			try {
+				Scene scene = sceneRef.get();
+				if (scene == null || chestCell >= 0 || Dungeon.level == null || !isOn()) return;
+				place(scene, Dungeon.level);
+				if (isHere()) GLog.i("A quantum chest shimmers into being beside the exit.");
+			} catch (Throwable e) {
+				Log.e(TAG, "Could not place the quantum chest", e);
+			}
+		});
+	}
+
+	private static WeakReference<Scene> sceneRef = new WeakReference<>(null);
 
 	private static void place(Scene scene, Level level) {
 		int cell = findCell(level);
@@ -265,6 +269,22 @@ public final class QuantumChest {
 		}
 		pendingOpen = false;
 		if (distance(hero.pos, chestCell) <= 1) EditorWindow.show(new QuantumChestWindow(0));
+	}
+
+	/**
+	 * Watches the walk to the chest until it ends, then stops watching.
+	 */
+	private static void watchWalk() {
+		Scene scene = sceneRef.get();
+		if (scene == null) return;
+		scene.add(new Gizmo() {
+			@Override
+			public void update() {
+				super.update();
+				openWhenArrived();
+				if (!pendingOpen) killAndErase();
+			}
+		});
 	}
 
 	private static int distance(int a, int b) {
@@ -378,6 +398,7 @@ public final class QuantumChest {
 			pendingOpen = true;
 			walkStarted = false;
 			pendingTime = 0;
+			watchWalk();
 			hero.next();
 		}
 		return true;
