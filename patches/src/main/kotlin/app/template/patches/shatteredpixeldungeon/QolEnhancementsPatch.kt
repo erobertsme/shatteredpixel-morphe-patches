@@ -22,7 +22,7 @@ private const val ITEM_TYPE = "Ljava/lang/Object;"
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies and item tags.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags and display margins.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -172,6 +172,8 @@ val qolEnhancementsPatch = bytecodePatch(
 			"Lcom/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blob;->tileDesc()Ljava/lang/String;",
 			"$EXTENSION_PACKAGE/EffectTurns;->describe(Ljava/lang/String;)Ljava/lang/String;",
 		)
+		AndroidSafeInsetsFingerprint.adjustObjectReturns("$EXTENSION_PACKAGE/DisplayMargins;->adjustInsets(Lcom/watabou/utils/RectF;)Lcom/watabou/utils/RectF;")
+		PixelSceneDrawFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/DisplayMargins;->afterDraw(Ljava/lang/Object;)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")
 		RenameWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")

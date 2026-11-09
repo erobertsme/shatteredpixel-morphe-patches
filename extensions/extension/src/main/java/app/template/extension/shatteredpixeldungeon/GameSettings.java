@@ -20,7 +20,7 @@ public final class GameSettings {
 
 	private static final String TAG = "GameSettings";
 	private static final String BUNDLE_KEY = "morphe_settings";
-	private static final String[] GLOBAL_PREFIXES = { "unlock_", "supporter_", "hide_support", "favorite_", "hunger_" };
+	private static final String[] GLOBAL_PREFIXES = { "unlock_", "supporter_", "hide_support", "favorite_", "hunger_", "display_" };
 	private static final String[] GAME_SCENES = { "GameScene", "InterlevelScene", "AlchemyScene" };
 
 	private static final Map<String, Object> overrides = new HashMap<>();

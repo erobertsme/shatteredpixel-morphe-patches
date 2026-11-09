@@ -803,3 +803,17 @@ object DungeonSwitchLevelFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;", "I"),
 )
+
+object AndroidSafeInsetsFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/android/AndroidPlatformSupport;",
+	name = "getSafeInsets",
+	returnType = "Lcom/watabou/utils/RectF;",
+	parameters = listOf("I"),
+)
+
+object PixelSceneDrawFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/PixelScene;",
+	name = "draw",
+	returnType = "V",
+	parameters = listOf(),
+)
