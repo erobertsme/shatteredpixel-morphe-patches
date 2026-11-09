@@ -3,6 +3,8 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -150,6 +152,8 @@ final class UndoScene {
 	private final List<Layer> layers = new ArrayList<>();
 	private int[] effects;
 	private int area = AREA;
+	int depth = -1;
+	int turn = -1;
 	private int mapWidth;
 	private int mapHeight;
 	private byte[] map;
@@ -209,6 +213,8 @@ final class UndoScene {
 			Hero hero = Dungeon.hero;
 			Level level = Dungeon.level;
 			if (hero == null || level == null) return scene;
+			scene.depth = Dungeon.depth;
+			scene.turn = (int) (Statistics.duration + Actor.now());
 			scene.captureArea(hero, level);
 			scene.captureMap(hero, level);
 		} catch (Throwable e) {
@@ -410,7 +416,7 @@ final class UndoScene {
 		markers.add(new Marker(hero.pos, HERO_COLOR));
 	}
 
-	private static final int FORMAT = 3;
+	private static final int FORMAT = 4;
 
 	/**
 	 * Writes this scene to [out], to be read back with [read].
@@ -418,6 +424,8 @@ final class UndoScene {
 	void write(DataOutputStream out) throws IOException {
 		out.writeInt(FORMAT);
 		out.writeInt(area);
+		out.writeInt(depth);
+		out.writeInt(turn);
 		out.writeBoolean(tiles != null);
 		if (tiles != null) {
 			out.writeUTF(tilesTex == null ? "" : tilesTex);
@@ -468,6 +476,10 @@ final class UndoScene {
 			if (format < 1 || format > FORMAT) return null;
 			UndoScene scene = new UndoScene();
 			scene.area = format >= 3 ? in.readInt() : OLD_AREA;
+			if (format >= 4) {
+				scene.depth = in.readInt();
+				scene.turn = in.readInt();
+			}
 			if (in.readBoolean()) {
 				scene.tilesTex = in.readUTF();
 				String water = in.readUTF();

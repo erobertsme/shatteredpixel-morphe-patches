@@ -38,6 +38,7 @@ final class GameSaves {
 	private static final java.util.regex.Pattern FOLDER = java.util.regex.Pattern.compile("game(\\d+)_([0-9a-f]+)");
 	private static final String INFO_FILE = "morphe_save_info.properties";
 	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
+	private static final String GAME_FILE = "game.dat";
 	static final int MAX_SAVES = 10;
 
 	static final class Save {
@@ -59,6 +60,19 @@ final class GameSaves {
 			if (!file.isFile()) return null;
 			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
 				return UndoScene.read(in);
+			} catch (IOException e) {
+				return null;
+			}
+		}
+
+		/**
+		 * The hero as they were in this save, or null if it can't be read.
+		 */
+		Hero hero() {
+			File file = new File(folder, GAME_FILE);
+			if (!file.isFile()) return null;
+			try {
+				return SnapshotHero.read(read(file));
 			} catch (IOException e) {
 				return null;
 			}
@@ -362,6 +376,16 @@ final class GameSaves {
 			for (File child : children) deleteRecursively(child);
 		}
 		file.delete();
+	}
+
+	private static byte[] read(File file) throws IOException {
+		try (InputStream in = new FileInputStream(file)) {
+			java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream((int) file.length());
+			byte[] chunk = new byte[8192];
+			int count;
+			while ((count = in.read(chunk)) > 0) out.write(chunk, 0, count);
+			return out.toByteArray();
+		}
 	}
 
 	private static long parseLong(String text, long fallback) {

@@ -68,6 +68,7 @@ public final class UndoTags {
 	private static float[] backpackPanel;
 	private static float[] backButton;
 	private static final List<Gizmo> backpackLayer = new ArrayList<>();
+	private static final List<Gizmo> modeButtons = new ArrayList<>();
 	private static final List<Gizmo> overlay = new ArrayList<>();
 
 	private UndoTags() {
@@ -111,6 +112,7 @@ public final class UndoTags {
 	private static void closeMode() {
 		modeOpen = false;
 		backpackLayer.clear();
+		modeButtons.clear();
 		for (Gizmo gizmo : overlay) {
 			gizmo.killAndErase();
 			gizmo.destroy();
@@ -148,6 +150,10 @@ public final class UndoTags {
 		TintedButton back = new TintedButton("Back", null, 1f, 1f, 1f, UndoTags::closeBackpack);
 		back.setRect(backButton[0], backButton[1], backButton[2], backButton[3]);
 		addBackpackPart(scene, back);
+		for (Gizmo button : modeButtons) {
+			button.visible = false;
+			button.active = false;
+		}
 	}
 
 	private static void addBackpackPart(Scene scene, Gizmo gizmo) {
@@ -162,6 +168,10 @@ public final class UndoTags {
 			gizmo.destroy();
 		}
 		backpackLayer.clear();
+		for (Gizmo button : modeButtons) {
+			button.visible = true;
+			button.active = true;
+		}
 	}
 
 	private static void finishMode() {
@@ -228,7 +238,10 @@ public final class UndoTags {
 			addToOverlay(scene, frame);
 		}
 		backpackPanel = new float[] { panelLeft, panelTop, panelWidth, panelBottom - panelTop };
-		backButton = new float[] { (ui.width - BUTTON_WIDTH) / 2f, listTop, BUTTON_WIDTH, BUTTON_HEIGHT };
+		backButton = new float[] { (ui.width - BUTTON_WIDTH) / 2f, cancelTop, BUTTON_WIDTH, BUTTON_HEIGHT };
+		modeButtons.clear();
+		modeButtons.add(cancel);
+		modeButtons.add(backpack);
 
 		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));
@@ -247,6 +260,10 @@ public final class UndoTags {
 		redo.icon(StatIcons.arrow(false));
 		redo.setRect(ui.width - MARGIN - BUTTON_WIDTH, top, BUTTON_WIDTH, BUTTON_HEIGHT);
 		addToOverlay(scene, redo);
+		modeButtons.add(undo);
+		modeButtons.add(done);
+		modeButtons.add(list);
+		modeButtons.add(redo);
 
 		Gizmo watcher = new Gizmo() {
 			private int shownFor = -2;
@@ -263,6 +280,7 @@ public final class UndoTags {
 					closeMode();
 					return;
 				}
+				if (!backpackLayer.isEmpty()) return;
 				undo.enable(UndoHistory.canSelectPrevious());
 				redo.enable(UndoHistory.canSelectNext());
 				list.enable(UndoHistory.count() > 1);
