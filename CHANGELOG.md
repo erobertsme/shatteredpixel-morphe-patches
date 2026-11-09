@@ -1,3 +1,9 @@
+## [1.0.0-dev.110](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.109...v1.0.0-dev.110) (2026-11-09)
+
+### ✨ New Features
+
+* Undo History window listing every kept step ([8c4dedd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8c4dedd40780406aef288ae12cbdee8f17be677e))
+
 ## [1.0.0-dev.109](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.108...v1.0.0-dev.109) (2026-11-08)
 
 ### ✨ New Features
