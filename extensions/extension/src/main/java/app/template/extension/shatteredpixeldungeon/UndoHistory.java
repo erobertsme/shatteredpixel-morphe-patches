@@ -33,6 +33,7 @@ public final class UndoHistory {
 	static final String[] MODES = { "Last actions", "This floor", "Unlimited" };
 	static final int DEFAULT_SIZE = 20;
 	static final int MAX_SIZE = 200;
+	private static final int LIST_LINE_LENGTH = 24;
 
 	private static final String KEY_ON = "qol_undo_on";
 	private static final String KEY_MODE = "qol_undo_mode";
@@ -49,7 +50,7 @@ public final class UndoHistory {
 		final int turn;
 		final int hp;
 		final int ht;
-		volatile byte[] image;
+		UndoScene scene;
 
 		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
 			this.game = game;
@@ -63,8 +64,7 @@ public final class UndoHistory {
 		}
 
 		int size() {
-			byte[] picture = image;
-			return game.length + level.length + (picture == null ? 0 : picture.length);
+			return game.length + level.length;
 		}
 	}
 
@@ -156,6 +156,7 @@ public final class UndoHistory {
 		}
 		if (skipNext) {
 			skipNext = false;
+			UndoScene.discardLines();
 			return;
 		}
 		try {
@@ -169,8 +170,8 @@ public final class UndoHistory {
 			byte[] level = read(new File(root, levelFile));
 			long copied = System.nanoTime();
 			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) Actor.now(), hero.HP, hero.HT);
+			snapshot.scene = UndoScene.capture();
 			push(snapshot);
-			UndoPreview.request(image -> snapshot.image = image);
 			recordTiming(saved - start, copied - saved);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not take a snapshot", e);
@@ -284,9 +285,21 @@ public final class UndoHistory {
 		if (selectionPending() && allowedNow()) restore(selected);
 	}
 
-	static byte[] image(int position) {
+	/**
+	 * A short label for the History list: the step's number, depth, turn and first log line.
+	 */
+	static String listLabel(int position) {
+		Snapshot snapshot = history.get(position);
+		String label = (position + 1) + ". D" + snapshot.depth + " T" + snapshot.turn;
+		String line = snapshot.scene == null ? null : snapshot.scene.firstLine();
+		if (line == null) return label + " HP " + snapshot.hp + "/" + snapshot.ht;
+		if (line.length() > LIST_LINE_LENGTH) line = line.substring(0, LIST_LINE_LENGTH - 1) + "..";
+		return label + " - " + line;
+	}
+
+	static UndoScene scene(int position) {
 		if (position < 0 || position >= history.size()) return null;
-		return history.get(position).image;
+		return history.get(position).scene;
 	}
 
 	/**

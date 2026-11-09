@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 
 public class Hero extends Char {
 	public HeroClass heroClass;
+	public int tier() { throw new RuntimeException("Stub"); }
 	public HeroSubClass subClass;
 	public ArmorAbility armorAbility;
 	public int lvl;

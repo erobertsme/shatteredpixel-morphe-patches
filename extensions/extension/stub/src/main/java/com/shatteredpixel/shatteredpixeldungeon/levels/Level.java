@@ -37,5 +37,8 @@ public class Level {
 	public Trap setTrap(Trap trap, int pos) { throw new RuntimeException("Stub"); }
 	public int exit() { throw new RuntimeException("Stub"); }
 	public int width() { throw new RuntimeException("Stub"); }
+	public int height() { throw new RuntimeException("Stub"); }
+	public String tilesTex() { throw new RuntimeException("Stub"); }
+	public String waterTex() { throw new RuntimeException("Stub"); }
 	public static void set(int cell, int terrain) { throw new RuntimeException("Stub"); }
 }

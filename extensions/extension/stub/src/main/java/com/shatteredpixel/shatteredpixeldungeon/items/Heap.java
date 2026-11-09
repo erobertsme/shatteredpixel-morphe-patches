@@ -17,6 +17,7 @@ public class Heap {
 	public Item pickUp() { throw new RuntimeException("Stub"); }
 	public Item peek() { throw new RuntimeException("Stub"); }
 	public int size() { throw new RuntimeException("Stub"); }
+	public int image() { throw new RuntimeException("Stub"); }
 	public boolean isEmpty() { throw new RuntimeException("Stub"); }
 	public String title() { throw new RuntimeException("Stub"); }
 }

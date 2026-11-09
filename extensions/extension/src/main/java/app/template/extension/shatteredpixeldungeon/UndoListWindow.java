@@ -7,7 +7,7 @@ public class UndoListWindow extends EditorWindow {
 
 	private static final String INFO = "Undo History"
 		+ "\n\nEvery step kept for this game, newest first. The step you are on now is marked (now) and the step you have picked is highlighted."
-		+ "\n\nTap a step to pick it and see its picture. Tap Done in undo mode to load it. Steps after the one you load stay in the list until you take a new action, so you can still return to them.";
+		+ "\n\nEach row shows the step's depth (D), turn (T) and the first game message from that action.\n\nTap a step to pick it and see what the dungeon looked like. Tap Done in undo mode to load it. Steps after the one you load stay in the list until you take a new action, so you can still return to them.";
 	private final int page;
 
 	public UndoListWindow() {
@@ -24,7 +24,7 @@ public class UndoListWindow extends EditorWindow {
 		addPagedList(count, perPage(), page, row -> {
 			int position = count - 1 - row;
 			boolean current = position == UndoHistory.current();
-			String label = (position + 1) + ". " + UndoHistory.describe(position) + (current ? "  (now)" : "");
+			String label = UndoHistory.listLabel(position) + (current ? " (now)" : "");
 			addListRow(label, null, position == UndoHistory.selected(), UndoHistory.canSelect(position), () -> {
 				hide();
 				UndoHistory.select(position);

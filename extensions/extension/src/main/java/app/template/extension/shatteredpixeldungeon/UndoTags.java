@@ -9,7 +9,8 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Image;
+import com.watabou.input.PointerEvent;
+import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.Scene;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public final class UndoTags {
 	private static final int TEXT_GAP = 6;
 	private static final int DEATH_BUTTON_WIDTH = 80;
 	private static final float DEATH_FADE = 2f;
+	private static final String KEY_MAP_VIEW = "qol_undo_map_view";
 	private static final int PREVIEW_MAX = 150;
 	private static final int PREVIEW_MIN = 48;
 	private static final int PREVIEW_BORDER = 1;
@@ -66,7 +68,7 @@ public final class UndoTags {
 			};
 			target.add(tag);
 			target.add(controller);
-			UndoPreview.install(target);
+			UndoScene.listen();
 			if (modeOpen && UndoHistory.isOn()) buildMode(target);
 		} catch (Throwable e) {
 			Log.e("UndoTags", "Could not add the Undo / Redo tag", e);
@@ -87,7 +89,6 @@ public final class UndoTags {
 			gizmo.destroy();
 		}
 		overlay.clear();
-		UndoPreview.release();
 	}
 
 	private static void finishMode() {
@@ -99,11 +100,6 @@ public final class UndoTags {
 	private static void buildMode(Scene scene) {
 		Camera ui = PixelScene.uiCamera;
 		float top = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
-
-		RenderedTextBlock label = PixelScene.renderTextBlock("", 9);
-		label.hardlight(0xFFFF44);
-		label.maxWidth((int) ui.width - 2 * MARGIN);
-		addToOverlay(scene, label);
 
 		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));
@@ -127,9 +123,9 @@ public final class UndoTags {
 		Gizmo watcher = new Gizmo() {
 			private String shown;
 			private int shownFor = -2;
-			private byte[] shownImage;
-			private Image preview;
-			private ColorBlock frame;
+			private UndoScene shownScene;
+			private boolean shownMap;
+			private final List<Gizmo> details = new ArrayList<>();
 
 			@Override
 			public void update() {
@@ -142,53 +138,85 @@ public final class UndoTags {
 				redo.enable(UndoHistory.canSelectNext());
 				list.enable(UndoHistory.count() > 1);
 				String text = UndoHistory.positionText();
-				if (!text.equals(shown)) {
-					shown = text;
-					label.text(text);
-					label.setPos((ui.width - label.width()) / 2f, listTop - TEXT_GAP - label.height());
-					PixelScene.align(label);
-					shownFor = -2;
-				}
 				int selected = UndoHistory.selected();
-				byte[] image = UndoHistory.image(selected);
-				if (selected == shownFor && image == shownImage) return;
+				UndoScene step = UndoHistory.scene(selected);
+				boolean showMap = showsMap();
+				if (text.equals(shown) && selected == shownFor && step == shownScene && showMap == shownMap) return;
+				shown = text;
 				shownFor = selected;
-				shownImage = image;
-				showPreview(scene, image, label.top() - TEXT_GAP);
+				shownScene = step;
+				shownMap = showMap;
+				rebuild(scene, text, step, showMap);
 			}
 
-			private void showPreview(Scene scene, byte[] image, float bottom) {
-				removePreview();
-				Image picture = UndoPreview.image(image);
-				if (picture == null) return;
-				float room = Math.min(ui.width - 2 * MARGIN, bottom - ScreenLayout.belowStatus() - 2 * PREVIEW_BORDER);
-				float size = Math.min(PREVIEW_MAX, room);
-				if (size < PREVIEW_MIN) {
-					UndoPreview.release();
-					return;
-				}
-				float scale = size / UndoPreview.SIZE;
-				picture.scale.x = scale;
-				picture.scale.y = scale;
-				picture.x = (ui.width - size) / 2f;
-				picture.y = bottom - size - PREVIEW_BORDER;
-				frame = new ColorBlock(size + 2 * PREVIEW_BORDER, size + 2 * PREVIEW_BORDER, 0xFF000000);
-				frame.x = picture.x - PREVIEW_BORDER;
-				frame.y = picture.y - PREVIEW_BORDER;
-				addToOverlay(scene, frame);
-				addToOverlay(scene, picture);
-				preview = picture;
-			}
-
-			private void removePreview() {
-				for (Gizmo old : new Gizmo[] { frame, preview }) {
-					if (old == null) continue;
+			private void rebuild(Scene scene, String text, UndoScene step, boolean showMap) {
+				for (Gizmo old : details) {
 					overlay.remove(old);
 					old.killAndErase();
 					old.destroy();
 				}
-				frame = null;
-				preview = null;
+				details.clear();
+				float width = ui.width - 2 * MARGIN;
+				float bottom = listTop - TEXT_GAP;
+				if (step != null) {
+					for (int k = step.lines.size() - 1; k >= 0; k--) {
+						String line = step.lines.get(k);
+						RenderedTextBlock block = PixelScene.renderTextBlock(UndoScene.plain(line), 6);
+						block.hardlight(UndoScene.lineColor(line));
+						block.maxWidth((int) width);
+						block.setPos(MARGIN, bottom - block.height());
+						PixelScene.align(block);
+						addDetail(scene, block);
+						bottom = block.top() - 1;
+					}
+				}
+				RenderedTextBlock header = PixelScene.renderTextBlock(text, 9);
+				header.hardlight(0xFFFF44);
+				header.maxWidth((int) width);
+				header.setPos((ui.width - header.width()) / 2f, bottom - TEXT_GAP / 2f - header.height());
+				PixelScene.align(header);
+				addDetail(scene, header);
+				if (step == null) return;
+				boolean map = showMap ? step.hasMap() : !step.hasArea() && step.hasMap();
+				if (!map && !step.hasArea()) return;
+				float pictureBottom = header.top() - TEXT_GAP;
+				float size = Math.min(PREVIEW_MAX, Math.min(width, pictureBottom - ScreenLayout.belowStatus() - 2 * PREVIEW_BORDER));
+				if (size < PREVIEW_MIN) return;
+				float left = (ui.width - size) / 2f;
+				float top = pictureBottom - size - PREVIEW_BORDER;
+				ColorBlock frame = new ColorBlock(size + 2 * PREVIEW_BORDER, size + 2 * PREVIEW_BORDER, 0xFF000000);
+				frame.x = left - PREVIEW_BORDER;
+				frame.y = top - PREVIEW_BORDER;
+				addDetail(scene, frame);
+				List<Gizmo> picture = new ArrayList<>();
+				try {
+					if (map) {
+						step.drawMap(picture, ui, left, top, size);
+					} else {
+						step.drawArea(picture, ui, left, top, size);
+					}
+				} catch (Throwable e) {
+					Log.e("UndoTags", "Could not draw the step", e);
+				}
+				for (Gizmo part : picture) addDetail(scene, part);
+				if (!step.hasMap() || !step.hasArea()) return;
+				PointerArea toggle = new PointerArea(left, top, size, size) {
+					@Override
+					public void onClick(PointerEvent event) {
+						CloverlordSettings.set(KEY_MAP_VIEW, !showsMap());
+					}
+				};
+				addDetail(scene, toggle);
+				RenderedTextBlock hint = PixelScene.renderTextBlock(map ? "Tap for area" : "Tap for map", 6);
+				hint.hardlight(0xCCCCCC);
+				hint.setPos(left + size - hint.width() - 2, top + 2);
+				PixelScene.align(hint);
+				addDetail(scene, hint);
+			}
+
+			private void addDetail(Scene scene, Gizmo gizmo) {
+				addToOverlay(scene, gizmo);
+				details.add(gizmo);
 			}
 		};
 		addToOverlay(scene, watcher);
@@ -222,6 +250,10 @@ public final class UndoTags {
 		undo.setRect((ui.width - DEATH_BUTTON_WIDTH) / 2f, (ui.height - BUTTON_HEIGHT) / 2f + 8 + 2 * (BUTTON_HEIGHT + 2), DEATH_BUTTON_WIDTH, BUTTON_HEIGHT);
 		PixelScene.align(undo);
 		scene.add(undo);
+	}
+
+	private static boolean showsMap() {
+		return CloverlordSettings.get(KEY_MAP_VIEW);
 	}
 
 	private static void addToOverlay(Scene scene, Gizmo gizmo) {
