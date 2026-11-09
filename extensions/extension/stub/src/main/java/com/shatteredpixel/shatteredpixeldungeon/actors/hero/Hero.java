@@ -33,6 +33,8 @@ public class Hero extends Char {
 	public void updateHT(boolean boostHP) { throw new RuntimeException("Stub"); }
 	public int STR() { throw new RuntimeException("Stub"); }
 	public int maxExp() { throw new RuntimeException("Stub"); }
+	public Hero() { throw new RuntimeException("Stub"); }
+	public void restoreFromBundle(com.watabou.utils.Bundle bundle) { throw new RuntimeException("Stub"); }
 	public static int maxExp(int lvl) { throw new RuntimeException("Stub"); }
 	public String className() { throw new RuntimeException("Stub"); }
 	public void interrupt() { throw new RuntimeException("Stub"); }

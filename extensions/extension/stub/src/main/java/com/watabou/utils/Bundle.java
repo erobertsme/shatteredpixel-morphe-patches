@@ -1,6 +1,8 @@
 package com.watabou.utils;
 
 public class Bundle {
+	public static Bundle read(java.io.InputStream stream) throws java.io.IOException { throw new RuntimeException("Stub"); }
+	public Bundle getBundle(String key) { throw new RuntimeException("Stub"); }
 	public int getInt(String key) { throw new RuntimeException("Stub"); }
 	public String getString(String key) { throw new RuntimeException("Stub"); }
 	public void put(String key, String value) { throw new RuntimeException("Stub"); }

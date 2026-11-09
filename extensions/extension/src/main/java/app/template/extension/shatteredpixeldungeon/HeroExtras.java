@@ -103,6 +103,7 @@ public final class HeroExtras {
 	 * Called at the start of Hero.restoreFromBundle.
 	 */
 	public static void restore(Bundle bundle) {
+		if (SnapshotHero.restoring) return;
 		reset();
 		for (int tier = 1; tier <= TIERS; tier++) bonusTalentPoints[tier] = bundle.getInt(PREFIX + "talents_" + tier);
 		for (Mod mod : Mod.values()) mods[mod.ordinal()] = bundle.getInt(PREFIX + mod.name().toLowerCase());

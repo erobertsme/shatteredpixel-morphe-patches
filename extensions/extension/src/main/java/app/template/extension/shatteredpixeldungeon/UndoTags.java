@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
@@ -46,10 +48,11 @@ public final class UndoTags {
 	private static final float DEATH_FADE = 2f;
 	private static final String KEY_MAP_VIEW = "qol_undo_map_view";
 	private static final int PREVIEW_MAX = 150;
-	private static final String[] STAT_CAPTIONS = { "STEP", "DEPTH", "TURN", "HP" };
+	private static final int STATS_WIDTH = 46;
+	private static final int STAT_LINE_HEIGHT = 8;
+	private static final int BACKPACK_WIDTH = 60;
+	private static final int BACKPACK_HEIGHT = 16;
 	private static final int PANEL_PADDING = 6;
-	private static final int CAPTION_HEIGHT = 8;
-	private static final int VALUE_HEIGHT = 10;
 	private static final int STATUS_HEIGHT = 8;
 	private static final int LOG_LINES = 4;
 	private static final int LOG_LINE_HEIGHT = 8;
@@ -62,6 +65,9 @@ public final class UndoTags {
 	private static final int PREVIEW_BORDER = 1;
 
 	private static boolean modeOpen;
+	private static float[] backpackPanel;
+	private static float[] backButton;
+	private static final List<Gizmo> backpackLayer = new ArrayList<>();
 	private static final List<Gizmo> overlay = new ArrayList<>();
 
 	private UndoTags() {
@@ -104,11 +110,58 @@ public final class UndoTags {
 
 	private static void closeMode() {
 		modeOpen = false;
+		backpackLayer.clear();
 		for (Gizmo gizmo : overlay) {
 			gizmo.killAndErase();
 			gizmo.destroy();
 		}
 		overlay.clear();
+	}
+
+	/**
+	 * Shows what the hero carried at the chosen step, over the undo panel, with a Back button below it.
+	 */
+	private static void openBackpack(Scene scene) {
+		Hero hero = UndoHistory.hero(UndoHistory.selected());
+		if (hero == null || backpackPanel == null || !backpackLayer.isEmpty()) return;
+		Camera ui = PixelScene.uiCamera;
+		PointerArea blocker = new PointerArea(0, 0, ui.width, ui.height);
+		blocker.blockLevel = PointerArea.ALWAYS_BLOCK;
+		addBackpackPart(scene, blocker);
+		NinePatch panel = Chrome.get(Chrome.Type.WINDOW);
+		panel.x = backpackPanel[0];
+		panel.y = backpackPanel[1];
+		panel.size(backpackPanel[2], backpackPanel[3]);
+		addBackpackPart(scene, panel);
+		float left = backpackPanel[0] + PANEL_PADDING;
+		float width = backpackPanel[2] - 2 * PANEL_PADDING;
+		float top = backpackPanel[1] + PANEL_PADDING;
+		RenderedTextBlock title = PixelScene.renderTextBlock("Backpack at step " + (UndoHistory.selected() + 1), 9);
+		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.setPos(left, top);
+		PixelScene.align(title);
+		addBackpackPart(scene, title);
+		float slotsTop = title.bottom() + 4;
+		List<Gizmo> slots = new ArrayList<>();
+		UndoHeroView.slots(slots, UndoHeroView.belongings(hero), left, slotsTop, width, backpackPanel[1] + backpackPanel[3] - PANEL_PADDING - slotsTop);
+		for (Gizmo slot : slots) addBackpackPart(scene, slot);
+		TintedButton back = new TintedButton("Back", null, 1f, 1f, 1f, UndoTags::closeBackpack);
+		back.setRect(backButton[0], backButton[1], backButton[2], backButton[3]);
+		addBackpackPart(scene, back);
+	}
+
+	private static void addBackpackPart(Scene scene, Gizmo gizmo) {
+		addToOverlay(scene, gizmo);
+		backpackLayer.add(gizmo);
+	}
+
+	private static void closeBackpack() {
+		for (Gizmo gizmo : backpackLayer) {
+			overlay.remove(gizmo);
+			gizmo.killAndErase();
+			gizmo.destroy();
+		}
+		backpackLayer.clear();
 	}
 
 	private static void finishMode() {
@@ -131,9 +184,14 @@ public final class UndoTags {
 		blocker.blockLevel = PointerArea.ALWAYS_BLOCK;
 		addToOverlay(scene, blocker);
 
+		float cancelTop = ScreenLayout.belowStatus();
+		TintedButton cancel = new TintedButton("Cancel", null, 1f, 1f, 1f, UndoTags::closeMode);
+		cancel.setRect((ui.width - BUTTON_WIDTH) / 2f, cancelTop, BUTTON_WIDTH, BUTTON_HEIGHT);
+		addToOverlay(scene, cancel);
+
 		float panelLeft = MARGIN;
 		float panelWidth = ui.width - 2 * MARGIN;
-		float panelTop = ScreenLayout.belowStatus();
+		float panelTop = cancelTop + BUTTON_HEIGHT + 2;
 		float panelBottom = listTop - 3;
 		NinePatch panel = Chrome.get(Chrome.Type.WINDOW);
 		panel.x = panelLeft;
@@ -143,17 +201,15 @@ public final class UndoTags {
 
 		float innerLeft = panelLeft + PANEL_PADDING;
 		float innerWidth = panelWidth - 2 * PANEL_PADDING;
-		float y = panelTop + PANEL_PADDING;
-		float column = innerWidth / STAT_CAPTIONS.length;
-		for (int k = 0; k < STAT_CAPTIONS.length; k++) {
-			RenderedTextBlock caption = PixelScene.renderTextBlock(STAT_CAPTIONS[k], 6);
-			caption.hardlight(CAPTION_COLOR);
-			caption.setPos(innerLeft + column * k + (column - caption.width()) / 2f, y);
-			PixelScene.align(caption);
-			addToOverlay(scene, caption);
-		}
-		float valuesTop = y + CAPTION_HEIGHT;
-		float statusTop = valuesTop + VALUE_HEIGHT + 2;
+		float heroTop = panelTop + PANEL_PADDING;
+		float heroWidth = innerWidth - STATS_WIDTH - 4;
+		float backpackTop = heroTop + UndoHeroView.HEIGHT + 3;
+		TintedButton backpack = new TintedButton("Backpack", null, 1f, 1f, 1f, () -> openBackpack(scene));
+		backpack.icon(Icons.get(Icons.BACKPACK));
+		backpack.setRect(innerLeft, backpackTop, BACKPACK_WIDTH, BACKPACK_HEIGHT);
+		addToOverlay(scene, backpack);
+
+		float statusTop = backpackTop + BACKPACK_HEIGHT + 3;
 		float logTop = statusTop + STATUS_HEIGHT + 2;
 		float logHeight = LOG_LINES * LOG_LINE_HEIGHT + 2 * LOG_PADDING;
 		ColorBlock logBack = new ColorBlock(innerWidth, logHeight, LOG_BACK_COLOR);
@@ -161,11 +217,7 @@ public final class UndoTags {
 		logBack.y = logTop;
 		addToOverlay(scene, logBack);
 
-		float cancelTop = logTop + logHeight + 4;
-		TintedButton cancel = new TintedButton("Cancel", null, 1f, 1f, 1f, UndoTags::closeMode);
-		cancel.setRect((ui.width - BUTTON_WIDTH) / 2f, cancelTop, BUTTON_WIDTH, BUTTON_HEIGHT);
-
-		float pictureTop = cancelTop + BUTTON_HEIGHT + 4 + PREVIEW_BORDER;
+		float pictureTop = logTop + logHeight + 4 + PREVIEW_BORDER;
 		float pictureSize = Math.min(PREVIEW_MAX, Math.min(innerWidth - 2 * PREVIEW_BORDER, panelBottom - PANEL_PADDING - PREVIEW_BORDER - pictureTop));
 		boolean hasPicture = pictureSize >= PREVIEW_MIN;
 		float pictureLeft = (ui.width - pictureSize) / 2f;
@@ -175,8 +227,8 @@ public final class UndoTags {
 			frame.y = pictureTop - PREVIEW_BORDER;
 			addToOverlay(scene, frame);
 		}
-
-		addToOverlay(scene, cancel);
+		backpackPanel = new float[] { panelLeft, panelTop, panelWidth, panelBottom - panelTop };
+		backButton = new float[] { (ui.width - BUTTON_WIDTH) / 2f, listTop, BUTTON_WIDTH, BUTTON_HEIGHT };
 
 		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));
@@ -237,13 +289,27 @@ public final class UndoTags {
 				details.clear();
 				int[] stats = UndoHistory.stats(selected);
 				String[] values = stats == null
-					? new String[] { "-", "-", "-", "-" }
-					: new String[] { (selected + 1) + "/" + count, String.valueOf(stats[0]), String.valueOf(stats[1]), stats[2] + "/" + stats[3] };
-				for (int k = 0; k < values.length; k++) {
-					RenderedTextBlock value = PixelScene.renderTextBlock(fit(values[k], 9, column - 2), 9);
-					value.setPos(innerLeft + column * k + (column - value.width()) / 2f, valuesTop);
+					? new String[] { "Step -", "Depth -", "Turn -" }
+					: new String[] { "Step " + (selected + 1) + "/" + count, "Depth " + stats[0], "Turn " + stats[1] };
+				float statY = heroTop;
+				for (String text : values) {
+					RenderedTextBlock value = PixelScene.renderTextBlock(fit(text, 6, STATS_WIDTH), 6);
+					value.hardlight(CAPTION_COLOR);
+					value.setPos(innerLeft + innerWidth - value.width(), statY);
 					PixelScene.align(value);
 					addDetail(scene, value);
+					statY += STAT_LINE_HEIGHT;
+				}
+				Hero hero = UndoHistory.hero(selected);
+				backpack.enable(hero != null);
+				if (hero != null) {
+					List<Gizmo> heroParts = new ArrayList<>();
+					try {
+						UndoHeroView.build(heroParts, hero, innerLeft, heroTop, heroWidth);
+					} catch (Throwable e) {
+						Log.e("UndoTags", "Could not show the hero", e);
+					}
+					for (Gizmo part : heroParts) addDetail(scene, part);
 				}
 
 				String status = stats == null ? "No steps kept yet" : pending ? "Not loaded - tap Done to load this step" : "You are here";

@@ -39,7 +39,12 @@ import java.util.List;
  */
 final class UndoScene {
 
-	static final int AREA = 9;
+	static final int AREA = 11;
+	private static final int OLD_AREA = 9;
+	private static final int WEB = 1;
+	private static final int WEB_COLOR = 0x80CCCCCC;
+	private static final int WEB_STRANDS = 3;
+	private static final float WEB_LENGTH = 14f;
 	private static final int TILE = 16;
 	private static final String FEATURES_TEX = "environment/terrain_features.png";
 	private static final int MAX_LINES = 4;
@@ -83,7 +88,7 @@ final class UndoScene {
 		EFFECT_COLORS.put("Electricity", 0x8860E0FF);
 		EFFECT_COLORS.put("Freezing", 0x88A0D8FF);
 		EFFECT_COLORS.put("Blizzard", 0x88C0E8FF);
-		EFFECT_COLORS.put("Web", 0x88E0E0E0);
+		EFFECT_COLORS.put("Web", WEB);
 		EFFECT_COLORS.put("Regrowth", 0x6640A040);
 		EFFECT_COLORS.put("GooWarn", 0x88402040);
 		EFFECT_COLORS.put("Foliage", 0);
@@ -144,6 +149,7 @@ final class UndoScene {
 	private final List<Figure> heaps = new ArrayList<>();
 	private final List<Layer> layers = new ArrayList<>();
 	private int[] effects;
+	private int area = AREA;
 	private int mapWidth;
 	private int mapHeight;
 	private byte[] map;
@@ -216,21 +222,21 @@ final class UndoScene {
 	private void captureArea(Hero hero, Level level) throws ReflectiveOperationException {
 		int width = level.width();
 		int height = level.height();
-		areaLeft = hero.pos % width - AREA / 2;
-		areaTop = hero.pos / width - AREA / 2;
+		areaLeft = hero.pos % width - area / 2;
+		areaTop = hero.pos / width - area / 2;
 		int[] levelTiles = tilemapData("tiles");
 		int[] levelWalls = tilemapData("walls");
 		int[] levelFeatures = tilemapData("terrainFeatures");
 		tilesTex = level.tilesTex();
 		waterTex = level.waterTex();
-		tiles = new int[AREA * AREA];
-		walls = new int[AREA * AREA];
-		features = new int[AREA * AREA];
-		water = new boolean[AREA * AREA];
-		fog = new byte[AREA * AREA];
-		for (int y = 0; y < AREA; y++) {
-			for (int x = 0; x < AREA; x++) {
-				int i = y * AREA + x;
+		tiles = new int[area * area];
+		walls = new int[area * area];
+		features = new int[area * area];
+		water = new boolean[area * area];
+		fog = new byte[area * area];
+		for (int y = 0; y < area; y++) {
+			for (int x = 0; x < area; x++) {
+				int i = y * area + x;
 				int cx = areaLeft + x;
 				int cy = areaTop + y;
 				tiles[i] = -1;
@@ -293,12 +299,12 @@ final class UndoScene {
 				int tileX = (int) readField(type, custom, "tileX");
 				int tileY = (int) readField(type, custom, "tileY");
 				int tileW = (int) readField(type, custom, "tileW");
-				int[] data = new int[AREA * AREA];
+				int[] data = new int[area * area];
 				boolean any = false;
 				for (int i = 0; i < data.length; i++) {
 					data[i] = -1;
-					int cx = areaLeft + i % AREA - tileX;
-					int cy = areaTop + i / AREA - tileY;
+					int cx = areaLeft + i % area - tileX;
+					int cy = areaTop + i / area - tileY;
 					if (cx < 0 || cy < 0 || cx >= tileW) continue;
 					int at = cy * tileW + cx;
 					if (at >= source.length) continue;
@@ -323,14 +329,14 @@ final class UndoScene {
 	 */
 	private void captureEffects(Level level, int width, int height) {
 		if (level.blobs == null) return;
-		effects = new int[AREA * AREA];
+		effects = new int[area * area];
 		for (Blob blob : level.blobs.values()) {
 			if (blob == null || blob.volume <= 0 || blob.cur == null) continue;
 			int color = effectColor(blob);
 			if (color == 0) continue;
 			for (int i = 0; i < effects.length; i++) {
-				int cx = areaLeft + i % AREA;
-				int cy = areaTop + i / AREA;
+				int cx = areaLeft + i % area;
+				int cy = areaTop + i / area;
 				if (cx < 0 || cy < 0 || cx >= width || cy >= height) continue;
 				int cell = cy * width + cx;
 				if (blob.cur[cell] <= 0) continue;
@@ -351,8 +357,8 @@ final class UndoScene {
 	private int areaIndex(int pos, int width) {
 		int x = pos % width - areaLeft;
 		int y = pos / width - areaTop;
-		if (x < 0 || y < 0 || x >= AREA || y >= AREA) return -1;
-		return y * AREA + x;
+		if (x < 0 || y < 0 || x >= area || y >= area) return -1;
+		return y * area + x;
 	}
 
 	private static int[] tilemapData(String name) throws ReflectiveOperationException {
@@ -404,13 +410,14 @@ final class UndoScene {
 		markers.add(new Marker(hero.pos, HERO_COLOR));
 	}
 
-	private static final int FORMAT = 2;
+	private static final int FORMAT = 3;
 
 	/**
 	 * Writes this scene to [out], to be read back with [read].
 	 */
 	void write(DataOutputStream out) throws IOException {
 		out.writeInt(FORMAT);
+		out.writeInt(area);
 		out.writeBoolean(tiles != null);
 		if (tiles != null) {
 			out.writeUTF(tilesTex == null ? "" : tilesTex);
@@ -460,16 +467,17 @@ final class UndoScene {
 			int format = in.readInt();
 			if (format < 1 || format > FORMAT) return null;
 			UndoScene scene = new UndoScene();
+			scene.area = format >= 3 ? in.readInt() : OLD_AREA;
 			if (in.readBoolean()) {
 				scene.tilesTex = in.readUTF();
 				String water = in.readUTF();
 				scene.waterTex = water.isEmpty() ? null : water;
-				scene.tiles = readInts(in, AREA * AREA);
-				scene.walls = readInts(in, AREA * AREA);
-				scene.features = readInts(in, AREA * AREA);
-				scene.water = new boolean[AREA * AREA];
+				scene.tiles = readInts(in, scene.area * scene.area);
+				scene.walls = readInts(in, scene.area * scene.area);
+				scene.features = readInts(in, scene.area * scene.area);
+				scene.water = new boolean[scene.area * scene.area];
 				for (int i = 0; i < scene.water.length; i++) scene.water[i] = in.readBoolean();
-				scene.fog = new byte[AREA * AREA];
+				scene.fog = new byte[scene.area * scene.area];
 				in.readFully(scene.fog);
 				scene.heroClass = in.readUTF();
 				scene.heroTier = in.readInt();
@@ -479,8 +487,8 @@ final class UndoScene {
 				readFigures(in, scene.heaps);
 				if (format >= 2) {
 					int layers = in.readInt();
-					for (int i = 0; i < layers; i++) scene.layers.add(new Layer(in.readInt(), in.readUTF(), readInts(in, AREA * AREA)));
-					if (in.readBoolean()) scene.effects = readInts(in, AREA * AREA);
+					for (int i = 0; i < layers; i++) scene.layers.add(new Layer(in.readInt(), in.readUTF(), readInts(in, scene.area * scene.area)));
+					if (in.readBoolean()) scene.effects = readInts(in, scene.area * scene.area);
 				}
 			}
 			if (in.readBoolean()) {
@@ -569,25 +577,25 @@ final class UndoScene {
 	 * Draws the area around the hero into [out], [size] wide, with its top left corner at [x], [y].
 	 */
 	void drawArea(List<Gizmo> out, Camera camera, float x, float y, float size) {
-		float scale = size / (AREA * TILE);
+		float scale = size / (area * TILE);
 		if (waterTex != null) {
-			SkinnedBlock waterBlock = new SkinnedBlock(AREA * TILE, AREA * TILE, waterTex);
+			SkinnedBlock waterBlock = new SkinnedBlock(area * TILE, area * TILE, waterTex);
 			place(out, waterBlock, camera, x, y, scale);
 		}
 		Tilemap ground = new Tilemap(tilesTex, new TextureFilm(tilesTex, TILE, TILE));
-		ground.map(tiles.clone(), AREA);
+		ground.map(tiles.clone(), area);
 		place(out, ground, camera, x, y, scale);
 		drawLayers(out, camera, x, y, scale, Layer.GROUND);
 		Tilemap grass = new Tilemap(FEATURES_TEX, new TextureFilm(FEATURES_TEX, TILE, TILE));
-		grass.map(features.clone(), AREA);
+		grass.map(features.clone(), area);
 		place(out, grass, camera, x, y, scale);
 		drawLayers(out, camera, x, y, scale, Layer.TERRAIN);
 		for (Figure heap : heaps) {
 			try {
 				Image image = new Image(new ItemSprite(0));
 				image.frame(heap.frame);
-				float px = (heap.cell % AREA) * TILE + (TILE - image.width()) / 2f;
-				float py = (heap.cell / AREA) * TILE + (TILE - image.height()) / 2f;
+				float px = (heap.cell % area) * TILE + (TILE - image.width()) / 2f;
+				float py = (heap.cell / area) * TILE + (TILE - image.height()) / 2f;
 				place(out, image, camera, x + px * scale, y + py * scale, scale);
 			} catch (Throwable e) {
 				Log.e("UndoScene", "Could not draw an item", e);
@@ -598,22 +606,40 @@ final class UndoScene {
 			if (image != null) placeFigure(out, image, camera, figure.cell, x, y, scale);
 		}
 		Image hero = heroImage();
-		if (hero != null) placeFigure(out, hero, camera, (AREA / 2) * AREA + AREA / 2, x, y, scale);
+		if (hero != null) placeFigure(out, hero, camera, (area / 2) * area + area / 2, x, y, scale);
 		Tilemap raised = new Tilemap(tilesTex, new TextureFilm(tilesTex, TILE, TILE));
-		raised.map(walls.clone(), AREA);
+		raised.map(walls.clone(), area);
 		place(out, raised, camera, x, y, scale);
 		drawLayers(out, camera, x, y, scale, Layer.WALLS);
 		if (effects != null) {
 			for (int i = 0; i < effects.length; i++) {
 				if (effects[i] == 0) continue;
+				if (effects[i] == WEB) {
+					drawWeb(out, camera, x, y, scale, i);
+					continue;
+				}
 				ColorBlock cloud = new ColorBlock(TILE, TILE, effects[i]);
-				place(out, cloud, camera, x + (i % AREA) * TILE * scale, y + (i / AREA) * TILE * scale, scale);
+				place(out, cloud, camera, x + (i % area) * TILE * scale, y + (i / area) * TILE * scale, scale);
 			}
 		}
 		for (int i = 0; i < fog.length; i++) {
 			if (fog[i] == FOG_VISIBLE) continue;
 			ColorBlock shade = new ColorBlock(TILE, TILE, fog[i] == FOG_UNKNOWN ? UNKNOWN_FOG : REMEMBERED_FOG);
-			place(out, shade, camera, x + (i % AREA) * TILE * scale, y + (i / AREA) * TILE * scale, scale);
+			place(out, shade, camera, x + (i % area) * TILE * scale, y + (i / area) * TILE * scale, scale);
+		}
+	}
+
+	/**
+	 * A few faint strands across the tile, the way the game draws webs.
+	 */
+	private void drawWeb(List<Gizmo> out, Camera camera, float x, float y, float scale, int i) {
+		float centerX = x + ((i % area) + 0.5f) * TILE * scale;
+		float centerY = y + ((i / area) + 0.5f) * TILE * scale;
+		for (int k = 0; k < WEB_STRANDS; k++) {
+			ColorBlock strand = new ColorBlock(1, WEB_LENGTH, WEB_COLOR);
+			strand.origin.set(0.5f, 0.5f);
+			strand.angle = (i * 47 + k * 60) % 180;
+			place(out, strand, camera, centerX - 0.5f, centerY - 0.5f, scale);
 		}
 	}
 
@@ -622,7 +648,7 @@ final class UndoScene {
 			if (layer.kind != kind) continue;
 			try {
 				Tilemap map = new Tilemap(layer.texture, new TextureFilm(layer.texture, TILE, TILE));
-				map.map(layer.data.clone(), AREA);
+				map.map(layer.data.clone(), area);
 				place(out, map, camera, x, y, scale);
 			} catch (Throwable e) {
 				Log.e("UndoScene", "Could not draw " + layer.texture, e);
@@ -653,8 +679,8 @@ final class UndoScene {
 	}
 
 	private void placeFigure(List<Gizmo> out, Image image, Camera camera, int cell, float x, float y, float scale) {
-		float px = (cell % AREA + 0.5f) * TILE - image.width() / 2f;
-		float py = (cell / AREA + 1f) * TILE - image.height() - SPRITE_RAISE * TILE;
+		float px = (cell % area + 0.5f) * TILE - image.width() / 2f;
+		float py = (cell / area + 1f) * TILE - image.height() - SPRITE_RAISE * TILE;
 		place(out, image, camera, x + px * scale, y + py * scale, scale);
 	}
 
@@ -681,8 +707,8 @@ final class UndoScene {
 		if (tiles != null) {
 			float left = offsetX + Math.max(0, areaLeft) * cell;
 			float top = offsetY + Math.max(0, areaTop) * cell;
-			float right = offsetX + Math.min(mapWidth, areaLeft + AREA) * cell;
-			float bottom = offsetY + Math.min(mapHeight, areaTop + AREA) * cell;
+			float right = offsetX + Math.min(mapWidth, areaLeft + area) * cell;
+			float bottom = offsetY + Math.min(mapHeight, areaTop + area) * cell;
 			float line = Math.max(1f, cell / 3f);
 			place(out, new ColorBlock(right - left, line, OUTLINE_COLOR), camera, left, top, 1f);
 			place(out, new ColorBlock(right - left, line, OUTLINE_COLOR), camera, left, bottom - line, 1f);

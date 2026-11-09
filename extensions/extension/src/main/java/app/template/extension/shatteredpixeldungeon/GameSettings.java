@@ -101,6 +101,7 @@ public final class GameSettings {
 	 * Called at the start of Hero.restoreFromBundle.
 	 */
 	public static synchronized void onRestore(Object hero, Bundle bundle) {
+		if (SnapshotHero.restoring) return;
 		owner = new WeakReference<>(hero);
 		overrides.clear();
 		try {

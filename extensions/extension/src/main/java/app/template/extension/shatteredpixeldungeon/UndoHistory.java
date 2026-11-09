@@ -298,6 +298,22 @@ public final class UndoHistory {
 		return label + " - " + line;
 	}
 
+	private static Snapshot cachedFor;
+	private static Hero cachedHero;
+
+	/**
+	 * The hero as they were at a step, read from that step's saved game. The last one read is kept.
+	 */
+	static Hero hero(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		Snapshot snapshot = history.get(position);
+		if (snapshot != cachedFor) {
+			cachedHero = SnapshotHero.read(snapshot.game);
+			cachedFor = snapshot;
+		}
+		return cachedHero;
+	}
+
 	static UndoScene scene(int position) {
 		if (position < 0 || position >= history.size()) return null;
 		return history.get(position).scene;
