@@ -161,7 +161,11 @@ public final class UndoTags {
 		logBack.y = logTop;
 		addToOverlay(scene, logBack);
 
-		float pictureTop = logTop + logHeight + 4 + PREVIEW_BORDER;
+		float cancelTop = logTop + logHeight + 4;
+		TintedButton cancel = new TintedButton("Cancel", null, 1f, 1f, 1f, UndoTags::closeMode);
+		cancel.setRect((ui.width - BUTTON_WIDTH) / 2f, cancelTop, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		float pictureTop = cancelTop + BUTTON_HEIGHT + 4 + PREVIEW_BORDER;
 		float pictureSize = Math.min(PREVIEW_MAX, Math.min(innerWidth - 2 * PREVIEW_BORDER, panelBottom - PANEL_PADDING - PREVIEW_BORDER - pictureTop));
 		boolean hasPicture = pictureSize >= PREVIEW_MIN;
 		float pictureLeft = (ui.width - pictureSize) / 2f;
@@ -171,6 +175,8 @@ public final class UndoTags {
 			frame.y = pictureTop - PREVIEW_BORDER;
 			addToOverlay(scene, frame);
 		}
+
+		addToOverlay(scene, cancel);
 
 		TintedButton undo = new TintedButton("Undo", null, 1f, 1f, 1f, UndoHistory::selectPrevious);
 		undo.icon(StatIcons.arrow(true));

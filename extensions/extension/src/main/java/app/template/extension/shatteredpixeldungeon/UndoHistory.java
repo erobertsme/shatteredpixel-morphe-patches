@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -169,7 +170,7 @@ public final class UndoHistory {
 			byte[] game = read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
 			byte[] level = read(new File(root, levelFile));
 			long copied = System.nanoTime();
-			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) Actor.now(), hero.HP, hero.HT);
+			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) (Statistics.duration + Actor.now()), hero.HP, hero.HT);
 			snapshot.scene = UndoScene.capture();
 			push(snapshot);
 			recordTiming(saved - start, copied - saved);

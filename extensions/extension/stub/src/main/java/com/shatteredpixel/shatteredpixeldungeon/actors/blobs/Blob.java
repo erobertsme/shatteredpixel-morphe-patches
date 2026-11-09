@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 public class Blob {
 	public int[] cur;
 	public int volume;
+	public boolean alwaysVisible;
 
 	public void clear(int cell) { throw new RuntimeException("Stub"); }
 	public void fullyClear() { throw new RuntimeException("Stub"); }

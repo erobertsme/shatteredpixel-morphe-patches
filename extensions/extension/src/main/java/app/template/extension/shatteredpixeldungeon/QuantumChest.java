@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -191,39 +192,84 @@ public final class QuantumChest {
 	}
 
 	/**
-	 * Called at the end of GameScene.create. Places the chest sprite beside the exit of a boss floor.
+	 * Called at the end of GameScene.create. Places the chest sprite beside the exit of a boss floor once the boss is defeated. Some boss floors
+	 * only get their exit when the boss falls, so the spot is looked for again until it is found.
 	 */
 	public static void onSceneCreated(Object scene) {
 		chestCell = -1;
+		pendingOpen = false;
 		sprite = new WeakReference<>(null);
 		try {
 			if (!isAvailable() || !(scene instanceof Scene) || Dungeon.level == null || !Dungeon.bossLevel()) return;
-			chestCell = findCell(Dungeon.level);
-			if (chestCell < 0) return;
-
-			ItemSprite chest = new ItemSprite(ItemSpriteSheet.EBONY_CHEST);
+			Scene target = (Scene) scene;
 			Level level = Dungeon.level;
-			int width = level.width();
-			chest.x = (chestCell % width) * TILE + (TILE - chest.width()) / 2f;
-			chest.y = (chestCell / width) * TILE + (TILE - chest.height()) / 2f;
-			chest.visible = isHere();
-			heapLayer((Scene) scene).add(chest);
-			sprite = new WeakReference<>(chest);
-
-			boolean[] shown = { chest.visible };
-			((Scene) scene).add(new Gizmo() {
+			boolean[] shown = { false };
+			if (isOn() && bossDefeated()) {
+				place(target, level);
+				shown[0] = isHere();
+			}
+			target.add(new Gizmo() {
 				@Override
 				public void update() {
 					super.update();
+					if (Dungeon.level != level) return;
+					if (chestCell < 0 && isOn() && bossDefeated()) place(target, level);
+					ItemSprite chest = sprite.get();
 					boolean here = isHere();
-					chest.visible = here;
+					if (chest != null) chest.visible = here;
 					if (here && !shown[0]) GLog.i("A quantum chest shimmers into being beside the exit.");
 					shown[0] = here;
+					openWhenArrived();
 				}
 			});
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not place the quantum chest", e);
 		}
+	}
+
+	private static void place(Scene scene, Level level) {
+		int cell = findCell(level);
+		if (cell < 0) return;
+		chestCell = cell;
+		ItemSprite chest = new ItemSprite(ItemSpriteSheet.EBONY_CHEST);
+		int width = level.width();
+		chest.x = (cell % width) * TILE + (TILE - chest.width()) / 2f;
+		chest.y = (cell / width) * TILE + (TILE - chest.height()) / 2f;
+		chest.visible = isHere();
+		heapLayer(scene).add(chest);
+		sprite = new WeakReference<>(chest);
+	}
+
+	private static boolean pendingOpen;
+	private static boolean walkStarted;
+	private static float pendingTime;
+	private static final float START_TIMEOUT = 1f;
+
+	/**
+	 * Opens the chest once the hero has walked up to it after tapping it from further away.
+	 */
+	private static void openWhenArrived() {
+		if (!pendingOpen) return;
+		Hero hero = Dungeon.hero;
+		if (hero == null || !hero.isAlive() || !isHere()) {
+			pendingOpen = false;
+			return;
+		}
+		if (!hero.ready) {
+			walkStarted = true;
+			return;
+		}
+		if (!walkStarted && distance(hero.pos, chestCell) > 1) {
+			pendingTime += com.watabou.noosa.Game.elapsed;
+			if (pendingTime < START_TIMEOUT) return;
+		}
+		pendingOpen = false;
+		if (distance(hero.pos, chestCell) <= 1) EditorWindow.show(new QuantumChestWindow(0));
+	}
+
+	private static int distance(int a, int b) {
+		int width = Dungeon.level.width();
+		return Math.max(Math.abs(a % width - b % width), Math.abs(a / width - b / width));
 	}
 
 	private static Group heapLayer(Scene scene) {
@@ -322,11 +368,43 @@ public final class QuantumChest {
 		if (cell != chestCell || !isHere()) return false;
 		Hero hero = Dungeon.hero;
 		if (hero == null) return false;
-		int width = Dungeon.level.width();
-		int distance = Math.max(Math.abs(hero.pos % width - cell % width), Math.abs(hero.pos / width - cell / width));
-		if (distance > 1) return false;
-		EditorWindow.show(new QuantumChestWindow(0));
+		if (distance(hero.pos, cell) <= 1) {
+			EditorWindow.show(new QuantumChestWindow(0));
+			return true;
+		}
+		int next = besideChest(hero);
+		if (next < 0 || !hero.ready) return true;
+		if (hero.handle(next)) {
+			pendingOpen = true;
+			walkStarted = false;
+			pendingTime = 0;
+			hero.next();
+		}
 		return true;
+	}
+
+	/**
+	 * The free tile next to the chest that is closest to the hero, or -1 if there is none.
+	 */
+	private static int besideChest(Hero hero) {
+		Level level = Dungeon.level;
+		int width = level.width();
+		int best = -1;
+		int bestDistance = Integer.MAX_VALUE;
+		for (int dy = -1; dy <= 1; dy++) {
+			for (int dx = -1; dx <= 1; dx++) {
+				if (dx == 0 && dy == 0) continue;
+				int cell = chestCell + dx + dy * width;
+				if (cell < 0 || cell >= level.length() || Math.abs(cell % width - chestCell % width) > 1) continue;
+				if (!level.passable[cell] || Actor.findChar(cell) != null && cell != hero.pos) continue;
+				int away = distance(hero.pos, cell);
+				if (away < bestDistance) {
+					bestDistance = away;
+					best = cell;
+				}
+			}
+		}
+		return best;
 	}
 
 	/**
