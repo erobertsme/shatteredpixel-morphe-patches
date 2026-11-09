@@ -1,3 +1,9 @@
+## [1.0.0-dev.120](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.119...v1.0.0-dev.120) (2026-11-09)
+
+### ✨ New Features
+
+* Game Saves preview gets the hero, talents and backpack; undo backpack hides the undo buttons and puts Back on top ([0dba816](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0dba8167d658d131939a8e58be965d18f93656a2))
+
 ## [1.0.0-dev.119](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.118...v1.0.0-dev.119) (2026-11-09)
 
 ### ✨ New Features
