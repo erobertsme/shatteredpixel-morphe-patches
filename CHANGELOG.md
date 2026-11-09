@@ -1,3 +1,9 @@
+## [1.0.0-dev.116](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.115...v1.0.0-dev.116) (2026-11-09)
+
+### ✨ New Features
+
+* effect turns left, creature vision and skill ranges, and game save previews ([fe9bc17](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/fe9bc178572d792efdce82df713cca5ea0a3468a))
+
 ## [1.0.0-dev.115](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.114...v1.0.0-dev.115) (2026-11-09)
 
 ### 🐛 Bug Fixes
