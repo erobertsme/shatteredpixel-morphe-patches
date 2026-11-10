@@ -1,3 +1,9 @@
+## [1.0.0-dev.125](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.124...v1.0.0-dev.125) (2026-11-10)
+
+### ✨ New Features
+
+* undo history survives closing the game; ask about locked saves when a game ends ([d6e5ced](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d6e5ced435db8f31896b0053b23b9cc91ad1a1e9))
+
 ## [1.0.0-dev.124](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.123...v1.0.0-dev.124) (2026-11-10)
 
 ### ✨ New Features
