@@ -1,3 +1,9 @@
+## [1.0.0-dev.124](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.123...v1.0.0-dev.124) (2026-11-10)
+
+### ✨ New Features
+
+* game saves replace the oldest unlocked save when full, and saves can be locked ([2f3a586](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/2f3a5864e7ec2f55b4e6bca44b69d6d42ba9c498))
+
 ## [1.0.0-dev.123](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.122...v1.0.0-dev.123) (2026-11-10)
 
 ### ✨ New Features
