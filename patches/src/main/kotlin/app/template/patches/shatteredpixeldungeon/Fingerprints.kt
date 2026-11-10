@@ -817,3 +817,10 @@ object PixelSceneDrawFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object MageroyalActivateFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/plants/Mageroyal;",
+	name = "activate",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
+)
