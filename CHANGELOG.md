@@ -1,3 +1,9 @@
+## [1.0.0-dev.123](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.122...v1.0.0-dev.123) (2026-11-10)
+
+### ✨ New Features
+
+* Mageroyal cures every harmful status effect ([8da3fa5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8da3fa5b335a00ab92ffdff6c182fca9b3f49a41))
+
 ## [1.0.0-dev.122](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.121...v1.0.0-dev.122) (2026-11-09)
 
 ### ✨ New Features

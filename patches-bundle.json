@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-09T22:47:42",
-  "description": "## [1.0.0-dev.122](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.121...v1.0.0-dev.122) (2026-11-09)\n\n### ✨ New Features\n\n* display margins for each screen edge ([8135407](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/813540781079cd2f7f8c8baf35e6e9c5451e71d2))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.122/patches-1.0.0-dev.122.mpp",
+  "created_at": "2026-11-10T04:55:04",
+  "description": "## [1.0.0-dev.123](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.122...v1.0.0-dev.123) (2026-11-10)\n\n### ✨ New Features\n\n* Mageroyal cures every harmful status effect ([8da3fa5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8da3fa5b335a00ab92ffdff6c182fca9b3f49a41))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.123/patches-1.0.0-dev.123.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.122"
+  "version": "1.0.0-dev.123"
 }
