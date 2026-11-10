@@ -132,6 +132,7 @@ final class GameSaves {
 	static void checkFinishedGames(com.watabou.noosa.Group scene) {
 		try {
 			if (!SaveBackupActivity.isAvailable()) return;
+			UndoHistory.pruneStored();
 			File finished = nextFinished();
 			if (finished == null) return;
 			scene.addToFront(prompt(finished));
@@ -146,10 +147,33 @@ final class GameSaves {
 		List<Save> saves = savesIn(folder);
 		String latest = saves.isEmpty() ? "" : " Its latest save: " + saves.get(0).title() + ".";
 		String message = "Your game in slot " + slot + " has ended. It has " + saves.size() + (saves.size() == 1 ? " save" : " saves") + " left over." + latest
-			+ "\n\nDelete them, or keep them? Locked saves are always kept. Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
+			+ "\n\nDelete them, or keep them? If any are locked, you'll be asked about those next. Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
 		return new ConfirmPrompt("Finished Game", message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] {
 			() -> {
-				if (deleteUnlocked(folder)) CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
+				if (deleteUnlocked(folder)) {
+					EditorWindow.show(lockedPrompt(folder));
+				} else {
+					askNext();
+				}
+			},
+			() -> {
+				CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
+				askNext();
+			},
+		});
+	}
+
+	/**
+	 * Asks whether the locked saves left in a finished game's [folder] should go too.
+	 */
+	private static ConfirmPrompt lockedPrompt(File folder) {
+		int locked = savesIn(folder).size();
+		String message = (locked == 1 ? "1 locked save is" : locked + " locked saves are") + " left from this game. Delete "
+			+ (locked == 1 ? "it" : "them") + " too, or keep " + (locked == 1 ? "it" : "them") + "?";
+		return new ConfirmPrompt("Locked Saves", message, new String[] { "Delete Locked Saves", "Keep Locked Saves" }, new Runnable[] {
+			() -> {
+				deleteRecursively(folder);
+				CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
 				askNext();
 			},
 			() -> {

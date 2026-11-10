@@ -824,3 +824,10 @@ object MageroyalActivateFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
 )
+
+object GamePauseFingerprint : Fingerprint(
+	definingClass = "Lcom/watabou/noosa/Game;",
+	name = "pause",
+	returnType = "V",
+	parameters = listOf(),
+)

@@ -124,6 +124,14 @@ public class SaveLocation {
 		return context == null ? null : context.getCacheDir();
 	}
 
+	/**
+	 * The app's private folder that is never backed up or exported, or null when the app context isn't available.
+	 */
+	static File privateDir() {
+		Context context = getContext();
+		return context == null ? null : context.getNoBackupFilesDir();
+	}
+
 	static File currentRoot() {
 		Context context = getContext();
 		if (context == null) return null;

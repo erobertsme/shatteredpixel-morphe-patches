@@ -10,6 +10,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Undo and Redo. Each time your hero is ready for a new action the game is saved and copies of the game file and
@@ -52,6 +58,8 @@ public final class UndoHistory {
 		final int hp;
 		final int ht;
 		UndoScene scene;
+		long id;
+		boolean stored;
 
 		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
 			this.game = game;
@@ -95,7 +103,9 @@ public final class UndoHistory {
 
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY_ON, on);
-		if (!on) clear();
+		if (on) return;
+		clear();
+		deleteStored(gameId);
 	}
 
 	static int mode() {
@@ -154,6 +164,7 @@ public final class UndoHistory {
 		if (!id.equals(gameId)) {
 			clear();
 			gameId = id;
+			loadStored();
 		}
 		if (skipNext) {
 			skipNext = false;
@@ -180,6 +191,7 @@ public final class UndoHistory {
 	}
 
 	private static void push(Snapshot snapshot) {
+		snapshot.id = nextId++;
 		while (history.size() > index + 1) history.remove(history.size() - 1);
 		Snapshot last = index >= 0 ? history.get(index) : null;
 		boolean newFloor = last != null && (last.depth != snapshot.depth || last.branch != snapshot.branch);
@@ -416,6 +428,151 @@ public final class UndoHistory {
 		index = -1;
 		selected = -1;
 		skipNext = false;
+	}
+
+	private static final String STORE_FOLDER = "morphe_undo";
+	private static final String INDEX_FILE = "index";
+	private static final String SNAPSHOT_SUFFIX = ".snap";
+	private static final int STORE_FORMAT = 1;
+	private static long nextId;
+
+	/**
+	 * Called when the app is paused or closed. Writes the steps not on disk yet, so the history is still there when the game is opened again.
+	 */
+	public static void onPause() {
+		if (!isOn() || gameId == null) return;
+		try {
+			File folder = storeFolder(gameId);
+			if (folder == null) return;
+			if (history.isEmpty()) {
+				deleteRecursively(folder);
+				return;
+			}
+			if (!folder.isDirectory() && !folder.mkdirs()) return;
+			Set<String> keep = new HashSet<>();
+			for (Snapshot snapshot : history) {
+				String name = snapshot.id + SNAPSHOT_SUFFIX;
+				keep.add(name);
+				if (snapshot.stored) continue;
+				writeSnapshot(new File(folder, name), snapshot);
+				snapshot.stored = true;
+			}
+			try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(folder, INDEX_FILE))))) {
+				out.writeInt(STORE_FORMAT);
+				out.writeUTF(gameId);
+				out.writeInt(index);
+				out.writeInt(history.size());
+				for (Snapshot snapshot : history) out.writeLong(snapshot.id);
+			}
+			File[] files = folder.listFiles();
+			if (files == null) return;
+			for (File file : files) {
+				if (file.getName().endsWith(SNAPSHOT_SUFFIX) && !keep.contains(file.getName())) file.delete();
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not keep the undo history", e);
+		}
+	}
+
+	private static void loadStored() {
+		File folder = storeFolder(gameId);
+		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
+		if (indexFile == null || !indexFile.isFile()) return;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
+			if (in.readInt() != STORE_FORMAT || !gameId.equals(in.readUTF())) return;
+			int storedIndex = in.readInt();
+			int count = in.readInt();
+			List<Snapshot> loaded = new ArrayList<>();
+			for (int i = 0; i < count; i++) {
+				long id = in.readLong();
+				Snapshot snapshot = readSnapshot(new File(folder, id + SNAPSHOT_SUFFIX));
+				if (snapshot == null) return;
+				snapshot.id = id;
+				snapshot.stored = true;
+				loaded.add(snapshot);
+				nextId = Math.max(nextId, id + 1);
+			}
+			history.clear();
+			history.addAll(loaded);
+			index = Math.min(storedIndex, history.size() - 1);
+			selected = index;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read the kept undo history", e);
+		}
+	}
+
+	private static void writeSnapshot(File file, Snapshot snapshot) throws IOException {
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+			out.writeInt(snapshot.depth);
+			out.writeInt(snapshot.branch);
+			out.writeInt(snapshot.turn);
+			out.writeInt(snapshot.hp);
+			out.writeInt(snapshot.ht);
+			out.writeUTF(snapshot.levelFile);
+			out.writeInt(snapshot.game.length);
+			out.write(snapshot.game);
+			out.writeInt(snapshot.level.length);
+			out.write(snapshot.level);
+			out.writeBoolean(snapshot.scene != null);
+			if (snapshot.scene != null) snapshot.scene.write(out);
+		}
+	}
+
+	private static Snapshot readSnapshot(File file) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			int branch = in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			String levelFile = in.readUTF();
+			byte[] game = new byte[in.readInt()];
+			in.readFully(game);
+			byte[] level = new byte[in.readInt()];
+			in.readFully(level);
+			Snapshot snapshot = new Snapshot(game, levelFile, level, depth, branch, turn, hp, ht);
+			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
+			return snapshot;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read " + file, e);
+			return null;
+		}
+	}
+
+	private static File storeFolder(String id) {
+		File base = SaveLocation.privateDir();
+		if (base == null || id == null) return null;
+		return new File(new File(base, STORE_FOLDER), id.replace(':', '_'));
+	}
+
+	private static void deleteStored(String id) {
+		File folder = storeFolder(id);
+		if (folder != null) deleteRecursively(folder);
+	}
+
+	/**
+	 * Deletes the kept history of games that are no longer in progress.
+	 */
+	static void pruneStored() {
+		File base = SaveLocation.privateDir();
+		File[] folders = base == null ? null : new File(base, STORE_FOLDER).listFiles();
+		if (folders == null) return;
+		for (File folder : folders) {
+			if (folder.isDirectory() && !isRunning(folder.getName())) deleteRecursively(folder);
+		}
+	}
+
+	private static boolean isRunning(String folderName) {
+		try {
+			int split = folderName.indexOf('_');
+			int slot = Integer.parseInt(folderName.substring(0, split));
+			long seed = Long.parseLong(folderName.substring(split + 1));
+			GamesInProgress.Info info = GamesInProgress.check(slot);
+			return info != null && info.seed == seed;
+		} catch (Throwable e) {
+			return true;
+		}
 	}
 
 	private static void recordTiming(long saveNanos, long copyNanos) {
