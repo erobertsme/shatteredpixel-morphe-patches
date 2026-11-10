@@ -66,10 +66,12 @@ public class SavePreviewWindow extends EditorWindow {
 		}
 		if (wide) pictureBottom = addPicture(scene, WIDTH + 2 * GAP, columnTop);
 
-		float third = (WIDTH - 2 * GAP) / 3f;
-		addButton("Load", 0, third, this::load);
-		addButton("Delete", third + GAP, third, this::delete);
-		addButton("Back", 2 * (third + GAP), third, this::back);
+		float half = (WIDTH - GAP) / 2f;
+		addButton("Load", 0, half, this::load);
+		addButton(save.locked ? "Unlock" : "Lock", half + GAP, half, this::toggleLock);
+		pos += ROW_HEIGHT + GAP;
+		addButton("Delete", 0, half, this::delete).enable(!save.locked);
+		addButton("Back", half + GAP, half, this::back);
 		pos += ROW_HEIGHT;
 		resize(wide ? 2 * WIDTH + 2 * GAP : WIDTH, (int) Math.max(pos, pictureBottom));
 	}
@@ -186,7 +188,22 @@ public class SavePreviewWindow extends EditorWindow {
 		if (error != null) GLog.w(error);
 	}
 
+	private void toggleLock() {
+		String error = GameSaves.setLocked(save, !save.locked);
+		if (error != null) {
+			GLog.w(error);
+			return;
+		}
+		GameSaves.Save updated = save;
+		for (GameSaves.Save candidate : GameSaves.list()) {
+			if (candidate.folder.equals(save.folder)) updated = candidate;
+		}
+		hide();
+		show(new SavePreviewWindow(updated, page, fromGameMenu));
+	}
+
 	private void delete() {
+		if (save.locked) return;
 		ConfirmPrompt.ask("Delete save", "Delete this save? This can't be undone.", "Delete", () -> {
 			GameSaves.delete(save);
 			hide();

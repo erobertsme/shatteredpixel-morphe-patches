@@ -45,11 +45,13 @@ final class GameSaves {
 		final File folder;
 		final String label;
 		final long time;
+		final boolean locked;
 
-		Save(File folder, String label, long time) {
+		Save(File folder, String label, long time, boolean locked) {
 			this.folder = folder;
 			this.label = label;
 			this.time = time;
+			this.locked = locked;
 		}
 
 		/**
@@ -144,10 +146,10 @@ final class GameSaves {
 		List<Save> saves = savesIn(folder);
 		String latest = saves.isEmpty() ? "" : " Its latest save: " + saves.get(0).title() + ".";
 		String message = "Your game in slot " + slot + " has ended. It has " + saves.size() + (saves.size() == 1 ? " save" : " saves") + " left over." + latest
-			+ "\n\nDelete them, or keep them? Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
+			+ "\n\nDelete them, or keep them? Locked saves are always kept. Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
 		return new ConfirmPrompt("Finished Game", message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] {
 			() -> {
-				deleteRecursively(folder);
+				if (deleteUnlocked(folder)) CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
 				askNext();
 			},
 			() -> {
@@ -205,8 +207,8 @@ final class GameSaves {
 	static int cleanUp() {
 		int count = 0;
 		for (File folder : finishedFolders()) {
-			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
-			deleteRecursively(folder);
+			boolean kept = deleteUnlocked(folder);
+			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), kept);
 			count++;
 		}
 		return count;
@@ -234,18 +236,71 @@ final class GameSaves {
 				}
 			}
 			long time = parseLong(info.getProperty("time"), child.lastModified());
-			saves.add(new Save(child, info.getProperty("label", child.getName()), time));
+			saves.add(new Save(child, info.getProperty("label", child.getName()), time, Boolean.parseBoolean(info.getProperty("locked"))));
 		}
 		saves.sort((a, b) -> Long.compare(b.time, a.time));
 		return saves;
 	}
 
 	/**
-	 * Saves the game, then copies it into a new save of this game. Returns an error message, or null when it worked.
+	 * How many saves count towards the limit. Locked saves don't.
+	 */
+	static int unlockedCount() {
+		int count = 0;
+		for (Save save : list()) {
+			if (!save.locked) count++;
+		}
+		return count;
+	}
+
+	/**
+	 * The oldest save that isn't locked, which a new save replaces once the limit is reached, or null if there is none.
+	 */
+	static Save oldestUnlocked() {
+		Save oldest = null;
+		for (Save save : list()) {
+			if (!save.locked && (oldest == null || save.time < oldest.time)) oldest = save;
+		}
+		return oldest;
+	}
+
+	/**
+	 * Locks or unlocks [save]. Returns an error message, or null when it worked.
+	 */
+	static String setLocked(Save save, boolean locked) {
+		File infoFile = new File(save.folder, INFO_FILE);
+		Properties info = new Properties();
+		try {
+			if (infoFile.isFile()) {
+				try (InputStream in = new FileInputStream(infoFile)) {
+					info.load(in);
+				}
+			} else {
+				info.setProperty("time", String.valueOf(save.time));
+				info.setProperty("label", save.label);
+			}
+			info.setProperty("locked", String.valueOf(locked));
+			try (OutputStream out = new FileOutputStream(infoFile)) {
+				info.store(out, null);
+			}
+			return null;
+		} catch (IOException e) {
+			Log.e(TAG, "Could not lock the save", e);
+			return "Could not change the lock: " + e.getMessage();
+		}
+	}
+
+	/**
+	 * Saves the game, then copies it into a new save of this game. Once the limit is reached, the oldest save that isn't locked is removed
+	 * first. Returns an error message, or null when it worked.
 	 */
 	static String create() {
 		try {
-			if (list().size() >= MAX_SAVES) return "This game already has " + MAX_SAVES + " saves. Delete one first.";
+			if (unlockedCount() >= MAX_SAVES) {
+				Save oldest = oldestUnlocked();
+				if (oldest == null) return "This game already has " + MAX_SAVES + " saves. Delete one first.";
+				delete(oldest);
+			}
 			Dungeon.saveAll();
 			File source = gameFolder();
 			File folder = savesFolder();
@@ -348,7 +403,24 @@ final class GameSaves {
 	}
 
 	static void delete(Save save) {
+		if (save.locked) return;
 		deleteRecursively(save.folder);
+	}
+
+	/**
+	 * Deletes the saves in a finished game's [folder] that aren't locked. Returns true when locked saves were left behind.
+	 */
+	private static boolean deleteUnlocked(File folder) {
+		boolean kept = false;
+		for (Save save : savesIn(folder)) {
+			if (save.locked) {
+				kept = true;
+			} else {
+				deleteRecursively(save.folder);
+			}
+		}
+		if (!kept) deleteRecursively(folder);
+		return kept;
 	}
 
 	private static void copyFolder(File source, File target) throws IOException {
