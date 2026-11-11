@@ -1,3 +1,9 @@
+## [1.0.0-dev.131](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.130...v1.0.0-dev.131) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* make GameSaves public so the floor change and hero ready hooks can call it ([cc272ab](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/cc272ab58c2a39ae86911896ae62cca3c3f9d364))
+
 ## [1.0.0-dev.130](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.129...v1.0.0-dev.130) (2026-11-11)
 
 ### 🐛 Bug Fixes
