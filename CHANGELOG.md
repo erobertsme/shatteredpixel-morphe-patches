@@ -1,3 +1,9 @@
+## [1.0.0-dev.130](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.129...v1.0.0-dev.130) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* load kept undo steps lazily so loading a game with a long history doesn't run out of memory; record crashes to show on the next start ([6dc1391](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6dc1391d5c77c017e5000cfe8c4230be3ab28e3f))
+
 ## [1.0.0-dev.129](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.128...v1.0.0-dev.129) (2026-11-11)
 
 ### ✨ New Features
