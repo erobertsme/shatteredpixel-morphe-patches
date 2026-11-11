@@ -1,3 +1,9 @@
+## [1.0.0-dev.126](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.125...v1.0.0-dev.126) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* write undo history in the background instead of on pause; offer to restore a save into a damaged or finished slot ([9222600](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/92226003ed02ffb1e4441da64488d4d0cf3c830a))
+
 ## [1.0.0-dev.125](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.124...v1.0.0-dev.125) (2026-11-10)
 
 ### ✨ New Features
