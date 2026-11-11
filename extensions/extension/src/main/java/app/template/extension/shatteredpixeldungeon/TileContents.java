@@ -85,8 +85,7 @@ public final class TileContents {
 	@SuppressWarnings("unchecked")
 	static List<Object> objectsAt(int cell) {
 		try {
-			Method method = GameScene.class.getDeclaredMethod("getObjectsAtCell", int.class);
-			method.setAccessible(true);
+			Method method = Reflect.method(GameScene.class, "getObjectsAtCell", int.class);
 			List<Object> objects = (List<Object>) method.invoke(null, cell);
 			return objects == null ? new ArrayList<>() : objects;
 		} catch (Throwable e) {

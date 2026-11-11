@@ -7,7 +7,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
@@ -79,6 +78,7 @@ public final class CloverlordMenu {
 			button.icon(Icons.get(Icons.TALENT));
 			scene.add(button);
 			titleButton = new WeakReference<>(button);
+			titleFaded = false;
 			keepFaderOnTop(scene);
 
 			boolean landscape = support.top() == play.top();
@@ -108,18 +108,21 @@ public final class CloverlordMenu {
 		}
 	}
 
+	private static boolean titleFaded;
+
 	/**
 	 * Called at the end of TitleScene.updateFade. Fades the menu button with the rest of the title buttons.
 	 */
 	public static void onTitleFade(Group scene) {
 		StyledButton button = titleButton == null ? null : titleButton.get();
-		if (button == null) return;
+		if (button == null || titleFaded) return;
 		try {
 			StyledButton play = titleButton(scene, "btnPlay");
 			float alpha = play.alpha();
 			button.enable(alpha != 0);
 			button.alpha(alpha);
 			if (hidesSupport()) titleButton(scene, "btnSupport").active = false;
+			titleFaded = alpha >= 1f;
 		} catch (Exception e) {
 			Log.e(TAG, "Could not fade the title screen button", e);
 		}
@@ -127,9 +130,7 @@ public final class CloverlordMenu {
 
 	@SuppressWarnings("unchecked")
 	private static void keepFaderOnTop(Group scene) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(scene))) {
+		for (Gizmo member : new ArrayList<>(Reflect.members(scene))) {
 			if (member != null && member.getClass().getName().endsWith("PixelScene$Fader")) scene.bringToFront(member);
 		}
 	}
@@ -139,8 +140,7 @@ public final class CloverlordMenu {
 	}
 
 	private static StyledButton titleButton(Group scene, String name) throws ReflectiveOperationException {
-		Field field = scene.getClass().getDeclaredField(name);
-		field.setAccessible(true);
+		Field field = Reflect.field(scene.getClass(), name);
 		StyledButton button = (StyledButton) field.get(scene);
 		if (button == null) throw new NoSuchFieldException(name + " is not set");
 		return button;
@@ -151,12 +151,8 @@ public final class CloverlordMenu {
 	 */
 	public static void onGameMenuCreated(Window window) {
 		try {
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
+			int width = Reflect.width(window);
+			int height = Reflect.height(window);
 
 			height = addGameMenuButton(window, LABEL, Icons.TALENT, width, height, CloverlordMenu::show);
 			boolean inRun = Dungeon.hero != null && Dungeon.hero.isAlive();
@@ -191,12 +187,8 @@ public final class CloverlordMenu {
 		boolean hunger = EditorSwitches.hunger();
 		if (!character && !hunger) return;
 		try {
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			float y = heightField.getInt(window) + GAP;
+			int width = Reflect.width(window);
+			float y = Reflect.height(window) + GAP;
 
 			List<Gizmo> summary = new ArrayList<>();
 			if (hunger) {
@@ -217,17 +209,6 @@ public final class CloverlordMenu {
 			float listBottom = y - 2 * GAP;
 			if (character) {
 				RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
-					private int shownTab = -1;
-
-					@Override
-					public void update() {
-						super.update();
-						if (shownTab == WndHero.lastIdx) return;
-						shownTab = WndHero.lastIdx;
-						icon(Icons.get(tabIcon(shownTab)));
-						text(editLabel(shownTab));
-					}
-
 					@Override
 					public void onClick() {
 						window.hide();
@@ -237,30 +218,16 @@ public final class CloverlordMenu {
 				edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
 				edit.setRect(0, y, width, 16);
 				window.add(edit);
+				editButton = edit;
 				y += 16;
 			} else {
 				y -= 2 * GAP;
+				editButton = null;
 			}
 
-			Gizmo watcher = new Gizmo() {
-				private int shownTab = -1;
-
-				@Override
-				public void update() {
-					super.update();
-					if (shownTab == WndHero.lastIdx) return;
-					shownTab = WndHero.lastIdx;
-					for (Gizmo gizmo : summary) {
-						gizmo.visible = shownTab == 0;
-						gizmo.active = shownTab == 0;
-					}
-				}
-			};
-			window.add(watcher);
-			for (Gizmo gizmo : summary) {
-				gizmo.visible = WndHero.lastIdx == 0;
-				gizmo.active = WndHero.lastIdx == 0;
-			}
+			heroWindow = new WeakReference<>(window);
+			heroSummary = summary;
+			showHeroTab();
 			fillTalentList(window, width, listBottom);
 			window.resize(width, (int) y + 1);
 			window.offset(0, 0);
@@ -269,13 +236,35 @@ public final class CloverlordMenu {
 		}
 	}
 
+	private static WeakReference<Window> heroWindow = new WeakReference<>(null);
+	private static List<Gizmo> heroSummary = new ArrayList<>();
+	private static RedButton editButton;
+
+	/**
+	 * Called at the end of WndTabbed.select. When the hero window changes tab, matches the summary and the edit button to it.
+	 */
+	public static void afterTabSelected(Object window) {
+		if (window != null && window == heroWindow.get()) showHeroTab();
+	}
+
+	private static void showHeroTab() {
+		int tab = WndHero.lastIdx;
+		for (Gizmo gizmo : heroSummary) {
+			gizmo.visible = tab == 0;
+			gizmo.active = tab == 0;
+		}
+		RedButton edit = editButton;
+		if (edit == null) return;
+		edit.icon(Icons.get(tabIcon(tab)));
+		edit.text(editLabel(tab));
+	}
+
 	/**
 	 * Lets the talents tab use the height the hunger summary adds to the window, instead of leaving it blank.
 	 */
 	private static void fillTalentList(Window window, int width, float bottom) {
 		try {
-			Field field = window.getClass().getDeclaredField("talents");
-			field.setAccessible(true);
+			Field field = Reflect.field(window.getClass(), "talents");
 			Object talents = field.get(window);
 			if (!(talents instanceof com.watabou.noosa.ui.Component)) return;
 			com.watabou.noosa.ui.Component tab = (com.watabou.noosa.ui.Component) talents;
@@ -291,23 +280,20 @@ public final class CloverlordMenu {
 	 * Scrolls the talents list to the bottom for its new height, as the game does when the window opens.
 	 */
 	private static void scrollToBottom(com.watabou.noosa.ui.Component tab) throws ReflectiveOperationException {
-		Field paneField = tab.getClass().getDeclaredField("pane");
-		paneField.setAccessible(true);
+		Field paneField = Reflect.field(tab.getClass(), "pane");
 		Object pane = paneField.get(tab);
 		if (!(pane instanceof com.watabou.noosa.ui.Component)) return;
 		com.watabou.noosa.ui.Component scroll = (com.watabou.noosa.ui.Component) pane;
-		Object content = pane.getClass().getMethod("content").invoke(pane);
+		Object content = Reflect.method(pane.getClass(), "content").invoke(pane);
 		float contentHeight = content instanceof com.watabou.noosa.ui.Component ? ((com.watabou.noosa.ui.Component) content).height() : 0;
 		float target = Math.max(0, contentHeight - scroll.height());
-		pane.getClass().getMethod("scrollTo", float.class, float.class).invoke(pane, 0f, target);
-		tab.getClass().getMethod("layout").invoke(tab);
+		Reflect.method(pane.getClass(), "scrollTo", float.class, float.class).invoke(pane, 0f, target);
+		Reflect.method(tab.getClass(), "layout").invoke(tab);
 	}
 
 	@SuppressWarnings("unchecked")
 	private static float addHungerSummary(Window window, int width, float y, List<Gizmo> added) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		List<Gizmo> members = (List<Gizmo>) membersField.get(window);
+		List<Gizmo> members = Reflect.members(window);
 		int before = members.size();
 
 		float bottom = HungerWindow.addSummary(window, 0, y, width);

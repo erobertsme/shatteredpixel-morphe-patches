@@ -38,9 +38,7 @@ final class UnexploredTaps {
 			if (cell < 0 || cell >= level.length()) return null;
 			if (level.visited[cell] || level.mapped[cell] || hero.fieldOfView[cell]) return null;
 
-			int length = level.length();
-			boolean[] passable = new boolean[length];
-			for (int i = 0; i < length; i++) passable[i] = level.passable[i] && (level.visited[i] || level.mapped[i]);
+			boolean[] passable = Grid.knownPassable(level);
 			passable[hero.pos] = true;
 			PathFinder.buildDistanceMap(hero.pos, passable, Integer.MAX_VALUE);
 
@@ -50,7 +48,7 @@ final class UnexploredTaps {
 			int best = -1;
 			int bestDistance = Integer.MAX_VALUE;
 			int bestSteps = Integer.MAX_VALUE;
-			for (int i = 0; i < length; i++) {
+			for (int i = 0; i < passable.length; i++) {
 				int steps = PathFinder.distance[i];
 				if (steps == Integer.MAX_VALUE) continue;
 				int dx = i % width - tx;

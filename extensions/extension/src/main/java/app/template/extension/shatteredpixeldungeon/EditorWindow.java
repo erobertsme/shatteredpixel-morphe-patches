@@ -72,9 +72,7 @@ abstract class EditorWindow extends Window {
 		float start = pos;
 		java.util.List<com.watabou.noosa.Gizmo> members;
 		try {
-			java.lang.reflect.Field field = com.watabou.noosa.Group.class.getDeclaredField("members");
-			field.setAccessible(true);
-			members = (java.util.List<com.watabou.noosa.Gizmo>) field.get(this);
+			members = Reflect.members(this);
 		} catch (ReflectiveOperationException e) {
 			return 0;
 		}

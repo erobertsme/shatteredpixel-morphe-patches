@@ -45,12 +45,8 @@ final class NumberPrompt {
 
 	private static void addLimitButtons(Window window, int min, int max, Setter setter, Runnable after) {
 		try {
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
+			int width = Reflect.width(window);
+			int height = Reflect.height(window);
 			float half = (width - GAP) / 2f;
 
 			RedButton minButton = new RedButton("Min (" + min + ")", 7) {
@@ -87,8 +83,7 @@ final class NumberPrompt {
 	 * after the window moves.
 	 */
 	private static void relayoutTextBox(Window window) throws ReflectiveOperationException {
-		Field field = WndTextInput.class.getDeclaredField("textBox");
-		field.setAccessible(true);
+		Field field = Reflect.field(WndTextInput.class, "textBox");
 		TextInput textBox = (TextInput) field.get(window);
 		if (textBox == null) return;
 		textBox.setRect(textBox.left(), textBox.top(), textBox.width(), textBox.height());

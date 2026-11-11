@@ -191,8 +191,7 @@ public final class FloorEditor {
 
 	static int lotusRange(Mob lotus) {
 		try {
-			Field field = lotus.getClass().getDeclaredField("wandLvl");
-			field.setAccessible(true);
+			Field field = Reflect.field(lotus.getClass(), "wandLvl");
 			return field.getInt(lotus);
 		} catch (Throwable e) {
 			return 0;
@@ -460,7 +459,7 @@ public final class FloorEditor {
 		for (Class<?> current = type; current != null && current != Mob.class; current = current.getSuperclass()) {
 			for (String name : LEVEL_METHODS) {
 				try {
-					current.getDeclaredMethod(name, int.class);
+					Reflect.declaredMethod(current, name, int.class);
 					return true;
 				} catch (NoSuchMethodException ignored) {
 				}
@@ -482,9 +481,8 @@ public final class FloorEditor {
 		for (String name : names) {
 			for (Class<?> type = mob.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
 				try {
-					java.lang.reflect.Method method = type.getDeclaredMethod(name, int.class);
+					java.lang.reflect.Method method = Reflect.declaredMethod(type, name, int.class);
 					if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) continue;
-					method.setAccessible(true);
 					method.invoke(mob, level);
 					return;
 				} catch (NoSuchMethodException ignored) {
@@ -644,12 +642,8 @@ public final class FloorEditor {
 		if ((!floor && !EditorSwitches.teleport()) || target == null || Dungeon.hero == null) return;
 		int cell = target instanceof Trap ? ((Trap) target).pos : target instanceof Heap ? ((Heap) target).pos : (Integer) target;
 		try {
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			int width = widthField.getInt(window);
-			int height = heightField.getInt(window);
+			int width = Reflect.width(window);
+			int height = Reflect.height(window);
 
 			float y = height + GAP;
 			for (QuickAction[] row : quickActions(target, cell)) {

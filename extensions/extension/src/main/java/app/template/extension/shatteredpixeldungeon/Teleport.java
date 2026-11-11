@@ -19,7 +19,6 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.ui.Component;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,8 +77,7 @@ public final class Teleport {
 		if (!EditorSwitches.teleport() || !(tab instanceof Component) || Dungeon.hero == null) return;
 		try {
 			Component notes = (Component) tab;
-			Field gridField = notes.getClass().getDeclaredField("grid");
-			gridField.setAccessible(true);
+			Field gridField = Reflect.field(notes.getClass(), "grid");
 			Object grid = gridField.get(notes);
 			if (!(grid instanceof Component)) return;
 			notesGrids.put(grid, Boolean.TRUE);
@@ -127,10 +125,8 @@ public final class Teleport {
 	}
 
 	private static int floorHeaderAt(Object grid, float x, float y) throws ReflectiveOperationException {
-		Field itemsField = Class.forName(GRID_CLASS).getDeclaredField("items");
-		itemsField.setAccessible(true);
-		Field textField = Class.forName(GRID_CLASS + "$GridHeader").getDeclaredField("text");
-		textField.setAccessible(true);
+		Field itemsField = Reflect.field(Class.forName(GRID_CLASS), "items");
+		Field textField = Reflect.field(Class.forName(GRID_CLASS + "$GridHeader"), "text");
 		for (Object item : (List<?>) itemsField.get(grid)) {
 			if (!item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) continue;
 			Component header = (Component) item;

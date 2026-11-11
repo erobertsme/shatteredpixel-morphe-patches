@@ -10,10 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
-import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
-
-import java.util.List;
 
 public class TileWindow extends EditorWindow {
 

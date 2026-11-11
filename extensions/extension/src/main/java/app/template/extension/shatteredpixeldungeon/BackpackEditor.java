@@ -14,7 +14,6 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Group;
 
 import java.lang.reflect.Field;
 
@@ -90,8 +89,7 @@ public final class BackpackEditor {
 	 */
 	private static void rememberBag() {
 		try {
-			Field field = WndBag.class.getDeclaredField("lastBag");
-			field.setAccessible(true);
+			Field field = Reflect.field(WndBag.class, "lastBag");
 			Bag bag = (Bag) field.get(null);
 			if (bag != null) editBag = bag;
 		} catch (Throwable ignored) {
@@ -142,9 +140,7 @@ public final class BackpackEditor {
 	private static void addShortcut(Window window, boolean editing) {
 		if (!EditorSwitches.inventory() || Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
 		try {
-			Field selectorField = WndBag.class.getDeclaredField("selector");
-			selectorField.setAccessible(true);
-			if (selectorField.get(window) != null) return;
+			if (Reflect.bagSelector(window) != null) return;
 
 			RedButton shortcut = new RedButton(editing ? "Add" : "Edit", 6) {
 				@Override
@@ -184,19 +180,13 @@ public final class BackpackEditor {
 	@SuppressWarnings("unchecked")
 	private static void spaceBelowHeader(Window window) {
 		try {
-			Field membersField = Group.class.getDeclaredField("members");
-			membersField.setAccessible(true);
-			for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(window))) {
+			for (Gizmo member : new ArrayList<>(Reflect.members(window))) {
 				if (!(member instanceof com.watabou.noosa.ui.Component)) continue;
 				com.watabou.noosa.ui.Component component = (com.watabou.noosa.ui.Component) member;
 				if (component.top() < TITLE_HEIGHT - 1) continue;
 				component.setPos(component.left(), component.top() + HEADER_SPACE);
 			}
-			Field widthField = Window.class.getDeclaredField("width");
-			Field heightField = Window.class.getDeclaredField("height");
-			widthField.setAccessible(true);
-			heightField.setAccessible(true);
-			window.resize(widthField.getInt(window), heightField.getInt(window) + HEADER_SPACE);
+			window.resize(Reflect.width(window), Reflect.height(window) + HEADER_SPACE);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not space the backpack header", e);
 		}
@@ -204,8 +194,7 @@ public final class BackpackEditor {
 
 	private static Bag currentBag() {
 		try {
-			Field field = WndBag.class.getDeclaredField("lastBag");
-			field.setAccessible(true);
+			Field field = Reflect.field(WndBag.class, "lastBag");
 			Bag bag = (Bag) field.get(null);
 			if (bag != null) return bag;
 		} catch (Throwable ignored) {
@@ -215,12 +204,8 @@ public final class BackpackEditor {
 
 	@SuppressWarnings("unchecked")
 	private static float counterLeft(Window window) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		Field widthField = Window.class.getDeclaredField("width");
-		widthField.setAccessible(true);
-		float left = widthField.getInt(window);
-		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+		float left = Reflect.width(window);
+		for (Gizmo member : Reflect.members(window)) {
 			if (member instanceof BitmapText) left = Math.min(left, ((BitmapText) member).x);
 		}
 		return left;
@@ -228,10 +213,8 @@ public final class BackpackEditor {
 
 	@SuppressWarnings("unchecked")
 	private static RenderedTextBlock findTitle(Window window) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
 		RenderedTextBlock title = null;
-		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+		for (Gizmo member : Reflect.members(window)) {
 			if (!(member instanceof RenderedTextBlock)) continue;
 			RenderedTextBlock block = (RenderedTextBlock) member;
 			if (title == null || block.left() < title.left()) title = block;
@@ -247,12 +230,8 @@ public final class BackpackEditor {
 	}
 
 	private static void addBackButton(Window window) throws ReflectiveOperationException {
-		Field widthField = Window.class.getDeclaredField("width");
-		Field heightField = Window.class.getDeclaredField("height");
-		widthField.setAccessible(true);
-		heightField.setAccessible(true);
-		int width = widthField.getInt(window);
-		int height = heightField.getInt(window);
+		int width = Reflect.width(window);
+		int height = Reflect.height(window);
 
 		RedButton back = new RedButton("Back", 7) {
 			@Override
@@ -324,17 +303,11 @@ public final class BackpackEditor {
 
 	@SuppressWarnings("unchecked")
 	private static void addHeaderEdit(Window window, WndBag owner, Item item) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		Field widthField = Window.class.getDeclaredField("width");
-		Field heightField = Window.class.getDeclaredField("height");
-		widthField.setAccessible(true);
-		heightField.setAccessible(true);
-		int width = widthField.getInt(window);
-		int height = heightField.getInt(window);
+		int width = Reflect.width(window);
+		int height = Reflect.height(window);
 
 		com.watabou.noosa.ui.Component title = null;
-		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(window)) {
+		for (Gizmo member : Reflect.members(window)) {
 			if (member.getClass().getName().endsWith(".IconTitle")) title = (com.watabou.noosa.ui.Component) member;
 		}
 		if (title == null) return;
@@ -344,7 +317,7 @@ public final class BackpackEditor {
 		title.setRect(title.left(), title.top(), titleWidth, 0);
 		float shift = Math.max(0, title.bottom() - oldBottom);
 		if (shift > 0) {
-			for (Gizmo member : new ArrayList<>((ArrayList<Gizmo>) membersField.get(window))) {
+			for (Gizmo member : new ArrayList<>(Reflect.members(window))) {
 				if (member == title || !(member instanceof com.watabou.noosa.ui.Component)) continue;
 				com.watabou.noosa.ui.Component component = (com.watabou.noosa.ui.Component) member;
 				if (component.top() < oldBottom - 1) continue;

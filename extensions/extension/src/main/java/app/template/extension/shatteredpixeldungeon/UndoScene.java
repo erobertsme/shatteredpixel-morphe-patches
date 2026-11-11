@@ -13,7 +13,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -288,8 +287,7 @@ final class UndoScene {
 	 */
 	private void addLayers(Level level, String field, int kind, int width, int height) {
 		try {
-			Field listField = Level.class.getDeclaredField(field);
-			listField.setAccessible(true);
+			Field listField = Reflect.field(Level.class, field);
 			Object list = listField.get(level);
 			if (!(list instanceof Iterable)) return;
 			for (Object custom : (Iterable<?>) list) {
@@ -298,8 +296,7 @@ final class UndoScene {
 				Object texture = readField(type, custom, "texture");
 				Object vis = readField(type, custom, "vis");
 				if (!(texture instanceof String) || vis == null) continue;
-				Field dataField = Tilemap.class.getDeclaredField("data");
-				dataField.setAccessible(true);
+				Field dataField = Reflect.field(Tilemap.class, "data");
 				int[] source = (int[]) dataField.get(vis);
 				if (source == null) continue;
 				int tileX = (int) readField(type, custom, "tileX");
@@ -325,8 +322,7 @@ final class UndoScene {
 	}
 
 	private static Object readField(Class<?> type, Object target, String name) throws ReflectiveOperationException {
-		Field field = type.getDeclaredField(name);
-		field.setAccessible(true);
+		Field field = Reflect.field(type, name);
 		return field.get(target);
 	}
 
@@ -367,19 +363,12 @@ final class UndoScene {
 		return y * area + x;
 	}
 
+	/**
+	 * The tile numbers of one of the game scene's tile layers. Only read, never changed.
+	 */
 	private static int[] tilemapData(String name) throws ReflectiveOperationException {
-		Field sceneField = GameScene.class.getDeclaredField("scene");
-		sceneField.setAccessible(true);
-		Object scene = sceneField.get(null);
-		if (scene == null) return null;
-		Field layerField = GameScene.class.getDeclaredField(name);
-		layerField.setAccessible(true);
-		Object layer = layerField.get(scene);
-		if (layer == null) return null;
-		Field dataField = Tilemap.class.getDeclaredField("data");
-		dataField.setAccessible(true);
-		int[] data = (int[]) dataField.get(layer);
-		return data == null ? null : data.clone();
+		Object layer = Reflect.gameScenePart(name);
+		return layer == null ? null : (int[]) Reflect.get(Tilemap.class, layer, "data");
 	}
 
 	private void captureMap(Hero hero, Level level) {

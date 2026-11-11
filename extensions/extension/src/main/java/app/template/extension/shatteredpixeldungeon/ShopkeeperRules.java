@@ -151,6 +151,8 @@ public final class ShopkeeperRules {
 		applySoldItems();
 	}
 
+	private static Object soldItemsLevel;
+
 	private static void applySoldItems() {
 		if (!isAvailable()) return;
 		try {
@@ -323,7 +325,10 @@ public final class ShopkeeperRules {
 	 */
 	public static void onAct(Object shopkeeper) {
 		if (!isAvailable() || !(shopkeeper instanceof Mob)) return;
-		applySoldItems();
+		if (Dungeon.level != soldItemsLevel) {
+			soldItemsLevel = Dungeon.level;
+			applySoldItems();
+		}
 		try {
 			Mob mob = (Mob) shopkeeper;
 			Region shop = region(mob);
@@ -418,7 +423,7 @@ public final class ShopkeeperRules {
 		for (int cell : shop.cells) {
 			if (cell == shopkeeper.pos || !level.passable[cell] || Actor.findChar(cell) != null) continue;
 			if (level.heaps.get(cell, null) != null || FloorEditor.trapAt(cell) != null) continue;
-			int distance = Math.max(Math.abs(cell % width - shopkeeper.pos % width), Math.abs(cell / width - shopkeeper.pos / width));
+			int distance = Grid.distance(cell, shopkeeper.pos, width);
 			if (distance >= bestDistance) continue;
 			best = cell;
 			bestDistance = distance;

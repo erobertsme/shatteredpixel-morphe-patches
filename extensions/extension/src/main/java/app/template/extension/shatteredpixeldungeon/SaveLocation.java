@@ -16,11 +16,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 @SuppressWarnings("unused")
 public class SaveLocation {
@@ -176,32 +172,16 @@ public class SaveLocation {
 		if (children == null || children.length == 0) return;
 
 		try {
-			for (File child : children) copy(child, new File(target, child.getName()));
+			for (File child : children) FileHelpers.copy(child, new File(target, child.getName()));
 			Log.i(TAG, "Copied saves from " + source + " to " + target);
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to copy saves", e);
 		}
 	}
 
-	private static void copy(File source, File target) throws IOException {
-		if (source.isDirectory()) {
-			if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Could not create " + target);
-			File[] children = source.listFiles();
-			if (children == null) return;
-			for (File child : children) copy(child, new File(target, child.getName()));
-			return;
-		}
-
-		try (InputStream in = new FileInputStream(source); OutputStream out = new FileOutputStream(target)) {
-			byte[] buffer = new byte[8192];
-			int read;
-			while ((read = in.read(buffer)) != -1) out.write(buffer, 0, read);
-		}
-	}
-
 	static Context getContext() {
 		try {
-			return (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);
+			return (Context) Reflect.method(Class.forName("android.app.ActivityThread"), "currentApplication").invoke(null);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not get application context", e);
 			return null;

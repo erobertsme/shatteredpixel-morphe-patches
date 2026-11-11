@@ -609,13 +609,6 @@ object ScrollingGridPaneClickFingerprint : Fingerprint(
 	parameters = listOf("F", "F"),
 )
 
-object ResumeIndicatorUpdateFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/ResumeIndicator;",
-	name = "update",
-	returnType = "V",
-	parameters = listOf(),
-)
-
 object GameSceneLayoutTagsFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
 	name = "layoutTags",
@@ -823,4 +816,32 @@ object MageroyalActivateFingerprint : Fingerprint(
 	name = "activate",
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
+)
+
+object ItemSpriteViewHeapFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/sprites/ItemSprite;",
+	name = "view",
+	returnType = "Lcom/shatteredpixel/shatteredpixeldungeon/sprites/ItemSprite;",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Heap;"),
+)
+
+object QuickSlotButtonRefreshFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/ui/QuickSlotButton;",
+	name = "refresh",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object HeroBusyFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;",
+	name = "busy",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object WndTabbedSelectFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTabbed;",
+	name = "select",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTabbed\$Tab;"),
 )

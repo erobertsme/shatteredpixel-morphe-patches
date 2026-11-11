@@ -10,7 +10,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
-import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.input.PointerEvent;
@@ -19,9 +18,6 @@ import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PointF;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,20 +45,14 @@ public final class UndoTags {
 	private static final String KEY_MAP_VIEW = "qol_undo_map_view";
 	private static final int PREVIEW_MAX = 150;
 	private static final int STATS_WIDTH = 46;
-	private static final int STAT_LINE_HEIGHT = 8;
 	private static final int BACKPACK_WIDTH = 60;
 	private static final int BACKPACK_HEIGHT = 16;
 	private static final int PANEL_PADDING = 6;
 	private static final int STATUS_HEIGHT = 8;
-	private static final int LOG_LINES = 4;
-	private static final int LOG_LINE_HEIGHT = 8;
-	private static final int LOG_PADDING = 2;
-	private static final int LOG_BACK_COLOR = 0x66000000;
 	private static final int CAPTION_COLOR = 0x999999;
 	private static final int PENDING_COLOR = 0xFFFF44;
 	private static final int CURRENT_COLOR = 0x44FF44;
 	private static final int PREVIEW_MIN = 48;
-	private static final int PREVIEW_BORDER = 1;
 
 	private static boolean modeOpen;
 	private static float[] backpackPanel;
@@ -85,16 +75,11 @@ public final class UndoTags {
 			Scene target = (Scene) scene;
 			IconTag tag = new IconTag(() -> openMode(target));
 			tag.camera = PixelScene.uiCamera;
-			Gizmo controller = new Gizmo() {
-				@Override
-				public void update() {
-					super.update();
-					tag.visible = UndoHistory.isOn() && !modeOpen && Dungeon.hero != null && Dungeon.hero.isAlive();
-					if (tag.visible) PLACEMENT.place(tag);
-				}
-			};
 			target.add(tag);
-			target.add(controller);
+			undoTag = tag;
+			PLACEMENT.onChange(UndoTags::refreshTag);
+			UndoHistory.onChange(null);
+			refreshTag();
 			UndoScene.listen();
 			if (modeOpen && UndoHistory.isOn()) buildMode(target);
 		} catch (Throwable e) {
@@ -102,15 +87,37 @@ public final class UndoTags {
 		}
 	}
 
+	private static IconTag undoTag;
+	private static Runnable panelRefresher;
+
+	private static void refreshPanel() {
+		Runnable refresher = panelRefresher;
+		if (modeOpen && refresher != null) refresher.run();
+	}
+
+	/**
+	 * Shows or hides the Undo / Redo tag and lays it out again. Runs when the scene is made, when undo mode opens or closes, when the setting or
+	 * the tag's look changes, and when the hero dies.
+	 */
+	static void refreshTag() {
+		IconTag tag = undoTag;
+		if (tag == null || tag.parent == null) return;
+		tag.visible = UndoHistory.isOn() && !modeOpen && Dungeon.hero != null && Dungeon.hero.isAlive();
+		if (tag.visible) PLACEMENT.place(tag);
+	}
+
 	private static void openMode(Scene scene) {
 		if (modeOpen) return;
 		modeOpen = true;
-		UndoHistory.resetSelection();
+		refreshTag();
 		buildMode(scene);
+		UndoHistory.resetSelection();
 	}
 
 	private static void closeMode() {
 		modeOpen = false;
+		panelRefresher = null;
+		UndoHistory.onChange(null);
 		backpackLayer.clear();
 		modeButtons.clear();
 		for (Gizmo gizmo : overlay) {
@@ -118,6 +125,7 @@ public final class UndoTags {
 			gizmo.destroy();
 		}
 		overlay.clear();
+		refreshTag();
 	}
 
 	/**
@@ -172,6 +180,7 @@ public final class UndoTags {
 			button.visible = true;
 			button.active = true;
 		}
+		refreshPanel();
 	}
 
 	private static void finishMode() {
@@ -221,22 +230,15 @@ public final class UndoTags {
 
 		float statusTop = backpackTop + BACKPACK_HEIGHT + 3;
 		float logTop = statusTop + STATUS_HEIGHT + 2;
-		float logHeight = LOG_LINES * LOG_LINE_HEIGHT + 2 * LOG_PADDING;
-		ColorBlock logBack = new ColorBlock(innerWidth, logHeight, LOG_BACK_COLOR);
-		logBack.x = innerLeft;
-		logBack.y = logTop;
-		addToOverlay(scene, logBack);
-
-		float pictureTop = logTop + logHeight + 4 + PREVIEW_BORDER;
-		float pictureSize = Math.min(PREVIEW_MAX, Math.min(innerWidth - 2 * PREVIEW_BORDER, panelBottom - PANEL_PADDING - PREVIEW_BORDER - pictureTop));
+		float logHeight = PreviewParts.logHeight();
+		float pictureTop = logTop + logHeight + 4 + PreviewParts.BORDER;
+		float pictureSize = Math.min(PREVIEW_MAX, Math.min(innerWidth - 2 * PreviewParts.BORDER, panelBottom - PANEL_PADDING - PreviewParts.BORDER - pictureTop));
 		boolean hasPicture = pictureSize >= PREVIEW_MIN;
 		float pictureLeft = (ui.width - pictureSize) / 2f;
-		if (hasPicture) {
-			ColorBlock frame = new ColorBlock(pictureSize + 2 * PREVIEW_BORDER, pictureSize + 2 * PREVIEW_BORDER, 0xFF000000);
-			frame.x = pictureLeft - PREVIEW_BORDER;
-			frame.y = pictureTop - PREVIEW_BORDER;
-			addToOverlay(scene, frame);
-		}
+		List<Gizmo> frameParts = new ArrayList<>();
+		PreviewParts.logBackground(frameParts, innerLeft, logTop, innerWidth);
+		if (hasPicture) PreviewParts.frame(frameParts, pictureLeft, pictureTop, pictureSize);
+		for (Gizmo part : frameParts) addToOverlay(scene, part);
 		backpackPanel = new float[] { panelLeft, panelTop, panelWidth, panelBottom - panelTop };
 		backButton = new float[] { (ui.width - BUTTON_WIDTH) / 2f, cancelTop, BUTTON_WIDTH, BUTTON_HEIGHT };
 		modeButtons.clear();
@@ -265,7 +267,7 @@ public final class UndoTags {
 		modeButtons.add(list);
 		modeButtons.add(redo);
 
-		Gizmo watcher = new Gizmo() {
+		Runnable refresher = new Runnable() {
 			private int shownFor = -2;
 			private int shownCount = -1;
 			private boolean shownPending;
@@ -274,8 +276,7 @@ public final class UndoTags {
 			private final List<Gizmo> details = new ArrayList<>();
 
 			@Override
-			public void update() {
-				super.update();
+			public void run() {
 				if (!UndoHistory.isOn() || Dungeon.hero == null || !Dungeon.hero.isAlive()) {
 					closeMode();
 					return;
@@ -305,82 +306,29 @@ public final class UndoTags {
 					old.destroy();
 				}
 				details.clear();
+				List<Gizmo> parts = new ArrayList<>();
 				int[] stats = UndoHistory.stats(selected);
 				String[] values = stats == null
 					? new String[] { "Step -", "Depth -", "Turn -" }
 					: new String[] { "Step " + (selected + 1) + "/" + count, "Depth " + stats[0], "Turn " + stats[1] };
-				float statY = heroTop;
-				for (String text : values) {
-					RenderedTextBlock value = PixelScene.renderTextBlock(fit(text, 6, STATS_WIDTH), 6);
-					value.hardlight(CAPTION_COLOR);
-					value.setPos(innerLeft + innerWidth - value.width(), statY);
-					PixelScene.align(value);
-					addDetail(scene, value);
-					statY += STAT_LINE_HEIGHT;
-				}
+				PreviewParts.statLines(parts, values, innerLeft + innerWidth, heroTop, STATS_WIDTH);
 				Hero hero = UndoHistory.hero(selected);
 				backpack.enable(hero != null);
 				if (hero != null) {
-					List<Gizmo> heroParts = new ArrayList<>();
 					try {
-						UndoHeroView.build(heroParts, hero, innerLeft, heroTop, heroWidth);
+						UndoHeroView.build(parts, hero, innerLeft, heroTop, heroWidth);
 					} catch (Throwable e) {
 						Log.e("UndoTags", "Could not show the hero", e);
 					}
-					for (Gizmo part : heroParts) addDetail(scene, part);
 				}
-
 				String status = stats == null ? "No steps kept yet" : pending ? "Not loaded - tap Done to load this step" : "You are here";
-				RenderedTextBlock statusText = PixelScene.renderTextBlock(fit(status, 6, innerWidth), 6);
-				statusText.hardlight(stats == null ? CAPTION_COLOR : pending ? PENDING_COLOR : CURRENT_COLOR);
+				int statusColor = stats == null ? PreviewParts.DIM_COLOR : pending ? PENDING_COLOR : CURRENT_COLOR;
+				RenderedTextBlock statusText = PreviewParts.line(parts, status, statusColor, 0, statusTop, innerWidth);
 				statusText.setPos((ui.width - statusText.width()) / 2f, statusTop);
 				PixelScene.align(statusText);
-				addDetail(scene, statusText);
-
-				List<String> lines = step == null ? new ArrayList<>() : step.lines;
-				if (lines.isEmpty()) {
-					RenderedTextBlock none = PixelScene.renderTextBlock("No messages for this step", 6);
-					none.hardlight(CAPTION_COLOR);
-					none.setPos(innerLeft + LOG_PADDING, logTop + LOG_PADDING);
-					PixelScene.align(none);
-					addDetail(scene, none);
-				}
-				for (int k = 0; k < lines.size() && k < LOG_LINES; k++) {
-					String line = lines.get(k);
-					RenderedTextBlock block = PixelScene.renderTextBlock(fit(UndoScene.plain(line), 6, innerWidth - 2 * LOG_PADDING), 6);
-					block.hardlight(UndoScene.lineColor(line));
-					block.setPos(innerLeft + LOG_PADDING, logTop + LOG_PADDING + k * LOG_LINE_HEIGHT);
-					PixelScene.align(block);
-					addDetail(scene, block);
-				}
-
-				if (!hasPicture || step == null) return;
-				boolean map = showMap ? step.hasMap() : !step.hasArea() && step.hasMap();
-				if (!map && !step.hasArea()) return;
-				List<Gizmo> picture = new ArrayList<>();
-				try {
-					if (map) {
-						step.drawMap(picture, ui, pictureLeft, pictureTop, pictureSize);
-					} else {
-						step.drawArea(picture, ui, pictureLeft, pictureTop, pictureSize);
-					}
-				} catch (Throwable e) {
-					Log.e("UndoTags", "Could not draw the step", e);
-				}
-				for (Gizmo part : picture) addDetail(scene, part);
-				if (!step.hasMap() || !step.hasArea()) return;
-				PointerArea toggle = new PointerArea(pictureLeft, pictureTop, pictureSize, pictureSize) {
-					@Override
-					public void onClick(PointerEvent event) {
-						toggleMap();
-					}
-				};
-				addDetail(scene, toggle);
-				RenderedTextBlock hint = PixelScene.renderTextBlock(map ? "Tap for area" : "Tap for map", 6);
-				hint.hardlight(0xCCCCCC);
-				hint.setPos(pictureLeft + pictureSize - hint.width() - 2, pictureTop + 2);
-				PixelScene.align(hint);
-				addDetail(scene, hint);
+				PreviewParts.logLines(parts, step == null ? new ArrayList<>() : step.lines, innerLeft, logTop, innerWidth, "No messages for this step");
+				if (hasPicture && step != null) PreviewParts.picture(parts, step, ui, pictureLeft, pictureTop, pictureSize, () -> { });
+				for (Gizmo part : parts) addDetail(scene, part);
 			}
 
 			private void addDetail(Scene scene, Gizmo gizmo) {
@@ -388,27 +336,9 @@ public final class UndoTags {
 				details.add(gizmo);
 			}
 		};
-		addToOverlay(scene, watcher);
-	}
-
-	/**
-	 * [text] shortened with ".." until it fits in [width] at [size].
-	 */
-	static String fit(String text, int size, float width) {
-		RenderedTextBlock probe = PixelScene.renderTextBlock(text, size);
-		float full = probe.width();
-		probe.destroy();
-		if (full <= width) return text;
-		int keep = Math.max(1, (int) (text.length() * width / full));
-		while (keep > 1) {
-			String shorter = text.substring(0, keep).trim() + "..";
-			RenderedTextBlock test = PixelScene.renderTextBlock(shorter, size);
-			float measured = test.width();
-			test.destroy();
-			if (measured <= width) return shorter;
-			keep--;
-		}
-		return "..";
+		panelRefresher = refresher;
+		UndoHistory.onChange(refresher);
+		refresher.run();
 	}
 
 	private static boolean tappedMenu(PointerEvent event) {
@@ -423,17 +353,8 @@ public final class UndoTags {
 	}
 
 	private static Component menuButton() throws ReflectiveOperationException {
-		Field sceneField = GameScene.class.getDeclaredField("scene");
-		sceneField.setAccessible(true);
-		Object scene = sceneField.get(null);
-		if (scene == null) return null;
-		Field menuField = GameScene.class.getDeclaredField("menu");
-		menuField.setAccessible(true);
-		Object menu = menuField.get(scene);
-		if (menu == null) return null;
-		Field buttonField = menu.getClass().getDeclaredField("btnMenu");
-		buttonField.setAccessible(true);
-		return (Component) buttonField.get(menu);
+		Object menu = Reflect.gameScenePart("menu");
+		return menu == null ? null : (Component) Reflect.get(menu, "btnMenu");
 	}
 
 	/**
@@ -444,15 +365,7 @@ public final class UndoTags {
 		try {
 			Component button = menuButton();
 			if (button == null) return;
-			for (Class<?> type = button.getClass(); type != null; type = type.getSuperclass()) {
-				try {
-					Method click = type.getDeclaredMethod("onClick");
-					click.setAccessible(true);
-					click.invoke(button);
-					return;
-				} catch (NoSuchMethodException ignored) {
-				}
-			}
+			Reflect.call(button, "onClick", new Class<?>[0]);
 		} catch (Throwable e) {
 			Log.e("UndoTags", "Could not open the game menu", e);
 		}
@@ -475,8 +388,10 @@ public final class UndoTags {
 
 			@Override
 			public void update() {
-				shown = Math.min(DEATH_FADE, shown + com.watabou.noosa.Game.elapsed);
-				alpha((float) Math.pow(shown / DEATH_FADE, 2));
+				if (shown < DEATH_FADE) {
+					shown = Math.min(DEATH_FADE, shown + com.watabou.noosa.Game.elapsed);
+					alpha((float) Math.pow(shown / DEATH_FADE, 2));
+				}
 				super.update();
 			}
 		};
@@ -494,6 +409,7 @@ public final class UndoTags {
 
 	static void toggleMap() {
 		CloverlordSettings.set(KEY_MAP_VIEW, !showsMap());
+		refreshPanel();
 	}
 
 	private static void addToOverlay(Scene scene, Gizmo gizmo) {

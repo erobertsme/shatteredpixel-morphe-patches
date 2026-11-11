@@ -18,8 +18,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -81,6 +79,19 @@ public final class UndoHistory {
 	private static final List<Snapshot> history = new ArrayList<>();
 	private static int index = -1;
 	private static int selected = -1;
+	private static Runnable listener;
+
+	/**
+	 * Runs [listener] whenever the history or the chosen step changes. Replaces any earlier listener.
+	 */
+	static void onChange(Runnable listener) {
+		UndoHistory.listener = listener;
+	}
+
+	private static void changed() {
+		Runnable current = listener;
+		if (current != null) current.run();
+	}
 	private static String gameId;
 	private static boolean skipNext;
 	private static boolean pending;
@@ -104,6 +115,7 @@ public final class UndoHistory {
 
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY_ON, on);
+		UndoTags.refreshTag();
 		if (on) return;
 		clear();
 		deleteStored(gameId);
@@ -179,8 +191,8 @@ public final class UndoHistory {
 			File root = SaveLocation.currentRoot();
 			if (root == null) return;
 			String levelFile = GamesInProgress.depthFile(GamesInProgress.curSlot, Dungeon.depth, Dungeon.branch);
-			byte[] game = read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
-			byte[] level = read(new File(root, levelFile));
+			byte[] game = FileHelpers.read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
+			byte[] level = FileHelpers.read(new File(root, levelFile));
 			long copied = System.nanoTime();
 			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) (Statistics.duration + Actor.now()), hero.HP, hero.HT);
 			snapshot.scene = UndoScene.capture();
@@ -202,6 +214,7 @@ public final class UndoHistory {
 		index = history.size() - 1;
 		trim();
 		selected = index;
+		changed();
 	}
 
 	private static void trim() {
@@ -225,8 +238,8 @@ public final class UndoHistory {
 		try {
 			File root = SaveLocation.currentRoot();
 			if (root == null) return;
-			write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), snapshot.game);
-			write(new File(root, snapshot.levelFile), snapshot.level);
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), snapshot.game);
+			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level);
 			index = target;
 			selected = target;
 			skipNext = true;
@@ -261,6 +274,7 @@ public final class UndoHistory {
 	 */
 	static void resetSelection() {
 		selected = index;
+		changed();
 	}
 
 	static boolean canSelect(int position) {
@@ -268,7 +282,9 @@ public final class UndoHistory {
 	}
 
 	static void select(int position) {
-		if (canSelect(position)) selected = position;
+		if (!canSelect(position) || position == selected) return;
+		selected = position;
+		changed();
 	}
 
 	static boolean canSelectPrevious() {
@@ -360,8 +376,8 @@ public final class UndoHistory {
 			File cache = SaveLocation.cacheDir();
 			if (root == null || cache == null) return;
 			File backup = new File(cache, DEATH_BACKUP);
-			deleteRecursively(backup);
-			copyFolder(new File(root, GamesInProgress.gameFolder(slot)), backup);
+			FileHelpers.delete(backup);
+			FileHelpers.copy(new File(root, GamesInProgress.gameFolder(slot)), backup);
 			deathBackup = true;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not back up the game before it was deleted", e);
@@ -384,8 +400,8 @@ public final class UndoHistory {
 			if (root == null || cache == null) return;
 			File backup = new File(cache, DEATH_BACKUP);
 			File folder = new File(root, GamesInProgress.gameFolder(GamesInProgress.curSlot));
-			copyFolder(backup, folder);
-			deleteRecursively(backup);
+			FileHelpers.copy(backup, folder);
+			FileHelpers.delete(backup);
 			deathBackup = false;
 			restore(index);
 		} catch (Throwable e) {
@@ -397,6 +413,7 @@ public final class UndoHistory {
 	 * Called at the end of GameScene.gameOver. Adds an Undo button below the game's own buttons.
 	 */
 	public static void afterGameOver() {
+		UndoTags.refreshTag();
 		if (!canUndoDeath()) return;
 		try {
 			UndoTags.addDeathButton();
@@ -405,32 +422,11 @@ public final class UndoHistory {
 		}
 	}
 
-	private static void copyFolder(File source, File target) throws IOException {
-		if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Could not create " + target);
-		File[] children = source.listFiles();
-		if (children == null) return;
-		for (File child : children) {
-			File destination = new File(target, child.getName());
-			if (child.isDirectory()) {
-				copyFolder(child, destination);
-				continue;
-			}
-			write(destination, read(child));
-		}
-	}
-
-	private static void deleteRecursively(File file) {
-		File[] children = file.listFiles();
-		if (children != null) {
-			for (File child : children) deleteRecursively(child);
-		}
-		file.delete();
-	}
-
 	static void clear() {
 		history.clear();
 		index = -1;
 		selected = -1;
+		changed();
 		skipNext = false;
 	}
 
@@ -465,7 +461,7 @@ public final class UndoHistory {
 			File folder = storeFolder(id);
 			if (folder == null) return;
 			if (steps.isEmpty()) {
-				deleteRecursively(folder);
+				FileHelpers.delete(folder);
 				return;
 			}
 			if (!folder.isDirectory() && !folder.mkdirs()) return;
@@ -516,6 +512,7 @@ public final class UndoHistory {
 			history.addAll(loaded);
 			index = Math.min(storedIndex, history.size() - 1);
 			selected = index;
+			changed();
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not read the kept undo history", e);
 		}
@@ -568,7 +565,7 @@ public final class UndoHistory {
 
 	private static void deleteStored(String id) {
 		File folder = storeFolder(id);
-		if (folder != null) writer.execute(() -> deleteRecursively(folder));
+		if (folder != null) writer.execute(() -> FileHelpers.delete(folder));
 	}
 
 	/**
@@ -615,22 +612,4 @@ public final class UndoHistory {
 		return Math.round(nanos / 100_000f) / 10f + " ms";
 	}
 
-	private static byte[] read(File file) throws IOException {
-		try (InputStream in = new FileInputStream(file)) {
-			byte[] data = new byte[(int) file.length()];
-			int offset = 0;
-			while (offset < data.length) {
-				int read = in.read(data, offset, data.length - offset);
-				if (read < 0) break;
-				offset += read;
-			}
-			return data;
-		}
-	}
-
-	private static void write(File file, byte[] data) throws IOException {
-		try (OutputStream out = new FileOutputStream(file)) {
-			out.write(data);
-		}
-	}
 }

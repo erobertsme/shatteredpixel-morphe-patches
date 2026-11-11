@@ -68,6 +68,7 @@ final class QolSettings {
 
 	static void resumePath(boolean on) {
 		CloverlordSettings.set(KEY_RESUME_PATH_OFF, !on);
+		com.watabou.noosa.Game.runOnRenderThread(ResumePath::refresh);
 	}
 
 	/**

@@ -9,7 +9,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Group;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.Bundle;
 
@@ -58,7 +57,7 @@ public final class QuickslotRow {
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY, on);
 		try {
-			Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getMethod("updateLayout").invoke(null);
+			Reflect.method(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not update the toolbar", e);
 		}
@@ -163,18 +162,8 @@ public final class QuickslotRow {
 	 * How much taller the toolbar is than normal right now.
 	 */
 	static int extraHeight() {
-		try {
-			java.lang.reflect.Field sceneField = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("scene");
-			sceneField.setAccessible(true);
-			Object scene = sceneField.get(null);
-			if (scene == null) return 0;
-			java.lang.reflect.Field toolbarField = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("toolbar");
-			toolbarField.setAccessible(true);
-			Object bar = toolbarField.get(scene);
-			return bar != null && tallToolbars.contains(bar) ? ROW_HEIGHT : 0;
-		} catch (Throwable e) {
-			return 0;
-		}
+		Object bar = Reflect.gameScenePart("toolbar");
+		return bar != null && tallToolbars.contains(bar) ? ROW_HEIGHT : 0;
 	}
 
 	/**
@@ -184,8 +173,7 @@ public final class QuickslotRow {
 		int extra = extraHeight();
 		if (extra == 0) return;
 		try {
-			java.lang.reflect.Field field = com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class.getDeclaredField("prompt");
-			field.setAccessible(true);
+			java.lang.reflect.Field field = Reflect.field(com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.class, "prompt");
 			Object prompt = field.get(scene);
 			if (!(prompt instanceof Component)) return;
 			Component toast = (Component) prompt;
@@ -203,10 +191,8 @@ public final class QuickslotRow {
 		if (extra == 0 || !(window instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Window)) return;
 		try {
 			com.shatteredpixel.shatteredpixeldungeon.ui.Window bag = (com.shatteredpixel.shatteredpixeldungeon.ui.Window) window;
-			java.lang.reflect.Field x = com.shatteredpixel.shatteredpixeldungeon.ui.Window.class.getDeclaredField("xOffset");
-			java.lang.reflect.Field y = com.shatteredpixel.shatteredpixeldungeon.ui.Window.class.getDeclaredField("yOffset");
-			x.setAccessible(true);
-			y.setAccessible(true);
+			java.lang.reflect.Field x = Reflect.field(com.shatteredpixel.shatteredpixeldungeon.ui.Window.class, "xOffset");
+			java.lang.reflect.Field y = Reflect.field(com.shatteredpixel.shatteredpixeldungeon.ui.Window.class, "yOffset");
 			bag.offset(x.getInt(bag), y.getInt(bag) - extra);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not move the quick bag", e);
@@ -312,7 +298,8 @@ public final class QuickslotRow {
 	private static int repairs;
 
 	/**
-	 * Called every frame. Lays the toolbar out again if a slot in the extra row went missing or moved.
+	 * Called when the hero's items change and when the game lays out its buttons. Lays the toolbar out again if a slot in the extra row went
+	 * missing or moved.
 	 */
 	static void verifyRow() {
 		if (rowSlots.isEmpty() || resizing) return;
@@ -336,7 +323,7 @@ public final class QuickslotRow {
 				return;
 			}
 			try {
-				Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getMethod("updateLayout").invoke(null);
+				Reflect.method(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
 			} catch (Throwable e) {
 				Log.e(TAG, "Could not restore the extra quickslots", e);
 				rowSlots.clear();
@@ -346,16 +333,7 @@ public final class QuickslotRow {
 	}
 
 	private static void call(Object target, String name, Class<?>[] types, Object... args) throws ReflectiveOperationException {
-		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
-			try {
-				Method method = type.getDeclaredMethod(name, types);
-				method.setAccessible(true);
-				method.invoke(target, args);
-				return;
-			} catch (NoSuchMethodException ignored) {
-			}
-		}
-		throw new NoSuchMethodException(name);
+		Reflect.call(target, name, types, args);
 	}
 
 	private static int swapPage;
@@ -394,8 +372,7 @@ public final class QuickslotRow {
 			enable(swap, end.active);
 		}
 
-		Field swappedField = Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar").getDeclaredField("swappedQuickslots");
-		swappedField.setAccessible(true);
+		Field swappedField = Reflect.field(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "swappedQuickslots");
 		boolean swapped = swappedField.getBoolean(null);
 		int size = spots.size();
 		int usable = Math.min(quick.length, SWAPPER_SLOTS);
@@ -430,9 +407,7 @@ public final class QuickslotRow {
 	@SuppressWarnings("unchecked")
 	private static float roomBeside(Component bar, Component end, boolean flipped) throws ReflectiveOperationException {
 		float limit = flipped ? bar.right() : bar.left();
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		for (Gizmo member : (ArrayList<Gizmo>) membersField.get(bar)) {
+		for (Gizmo member : Reflect.members(bar)) {
 			if (!(member instanceof Component) || member == end || !member.visible) continue;
 			Component other = (Component) member;
 			if (other.top() >= PixelScene.uiCamera.height - 1) continue;
@@ -456,9 +431,9 @@ public final class QuickslotRow {
 			Field baseField = field(source, "base");
 			Object sourceBase = baseField.get(source);
 			Object targetBase = baseField.get(target);
-			Method getFrame = sourceBase.getClass().getMethod("frame");
+			Method getFrame = Reflect.method(sourceBase.getClass(), "frame");
 			Object frame = getFrame.invoke(sourceBase);
-			targetBase.getClass().getMethod("frame", getFrame.getReturnType()).invoke(targetBase, frame);
+			Reflect.method(targetBase.getClass(), "frame", getFrame.getReturnType()).invoke(targetBase, frame);
 			for (String border : new String[] { "borderLeft", "borderRight" }) {
 				Field borderField = field(source, border);
 				borderField.setInt(target, borderField.getInt(source));
@@ -470,28 +445,13 @@ public final class QuickslotRow {
 	}
 
 	private static Field field(Object target, String name) throws NoSuchFieldException {
-		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
-			try {
-				Field field = type.getDeclaredField(name);
-				field.setAccessible(true);
-				return field;
-			} catch (NoSuchFieldException ignored) {
-			}
-		}
-		throw new NoSuchFieldException(name);
+		return Reflect.field(target.getClass(), name);
 	}
 
 	private static void enable(Object tool, boolean value) {
-		for (Class<?> type = tool.getClass(); type != null; type = type.getSuperclass()) {
-			try {
-				Method method = type.getDeclaredMethod("enable", boolean.class);
-				method.setAccessible(true);
-				method.invoke(tool, value);
-				return;
-			} catch (NoSuchMethodException ignored) {
-			} catch (Throwable e) {
-				return;
-			}
+		try {
+			Reflect.call(tool, "enable", new Class<?>[] { boolean.class }, value);
+		} catch (Throwable ignored) {
 		}
 	}
 }

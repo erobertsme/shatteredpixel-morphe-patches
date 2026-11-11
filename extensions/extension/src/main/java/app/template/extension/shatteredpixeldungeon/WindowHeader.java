@@ -5,10 +5,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Group;
 import com.watabou.noosa.ui.Component;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,19 +69,13 @@ final class WindowHeader {
 
 	@SuppressWarnings("unchecked")
 	static void add(Window window, Component button, float width, float height, int priority) throws ReflectiveOperationException {
-		Field membersField = Group.class.getDeclaredField("members");
-		membersField.setAccessible(true);
-		Field widthField = Window.class.getDeclaredField("width");
-		Field heightField = Window.class.getDeclaredField("height");
-		widthField.setAccessible(true);
-		heightField.setAccessible(true);
-		int windowWidth = widthField.getInt(window);
-		int windowHeight = heightField.getInt(window);
+		int windowWidth = Reflect.width(window);
+		int windowHeight = Reflect.height(window);
 
 		State state = states.get(window);
 		if (state == null) {
 			state = new State();
-			state.title = findTitle((List<Gizmo>) membersField.get(window), windowWidth);
+			state.title = findTitle(Reflect.members(window), windowWidth);
 			state.lastBottom = state.title == null ? 0 : state.title.bottom();
 			states.put(window, state);
 		}
@@ -105,7 +97,7 @@ final class WindowHeader {
 		title.setRect(title.left(), title.top(), Math.max(10, x - title.left()), 0);
 		float shift = title.bottom() - state.lastBottom;
 		if (shift <= 0) return;
-		for (Gizmo member : new ArrayList<>((List<Gizmo>) membersField.get(window))) {
+		for (Gizmo member : new ArrayList<>(Reflect.members(window))) {
 			if (member == title || !(member instanceof Component) || isHeaderButton(state, member)) continue;
 			Component component = (Component) member;
 			if (component.top() < state.lastBottom - 1) continue;

@@ -3,7 +3,6 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -21,12 +20,8 @@ final class BottomRow {
 	}
 
 	static void add(Window window, RedButton button) throws ReflectiveOperationException {
-		Field widthField = Window.class.getDeclaredField("width");
-		Field heightField = Window.class.getDeclaredField("height");
-		widthField.setAccessible(true);
-		heightField.setAccessible(true);
-		int width = widthField.getInt(window);
-		int height = heightField.getInt(window);
+		int width = Reflect.width(window);
+		int height = Reflect.height(window);
 
 		RedButton[] existing = rows.get(window);
 		window.add(button);

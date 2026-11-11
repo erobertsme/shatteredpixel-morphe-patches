@@ -1,9 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import java.lang.reflect.Field;
 import com.watabou.noosa.ui.Component;
 import com.watabou.noosa.Visual;
-import com.watabou.noosa.Group;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
@@ -99,10 +97,14 @@ public class CloverlordWindow extends Window {
 		Image up = chevron(false, pane.left() + pane.width() / 2f, pane.top() + 1);
 		Image down = chevron(true, pane.left() + pane.width() / 2f, pane.bottom() - 1);
 		Gizmo watcher = new Gizmo() {
+			private float shownScroll = Float.NaN;
+
 			@Override
 			public void update() {
 				super.update();
 				float scroll = content.camera == null || content.camera.scroll == null ? 0 : content.camera.scroll.y;
+				if (scroll == shownScroll) return;
+				shownScroll = scroll;
 				boolean more = scroll < content.height() - pane.height() - 1;
 				boolean less = scroll > 1;
 				down.visible = more;
@@ -133,9 +135,7 @@ public class CloverlordWindow extends Window {
 	@SuppressWarnings("unchecked")
 	private List<Gizmo> members() {
 		try {
-			Field field = Group.class.getDeclaredField("members");
-			field.setAccessible(true);
-			return (List<Gizmo>) field.get(this);
+			return Reflect.members(this);
 		} catch (Throwable e) {
 			return null;
 		}
@@ -190,9 +190,7 @@ public class CloverlordWindow extends Window {
 	@SuppressWarnings("unchecked")
 	private static void tapInside(Component content, float x, float y) {
 		try {
-			Field field = Group.class.getDeclaredField("members");
-			field.setAccessible(true);
-			for (Gizmo gizmo : new ArrayList<>((List<Gizmo>) field.get(content))) {
+			for (Gizmo gizmo : new ArrayList<>(Reflect.members(content))) {
 				if (!(gizmo instanceof Button) || !gizmo.visible || !gizmo.active) continue;
 				Button button = (Button) gizmo;
 				if (x < button.left() || x >= button.right() || y < button.top() || y >= button.bottom()) continue;

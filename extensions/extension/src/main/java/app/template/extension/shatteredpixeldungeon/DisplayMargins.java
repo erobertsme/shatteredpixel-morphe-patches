@@ -37,28 +37,44 @@ public final class DisplayMargins {
 	private static final int BLACK = 0xFF000000;
 
 	private static ColorBlock[] bars;
+	private static int[] margins;
 
 	private DisplayMargins() {
 	}
 
+	/**
+	 * The margins, read from the settings once and kept until they change.
+	 */
+	private static int[] margins() {
+		int[] current = margins;
+		if (current != null) return current;
+		current = new int[Edge.values().length];
+		if (QolSettings.isAvailable()) {
+			for (Edge edge : Edge.values()) current[edge.ordinal()] = Math.max(0, Math.min(MAX, CloverlordSettings.getInt(edge.key())));
+		}
+		margins = current;
+		return current;
+	}
+
 	static int get(Edge edge) {
-		if (!QolSettings.isAvailable()) return 0;
-		return Math.max(0, Math.min(MAX, CloverlordSettings.getInt(edge.key())));
+		return margins()[edge.ordinal()];
 	}
 
 	static void set(Edge edge, int pixels) {
 		CloverlordSettings.setInt(edge.key(), Math.max(0, Math.min(MAX, pixels)));
+		margins = null;
 		apply();
 	}
 
 	static void reset() {
 		for (Edge edge : Edge.values()) CloverlordSettings.setInt(edge.key(), 0);
+		margins = null;
 		apply();
 	}
 
 	private static boolean any() {
-		for (Edge edge : Edge.values()) {
-			if (get(edge) > 0) return true;
+		for (int margin : margins()) {
+			if (margin > 0) return true;
 		}
 		return false;
 	}

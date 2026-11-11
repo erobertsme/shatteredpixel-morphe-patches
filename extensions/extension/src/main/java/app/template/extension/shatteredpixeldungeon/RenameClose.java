@@ -6,8 +6,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
-import java.lang.reflect.Field;
-
 /**
  * A close button in the top right corner of the rename hero window, which otherwise only offers Rename and Revert.
  */
@@ -26,9 +24,7 @@ public final class RenameClose {
 		if (!QolSettings.isAvailable() || !(window instanceof Window)) return;
 		try {
 			Window target = (Window) window;
-			Field widthField = Window.class.getDeclaredField("width");
-			widthField.setAccessible(true);
-			int width = widthField.getInt(target);
+			int width = Reflect.width(target);
 			IconButton close = new IconButton(Icons.get(Icons.CLOSE)) {
 				@Override
 				public void onClick() {

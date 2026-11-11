@@ -164,43 +164,81 @@ public final class TabPouches {
 		return top instanceof TabPouch ? (TabPouch) top : null;
 	}
 
+	private static final Map<Heap, ItemSprite> badges = new HashMap<>();
+	private static Scene badgeScene;
+	private static Gizmo follower;
+
 	/**
-	 * Called at the end of GameScene.create. Draws the tab's item, small, in the bottom right corner of each pouch
-	 * for sale.
+	 * Called at the end of GameScene.create. Adds a badge to each pouch for sale already on the floor.
 	 */
 	public static void onSceneCreated(Object scene) {
-		if (!(scene instanceof Scene)) return;
-		((Scene) scene).add(new Gizmo() {
-			private final Map<Heap, ItemSprite> badges = new HashMap<>();
+		badges.clear();
+		follower = null;
+		badgeScene = scene instanceof Scene ? (Scene) scene : null;
+		Level level = Dungeon.level;
+		if (badgeScene == null || level == null) return;
+		for (Heap heap : level.heaps.valueList()) track(heap);
+	}
 
+	/**
+	 * Called at the start of ItemSprite.view(Heap), whenever a heap's look changes, such as when items are dropped or picked up.
+	 */
+	public static void onHeapViewed(Object heap) {
+		if (!(heap instanceof Heap) || badgeScene == null) return;
+		com.watabou.noosa.Game.runOnRenderThread(() -> track((Heap) heap));
+	}
+
+	/**
+	 * Gives [heap] the small picture of its tab's item when it is a pouch for sale, or takes it away when it no longer is.
+	 */
+	private static void track(Heap heap) {
+		TabPouch pouch = pouchIn(heap);
+		ItemSprite badge = badges.get(heap);
+		if (pouch == null) {
+			if (badge != null) removeBadge(heap);
+			return;
+		}
+		if (badge != null || heap.sprite == null || heap.sprite.parent == null) return;
+		badge = new ItemSprite(FilterBag.get(pouch.kind).image());
+		badge.scale.set(BADGE_SCALE, BADGE_SCALE);
+		heap.sprite.parent.addToFront(badge);
+		badges.put(heap, badge);
+		follow();
+	}
+
+	private static void removeBadge(Heap heap) {
+		ItemSprite badge = badges.remove(heap);
+		if (badge != null) {
+			badge.killAndErase();
+			badge.destroy();
+		}
+		if (badges.isEmpty() && follower != null) {
+			follower.killAndErase();
+			follower = null;
+		}
+	}
+
+	/**
+	 * Keeps each badge on its pouch, which can move as it drops. Only runs while there is a badge.
+	 */
+	private static void follow() {
+		if (follower != null || badgeScene == null) return;
+		follower = new Gizmo() {
 			@Override
 			public void update() {
 				super.update();
-				Level level = Dungeon.level;
-				if (level == null) return;
-				List<Heap> current = new ArrayList<>();
-				for (Heap heap : level.heaps.valueList()) {
-					TabPouch pouch = pouchIn(heap);
-					if (pouch == null || heap.sprite == null || heap.sprite.parent == null) continue;
-					current.add(heap);
+				for (Heap heap : new ArrayList<>(badges.keySet())) {
 					ItemSprite badge = badges.get(heap);
-					if (badge == null) {
-						badge = new ItemSprite(FilterBag.get(pouch.kind).image());
-						badge.scale.set(BADGE_SCALE, BADGE_SCALE);
-						heap.sprite.parent.addToFront(badge);
-						badges.put(heap, badge);
+					if (heap.sprite == null || heap.sprite.parent == null) {
+						removeBadge(heap);
+						continue;
 					}
 					badge.visible = heap.sprite.visible;
 					badge.x = heap.sprite.x + heap.sprite.width() - badge.width();
 					badge.y = heap.sprite.y + heap.sprite.height() - badge.height();
 				}
-				for (Heap heap : new ArrayList<>(badges.keySet())) {
-					if (current.contains(heap)) continue;
-					ItemSprite badge = badges.remove(heap);
-					badge.killAndErase();
-					badge.destroy();
-				}
 			}
-		});
+		};
+		badgeScene.add(follower);
 	}
 }

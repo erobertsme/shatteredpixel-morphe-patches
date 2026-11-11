@@ -1,10 +1,8 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.ui.Component;
 
-import java.lang.reflect.Field;
 
 /**
  * Where on-screen buttons can go without covering the game's toolbar.
@@ -23,37 +21,15 @@ final class ScreenLayout {
 	 */
 	static float aboveToolbar() {
 		float fallback = PixelScene.uiCamera.height - TOOLBAR_SPACE;
-		try {
-			Field sceneField = GameScene.class.getDeclaredField("scene");
-			sceneField.setAccessible(true);
-			Object scene = sceneField.get(null);
-			if (scene == null) return fallback;
-			Field toolbarField = GameScene.class.getDeclaredField("toolbar");
-			toolbarField.setAccessible(true);
-			Object toolbar = toolbarField.get(scene);
-			if (!(toolbar instanceof Component)) return fallback;
-			return Math.min(fallback, ((Component) toolbar).top() - GAP);
-		} catch (Throwable e) {
-			return fallback;
-		}
+		Object toolbar = Reflect.gameScenePart("toolbar");
+		return toolbar instanceof Component ? Math.min(fallback, ((Component) toolbar).top() - GAP) : fallback;
 	}
 
 	/**
 	 * The highest y on the UI camera below the hero's status pane.
 	 */
 	static float belowStatus() {
-		try {
-			Field sceneField = GameScene.class.getDeclaredField("scene");
-			sceneField.setAccessible(true);
-			Object scene = sceneField.get(null);
-			if (scene == null) return STATUS_SPACE;
-			Field statusField = GameScene.class.getDeclaredField("status");
-			statusField.setAccessible(true);
-			Object status = statusField.get(scene);
-			if (!(status instanceof Component)) return STATUS_SPACE;
-			return ((Component) status).bottom() + GAP;
-		} catch (Throwable e) {
-			return STATUS_SPACE;
-		}
+		Object status = Reflect.gameScenePart("status");
+		return status instanceof Component ? ((Component) status).bottom() + GAP : STATUS_SPACE;
 	}
 }

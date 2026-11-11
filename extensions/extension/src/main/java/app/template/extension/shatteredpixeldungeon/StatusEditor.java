@@ -15,7 +15,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WellFed;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -172,9 +171,7 @@ final class StatusEditor {
 
 	private static boolean invoke(Buff buff, Class<?> type, String name, Class<?> parameter, Object value) {
 		try {
-			Method method = type.getDeclaredMethod(name, parameter);
-			method.setAccessible(true);
-			method.invoke(buff, value);
+			Reflect.declaredMethod(type, name, parameter).invoke(buff, value);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -212,8 +209,7 @@ final class StatusEditor {
 		if (hunger == null) return;
 		int index = Math.max(0, Math.min(HUNGER_LEVELS.length - 1, state));
 		try {
-			Field field = Hunger.class.getDeclaredField("level");
-			field.setAccessible(true);
+			Field field = Reflect.field(Hunger.class, "level");
 			field.setFloat(hunger, HUNGER_LEVELS[index]);
 			WellFed wellFed = hero.buff(WellFed.class);
 			if (index == 0) {
@@ -232,8 +228,7 @@ final class StatusEditor {
 		Hunger hunger = hunger(hero);
 		if (hunger == null) return 0;
 		try {
-			Field field = Hunger.class.getDeclaredField("level");
-			field.setAccessible(true);
+			Field field = Reflect.field(Hunger.class, "level");
 			return field.getFloat(hunger);
 		} catch (Throwable e) {
 			return 0;
@@ -264,8 +259,7 @@ final class StatusEditor {
 
 	static void keepScheduled(Buff buff) {
 		try {
-			Field time = Actor.class.getDeclaredField("time");
-			time.setAccessible(true);
+			Field time = Reflect.field(Actor.class, "time");
 			time.setFloat(buff, Math.max(time.getFloat(buff), Actor.now() + 1));
 		} catch (Throwable ignored) {
 		}
@@ -293,8 +287,7 @@ final class StatusEditor {
 		int value = Math.max(1, turns);
 		try {
 			if (buff instanceof FlavourBuff) {
-				Field time = Actor.class.getDeclaredField("time");
-				time.setAccessible(true);
+				Field time = Reflect.field(Actor.class, "time");
 				time.setFloat(buff, Actor.now() + value);
 			} else {
 				Field field = durationField(buff);
@@ -312,9 +305,8 @@ final class StatusEditor {
 		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
 			for (String name : DURATION_FIELDS) {
 				try {
-					Field field = type.getDeclaredField(name);
+					Field field = Reflect.declaredField(type, name);
 					if (field.getType() != float.class && field.getType() != int.class) continue;
-					field.setAccessible(true);
 					return field;
 				} catch (NoSuchFieldException ignored) {
 				}

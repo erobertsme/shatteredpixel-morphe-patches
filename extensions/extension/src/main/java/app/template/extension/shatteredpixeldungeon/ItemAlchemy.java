@@ -38,8 +38,7 @@ final class ItemAlchemy {
 	@SuppressWarnings("unchecked")
 	private static void addFrom(List<Class<? extends Item>> result, Class<?> type, String owner, String field) {
 		try {
-			Field f = Class.forName(ITEMS + owner).getDeclaredField(field);
-			f.setAccessible(true);
+			Field f = Reflect.field(Class.forName(ITEMS + owner), field);
 			Map<Class<?>, Class<?>> map = (Map<Class<?>, Class<?>>) f.get(null);
 			Class<?> target = map == null ? null : map.get(type);
 			if (target != null && !result.contains(target)) result.add((Class<? extends Item>) target);
@@ -93,8 +92,7 @@ final class ItemAlchemy {
 
 	static boolean isBlessed(Item ankh) {
 		try {
-			Field f = ankh.getClass().getDeclaredField("blessed");
-			f.setAccessible(true);
+			Field f = Reflect.field(ankh.getClass(), "blessed");
 			return f.getBoolean(ankh);
 		} catch (Throwable e) {
 			return false;
@@ -107,8 +105,7 @@ final class ItemAlchemy {
 
 	private static int readInt(Object target, String name) {
 		try {
-			Field f = target.getClass().getDeclaredField(name);
-			f.setAccessible(true);
+			Field f = Reflect.field(target.getClass(), name);
 			return f.getInt(target);
 		} catch (Throwable e) {
 			return 0;
@@ -117,8 +114,7 @@ final class ItemAlchemy {
 
 	private static void writeField(Object target, String name, Object value) {
 		try {
-			Field f = target.getClass().getDeclaredField(name);
-			f.setAccessible(true);
+			Field f = Reflect.field(target.getClass(), name);
 			f.set(target, value);
 			Item.updateQuickslot();
 		} catch (Throwable e) {

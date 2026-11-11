@@ -70,8 +70,7 @@ public final class EnemyEditor {
 		try {
 			mob.clearEnemy();
 			mob.state = mob.WANDERING;
-			Field target = Mob.class.getDeclaredField("target");
-			target.setAccessible(true);
+			Field target = Reflect.field(Mob.class, "target");
 			target.setInt(mob, cell);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not move " + mob.getClass().getName(), e);

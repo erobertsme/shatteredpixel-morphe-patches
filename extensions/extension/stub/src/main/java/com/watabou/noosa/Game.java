@@ -2,6 +2,7 @@ package com.watabou.noosa;
 
 public class Game {
 	public static float elapsed;
+	public static com.watabou.utils.PlatformSupport platform;
 	public static int width;
 	public static int height;
 	public static void runOnRenderThread(com.watabou.utils.Callback callback) { throw new RuntimeException("Stub"); }

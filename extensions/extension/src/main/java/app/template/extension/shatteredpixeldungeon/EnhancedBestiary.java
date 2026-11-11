@@ -10,17 +10,12 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
-import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.Group;
-import com.watabou.noosa.ui.Component;
 import com.watabou.utils.Random;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -350,8 +345,7 @@ public final class EnhancedBestiary {
 	private static Set<Class<?>> classes(Mob mob, String fieldName, Set<Char.Property> properties, boolean immunities) {
 		Set<Class<?>> result = new LinkedHashSet<>();
 		try {
-			Field field = Char.class.getDeclaredField(fieldName);
-			field.setAccessible(true);
+			Field field = Reflect.field(Char.class, fieldName);
 			Collection<Class<?>> own = (Collection<Class<?>>) field.get(mob);
 			if (own != null) result.addAll(own);
 		} catch (Throwable ignored) {
@@ -418,10 +412,8 @@ public final class EnhancedBestiary {
 
 	static String lootText(Mob mob) {
 		try {
-			Field lootField = Mob.class.getDeclaredField("loot");
-			Field chanceField = Mob.class.getDeclaredField("lootChance");
-			lootField.setAccessible(true);
-			chanceField.setAccessible(true);
+			Field lootField = Reflect.field(Mob.class, "loot");
+			Field chanceField = Reflect.field(Mob.class, "lootChance");
 			Object loot = lootField.get(mob);
 			float chance = chanceField.getFloat(mob);
 			if (loot == null || chance <= 0) return "None";

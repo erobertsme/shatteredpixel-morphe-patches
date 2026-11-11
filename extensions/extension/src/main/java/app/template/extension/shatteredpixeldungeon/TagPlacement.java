@@ -37,6 +37,30 @@ final class TagPlacement {
 	private final int defaultRotation;
 	private final int defaultColor;
 	private final boolean autoPlacement;
+	private Runnable listener;
+
+	/**
+	 * Runs [listener] whenever one of this placement's settings changes, so the tags it places are laid out again only then. Replaces any
+	 * earlier listener.
+	 */
+	void onChange(Runnable listener) {
+		this.listener = listener;
+	}
+
+	private void storeInt(String settingKey, int value) {
+		CloverlordSettings.setInt(settingKey, value);
+		changed();
+	}
+
+	private void storeString(String settingKey, String value) {
+		CloverlordSettings.setString(settingKey, value);
+		changed();
+	}
+
+	private void changed() {
+		Runnable current = listener;
+		if (current != null) current.run();
+	}
 
 	/**
 	 * Like the other constructor, with the tag's own default colour, and [autoPlacement] for a tag whose default
@@ -99,8 +123,8 @@ final class TagPlacement {
 	}
 
 	void setAuto() {
-		CloverlordSettings.setInt(key + "_side", AUTO_SIDE);
-		CloverlordSettings.setInt(key + "_offset", 0);
+		storeInt(key + "_side", AUTO_SIDE);
+		storeInt(key + "_offset", 0);
 	}
 
 	int defaultColor() {
@@ -108,7 +132,7 @@ final class TagPlacement {
 	}
 
 	void side(Side side) {
-		CloverlordSettings.setInt(key + "_side", side.ordinal() + 1);
+		storeInt(key + "_side", side.ordinal() + 1);
 	}
 
 	int offset() {
@@ -119,11 +143,11 @@ final class TagPlacement {
 	}
 
 	void offset(int value) {
-		CloverlordSettings.setInt(key + "_offset", Math.max(0, Math.min(maxOffset(), value)) + 1);
+		storeInt(key + "_offset", Math.max(0, Math.min(maxOffset(), value)) + 1);
 	}
 
 	void resetOffset() {
-		CloverlordSettings.setInt(key + "_offset", 0);
+		storeInt(key + "_offset", 0);
 	}
 
 	/**
@@ -143,11 +167,11 @@ final class TagPlacement {
 	}
 
 	void color(int rgb) {
-		CloverlordSettings.setInt(key + "_color", (rgb & 0xFFFFFF) | COLOR_SET);
+		storeInt(key + "_color", (rgb & 0xFFFFFF) | COLOR_SET);
 	}
 
 	void resetColor() {
-		CloverlordSettings.setInt(key + "_color", 0);
+		storeInt(key + "_color", 0);
 	}
 
 	String icon() {
@@ -156,11 +180,11 @@ final class TagPlacement {
 	}
 
 	void resetIcon() {
-		CloverlordSettings.setString(key + "_icon", "");
+		storeString(key + "_icon", "");
 	}
 
 	void icon(String name) {
-		CloverlordSettings.setString(key + "_icon", name);
+		storeString(key + "_icon", name);
 	}
 
 	/**
@@ -172,11 +196,11 @@ final class TagPlacement {
 	}
 
 	void iconColor(int rgb) {
-		CloverlordSettings.setInt(key + "_icon_color", (rgb & 0xFFFFFF) | COLOR_SET);
+		storeInt(key + "_icon_color", (rgb & 0xFFFFFF) | COLOR_SET);
 	}
 
 	void resetIconColor() {
-		CloverlordSettings.setInt(key + "_icon_color", 0);
+		storeInt(key + "_icon_color", 0);
 	}
 
 	int iconRotation() {
@@ -185,11 +209,11 @@ final class TagPlacement {
 	}
 
 	void iconRotation(int degrees) {
-		CloverlordSettings.setInt(key + "_icon_rotation", (((degrees % 360) + 360) % 360) + 1);
+		storeInt(key + "_icon_rotation", (((degrees % 360) + 360) % 360) + 1);
 	}
 
 	void resetIconRotation() {
-		CloverlordSettings.setInt(key + "_icon_rotation", 0);
+		storeInt(key + "_icon_rotation", 0);
 	}
 
 	static final int MIN_SIZE = 12;
@@ -205,7 +229,7 @@ final class TagPlacement {
 	}
 
 	void tagWidth(int value) {
-		CloverlordSettings.setInt(key + "_width", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
+		storeInt(key + "_width", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
 	}
 
 	/**
@@ -216,12 +240,12 @@ final class TagPlacement {
 	}
 
 	void tagHeight(int value) {
-		CloverlordSettings.setInt(key + "_height", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
+		storeInt(key + "_height", Math.max(MIN_SIZE, Math.min(MAX_SIZE, value)) + 1);
 	}
 
 	void resetSize() {
-		CloverlordSettings.setInt(key + "_width", 0);
-		CloverlordSettings.setInt(key + "_height", 0);
+		storeInt(key + "_width", 0);
+		storeInt(key + "_height", 0);
 	}
 
 	private int storedSize(String suffix) {
@@ -238,11 +262,11 @@ final class TagPlacement {
 	}
 
 	void iconScale(int value) {
-		CloverlordSettings.setInt(key + "_icon_scale", Math.max(MIN_ICON_SCALE, Math.min(MAX_ICON_SCALE, value)) + 1);
+		storeInt(key + "_icon_scale", Math.max(MIN_ICON_SCALE, Math.min(MAX_ICON_SCALE, value)) + 1);
 	}
 
 	void resetIconScale() {
-		CloverlordSettings.setInt(key + "_icon_scale", 0);
+		storeInt(key + "_icon_scale", 0);
 	}
 
 	/**
@@ -255,8 +279,8 @@ final class TagPlacement {
 
 	void tagOpacity(int value) {
 		int clamped = Math.max(0, Math.min(100, value));
-		CloverlordSettings.setInt(key + "_tag_opacity", clamped + 1);
-		if (opacityLinked()) CloverlordSettings.setInt(key + "_icon_opacity", clamped + 1);
+		storeInt(key + "_tag_opacity", clamped + 1);
+		if (opacityLinked()) storeInt(key + "_icon_opacity", clamped + 1);
 	}
 
 	/**
@@ -269,8 +293,8 @@ final class TagPlacement {
 
 	void iconOpacity(int value) {
 		int clamped = Math.max(0, Math.min(100, value));
-		CloverlordSettings.setInt(key + "_icon_opacity", clamped + 1);
-		if (opacityLinked()) CloverlordSettings.setInt(key + "_tag_opacity", clamped + 1);
+		storeInt(key + "_icon_opacity", clamped + 1);
+		if (opacityLinked()) storeInt(key + "_tag_opacity", clamped + 1);
 	}
 
 	boolean opacityLinked() {
@@ -283,8 +307,8 @@ final class TagPlacement {
 	}
 
 	void resetOpacity() {
-		CloverlordSettings.setInt(key + "_tag_opacity", 0);
-		CloverlordSettings.setInt(key + "_icon_opacity", 0);
+		storeInt(key + "_tag_opacity", 0);
+		storeInt(key + "_icon_opacity", 0);
 	}
 
 	/**

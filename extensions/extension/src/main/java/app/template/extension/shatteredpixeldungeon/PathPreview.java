@@ -110,7 +110,7 @@ public final class PathPreview {
 			String goLabel;
 			int color;
 			boolean moving = false;
-			int distance = distance(hero.pos, cell, level.width());
+			int distance = Grid.distance(hero.pos, cell, level.width());
 			if (ch instanceof Mob && ch != hero && hero.fieldOfView[cell] && !FloorEditor.isHiddenMimic(ch)) {
 				boolean interact = ((Mob) ch).heroShouldInteract();
 				if (!ConfirmSettings.confirms(interact ? ConfirmSettings.Action.INTERACT : ConfirmSettings.Action.ATTACK, distance)) return false;
@@ -222,11 +222,7 @@ public final class PathPreview {
 	}
 
 	private static boolean isAdjacent(int a, int b, int width) {
-		return distance(a, b, width) <= 1;
-	}
-
-	private static int distance(int a, int b, int width) {
-		return Math.max(Math.abs(a % width - b % width), Math.abs(a / width - b / width));
+		return Grid.distance(a, b, width) <= 1;
 	}
 
 	private static List<Integer> findPath(Hero hero, int cell, Level level) {
@@ -251,16 +247,6 @@ public final class PathPreview {
 		PixelScene.align(label);
 		scene.add(label);
 		overlay.add(label);
-
-		Gizmo watcher = new Gizmo() {
-			@Override
-			public void update() {
-				super.update();
-				if (!isCurrent()) clear();
-			}
-		};
-		scene.add(watcher);
-		overlay.add(watcher);
 
 		TintedButton cancel = TintedButton.cancel("Cancel", PathPreview::clear);
 		cancel.camera = PixelScene.uiCamera;
@@ -307,6 +293,13 @@ public final class PathPreview {
 		if (hero.handle(preview.target)) hero.next();
 	}
 
+	static boolean isShown() {
+		return active != null;
+	}
+
+	/**
+	 * Removes the preview. Runs when you cancel or go, and when the hero starts any other action or dies.
+	 */
 	static void clear() {
 		PathPreview preview = active;
 		active = null;

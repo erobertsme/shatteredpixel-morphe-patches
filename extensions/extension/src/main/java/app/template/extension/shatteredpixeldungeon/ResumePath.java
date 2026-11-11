@@ -38,11 +38,15 @@ public final class ResumePath {
 	private ResumePath() {
 	}
 
+	static boolean isShown() {
+		return !markers.isEmpty();
+	}
+
 	/**
-	 * Called at the end of ResumeIndicator.update.
+	 * Shows the rest of an interrupted walk while the game offers to resume it. Runs when the hero is ready for your next move, and when the
+	 * setting changes.
 	 */
-	public static void afterIndicatorUpdate(Object indicator) {
-		QuickslotRow.verifyRow();
+	static void refresh() {
 		try {
 			Hero hero = Dungeon.hero;
 			Scene scene = Game.scene();
@@ -80,10 +84,7 @@ public final class ResumePath {
 	}
 
 	private static List<Integer> findPath(Hero hero, int cell, Level level) {
-		int length = level.length();
-		boolean[] passable = new boolean[length];
-		for (int i = 0; i < length; i++) passable[i] = level.passable[i] && (level.visited[i] || level.mapped[i]);
-		PathFinder.Path path = Dungeon.findPath(hero, cell, passable, hero.fieldOfView, true);
+		PathFinder.Path path = Dungeon.findPath(hero, cell, Grid.knownPassable(level), hero.fieldOfView, true);
 		return path == null ? new ArrayList<>() : new ArrayList<>(path);
 	}
 
@@ -96,7 +97,7 @@ public final class ResumePath {
 		markers.add(block);
 	}
 
-	private static void clear() {
+	static void clear() {
 		shownScene = null;
 		shownAction = null;
 		shownHeroPos = -1;

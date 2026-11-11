@@ -30,9 +30,7 @@ public final class QuickslotEmpty {
 	public static void afterBagCreated(Object window) {
 		if (!QolSettings.isAvailable() || !(window instanceof WndBag)) return;
 		try {
-			Field selectorField = WndBag.class.getDeclaredField("selector");
-			selectorField.setAccessible(true);
-			Object selector = selectorField.get(window);
+			Object selector = Reflect.bagSelector(window);
 			if (selector == null) return;
 			int slot = quickslotFor(selector);
 			if (slot < 0) return;
@@ -53,12 +51,9 @@ public final class QuickslotEmpty {
 
 	private static int quickslotFor(Object selector) throws ReflectiveOperationException {
 		Class<?> buttonClass = Class.forName(BUTTON_CLASS);
-		Field instanceField = buttonClass.getDeclaredField("instance");
-		Field selectorField = buttonClass.getDeclaredField("itemSelector");
-		Field slotField = buttonClass.getDeclaredField("slotNum");
-		instanceField.setAccessible(true);
-		selectorField.setAccessible(true);
-		slotField.setAccessible(true);
+		Field instanceField = Reflect.field(buttonClass, "instance");
+		Field selectorField = Reflect.field(buttonClass, "itemSelector");
+		Field slotField = Reflect.field(buttonClass, "slotNum");
 		Object[] buttons = (Object[]) instanceField.get(null);
 		if (buttons == null) return -1;
 		for (Object button : buttons) {

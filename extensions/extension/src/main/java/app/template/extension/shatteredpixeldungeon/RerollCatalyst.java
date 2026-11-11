@@ -53,12 +53,8 @@ public final class RerollCatalyst {
 		if (Game.scene() == null || !Game.scene().getClass().getName().equals(ALCHEMY_SCENE)) return;
 		try {
 			Window target = (Window) window;
-			Field widthField = Window.class.getDeclaredField("width");
-			widthField.setAccessible(true);
-			Field heightField = Window.class.getDeclaredField("height");
-			heightField.setAccessible(true);
-			int width = widthField.getInt(target);
-			int height = heightField.getInt(target);
+			int width = Reflect.width(target);
+			int height = Reflect.height(target);
 			RedButton reroll = new RedButton("Reroll " + COST) {
 				@Override
 				public void onClick() {
@@ -87,15 +83,14 @@ public final class RerollCatalyst {
 	private static void reroll(Window window, Object catalyst) {
 		if (Dungeon.energy < COST) return;
 		try {
-			Field rolled = catalyst.getClass().getDeclaredField("rolledTrinkets");
-			rolled.setAccessible(true);
+			Field rolled = Reflect.field(catalyst.getClass(), "rolledTrinkets");
 			((List<?>) rolled.get(catalyst)).clear();
 			Dungeon.energy -= COST;
 			window.hide();
 			Object next = window.getClass().getConstructor(catalyst.getClass()).newInstance(catalyst);
 			Game.scene().addToFront((Window) next);
 			Object scene = Game.scene();
-			if (scene.getClass().getName().equals(ALCHEMY_SCENE)) scene.getClass().getMethod("createEnergy").invoke(scene);
+			if (scene.getClass().getName().equals(ALCHEMY_SCENE)) Reflect.method(scene.getClass(), "createEnergy").invoke(scene);
 		} catch (Throwable e) {
 			Log.e("RerollCatalyst", "Could not reroll the catalyst", e);
 		}

@@ -27,12 +27,12 @@ import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
+import com.watabou.utils.RectF;
+import com.watabou.utils.PlatformSupport;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,7 +57,6 @@ public final class ForceAttack {
 	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(UndoTags.UNDO_TOP + com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
 
 	private static IconTag tag;
-	private static boolean wasAuto = false;
 	private static final List<Gizmo> markers = new ArrayList<>();
 
 	private ForceAttack() {
@@ -78,7 +77,7 @@ public final class ForceAttack {
 
 	static void setOn(boolean on) {
 		QolSettings.forceAttack(on);
-		GameScene.updateTags = true;
+		refreshTag();
 	}
 
 	/**
@@ -87,33 +86,11 @@ public final class ForceAttack {
 	public static void onSceneCreated(Object scene) {
 		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
 		try {
-			tag = new IconTag(ForceAttack::choose) {
-				@Override
-				public void update() {
-					boolean show = shouldShow();
-					if (visible != show) {
-						visible = show;
-						GameScene.updateTags = true;
-					}
-					boolean auto = PLACEMENT.isAuto();
-					if (auto != wasAuto) {
-						wasAuto = auto;
-						GameScene.updateTags = true;
-					}
-					if (visible) {
-						if (auto) {
-							style(PLACEMENT);
-						} else {
-							PLACEMENT.place(this);
-						}
-					}
-					super.update();
-				}
-			};
+			tag = new IconTag(ForceAttack::choose);
 			tag.camera = PixelScene.uiCamera;
 			((Scene) scene).add(tag);
-			tag.visible = shouldShow();
-			GameScene.updateTags = true;
+			PLACEMENT.onChange(ForceAttack::refreshTag);
+			refreshTag();
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add the Attack Tile button", e);
 		}
@@ -124,12 +101,11 @@ public final class ForceAttack {
 	 * game's own buttons up to make room.
 	 */
 	public static void afterLayoutTags() {
+		QuickslotRow.verifyRow();
 		IconTag current = tag;
 		if (current == null || !current.visible || current.parent == null || !PLACEMENT.isAuto()) return;
 		try {
-			Field sceneField = GameScene.class.getDeclaredField("scene");
-			sceneField.setAccessible(true);
-			Object scene = sceneField.get(null);
+			Object scene = Reflect.getStatic(GameScene.class, "scene");
 			if (scene == null) return;
 
 			boolean onLeft = SPDSettings.flipTags();
@@ -156,22 +132,29 @@ public final class ForceAttack {
 	}
 
 	private static Object field(Object scene, String name) throws ReflectiveOperationException {
-		Field field = GameScene.class.getDeclaredField(name);
-		field.setAccessible(true);
-		return field.get(scene);
+		return Reflect.get(GameScene.class, scene, name);
 	}
+
 
 	private static float sideInset(boolean left) {
 		try {
-			Object platform = Game.class.getField("platform").get(null);
-			Class<?> support = Class.forName("com.shatteredpixel.shatteredpixeldungeon.PlatformSupport");
-			int all = support.getField("INSET_ALL").getInt(null);
-			Object insets = platform.getClass().getMethod("getSafeInsets", int.class).invoke(platform, all);
-			float value = insets.getClass().getField(left ? "left" : "right").getFloat(insets);
-			return value / PixelScene.uiCamera.zoom;
+			RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
+			return (left ? insets.left : insets.right) / PixelScene.uiCamera.zoom;
 		} catch (Throwable e) {
 			return 0;
 		}
+	}
+
+	/**
+	 * Shows or hides the button and lays it out again. Runs when the scene is made, when its setting or look changes, and when the hero dies.
+	 */
+	static void refreshTag() {
+		IconTag current = tag;
+		if (current == null || current.parent == null) return;
+		current.visible = shouldShow();
+		if (current.visible && !PLACEMENT.isAuto()) PLACEMENT.place(current);
+		if (current.visible && PLACEMENT.isAuto()) current.style(PLACEMENT);
+		GameScene.updateTags = true;
 	}
 
 	private static boolean shouldShow() {
@@ -219,17 +202,7 @@ public final class ForceAttack {
 	private static CellSelector.Listener activeListener;
 
 	private static boolean isSelecting() {
-		if (activeListener == null) return false;
-		try {
-			Field selectorField = GameScene.class.getDeclaredField("cellSelector");
-			selectorField.setAccessible(true);
-			Object selector = selectorField.get(null);
-			if (selector == null) return false;
-			Field listenerField = selector.getClass().getField("listener");
-			return listenerField.get(selector) == activeListener;
-		} catch (Throwable e) {
-			return false;
-		}
+		return activeListener != null && Reflect.cellListener() == activeListener;
 	}
 
 	private static void choose() {
@@ -316,9 +289,7 @@ public final class ForceAttack {
 			Freezing.affect(cell);
 		} else if (enchantment instanceof Blooming) {
 			if (!procs((level + 1f) / (level + 3f), hero)) return;
-			Method plantGrass = Blooming.class.getDeclaredMethod("plantGrass", int.class);
-			plantGrass.setAccessible(true);
-			plantGrass.invoke(enchantment, cell);
+			Reflect.method(Blooming.class, "plantGrass", int.class).invoke(enchantment, cell);
 		} else if (enchantment instanceof Shocking) {
 			float chance = (1 / 3f) * Weapon.Enchantment.genericProcChanceMultiplier(hero);
 			if (random.nextFloat() >= chance) return;

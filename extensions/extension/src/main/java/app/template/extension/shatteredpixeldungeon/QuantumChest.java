@@ -264,12 +264,12 @@ public final class QuantumChest {
 			walkStarted = true;
 			return;
 		}
-		if (!walkStarted && distance(hero.pos, chestCell) > 1) {
+		if (!walkStarted && Grid.distance(hero.pos, chestCell) > 1) {
 			pendingTime += com.watabou.noosa.Game.elapsed;
 			if (pendingTime < START_TIMEOUT) return;
 		}
 		pendingOpen = false;
-		if (distance(hero.pos, chestCell) <= 1) EditorWindow.show(new QuantumChestWindow(0));
+		if (Grid.distance(hero.pos, chestCell) <= 1) EditorWindow.show(new QuantumChestWindow(0));
 	}
 
 	/**
@@ -288,15 +288,9 @@ public final class QuantumChest {
 		});
 	}
 
-	private static int distance(int a, int b) {
-		int width = Dungeon.level.width();
-		return Math.max(Math.abs(a % width - b % width), Math.abs(a / width - b / width));
-	}
-
 	private static Group heapLayer(Scene scene) {
 		try {
-			Field field = scene.getClass().getDeclaredField("heaps");
-			field.setAccessible(true);
+			Field field = Reflect.field(scene.getClass(), "heaps");
 			Object layer = field.get(scene);
 			if (layer instanceof Group) return (Group) layer;
 		} catch (Throwable ignored) {
@@ -389,7 +383,7 @@ public final class QuantumChest {
 		if (cell != chestCell || !isHere()) return false;
 		Hero hero = Dungeon.hero;
 		if (hero == null) return false;
-		if (distance(hero.pos, cell) <= 1) {
+		if (Grid.distance(hero.pos, cell) <= 1) {
 			EditorWindow.show(new QuantumChestWindow(0));
 			return true;
 		}
@@ -419,7 +413,7 @@ public final class QuantumChest {
 				int cell = chestCell + dx + dy * width;
 				if (cell < 0 || cell >= level.length() || Math.abs(cell % width - chestCell % width) > 1) continue;
 				if (!level.passable[cell] || Actor.findChar(cell) != null && cell != hero.pos) continue;
-				int away = distance(hero.pos, cell);
+				int away = Grid.distance(hero.pos, cell);
 				if (away < bestDistance) {
 					bestDistance = away;
 					best = cell;

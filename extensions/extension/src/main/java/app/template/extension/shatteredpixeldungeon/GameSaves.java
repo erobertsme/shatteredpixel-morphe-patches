@@ -74,7 +74,7 @@ final class GameSaves {
 			File file = new File(folder, GAME_FILE);
 			if (!file.isFile()) return null;
 			try {
-				return SnapshotHero.read(read(file));
+				return SnapshotHero.read(FileHelpers.read(file));
 			} catch (IOException e) {
 				return null;
 			}
@@ -210,10 +210,10 @@ final class GameSaves {
 			File[] current = target.listFiles();
 			if (current != null && current.length > 0) {
 				File cache = SaveLocation.cacheDir();
-				if (cache != null) copyFolder(target, new File(cache, "replaced_" + target.getName() + "_" + System.currentTimeMillis()));
-				for (File file : current) deleteRecursively(file);
+				if (cache != null) FileHelpers.copy(target, new File(cache, "replaced_" + target.getName() + "_" + System.currentTimeMillis()));
+				for (File file : current) FileHelpers.delete(file);
 			}
-			copyFolder(save.folder, target);
+			FileHelpers.copy(save.folder, target);
 			new File(target, INFO_FILE).delete();
 			new File(target, PREVIEW_FILE).delete();
 			GamesInProgress.setUnknown(slot);
@@ -248,7 +248,7 @@ final class GameSaves {
 			+ (locked == 1 ? "it" : "them") + " too, or keep " + (locked == 1 ? "it" : "them") + "?";
 		return new ConfirmPrompt("Locked Saves", message, new String[] { "Delete Locked Saves", "Keep Locked Saves" }, new Runnable[] {
 			() -> {
-				deleteRecursively(folder);
+				FileHelpers.delete(folder);
 				CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
 				askNext();
 			},
@@ -414,7 +414,7 @@ final class GameSaves {
 			if (source == null || folder == null || !source.isDirectory()) return "The game's save folder could not be found.";
 			long time = System.currentTimeMillis();
 			File target = new File(folder, String.valueOf(time));
-			copyFolder(source, target);
+			FileHelpers.copy(source, target);
 
 			Hero hero = Dungeon.hero;
 			Properties info = new Properties();
@@ -450,9 +450,9 @@ final class GameSaves {
 			if (target == null || !save.folder.isDirectory()) return "That save could not be found.";
 			File[] current = target.listFiles();
 			if (current != null) {
-				for (File file : current) deleteRecursively(file);
+				for (File file : current) FileHelpers.delete(file);
 			}
-			copyFolder(save.folder, target);
+			FileHelpers.copy(save.folder, target);
 			new File(target, INFO_FILE).delete();
 			new File(target, PREVIEW_FILE).delete();
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
@@ -473,8 +473,8 @@ final class GameSaves {
 			Dungeon.saveAll();
 			File source = gameFolder();
 			if (source == null || !source.isDirectory()) return false;
-			deleteRecursively(folder);
-			copyFolder(source, folder);
+			FileHelpers.delete(folder);
+			FileHelpers.copy(source, folder);
 			return true;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not take a snapshot", e);
@@ -491,10 +491,10 @@ final class GameSaves {
 			if (target == null || !folder.isDirectory()) return false;
 			File[] current = target.listFiles();
 			if (current != null) {
-				for (File file : current) deleteRecursively(file);
+				for (File file : current) FileHelpers.delete(file);
 			}
-			copyFolder(folder, target);
-			deleteRecursively(folder);
+			FileHelpers.copy(folder, target);
+			FileHelpers.delete(folder);
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
 			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
 			Game.switchScene(InterlevelScene.class);
@@ -506,12 +506,12 @@ final class GameSaves {
 	}
 
 	static void discardSnapshot(File folder) {
-		deleteRecursively(folder);
+		FileHelpers.delete(folder);
 	}
 
 	static void delete(Save save) {
 		if (save.locked) return;
-		deleteRecursively(save.folder);
+		FileHelpers.delete(save.folder);
 	}
 
 	/**
@@ -523,48 +523,11 @@ final class GameSaves {
 			if (save.locked) {
 				kept = true;
 			} else {
-				deleteRecursively(save.folder);
+				FileHelpers.delete(save.folder);
 			}
 		}
-		if (!kept) deleteRecursively(folder);
+		if (!kept) FileHelpers.delete(folder);
 		return kept;
-	}
-
-	private static void copyFolder(File source, File target) throws IOException {
-		if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Could not create " + target);
-		File[] children = source.listFiles();
-		if (children == null) return;
-		Arrays.sort(children);
-		for (File child : children) {
-			File destination = new File(target, child.getName());
-			if (child.isDirectory()) {
-				copyFolder(child, destination);
-				continue;
-			}
-			try (InputStream in = new FileInputStream(child); OutputStream out = new FileOutputStream(destination)) {
-				byte[] buffer = new byte[8192];
-				int read;
-				while ((read = in.read(buffer)) != -1) out.write(buffer, 0, read);
-			}
-		}
-	}
-
-	private static void deleteRecursively(File file) {
-		File[] children = file.listFiles();
-		if (children != null) {
-			for (File child : children) deleteRecursively(child);
-		}
-		file.delete();
-	}
-
-	private static byte[] read(File file) throws IOException {
-		try (InputStream in = new FileInputStream(file)) {
-			java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream((int) file.length());
-			byte[] chunk = new byte[8192];
-			int count;
-			while ((count = in.read(chunk)) > 0) out.write(chunk, 0, count);
-			return out.toByteArray();
-		}
 	}
 
 	private static long parseLong(String text, long fallback) {

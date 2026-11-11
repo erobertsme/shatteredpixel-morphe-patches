@@ -9,8 +9,6 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.ui.Component;
 
-import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -32,11 +30,9 @@ public class HeroStatsWindow extends EditorWindow {
 	public static void afterStatsTab(Object tab) {
 		if (!isOn() || !(tab instanceof Group) || Dungeon.hero == null) return;
 		try {
-			Field membersField = Group.class.getDeclaredField("members");
-			membersField.setAccessible(true);
 			float left = -1;
 			float bottom = 0;
-			for (Gizmo member : (List<Gizmo>) membersField.get(tab)) {
+			for (Gizmo member : Reflect.members(tab)) {
 				if (!(member instanceof IconButton)) continue;
 				Component button = (Component) member;
 				if (button.top() > BUTTON_SIZE * 2) continue;

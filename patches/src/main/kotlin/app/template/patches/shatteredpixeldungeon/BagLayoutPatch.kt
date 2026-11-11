@@ -1,10 +1,8 @@
 package app.template.patches.shatteredpixeldungeon
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
-import app.morphe.patcher.util.smali.ExternalLabel
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
@@ -76,49 +74,12 @@ internal val bagLayoutPatch = bytecodePatch(
 			)
 		}
 
-		WndBagPlaceItemFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p1 }, $INVENTORY_SPACE_CLASS->skipSlot(Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z
-				move-result v0
-				if-eqz v0, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		WndBagPlaceItemFingerprint.skipWhen("invoke-static { p1 }, $INVENTORY_SPACE_CLASS->skipSlot(Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z")
 
-		BagCanHoldFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->tabHolds(${BAG_CLASS}Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z
-				move-result v0
-				if-eqz v0, :original
-				return v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		BagCanHoldFingerprint.skipWhen("invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->tabHolds(${BAG_CLASS}Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z")
 
-		BagCollectFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->refuseBag(${BAG_CLASS}$BAG_CLASS)Z
-				move-result v0
-				if-eqz v0, :original
-				const/4 v0, 0x0
-				return v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		BagCollectFingerprint.skipWhen("invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->refuseBag(${BAG_CLASS}$BAG_CLASS)Z", result = false)
 
-		WndBagIconFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p1 }, $INVENTORY_SPACE_CLASS->tabIcon($BAG_CLASS)Lcom/watabou/noosa/Image;
-				move-result-object v0
-				if-eqz v0, :original
-				return-object v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		WndBagIconFingerprint.skipWhen("invoke-static { p1 }, $INVENTORY_SPACE_CLASS->tabIcon($BAG_CLASS)Lcom/watabou/noosa/Image;")
 	}
 }

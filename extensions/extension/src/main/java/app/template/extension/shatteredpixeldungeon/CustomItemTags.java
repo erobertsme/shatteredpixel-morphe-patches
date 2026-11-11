@@ -15,7 +15,6 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +33,9 @@ public final class CustomItemTags {
 	static final String HELD_PREFIX = "HELD:";
 
 	private static final Map<Integer, TagPlacement> placements = new HashMap<>();
-	private static int version;
+	private static Scene shownScene;
+	private static final Map<Integer, IconTag> tags = new HashMap<>();
+	private static Gizmo markFollower;
 
 	private CustomItemTags() {
 	}
@@ -59,7 +60,7 @@ public final class CustomItemTags {
 			text.append(id);
 		}
 		CloverlordSettings.setString(KEY_IDS, text.toString());
-		version++;
+		rebuild();
 	}
 
 	static int add(Item item) {
@@ -182,6 +183,7 @@ public final class CustomItemTags {
 		tagMark.camera = PixelScene.uiCamera;
 		if (tag.parent != null) tag.parent.addToFront(tagMark);
 		updateMarks(tag);
+		followMarks(tag);
 	}
 
 	private static boolean isTargeting() {
@@ -189,14 +191,7 @@ public final class CustomItemTags {
 	}
 
 	private static Object currentListener() {
-		try {
-			Field selectorField = GameScene.class.getDeclaredField("cellSelector");
-			selectorField.setAccessible(true);
-			Object selector = selectorField.get(null);
-			return selector == null ? null : selector.getClass().getField("listener").get(selector);
-		} catch (Throwable e) {
-			return null;
-		}
+		return Reflect.cellListener();
 	}
 
 	private static void updateMarks(IconTag tag) {
@@ -211,9 +206,32 @@ public final class CustomItemTags {
 		}
 	}
 
+	/**
+	 * Keeps the crosshairs on the target while aiming, and removes them once aiming ends. Only runs while aiming.
+	 */
+	private static void followMarks(IconTag tag) {
+		if (shownScene == null || markFollower != null) return;
+		markFollower = new Gizmo() {
+			@Override
+			public void update() {
+				super.update();
+				if (isTargeting() && tag.visible) {
+					updateMarks(tag);
+				} else {
+					clearTargeting();
+				}
+			}
+		};
+		shownScene.add(markFollower);
+	}
+
 	private static void clearTargeting() {
 		targetingTag = -1;
 		targetingListener = null;
+		if (markFollower != null) {
+			markFollower.killAndErase();
+			markFollower = null;
+		}
 		for (Image mark : new Image[] { targetMark, tagMark }) {
 			if (mark == null) continue;
 			mark.killAndErase();
@@ -224,54 +242,53 @@ public final class CustomItemTags {
 	}
 
 	/**
-	 * Called at the end of GameScene.create. Adds a tag for each item tag, and keeps them in step with the list.
+	 * Called at the end of GameScene.create. Adds a tag for each item tag.
 	 */
 	public static void onSceneCreated(Object scene) {
-		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
-		Scene target = (Scene) scene;
-		Gizmo controller = new Gizmo() {
-			private final Map<Integer, IconTag> tags = new HashMap<>();
-			private int built = -1;
+		tags.clear();
+		markFollower = null;
+		shownScene = QolSettings.isAvailable() && scene instanceof Scene ? (Scene) scene : null;
+		rebuild();
+	}
 
-			@Override
-			public void update() {
-				super.update();
-				if (built != version) rebuild();
-				Hero hero = Dungeon.hero;
-				boolean alive = hero != null && hero.isAlive();
-				for (Map.Entry<Integer, IconTag> entry : tags.entrySet()) {
-					IconTag tag = entry.getValue();
-					tag.visible = alive && held(itemClass(entry.getKey())) != null;
-					if (tag.visible) placement(entry.getKey()).place(tag);
-					if (targetingTag == entry.getKey()) {
-						if (isTargeting() && tag.visible) {
-							updateMarks(tag);
-						} else {
-							clearTargeting();
-						}
-					}
-				}
-			}
+	/**
+	 * Makes the tags again from the list. Runs when the scene is made and when a tag is added or deleted.
+	 */
+	private static void rebuild() {
+		Scene scene = shownScene;
+		if (scene == null) return;
+		clearTargeting();
+		for (IconTag tag : tags.values()) {
+			tag.killAndErase();
+			tag.destroy();
+		}
+		tags.clear();
+		for (int id : ids()) {
+			IconTag[] holder = new IconTag[1];
+			IconTag tag = new IconTag(() -> use(id, holder[0]));
+			holder[0] = tag;
+			tag.camera = PixelScene.uiCamera;
+			tag.visible = false;
+			scene.add(tag);
+			tags.put(id, tag);
+			placement(id).onChange(() -> show(id));
+		}
+		refresh();
+	}
 
-			private void rebuild() {
-				built = version;
-				clearTargeting();
-				for (IconTag tag : tags.values()) {
-					tag.killAndErase();
-					tag.destroy();
-				}
-				tags.clear();
-				for (int id : ids()) {
-					IconTag[] holder = new IconTag[1];
-					IconTag tag = new IconTag(() -> use(id, holder[0]));
-					holder[0] = tag;
-					tag.camera = PixelScene.uiCamera;
-					tag.visible = false;
-					target.add(tag);
-					tags.put(id, tag);
-				}
-			}
-		};
-		target.add(controller);
+	/**
+	 * Shows the tags of items you carry and hides the rest. Runs when your items change and when the hero dies.
+	 */
+	static void refresh() {
+		for (int id : tags.keySet()) show(id);
+	}
+
+	private static void show(int id) {
+		IconTag tag = tags.get(id);
+		if (tag == null || tag.parent == null) return;
+		Hero hero = Dungeon.hero;
+		tag.visible = hero != null && hero.isAlive() && held(itemClass(id)) != null;
+		if (tag.visible) placement(id).place(tag);
+		if (targetingTag == id && !tag.visible) clearTargeting();
 	}
 }

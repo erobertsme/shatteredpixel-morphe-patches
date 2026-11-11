@@ -49,7 +49,7 @@ public final class AllyPathing {
 		try {
 			PathFinder.Path path = path(walker);
 			if (needsNewPath(walker, level, path, target)) {
-				boolean[] known = knownPassable(level);
+				boolean[] known = Grid.knownPassable(level);
 				PathFinder.Path normal = Dungeon.findPath(walker, target, known, walker.fieldOfView, true);
 				int normalSize = normal == null ? Integer.MAX_VALUE : normal.size();
 				path = allyPath(walker, target, known);
@@ -81,7 +81,7 @@ public final class AllyPathing {
 	 */
 	static PathFinder.Path route(Char walker, int target) {
 		Level level = Dungeon.level;
-		boolean[] known = knownPassable(level);
+		boolean[] known = Grid.knownPassable(level);
 		PathFinder.Path path = Dungeon.findPath(walker, target, known, walker.fieldOfView, true);
 		if (!isOn()) return path;
 		PathFinder.Path through = allyPath(walker, target, known);
@@ -94,18 +94,15 @@ public final class AllyPathing {
 			ally.interact(walker);
 			return;
 		}
-		Method update = ally.getClass().getDeclaredMethod("updateRose");
-		update.setAccessible(true);
+		Method update = Reflect.method(ally.getClass(), "updateRose");
 		update.invoke(ally);
-		Field roseField = ally.getClass().getDeclaredField("rose");
-		roseField.setAccessible(true);
+		Field roseField = Reflect.field(ally.getClass(), "rose");
 		Object rose = roseField.get(ally);
 		if (rose == null) {
 			ally.interact(walker);
 			return;
 		}
-		Field talked = rose.getClass().getDeclaredField("talkedTo");
-		talked.setAccessible(true);
+		Field talked = Reflect.field(rose.getClass(), "talkedTo");
 		boolean wasTalked = talked.getBoolean(rose);
 		talked.setBoolean(rose, true);
 		try {
@@ -116,14 +113,12 @@ public final class AllyPathing {
 	}
 
 	private static void stepOnto(Char walker, int to) throws ReflectiveOperationException {
-		Method moveSprite = Char.class.getDeclaredMethod("moveSprite", int.class, int.class);
-		moveSprite.setAccessible(true);
-		Method spend = Actor.class.getDeclaredMethod("spend", float.class);
-		spend.setAccessible(true);
+		Method moveSprite = Reflect.method(Char.class, "moveSprite", int.class, int.class);
+		Method spend = Reflect.method(Actor.class, "spend", float.class);
 		moveSprite.invoke(walker, walker.pos, to);
 		walker.move(to);
 		spend.invoke(walker, 1f / walker.speed());
-		walker.getClass().getMethod("search", boolean.class).invoke(walker, false);
+		Reflect.method(walker.getClass(), "search", boolean.class).invoke(walker, false);
 	}
 
 	private static boolean isWard(Char c) {
@@ -135,8 +130,7 @@ public final class AllyPathing {
 
 	private static PathFinder.Path path(Char walker) throws ReflectiveOperationException {
 		if (pathField == null) {
-			pathField = Char.class.getDeclaredField("path");
-			pathField.setAccessible(true);
+			pathField = Reflect.field(Char.class, "path");
 		}
 		return (PathFinder.Path) pathField.get(walker);
 	}
@@ -147,13 +141,6 @@ public final class AllyPathing {
 		if (!level.adjacent(walker.pos, first) || !level.passable[first]) return true;
 		Char blocker = Actor.findChar(first);
 		return blocker != null && !swappable(blocker);
-	}
-
-	private static boolean[] knownPassable(Level level) {
-		int length = level.length();
-		boolean[] passable = new boolean[length];
-		for (int i = 0; i < length; i++) passable[i] = level.passable[i] && (level.visited[i] || level.mapped[i]);
-		return passable;
 	}
 
 	private static PathFinder.Path allyPath(Char walker, int target, boolean[] known) {

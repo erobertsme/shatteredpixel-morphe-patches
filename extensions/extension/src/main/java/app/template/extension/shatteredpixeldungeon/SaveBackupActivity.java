@@ -136,7 +136,7 @@ public class SaveBackupActivity extends Activity {
 		File previous = new File(getCacheDir(), "save-before-import");
 
 		try {
-			deleteRecursively(staging);
+			FileHelpers.delete(staging);
 			if (!staging.mkdirs()) throw new IOException("Could not create " + staging);
 
 			int count;
@@ -146,18 +146,18 @@ public class SaveBackupActivity extends Activity {
 			}
 			if (!containsSaveData(staging)) throw new IOException("This file does not contain Shattered Pixel Dungeon saves");
 
-			deleteRecursively(previous);
+			FileHelpers.delete(previous);
 			if (!previous.mkdirs()) throw new IOException("Could not create " + previous);
 			copyChildren(saves, previous);
 
 			clearChildren(saves);
 			copyChildren(staging, saves);
-			deleteRecursively(staging);
+			FileHelpers.delete(staging);
 
 			toast("Imported " + count + " save files. Start the game again to load them.");
 		} catch (IOException e) {
 			Log.e(TAG, "Import failed", e);
-			deleteRecursively(staging);
+			FileHelpers.delete(staging);
 			toast("Import failed: " + e.getMessage());
 			finish();
 			return;
@@ -177,7 +177,6 @@ public class SaveBackupActivity extends Activity {
 		if (children == null) return 0;
 
 		int count = 0;
-		byte[] buffer = new byte[8192];
 		for (File child : children) {
 			String name = prefix + child.getName();
 			if (child.isDirectory()) {
@@ -189,8 +188,7 @@ public class SaveBackupActivity extends Activity {
 
 			zip.putNextEntry(new ZipEntry(name));
 			try (InputStream in = new FileInputStream(child)) {
-				int read;
-				while ((read = in.read(buffer)) != -1) zip.write(buffer, 0, read);
+				FileHelpers.pipe(in, zip);
 			}
 			zip.closeEntry();
 			count++;
@@ -201,7 +199,6 @@ public class SaveBackupActivity extends Activity {
 	private static int unzip(InputStream in, File target) throws IOException {
 		String targetPath = target.getCanonicalPath() + File.separator;
 		int count = 0;
-		byte[] buffer = new byte[8192];
 
 		try (ZipInputStream zip = new ZipInputStream(in)) {
 			ZipEntry entry;
@@ -217,8 +214,7 @@ public class SaveBackupActivity extends Activity {
 				File parent = file.getParentFile();
 				if (parent != null && !parent.isDirectory() && !parent.mkdirs()) throw new IOException("Could not create " + parent);
 				try (OutputStream out = new FileOutputStream(file)) {
-					int read;
-					while ((read = zip.read(buffer)) != -1) out.write(buffer, 0, read);
+					FileHelpers.pipe(zip, out);
 				}
 				count++;
 			}
@@ -239,35 +235,13 @@ public class SaveBackupActivity extends Activity {
 	private static void copyChildren(File source, File target) throws IOException {
 		File[] children = source.listFiles();
 		if (children == null) return;
-		for (File child : children) copy(child, new File(target, child.getName()));
-	}
-
-	private static void copy(File source, File target) throws IOException {
-		if (source.isDirectory()) {
-			if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Could not create " + target);
-			copyChildren(source, target);
-			return;
-		}
-
-		try (InputStream in = new FileInputStream(source); OutputStream out = new FileOutputStream(target)) {
-			byte[] buffer = new byte[8192];
-			int read;
-			while ((read = in.read(buffer)) != -1) out.write(buffer, 0, read);
-		}
+		for (File child : children) FileHelpers.copy(child, new File(target, child.getName()));
 	}
 
 	private static void clearChildren(File folder) {
 		File[] children = folder.listFiles();
 		if (children == null) return;
-		for (File child : children) deleteRecursively(child);
-	}
-
-	private static void deleteRecursively(File file) {
-		File[] children = file.listFiles();
-		if (children != null) {
-			for (File child : children) deleteRecursively(child);
-		}
-		file.delete();
+		for (File child : children) FileHelpers.delete(child);
 	}
 
 	private void toast(String message) {

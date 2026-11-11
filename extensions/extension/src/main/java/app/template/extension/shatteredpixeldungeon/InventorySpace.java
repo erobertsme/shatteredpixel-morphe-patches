@@ -349,12 +349,8 @@ public final class InventorySpace {
 	}
 
 	private static void addPager(Window window, Page page) throws ReflectiveOperationException {
-		Field widthField = Window.class.getDeclaredField("width");
-		Field heightField = Window.class.getDeclaredField("height");
-		widthField.setAccessible(true);
-		heightField.setAccessible(true);
-		int width = widthField.getInt(window);
-		int height = heightField.getInt(window);
+		int width = Reflect.width(window);
+		int height = Reflect.height(window);
 		float top = height + ROW_GAP;
 
 		RedButton previous = new RedButton("", 7) {
@@ -388,9 +384,7 @@ public final class InventorySpace {
 		int index = ((page.index + step) % page.pages + page.pages) % page.pages;
 		savedPages.put(key(page.bag), index);
 		try {
-			Field selectorField = WndBag.class.getDeclaredField("selector");
-			selectorField.setAccessible(true);
-			WndBag.ItemSelector selector = (WndBag.ItemSelector) selectorField.get(window);
+			WndBag.ItemSelector selector = Reflect.bagSelector(window);
 			BackpackEditor.beforeTabSwitch(window);
 			window.hide();
 			WndBag reopened = new WndBag(page.bag, selector);
@@ -417,14 +411,6 @@ public final class InventorySpace {
 	}
 
 	private static Field field(Object target, String name) throws NoSuchFieldException {
-		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
-			try {
-				Field field = type.getDeclaredField(name);
-				field.setAccessible(true);
-				return field;
-			} catch (NoSuchFieldException ignored) {
-			}
-		}
-		throw new NoSuchFieldException(name);
+		return Reflect.field(target.getClass(), name);
 	}
 }

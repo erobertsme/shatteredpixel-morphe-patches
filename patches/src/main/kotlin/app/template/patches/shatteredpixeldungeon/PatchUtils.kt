@@ -32,18 +32,36 @@ internal fun Fingerprint.returnTrue() {
  */
 context(_: BytecodePatchContext)
 internal fun Fingerprint.returnTrueWhen(check: String, arguments: String = "") {
-	val implementation = method.implementation ?: throw PatchException("${method.name} has no code")
-	val isStatic = AccessFlags.STATIC.isSet(method.accessFlags)
-	val parameterRegisters = method.parameters.sumOf { if (it.type == "J" || it.type == "D") 2 else 1 } + if (isStatic) 0 else 1
-	if (implementation.registerCount <= parameterRegisters) throw PatchException("${method.name} has no free register")
+	skipWhen("invoke-static { $arguments }, $check")
+}
 
+/**
+ * Runs [call], an extension method call, at the start of the method. When it returns true, or an object rather than null, the method
+ * returns straight away without running its own code: with nothing for a void method, with [result] when given, or otherwise with the
+ * call's own value. [register] holds the call's value and must be free at the start of the method.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.skipWhen(call: String, result: Boolean? = null, register: String = "v0") {
+	val implementation = method.implementation ?: throw PatchException("${method.name} has no code")
+	if (register == "v0") {
+		val isStatic = AccessFlags.STATIC.isSet(method.accessFlags)
+		val parameterRegisters = method.parameters.sumOf { if (it.type == "J" || it.type == "D") 2 else 1 } + if (isStatic) 0 else 1
+		if (implementation.registerCount <= parameterRegisters) throw PatchException("${method.name} has no free register")
+	}
+	val returnsObject = call.substringAfterLast(')').let { it.startsWith("L") || it.startsWith("[") }
+	val exit = when {
+		method.returnType == "V" -> "return-void"
+		result != null -> "const/4 $register, ${if (result) "0x1" else "0x0"}\n\t\t\treturn $register"
+		returnsObject -> "return-object $register"
+		else -> "return $register"
+	}
 	method.addInstructionsWithLabels(
 		0,
 		"""
-			invoke-static { $arguments }, $check
-			move-result v0
-			if-eqz v0, :original
-			return v0
+			$call
+			${if (returnsObject) "move-result-object" else "move-result"} $register
+			if-eqz $register, :original
+			$exit
 		""",
 		ExternalLabel("original", 0),
 	)
@@ -74,6 +92,14 @@ internal fun Fingerprint.callBeforeEveryReturn(smali: String) {
 		method.replaceInstruction(index, smali)
 		method.addInstruction(index + 1, "return-void")
 	}
+}
+
+/**
+ * Passes the object the method belongs to, `this`, to [method], an extension method, before every return-void.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.callWithThisBeforeReturns(method: String) {
+	callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $method")
 }
 
 /**

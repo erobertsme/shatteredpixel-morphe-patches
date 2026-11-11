@@ -11,7 +11,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -249,8 +248,7 @@ final class InventoryEditor {
 
 	static int artifactValue(Artifact artifact, String field) {
 		try {
-			Field f = Artifact.class.getDeclaredField(field);
-			f.setAccessible(true);
+			Field f = Reflect.field(Artifact.class, field);
 			return f.getInt(artifact);
 		} catch (Throwable e) {
 			return 0;
@@ -274,8 +272,7 @@ final class InventoryEditor {
 
 	static void setArtifactCharge(Artifact artifact, int value) {
 		try {
-			Field f = Artifact.class.getDeclaredField("charge");
-			f.setAccessible(true);
+			Field f = Reflect.field(Artifact.class, "charge");
 			f.setInt(artifact, Math.max(0, Math.min(artifactChargeMax(artifact), value)));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set artifact charge", e);

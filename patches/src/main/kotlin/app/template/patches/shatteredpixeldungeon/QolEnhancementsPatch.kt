@@ -32,77 +32,21 @@ val qolEnhancementsPatch = bytecodePatch(
 	execute {
 		PathPreviewAvailableFingerprint.returnTrue()
 
-		DefaultCellListenerFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p1 }, $PREVIEW_CLASS->interceptTap(Ljava/lang/Integer;)Z
-				move-result v0
-				if-eqz v0, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		DefaultCellListenerFingerprint.skipWhen("invoke-static { p1 }, $PREVIEW_CLASS->interceptTap(Ljava/lang/Integer;)Z")
 
-		ShopkeeperDamageFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p2 }, $SHOPKEEPER_CLASS->onDamage(Ljava/lang/Object;Ljava/lang/Object;)Z
-				move-result p1
-				if-eqz p1, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		ShopkeeperDamageFingerprint.skipWhen("invoke-static { p0, p2 }, $SHOPKEEPER_CLASS->onDamage(Ljava/lang/Object;Ljava/lang/Object;)Z", register = "p1")
 
-		ShopkeeperAddFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onBuff(Ljava/lang/Object;Ljava/lang/Object;)Z
-				move-result v0
-				if-eqz v0, :original
-				const/4 v0, 0x0
-				return v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		ShopkeeperAddFingerprint.skipWhen("invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onBuff(Ljava/lang/Object;Ljava/lang/Object;)Z", result = false)
 
 		ShopkeeperActFingerprint.method.addInstruction(0, "invoke-static { p0 }, $SHOPKEEPER_CLASS->onAct(Ljava/lang/Object;)V")
 		ShopkeeperStoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 		ShopkeeperRestoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 
-		ShopkeeperInteractFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onInteract(Ljava/lang/Object;Ljava/lang/Object;)Z
-				move-result v0
-				if-eqz v0, :original
-				const/4 v0, 0x1
-				return v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		ShopkeeperInteractFingerprint.skipWhen("invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onInteract(Ljava/lang/Object;Ljava/lang/Object;)Z", result = true)
 
-		ShopkeeperFleeFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0 }, $SHOPKEEPER_CLASS->onFlee(Ljava/lang/Object;)Z
-				move-result v0
-				if-eqz v0, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		ShopkeeperFleeFingerprint.skipWhen("invoke-static { p0 }, $SHOPKEEPER_CLASS->onFlee(Ljava/lang/Object;)Z")
 
-		MobYellFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onYell(Ljava/lang/Object;Ljava/lang/String;)Z
-				move-result v0
-				if-eqz v0, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		MobYellFingerprint.skipWhen("invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onYell(Ljava/lang/Object;Ljava/lang/String;)Z")
 
 		WndTradeHeapConstructorFingerprint.method.addInstruction(
 			0,
@@ -122,27 +66,22 @@ val qolEnhancementsPatch = bytecodePatch(
 		ItemRestoreFromBundleFingerprint.callBeforeEveryReturn("invoke-static { p0 }, $QUICKSLOT_CLASS->afterItemRestore($ITEM_TYPE)V")
 		QuickSlotStorePlaceholdersFingerprint.method.addInstruction(0, "invoke-static { }, $QUICKSLOT_CLASS->beforePlaceholders()V")
 		QuickSlotStorePlaceholdersFingerprint.callBeforeEveryReturn("invoke-static { }, $QUICKSLOT_CLASS->afterPlaceholders()V")
-		ToolbarConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarCreated($ITEM_TYPE)V")
-		GameScenePromptFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterPrompt($ITEM_TYPE)V")
-		WndQuickBagConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterQuickBag($ITEM_TYPE)V")
-		ToolbarLayoutFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $QUICKSLOT_CLASS->afterToolbarLayout($ITEM_TYPE)V")
+		ToolbarConstructorFingerprint.callWithThisBeforeReturns("$QUICKSLOT_CLASS->afterToolbarCreated($ITEM_TYPE)V")
+		GameScenePromptFingerprint.callWithThisBeforeReturns("$QUICKSLOT_CLASS->afterPrompt($ITEM_TYPE)V")
+		WndQuickBagConstructorFingerprint.callWithThisBeforeReturns("$QUICKSLOT_CLASS->afterQuickBag($ITEM_TYPE)V")
+		ToolbarLayoutFingerprint.callWithThisBeforeReturns("$QUICKSLOT_CLASS->afterToolbarLayout($ITEM_TYPE)V")
 
-		ResumeIndicatorUpdateFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $RESUME_PATH_CLASS->afterIndicatorUpdate($ITEM_TYPE)V")
+		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onHeroReady()V")
+		HeroBusyFingerprint.method.addInstruction(0, "invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onHeroBusy()V")
+		QuickSlotButtonRefreshFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onItemsChanged()V")
+		GameSceneGameOverFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onGameOver()V")
 
-		GameSceneCreateFingerprint.callBeforeEveryReturn(
-			"invoke-static/range { p0 .. p0 }, $CHEST_CLASS->onSceneCreated(Ljava/lang/Object;)V",
-		)
-		GameSceneCreateFingerprint.callBeforeEveryReturn(
-			"invoke-static/range { p0 .. p0 }, $FORCE_ATTACK_CLASS->onSceneCreated(Ljava/lang/Object;)V",
-		)
-		GameSceneCreateFingerprint.callBeforeEveryReturn(
-			"invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/CustomItemTags;->onSceneCreated(Ljava/lang/Object;)V",
-		)
+		GameSceneCreateFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/GameEvents;->onSceneCreated(Ljava/lang/Object;)V")
 		WndInfoMobConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $BESTIARY_CLASS->beforeMobInfo($ITEM_TYPE)V")
-		WndInfoMobConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterMobInfo($ITEM_TYPE)V")
+		WndInfoMobConstructorFingerprint.callWithThisBeforeReturns("$BESTIARY_CLASS->afterMobInfo($ITEM_TYPE)V")
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
-		WndJournalItemConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
-		WndHeroStatsTabInitializeFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")
+		WndJournalItemConstructorFingerprint.callWithThisBeforeReturns("$BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
+		WndHeroStatsTabInitializeFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")
 		MobDestroyFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeDestroy($ITEM_TYPE)V")
 		MobDestroyFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterDestroy()V")
 		HeroEarnExpFingerprint.method.addInstructions(
@@ -155,29 +94,20 @@ val qolEnhancementsPatch = bytecodePatch(
 		MobRollToDropLootFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeLootRoll($ITEM_TYPE)V")
 		MobRollToDropLootFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterLootRoll()V")
 		MobLootChanceFingerprint.adjustReturns("$REWARDS_CLASS->adjustLootChance(F$ITEM_TYPE)F", "p0")
-		ExamineCellFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0 }, $TILE_CONTENTS_CLASS->examine(Ljava/lang/Integer;)Z
-				move-result v0
-				if-eqz v0, :original
-				return-void
-			""",
-			ExternalLabel("original", 0),
-		)
+		ExamineCellFingerprint.skipWhen("invoke-static { p0 }, $TILE_CONTENTS_CLASS->examine(Ljava/lang/Integer;)Z")
 		TrinketWindowConstructorFingerprint.method.addInstruction(0, "invoke-static { p1 }, $EXTENSION_PACKAGE/RerollCatalyst;->beforeTrinketWindow($ITEM_TYPE)V")
-		TrinketWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RerollCatalyst;->afterTrinketWindow($ITEM_TYPE)V")
+		TrinketWindowConstructorFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/RerollCatalyst;->afterTrinketWindow($ITEM_TYPE)V")
 		WndInfoCellConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/EffectTurns;->beforeCellInfo(I)V")
 		WndInfoCellConstructorFingerprint.adjustCallResults(
 			"Lcom/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blob;->tileDesc()Ljava/lang/String;",
 			"$EXTENSION_PACKAGE/EffectTurns;->describe(Ljava/lang/String;)Ljava/lang/String;",
 		)
 		AndroidSafeInsetsFingerprint.adjustObjectReturns("$EXTENSION_PACKAGE/DisplayMargins;->adjustInsets(Lcom/watabou/utils/RectF;)Lcom/watabou/utils/RectF;")
-		PixelSceneDrawFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/DisplayMargins;->afterDraw(Ljava/lang/Object;)V")
+		PixelSceneDrawFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/DisplayMargins;->afterDraw(Ljava/lang/Object;)V")
 		MageroyalActivateFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/MageroyalCure;->beforeActivate(Ljava/lang/Object;)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")
-		RenameWindowConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")
+		RenameWindowConstructorFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")
 		HeapDropFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->onDrop($ITEM_TYPE$ITEM_TYPE)V")
 		ItemStoreInBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->store($ITEM_TYPE$ITEM_TYPE)V")
 		ItemRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->restore($ITEM_TYPE$ITEM_TYPE)V")
@@ -192,17 +122,7 @@ val qolEnhancementsPatch = bytecodePatch(
 			"invoke-static/range { p0 .. p1 }, $CHEST_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
 
-		MobGetCloserFingerprint.method.addInstructionsWithLabels(
-			0,
-			"""
-				invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->blockStep(Ljava/lang/Object;I)Z
-				move-result v0
-				if-eqz v0, :original
-				const/4 v0, 0x0
-				return v0
-			""",
-			ExternalLabel("original", 0),
-		)
+		MobGetCloserFingerprint.skipWhen("invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->blockStep(Ljava/lang/Object;I)Z", result = false)
 		HeroGetCloserFingerprint.method.addInstructionsWithLabels(
 			0,
 			"""

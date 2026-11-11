@@ -19,7 +19,7 @@ val enemyEditorPatch = bytecodePatch(
 	execute {
 		EnemyEditorAvailableFingerprint.returnTrue()
 		WndInfoBuffConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/BuffInfoActions;->beforeBuffInfo(Ljava/lang/Object;)V")
-		WndInfoBuffConstructorFingerprint.callBeforeEveryReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/BuffInfoActions;->afterBuffInfo(Ljava/lang/Object;)V")
+		WndInfoBuffConstructorFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/BuffInfoActions;->afterBuffInfo(Ljava/lang/Object;)V")
 
 		WndInfoMobConstructorFingerprint.method.addInstruction(0, "invoke-static { p1 }, $ENEMY_CLASS->beforeMobInfo(Ljava/lang/Object;)V")
 		WndInfoMobConstructorFingerprint.callBeforeReturn(
