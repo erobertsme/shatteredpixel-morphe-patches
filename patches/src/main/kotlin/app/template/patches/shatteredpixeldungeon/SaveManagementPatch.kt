@@ -243,5 +243,6 @@ val saveManagementPatch = bytecodePatch(
 			0,
 			"invoke-static { p0 }, $LOCATION_CLASS->onActivityCreated(Landroid/app/Activity;)V",
 		)
+		LauncherOnCreateFingerprint.method.addInstruction(0, "invoke-static { }, $EXTENSION_PACKAGE/CrashLog;->install()V")
 	}
 }

@@ -135,6 +135,7 @@ final class GameSaves {
 	static void checkFinishedGames(com.watabou.noosa.Group scene) {
 		try {
 			if (!SaveBackupActivity.isAvailable()) return;
+			if (CrashLog.showIfAny(scene)) return;
 			File finished = nextFinished();
 			if (finished != null) {
 				scene.addToFront(prompt(finished));

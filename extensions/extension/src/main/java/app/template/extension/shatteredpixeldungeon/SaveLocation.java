@@ -179,6 +179,22 @@ public class SaveLocation {
 		}
 	}
 
+	/**
+	 * Puts [text] on the phone's clipboard. Returns false when it couldn't.
+	 */
+	static boolean copyText(String label, String text) {
+		Context context = getContext();
+		if (context == null) return false;
+		try {
+			android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setPrimaryClip(android.content.ClipData.newPlainText(label, text));
+			return true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not copy to the clipboard", e);
+			return false;
+		}
+	}
+
 	static Context getContext() {
 		try {
 			return (Context) Reflect.method(Class.forName("android.app.ActivityThread"), "currentApplication").invoke(null);

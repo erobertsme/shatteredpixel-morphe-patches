@@ -49,9 +49,10 @@ public final class UndoHistory {
 	private static final String KEY_NO_BOSS = "qol_undo_no_boss";
 
 	private static final class Snapshot {
-		final byte[] game;
+		private byte[] game;
 		final String levelFile;
-		final byte[] level;
+		private byte[] level;
+		private File source;
 		final int depth;
 		final int branch;
 		final int turn;
@@ -71,8 +72,36 @@ public final class UndoHistory {
 			this.ht = ht;
 		}
 
-		int size() {
-			return game.length + level.length;
+		/**
+		 * A step read back from the app's storage keeps only its summary and picture in memory. Its saved game is read from [file] the
+		 * first time it is needed.
+		 */
+		static Snapshot onDisk(File file, int depth, int branch, int turn, int hp, int ht, String levelFile) {
+			Snapshot snapshot = new Snapshot(null, levelFile, null, depth, branch, turn, hp, ht);
+			snapshot.source = file;
+			return snapshot;
+		}
+
+		synchronized byte[] game() {
+			load();
+			return game;
+		}
+
+		synchronized byte[] level() {
+			load();
+			return level;
+		}
+
+		private void load() {
+			if (game != null || source == null) return;
+			Snapshot full = readSnapshot(source);
+			if (full == null) return;
+			game = full.game;
+			level = full.level;
+		}
+
+		synchronized int size() {
+			return game == null ? 0 : game.length + level.length;
 		}
 	}
 
@@ -238,8 +267,11 @@ public final class UndoHistory {
 		try {
 			File root = SaveLocation.currentRoot();
 			if (root == null) return;
-			FileHelpers.write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), snapshot.game);
-			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level);
+			byte[] game = snapshot.game();
+			byte[] level = snapshot.level();
+			if (game == null || level == null) return;
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), game);
+			FileHelpers.write(new File(root, snapshot.levelFile), level);
 			index = target;
 			selected = target;
 			skipNext = true;
@@ -339,7 +371,7 @@ public final class UndoHistory {
 		if (position < 0 || position >= history.size()) return null;
 		Snapshot snapshot = history.get(position);
 		if (snapshot != cachedFor) {
-			cachedHero = SnapshotHero.read(snapshot.game);
+			cachedHero = SnapshotHero.read(snapshot.game());
 			cachedFor = snapshot;
 		}
 		return cachedHero;
@@ -368,7 +400,7 @@ public final class UndoHistory {
 	 */
 	public static void beforeDeleteGame(int slot) {
 		deathBackup = false;
-		if (gameId != null && gameId.startsWith(slot + ":")) deleteStored(gameId);
+		if (gameId != null && gameId.startsWith(slot + ":") && Dungeon.hero != null && Dungeon.hero.isAlive()) deleteStored(gameId);
 		Hero hero = Dungeon.hero;
 		if (!isOn() || hero == null || hero.isAlive() || index < 0 || slot != GamesInProgress.curSlot) return;
 		try {
@@ -502,7 +534,7 @@ public final class UndoHistory {
 			List<Snapshot> loaded = new ArrayList<>();
 			for (int i = 0; i < count; i++) {
 				long id = in.readLong();
-				Snapshot snapshot = readSnapshot(new File(folder, id + SNAPSHOT_SUFFIX));
+				Snapshot snapshot = readSummary(new File(folder, id + SNAPSHOT_SUFFIX));
 				if (snapshot == null) return;
 				snapshot.id = id;
 				loaded.add(snapshot);
@@ -518,7 +550,42 @@ public final class UndoHistory {
 		}
 	}
 
+	/**
+	 * A kept step's summary and picture, skipping its saved game, which stays on disk until needed.
+	 */
+	private static Snapshot readSummary(File file) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			int branch = in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			String levelFile = in.readUTF();
+			skip(in, in.readInt());
+			skip(in, in.readInt());
+			Snapshot snapshot = Snapshot.onDisk(file, depth, branch, turn, hp, ht, levelFile);
+			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
+			return snapshot;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read " + file, e);
+			return null;
+		}
+	}
+
+	private static void skip(DataInputStream in, int count) throws IOException {
+		int left = count;
+		while (left > 0) {
+			int skipped = in.skipBytes(left);
+			if (skipped <= 0) throw new IOException("File ends early");
+			left -= skipped;
+		}
+	}
+
 	private static void writeSnapshot(File file, Snapshot snapshot) throws IOException {
+		byte[] game = snapshot.game();
+		byte[] level = snapshot.level();
+		if (game == null || level == null) return;
 		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
 			out.writeInt(snapshot.depth);
 			out.writeInt(snapshot.branch);
@@ -526,10 +593,10 @@ public final class UndoHistory {
 			out.writeInt(snapshot.hp);
 			out.writeInt(snapshot.ht);
 			out.writeUTF(snapshot.levelFile);
-			out.writeInt(snapshot.game.length);
-			out.write(snapshot.game);
-			out.writeInt(snapshot.level.length);
-			out.write(snapshot.level);
+			out.writeInt(game.length);
+			out.write(game);
+			out.writeInt(level.length);
+			out.write(level);
 			out.writeBoolean(snapshot.scene != null);
 			if (snapshot.scene != null) snapshot.scene.write(out);
 		}
@@ -645,7 +712,7 @@ public final class UndoHistory {
 		File folder = storeFolder(slot + ":" + seed);
 		Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
 		if (snapshot == null) return new Object[] { null, null };
-		return new Object[] { snapshot.scene, SnapshotHero.read(snapshot.game) };
+		return new Object[] { snapshot.scene, SnapshotHero.read(snapshot.game()) };
 	}
 
 	/**
@@ -662,8 +729,8 @@ public final class UndoHistory {
 			File cache = SaveLocation.cacheDir();
 			if (cache != null && gameFolder.isDirectory()) FileHelpers.copy(gameFolder, new File(cache, "replaced_" + gameFolder.getName() + "_" + System.currentTimeMillis()));
 			if (!gameFolder.isDirectory() && !gameFolder.mkdirs()) return "The game's folder could not be made.";
-			FileHelpers.write(new File(root, GamesInProgress.gameFile(slot)), snapshot.game);
-			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level);
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(slot)), snapshot.game());
+			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level());
 			GamesInProgress.setUnknown(slot);
 			Game.resetScene();
 			return null;

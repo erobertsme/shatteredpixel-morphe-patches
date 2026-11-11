@@ -177,7 +177,11 @@ public final class TabPouches {
 		badgeScene = scene instanceof Scene ? (Scene) scene : null;
 		Level level = Dungeon.level;
 		if (badgeScene == null || level == null) return;
-		for (Heap heap : level.heaps.valueList()) track(heap);
+		try {
+			for (Heap heap : level.heaps.valueList()) track(heap);
+		} catch (Throwable e) {
+			Log.e("TabPouches", "Could not badge the pouches", e);
+		}
 	}
 
 	/**
@@ -192,6 +196,7 @@ public final class TabPouches {
 	 * Gives [heap] the small picture of its tab's item when it is a pouch for sale, or takes it away when it no longer is.
 	 */
 	private static void track(Heap heap) {
+		if (heap == null) return;
 		TabPouch pouch = pouchIn(heap);
 		ItemSprite badge = badges.get(heap);
 		if (pouch == null) {
