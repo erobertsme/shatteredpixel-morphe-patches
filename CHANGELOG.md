@@ -1,3 +1,9 @@
+## [1.0.0-dev.128](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.127...v1.0.0-dev.128) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* offer to restore a damaged game from its kept undo steps ([19caf54](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/19caf54e386a85a83b4eb8989de981be1fb5b231))
+
 ## [1.0.0-dev.127](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.126...v1.0.0-dev.127) (2026-11-11)
 
 ### 🔧 Improvements
