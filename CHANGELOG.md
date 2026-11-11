@@ -1,3 +1,9 @@
+## [1.0.0-dev.129](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.128...v1.0.0-dev.129) (2026-11-11)
+
+### ✨ New Features
+
+* auto saves on new floors and side areas; restoring shows the full preview first ([6b59c82](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6b59c828c3cb7709cc6ca6cda09ceb7bd95cb8e6))
+
 ## [1.0.0-dev.128](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.127...v1.0.0-dev.128) (2026-11-11)
 
 ### 🐛 Bug Fixes
