@@ -133,8 +133,12 @@ final class GameSaves {
 		try {
 			if (!SaveBackupActivity.isAvailable()) return;
 			File finished = nextFinished();
-			if (finished == null) return;
-			scene.addToFront(prompt(finished));
+			if (finished != null) {
+				scene.addToFront(prompt(finished));
+				return;
+			}
+			ConfirmPrompt undoOnly = damagedWithUndoSteps();
+			if (undoOnly != null) scene.addToFront(undoOnly);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not check for finished games", e);
 		}
@@ -166,16 +170,42 @@ final class GameSaves {
 			askNext();
 		};
 		String title = damaged ? "Damaged Game" : "Finished Game";
+		long seed = matcher.matches() ? new java.math.BigInteger(matcher.group(2), 16).longValue() : 0;
+		boolean hasUndo = damaged && !UndoHistory.storedSteps(slot, seed).isEmpty();
+		Runnable restoreUndo = () -> EditorWindow.show(new RestoreUndoWindow(slot, seed, 0));
+		if (!canRestore && hasUndo) return new ConfirmPrompt(title, message, new String[] { "Restore an Undo Step", "Keep Saves", "Delete Saves" }, new Runnable[] { restoreUndo, keep, delete });
 		if (!canRestore) return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] { delete, keep });
 		Runnable restore = () -> EditorWindow.show(new RestoreSaveWindow(folder, slot, 0));
+		if (hasUndo) return new ConfirmPrompt(title, message, new String[] { "Restore a Save", "Restore an Undo Step", "Keep Saves", "Delete Saves" }, new Runnable[] { restore, restoreUndo, keep, delete });
 		if (damaged) return new ConfirmPrompt(title, message, new String[] { "Restore a Save", "Keep Saves", "Delete Saves" }, new Runnable[] { restore, keep, delete });
 		return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves", "Restore a Save" }, new Runnable[] { delete, keep, restore });
 	}
 
 	/**
+	 * A prompt for a damaged game that has kept undo steps but no Game Saves, or null when there is none.
+	 */
+	private static ConfirmPrompt damagedWithUndoSteps() {
+		for (long[] game : UndoHistory.storedGames()) {
+			int slot = (int) game[0];
+			long seed = game[1];
+			if (!isDamaged(slot) || CloverlordSettings.get(KEPT_PREFIX + "undo_" + slot + "_" + seed)) continue;
+			List<UndoHistory.StoredStep> steps = UndoHistory.storedSteps(slot, seed);
+			if (steps.isEmpty()) continue;
+			String message = "Your game in slot " + slot + " can't be read. Its save file may have been damaged, for example if the phone shut down while the game was saving. It has "
+				+ steps.size() + (steps.size() == 1 ? " undo step" : " undo steps") + " kept. The latest: " + steps.get(0).title() + "."
+				+ "\n\nRestore an undo step to keep playing from it.";
+			return new ConfirmPrompt("Damaged Game", message, new String[] { "Restore an Undo Step", "Not Now" }, new Runnable[] {
+				() -> EditorWindow.show(new RestoreUndoWindow(slot, seed, 0)),
+				() -> CloverlordSettings.set(KEPT_PREFIX + "undo_" + slot + "_" + seed, true),
+			});
+		}
+		return null;
+	}
+
+	/**
 	 * Whether the game in [slot] has files, but its main save file can't be read.
 	 */
-	private static boolean isDamaged(int slot) {
+	static boolean isDamaged(int slot) {
 		File root = saveRoot();
 		if (root == null) return false;
 		File[] files = new File(root, GamesInProgress.gameFolder(slot)).listFiles();

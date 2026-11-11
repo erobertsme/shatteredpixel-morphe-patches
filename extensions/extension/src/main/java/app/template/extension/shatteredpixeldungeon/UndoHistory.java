@@ -557,6 +557,112 @@ public final class UndoHistory {
 		}
 	}
 
+	/**
+	 * A kept undo step of a game that isn't being played, described without loading its saved game.
+	 */
+	static final class StoredStep {
+		final long id;
+		final int depth;
+		final int turn;
+		final int hp;
+		final int ht;
+
+		StoredStep(long id, int depth, int turn, int hp, int ht) {
+			this.id = id;
+			this.depth = depth;
+			this.turn = turn;
+			this.hp = hp;
+			this.ht = ht;
+		}
+
+		String title() {
+			return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
+		}
+	}
+
+	/**
+	 * The slot and seed of each game with kept undo steps.
+	 */
+	static List<long[]> storedGames() {
+		List<long[]> games = new ArrayList<>();
+		File base = SaveLocation.privateDir();
+		File[] folders = base == null ? null : new File(base, STORE_FOLDER).listFiles();
+		if (folders == null) return games;
+		for (File folder : folders) {
+			String name = folder.getName();
+			int split = name.indexOf('_');
+			if (!folder.isDirectory() || split < 0) continue;
+			try {
+				games.add(new long[] { Integer.parseInt(name.substring(0, split)), Long.parseLong(name.substring(split + 1)) });
+			} catch (NumberFormatException ignored) {
+			}
+		}
+		return games;
+	}
+
+	/**
+	 * The kept undo steps of the game in [slot] with [seed], newest first.
+	 */
+	static List<StoredStep> storedSteps(int slot, long seed) {
+		List<StoredStep> steps = new ArrayList<>();
+		String id = slot + ":" + seed;
+		File folder = storeFolder(id);
+		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
+		if (indexFile == null || !indexFile.isFile()) return steps;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
+			if (in.readInt() != STORE_FORMAT || !id.equals(in.readUTF())) return steps;
+			in.readInt();
+			int count = in.readInt();
+			for (int i = 0; i < count; i++) {
+				long stepId = in.readLong();
+				StoredStep step = readHeader(new File(folder, stepId + SNAPSHOT_SUFFIX), stepId);
+				if (step != null) steps.add(0, step);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not list the kept undo steps", e);
+		}
+		return steps;
+	}
+
+	private static StoredStep readHeader(File file, long id) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			return new StoredStep(id, depth, turn, hp, ht);
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Puts a kept undo step back into [slot] as its game in progress. Whatever is in the slot is copied to the app's cache first. Returns an
+	 * error message, or null when it worked.
+	 */
+	static String restoreStored(int slot, long seed, long stepId) {
+		try {
+			File folder = storeFolder(slot + ":" + seed);
+			Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
+			File root = SaveLocation.currentRoot();
+			if (snapshot == null || root == null) return "That undo step could not be read.";
+			File gameFolder = new File(root, GamesInProgress.gameFolder(slot));
+			File cache = SaveLocation.cacheDir();
+			if (cache != null && gameFolder.isDirectory()) FileHelpers.copy(gameFolder, new File(cache, "replaced_" + gameFolder.getName() + "_" + System.currentTimeMillis()));
+			if (!gameFolder.isDirectory() && !gameFolder.mkdirs()) return "The game's folder could not be made.";
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(slot)), snapshot.game);
+			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level);
+			GamesInProgress.setUnknown(slot);
+			Game.resetScene();
+			return null;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not restore the undo step", e);
+			return "Restoring failed: " + e.getMessage();
+		}
+	}
+
 	private static File storeFolder(String id) {
 		File base = SaveLocation.privateDir();
 		if (base == null || id == null) return null;
