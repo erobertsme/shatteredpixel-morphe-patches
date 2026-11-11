@@ -1,3 +1,9 @@
+## [1.0.0-dev.127](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.126...v1.0.0-dev.127) (2026-11-11)
+
+### 🔧 Improvements
+
+* release the event-driven update and cached reflection refactor ([b765aa3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b765aa367d5cc1be16559e560f3fbc934577167d))
+
 ## [1.0.0-dev.126](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.125...v1.0.0-dev.126) (2026-11-11)
 
 ### 🐛 Bug Fixes
