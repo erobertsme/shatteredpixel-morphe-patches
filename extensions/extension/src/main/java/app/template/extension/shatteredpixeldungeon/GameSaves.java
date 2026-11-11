@@ -132,7 +132,6 @@ final class GameSaves {
 	static void checkFinishedGames(com.watabou.noosa.Group scene) {
 		try {
 			if (!SaveBackupActivity.isAvailable()) return;
-			UndoHistory.pruneStored();
 			File finished = nextFinished();
 			if (finished == null) return;
 			scene.addToFront(prompt(finished));
@@ -143,24 +142,101 @@ final class GameSaves {
 
 	private static ConfirmPrompt prompt(File folder) {
 		java.util.regex.Matcher matcher = FOLDER.matcher(folder.getName());
-		String slot = matcher.matches() ? matcher.group(1) : "?";
+		int slot = matcher.matches() ? Integer.parseInt(matcher.group(1)) : -1;
 		List<Save> saves = savesIn(folder);
+		boolean damaged = slot > 0 && isDamaged(slot);
+		boolean canRestore = slot > 0 && !saves.isEmpty() && slotFree(slot);
 		String latest = saves.isEmpty() ? "" : " Its latest save: " + saves.get(0).title() + ".";
-		String message = "Your game in slot " + slot + " has ended. It has " + saves.size() + (saves.size() == 1 ? " save" : " saves") + " left over." + latest
-			+ "\n\nDelete them, or keep them? If any are locked, you'll be asked about those next. Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
-		return new ConfirmPrompt("Finished Game", message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] {
-			() -> {
-				if (deleteUnlocked(folder)) {
-					EditorWindow.show(lockedPrompt(folder));
-				} else {
-					askNext();
-				}
-			},
-			() -> {
-				CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
+		String count = saves.size() + (saves.size() == 1 ? " save" : " saves");
+		String message = damaged
+			? "Your game in slot " + slot + " can't be read. Its save file may have been damaged, for example if the phone shut down while the game was saving. It has " + count + "." + latest
+				+ "\n\nRestore a save to keep playing from it, keep the saves for later, or delete them."
+			: "Your game in slot " + (slot > 0 ? String.valueOf(slot) : "?") + " has ended. It has " + count + " left over." + latest
+				+ "\n\nDelete them, or keep them? If any are locked, you'll be asked about those next. Kept saves can be removed later with Clean Up Saves in Extras on the main menu.";
+		Runnable delete = () -> {
+			deleteStoredHistory(folder);
+			if (deleteUnlocked(folder)) {
+				EditorWindow.show(lockedPrompt(folder));
+			} else {
 				askNext();
-			},
-		});
+			}
+		};
+		Runnable keep = () -> {
+			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), true);
+			askNext();
+		};
+		String title = damaged ? "Damaged Game" : "Finished Game";
+		if (!canRestore) return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] { delete, keep });
+		Runnable restore = () -> EditorWindow.show(new RestoreSaveWindow(folder, slot, 0));
+		if (damaged) return new ConfirmPrompt(title, message, new String[] { "Restore a Save", "Keep Saves", "Delete Saves" }, new Runnable[] { restore, keep, delete });
+		return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves", "Restore a Save" }, new Runnable[] { delete, keep, restore });
+	}
+
+	/**
+	 * Whether the game in [slot] has files, but its main save file can't be read.
+	 */
+	private static boolean isDamaged(int slot) {
+		File root = saveRoot();
+		if (root == null) return false;
+		File[] files = new File(root, GamesInProgress.gameFolder(slot)).listFiles();
+		return files != null && files.length > 0 && GamesInProgress.check(slot) == null;
+	}
+
+	private static boolean slotFree(int slot) {
+		try {
+			return GamesInProgress.check(slot) == null;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	/**
+	 * The saves of a finished game's [folder], newest first.
+	 */
+	static List<Save> savesOf(File folder) {
+		return savesIn(folder);
+	}
+
+	/**
+	 * Puts [save] back into [slot] as the game in progress there. Anything already in the slot is moved to the app's cache first, so nothing
+	 * is lost. Returns an error message, or null when it worked.
+	 */
+	static String restoreToSlot(Save save, File folder, int slot) {
+		try {
+			File root = saveRoot();
+			if (root == null || !save.folder.isDirectory()) return "That save could not be found.";
+			if (!slotFree(slot)) return "Slot " + slot + " already has a game in it.";
+			File target = new File(root, GamesInProgress.gameFolder(slot));
+			File[] current = target.listFiles();
+			if (current != null && current.length > 0) {
+				File cache = SaveLocation.cacheDir();
+				if (cache != null) copyFolder(target, new File(cache, "replaced_" + target.getName() + "_" + System.currentTimeMillis()));
+				for (File file : current) deleteRecursively(file);
+			}
+			copyFolder(save.folder, target);
+			new File(target, INFO_FILE).delete();
+			new File(target, PREVIEW_FILE).delete();
+			GamesInProgress.setUnknown(slot);
+			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
+			Game.resetScene();
+			return null;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not restore the save", e);
+			return "Restoring failed: " + e.getMessage();
+		}
+	}
+
+	/**
+	 * Deletes the kept undo history of the game a finished [folder] belongs to.
+	 */
+	private static void deleteStoredHistory(File folder) {
+		java.util.regex.Matcher matcher = FOLDER.matcher(folder.getName());
+		if (!matcher.matches()) return;
+		try {
+			UndoHistory.deleteStored(Integer.parseInt(matcher.group(1)), new java.math.BigInteger(matcher.group(2), 16).longValue());
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not delete the undo history", e);
+		}
 	}
 
 	/**
@@ -181,6 +257,13 @@ final class GameSaves {
 				askNext();
 			},
 		});
+	}
+
+	/**
+	 * Shows the finished game prompt for [folder] again.
+	 */
+	static void askAgain(File folder) {
+		EditorWindow.show(prompt(folder));
 	}
 
 	private static void askNext() {

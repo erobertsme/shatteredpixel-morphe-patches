@@ -6,5 +6,6 @@ public class Game {
 	public static int height;
 	public static void runOnRenderThread(com.watabou.utils.Callback callback) { throw new RuntimeException("Stub"); }
 	public static void switchScene(Class<? extends Scene> c) { throw new RuntimeException("Stub"); }
+	public static void resetScene() { throw new RuntimeException("Stub"); }
 	public static Scene scene() { throw new RuntimeException("Stub"); }
 }
