@@ -30,7 +30,7 @@ import java.util.Properties;
  * Extra saves of the game in progress. Each game gets its own folder in the save folder, named after its save slot
  * and seed (game1_1a2b3c), next to the game's own folder, so saves of one game can never be loaded into another and backups include them.
  */
-final class GameSaves {
+public final class GameSaves {
 
 	private static final String TAG = "GameSaves";
 	private static final String OLD_ROOT = "morphe_saves";
