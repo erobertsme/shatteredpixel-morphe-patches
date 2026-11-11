@@ -42,11 +42,11 @@ public class RestoreSaveWindow extends EditorWindow {
 	}
 
 	private void confirm(GameSaves.Save save) {
-		ConfirmPrompt.ask("Restore", "Restore this save to slot " + slot + "?\n\n" + save.title(), "Restore", () -> {
-			hide();
+		hide();
+		show(new RestorePreviewWindow(save.title(), save.preview(), save.hero(), () -> {
 			String error = GameSaves.restoreToSlot(save, folder, slot);
 			if (error != null) GLog.w(error);
-		});
+		}, this::reopen));
 	}
 
 	@Override

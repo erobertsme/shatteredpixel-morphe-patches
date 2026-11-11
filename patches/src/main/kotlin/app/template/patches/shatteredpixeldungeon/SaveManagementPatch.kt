@@ -202,6 +202,8 @@ val saveManagementPatch = bytecodePatch(
 
 		GameSceneCreateFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/UndoTags;->onSceneCreated(Ljava/lang/Object;)V")
 		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->onHeroReady()V")
+		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameSaves;->onHeroReady()V")
+		DungeonSwitchLevelFingerprint.method.addInstruction(0, "invoke-static { }, $EXTENSION_PACKAGE/GameSaves;->onLevelSwitch()V")
 		DungeonDeleteGameFingerprint.method.addInstruction(0, "invoke-static { p0 }, $EXTENSION_PACKAGE/UndoHistory;->beforeDeleteGame(I)V")
 		GameSceneGameOverFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/UndoHistory;->afterGameOver()V")
 

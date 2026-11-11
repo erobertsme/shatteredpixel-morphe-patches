@@ -639,6 +639,16 @@ public final class UndoHistory {
 	}
 
 	/**
+	 * The picture and hero of a kept undo step, or nulls when they can't be read.
+	 */
+	static Object[] storedPreview(int slot, long seed, long stepId) {
+		File folder = storeFolder(slot + ":" + seed);
+		Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
+		if (snapshot == null) return new Object[] { null, null };
+		return new Object[] { snapshot.scene, SnapshotHero.read(snapshot.game) };
+	}
+
+	/**
 	 * Puts a kept undo step back into [slot] as its game in progress. Whatever is in the slot is copied to the app's cache first. Returns an
 	 * error message, or null when it worked.
 	 */

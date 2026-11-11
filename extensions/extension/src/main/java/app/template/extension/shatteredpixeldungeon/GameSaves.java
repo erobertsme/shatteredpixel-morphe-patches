@@ -40,17 +40,20 @@ final class GameSaves {
 	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
 	private static final String GAME_FILE = "game.dat";
 	static final int MAX_SAVES = 10;
+	static final int MAX_AUTO_SAVES = 5;
 
 	static final class Save {
 		final File folder;
 		final String label;
 		final long time;
 		final boolean locked;
+		final boolean auto;
 
-		Save(File folder, String label, long time, boolean locked) {
+		Save(File folder, String label, long time, boolean locked, boolean auto) {
 			this.folder = folder;
 			this.label = label;
 			this.time = time;
+			this.auto = auto;
 			this.locked = locked;
 		}
 
@@ -373,7 +376,7 @@ final class GameSaves {
 				}
 			}
 			long time = parseLong(info.getProperty("time"), child.lastModified());
-			saves.add(new Save(child, info.getProperty("label", child.getName()), time, Boolean.parseBoolean(info.getProperty("locked"))));
+			saves.add(new Save(child, info.getProperty("label", child.getName()), time, Boolean.parseBoolean(info.getProperty("locked")), Boolean.parseBoolean(info.getProperty("auto"))));
 		}
 		saves.sort((a, b) -> Long.compare(b.time, a.time));
 		return saves;
@@ -383,9 +386,16 @@ final class GameSaves {
 	 * How many saves count towards the limit. Locked saves don't.
 	 */
 	static int unlockedCount() {
+		return unlockedCount(false);
+	}
+
+	/**
+	 * How many unlocked saves of one kind there are: auto saves, or saves you made.
+	 */
+	private static int unlockedCount(boolean auto) {
 		int count = 0;
 		for (Save save : list()) {
-			if (!save.locked) count++;
+			if (!save.locked && save.auto == auto) count++;
 		}
 		return count;
 	}
@@ -394,9 +404,13 @@ final class GameSaves {
 	 * The oldest save that isn't locked, which a new save replaces once the limit is reached, or null if there is none.
 	 */
 	static Save oldestUnlocked() {
+		return oldestUnlocked(false);
+	}
+
+	private static Save oldestUnlocked(boolean auto) {
 		Save oldest = null;
 		for (Save save : list()) {
-			if (!save.locked && (oldest == null || save.time < oldest.time)) oldest = save;
+			if (!save.locked && save.auto == auto && (oldest == null || save.time < oldest.time)) oldest = save;
 		}
 		return oldest;
 	}
@@ -432,10 +446,15 @@ final class GameSaves {
 	 * first. Returns an error message, or null when it worked.
 	 */
 	static String create() {
+		return create(false);
+	}
+
+	private static String create(boolean auto) {
 		try {
-			if (unlockedCount() >= MAX_SAVES) {
-				Save oldest = oldestUnlocked();
-				if (oldest == null) return "This game already has " + MAX_SAVES + " saves. Delete one first.";
+			int limit = auto ? MAX_AUTO_SAVES : MAX_SAVES;
+			while (unlockedCount(auto) >= limit) {
+				Save oldest = oldestUnlocked(auto);
+				if (oldest == null) break;
 				delete(oldest);
 			}
 			Dungeon.saveAll();
@@ -449,7 +468,8 @@ final class GameSaves {
 			Hero hero = Dungeon.hero;
 			Properties info = new Properties();
 			info.setProperty("time", String.valueOf(time));
-			info.setProperty("label", "Depth " + Dungeon.depth + ", " + InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl);
+			info.setProperty("label", (auto ? "Auto: " : "") + "Depth " + Dungeon.depth + place() + ", " + InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl);
+			if (auto) info.setProperty("auto", "true");
 			try (OutputStream out = new FileOutputStream(new File(target, INFO_FILE))) {
 				info.store(out, null);
 			}
@@ -459,6 +479,54 @@ final class GameSaves {
 			Log.e(TAG, "Could not save", e);
 			return "Saving failed: " + e.getMessage();
 		}
+	}
+
+	/**
+	 * The side area the hero is in, such as the Blacksmith's mine, or nothing on the main floors.
+	 */
+	private static String place() {
+		if (Dungeon.branch == 0) return "";
+		if (Dungeon.branch == 1 && Dungeon.depth >= 11 && Dungeon.depth <= 14) return " (mine)";
+		if (Dungeon.branch == 1 && Dungeon.depth >= 16 && Dungeon.depth <= 19) return " (vault)";
+		return " (side area)";
+	}
+
+	private static final String KEY_AUTO = "save_auto_on";
+	private static volatile boolean autoPending;
+
+	static boolean autoSaves() {
+		return CloverlordSettings.get(KEY_AUTO);
+	}
+
+	static void autoSaves(boolean on) {
+		CloverlordSettings.set(KEY_AUTO, on);
+	}
+
+	/**
+	 * Called at the start of Dungeon.switchLevel. Notes that the hero is arriving on a floor, or entering or leaving a side area like the
+	 * Blacksmith's mine, so the game is saved once they are ready to move there. Loading a game doesn't count.
+	 */
+	public static void onLevelSwitch() {
+		if (!isAvailable() || !autoSaves()) return;
+		InterlevelScene.Mode mode = InterlevelScene.mode;
+		if (mode == InterlevelScene.Mode.DESCEND || mode == InterlevelScene.Mode.ASCEND || mode == InterlevelScene.Mode.FALL
+			|| mode == InterlevelScene.Mode.RETURN) {
+			autoPending = true;
+		}
+	}
+
+	/**
+	 * Called at the end of Hero.ready. Makes the auto save noted by [onLevelSwitch].
+	 */
+	public static void onHeroReady() {
+		if (!autoPending) return;
+		autoPending = false;
+		Game.runOnRenderThread(() -> {
+			Hero hero = Dungeon.hero;
+			if (hero == null || !hero.isAlive()) return;
+			String error = create(true);
+			if (error != null) Log.e(TAG, "Auto save failed: " + error);
+		});
 	}
 
 	private static void writePreview(File file) {

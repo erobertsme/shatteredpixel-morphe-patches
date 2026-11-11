@@ -1,5 +1,6 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 import java.util.List;
@@ -37,11 +38,12 @@ public class RestoreUndoWindow extends EditorWindow {
 	}
 
 	private void confirm(UndoHistory.StoredStep step) {
-		ConfirmPrompt.ask("Restore", "Restore this undo step to slot " + slot + "?\n\n" + step.title(), "Restore", () -> {
-			hide();
+		Object[] preview = UndoHistory.storedPreview(slot, seed, step.id);
+		hide();
+		show(new RestorePreviewWindow(step.title(), (UndoScene) preview[0], (Hero) preview[1], () -> {
 			String error = UndoHistory.restoreStored(slot, seed, step.id);
 			if (error != null) GLog.w(error);
-		});
+		}, this::reopen));
 	}
 
 	@Override
