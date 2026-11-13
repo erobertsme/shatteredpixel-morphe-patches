@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.Bundle;
 
@@ -38,6 +39,7 @@ public final class QuickslotRow {
 	private static final int ROW_HEIGHT = 24;
 	private static final int TOOL_HEIGHT = 26;
 	private static final int PITCH = 18;
+	private static final String TOOLBAR = "interfaces/toolbar.png";
 	private static final int[] FIRST_FRAME = { 86, 20, 2, 1 };
 	private static final int[] MIDDLE_FRAME = { 88, 18, 0, 1 };
 	private static final int[] LAST_FRAME = { 106, 19, 0, 2 };
@@ -148,7 +150,7 @@ public final class QuickslotRow {
 		}
 	}
 
-	private static boolean wantsRow() {
+	static boolean wantsRow() {
 		return isOn() && QuickSlot.SIZE >= SWAPPER_SLOTS && SPDSettings.interfaceSize() == 0 && !SPDSettings.quickSwapper();
 	}
 
@@ -158,6 +160,32 @@ public final class QuickslotRow {
 	 * Grows or shrinks the toolbar by a row when the setting or the quickslot swapper changes during a game, keeping
 	 * its bottom edge in place, and moves the game log and other indicators to match.
 	 */
+	/**
+	 * How tall the toolbar is: its real height in a game, or outside one the height it will have.
+	 */
+	static float toolbarHeight() {
+		Object bar = Reflect.gameScenePart("toolbar");
+		if (bar instanceof Component) return ((Component) bar).height();
+		return TOOL_HEIGHT + (wantsRow() ? ROW_HEIGHT : 0);
+	}
+
+	/**
+	 * A stand-in for the extra row of quickslots, [width] wide from [left] with its top at [y], framed like the real one.
+	 */
+	static List<Image> standInRow(float left, float width, float y) {
+		List<Image> parts = new ArrayList<>();
+		List<Float> cells = new ArrayList<>();
+		for (float c = left + FIRST_FRAME[2]; c <= left + width - LAST_FRAME[1]; c += PITCH) cells.add(c);
+		for (int k = 0; k < cells.size(); k++) {
+			int[] frame = cells.size() == 1 ? MIDDLE_FRAME : k == 0 ? FIRST_FRAME : k == cells.size() - 1 ? LAST_FRAME : MIDDLE_FRAME;
+			Image image = new Image(TOOLBAR, frame[0], 0, frame[1], ROW_HEIGHT);
+			image.x = cells.get(k) - (frame == FIRST_FRAME ? FIRST_FRAME[2] : 0);
+			image.y = y;
+			parts.add(image);
+		}
+		return parts;
+	}
+
 	/**
 	 * How much taller the toolbar is than normal right now.
 	 */

@@ -46,9 +46,10 @@ final class MenuPreview {
 		float right = ui.width - insets[2];
 		ColorBlock screen = new ColorBlock(ui.width, ui.height, 0xFF141414);
 		add(scene, screen);
-		add(scene, at(new Image(STATUS, 0, 0, 82, 38), left, insets[1]));
+		add(scene, at(new Image(STATUS, 0, 0, 82, 38), left, ScreenLayout.statusTop()));
 
-		float bottom = ui.height - insets[3] - TOOLBAR_HEIGHT;
+		float toolbarTop = ui.height - insets[3] - QuickslotRow.toolbarHeight();
+		float bottom = toolbarTop;
 		add(scene, at(new ColorBlock(right - left, TOOLBAR_HEIGHT, 0xFF0C0C0C), left, bottom));
 		add(scene, at(new Image(TOOLBAR, 0, 0, 64, TOOLBAR_HEIGHT), left, bottom));
 		Image pack = at(new Image(TOOLBAR, 0, 0, 24, TOOLBAR_HEIGHT), right - 24, bottom);
@@ -57,6 +58,9 @@ final class MenuPreview {
 		add(scene, at(packIcon, pack.x + (24 - packIcon.width()) / 2f, bottom + (TOOLBAR_HEIGHT - packIcon.height()) / 2f));
 		for (int i = 1; i <= QUICKSLOTS; i++) {
 			add(scene, at(new Image(TOOLBAR, 64, 0, 22, 24), right - 24 - i * 22, bottom + 2));
+		}
+		if (QuickslotRow.wantsRow()) {
+			for (Image slot : QuickslotRow.standInRow(left, right - left, bottom + TOOLBAR_HEIGHT)) add(scene, slot);
 		}
 
 		if (!withTags) return true;
@@ -70,7 +74,7 @@ final class MenuPreview {
 			if (placement.isAuto()) {
 				int width = placement.tagWidth();
 				int height = placement.tagHeight();
-				tag.setRect(right - width, bottom - height, width, height);
+				tag.setRect(right - width, ScreenLayout.aboveToolbar() - height, width, height);
 				tag.flip(false);
 				tag.onTop(false);
 				tag.style(placement);
