@@ -1,3 +1,9 @@
+## [1.0.0-dev.134](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.133...v1.0.0-dev.134) (2026-11-13)
+
+### 🐛 Bug Fixes
+
+* Tags editor stand-in screen matches the real game layout ([489ae29](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/489ae2902a9a4f186edac00be251c6ffe78e8113))
+
 ## [1.0.0-dev.133](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.132...v1.0.0-dev.133) (2026-11-13)
 
 ### ✨ New Features

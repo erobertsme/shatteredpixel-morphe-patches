@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-13T19:23:01",
-  "description": "## [1.0.0-dev.133](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.132...v1.0.0-dev.133) (2026-11-13)\n\n### ✨ New Features\n\n* Tags editor with the game's own tags and full settings on tap ([1419b37](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1419b3721611f2eb9354b975f9dcca3daf2fd737))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.133/patches-1.0.0-dev.133.mpp",
+  "created_at": "2026-11-13T21:33:27",
+  "description": "## [1.0.0-dev.134](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.133...v1.0.0-dev.134) (2026-11-13)\n\n### 🐛 Bug Fixes\n\n* Tags editor stand-in screen matches the real game layout ([489ae29](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/489ae2902a9a4f186edac00be251c6ffe78e8113))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.134/patches-1.0.0-dev.134.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.133"
+  "version": "1.0.0-dev.134"
 }
