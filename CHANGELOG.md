@@ -1,3 +1,9 @@
+## [1.0.0-dev.132](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.131...v1.0.0-dev.132) (2026-11-13)
+
+### ✨ New Features
+
+* tags respect display margins, and Reposition tags lets you drag every tag on one screen ([251d1c3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/251d1c3e52693b692b55af4edc93a092d2ecae87))
+
 ## [1.0.0-dev.131](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.130...v1.0.0-dev.131) (2026-11-11)
 
 ### 🐛 Bug Fixes
