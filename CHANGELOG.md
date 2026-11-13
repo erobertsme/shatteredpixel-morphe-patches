@@ -1,3 +1,9 @@
+## [1.0.0-dev.135](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.134...v1.0.0-dev.135) (2026-11-13)
+
+### 🐛 Bug Fixes
+
+* Tags editor tells taps from drags with a short hold to pick a tag up ([4ded112](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4ded1128d207095d464611e01730747e2a1917ab))
+
 ## [1.0.0-dev.134](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.133...v1.0.0-dev.134) (2026-11-13)
 
 ### 🐛 Bug Fixes
