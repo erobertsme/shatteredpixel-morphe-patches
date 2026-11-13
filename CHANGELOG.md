@@ -1,3 +1,9 @@
+## [1.0.0-dev.133](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.132...v1.0.0-dev.133) (2026-11-13)
+
+### ✨ New Features
+
+* Tags editor with the game's own tags and full settings on tap ([1419b37](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1419b3721611f2eb9354b975f9dcca3daf2fd737))
+
 ## [1.0.0-dev.132](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.131...v1.0.0-dev.132) (2026-11-13)
 
 ### ✨ New Features
