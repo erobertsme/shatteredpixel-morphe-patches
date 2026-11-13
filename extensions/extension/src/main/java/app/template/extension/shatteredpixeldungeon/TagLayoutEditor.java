@@ -29,6 +29,9 @@ final class TagLayoutEditor {
 	private static final int MARGIN = 4;
 	private static final int HINT_TOP = 40;
 	private static final int HINT_SIDE_SPACE = 40;
+	private static final long HOLD_MS = 250;
+	private static final int HOLD_VIBRATION_MS = 20;
+	private static final float TAP_SLOP = 6;
 
 	private static final List<Gizmo> parts = new ArrayList<>();
 	private static Runnable onClose;
@@ -88,7 +91,7 @@ final class TagLayoutEditor {
 		if (inGame) add(scene, new ColorBlock(ui.width, ui.height, DIM_COLOR));
 
 		float[] insets = ScreenLayout.insets();
-		RenderedTextBlock hint = PixelScene.renderTextBlock("Drag a tag along its edge or onto another edge. Tap a tag for all of its settings.", 6);
+		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap a tag for all of its settings. Press and hold a tag briefly, then drag it along its edge or onto another edge.", 6);
 		hint.maxWidth((int) (ui.width - insets[0] - insets[2] - 2 * MARGIN - HINT_SIDE_SPACE));
 		hint.setPos((ui.width - hint.width()) / 2f, insets[1] + HINT_TOP);
 		PixelScene.align(hint);
@@ -132,16 +135,37 @@ final class TagLayoutEditor {
 		add(scene, label);
 
 		add(scene, new PointerArea(rect[0], rect[1], rect[2], rect[3]) {
-			private boolean moved;
+			private long downAt;
+			private PointF downPoint;
+			private boolean pressed;
+			private boolean dragging;
+			private boolean cancelled;
 
 			@Override
 			public void onPointerDown(PointerEvent event) {
-				moved = false;
+				downAt = System.currentTimeMillis();
+				downPoint = toUi(event);
+				pressed = true;
+				dragging = false;
+				cancelled = false;
+			}
+
+			@Override
+			public void update() {
+				super.update();
+				if (!pressed || dragging || cancelled || System.currentTimeMillis() - downAt < HOLD_MS) return;
+				dragging = true;
+				visual.flash();
+				Game.vibrate(HOLD_VIBRATION_MS);
 			}
 
 			@Override
 			public void onDrag(PointerEvent event) {
-				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+				PointF point = toUi(event);
+				if (!dragging) {
+					if (Math.abs(point.x - downPoint.x) > TAP_SLOP || Math.abs(point.y - downPoint.y) > TAP_SLOP) cancelled = true;
+					return;
+				}
 				TagPlacement.Side side = nearestSide(point, placement.sides());
 				if (placement.isAuto() || side != placement.side()) placement.side(side);
 				float[] now = placement.rect(0);
@@ -152,19 +176,23 @@ final class TagLayoutEditor {
 				visual.flip(side == TagPlacement.Side.LEFT);
 				if (visual instanceof IconTag) ((IconTag) visual).onTop(side == TagPlacement.Side.TOP);
 				placeLabel(entry, (RenderedTextBlock) label, placed);
-				moved = true;
 			}
 
 			@Override
 			public void onPointerUp(PointerEvent event) {
-				if (moved) Game.runOnRenderThread(TagLayoutEditor::build);
+				pressed = false;
+				if (dragging) Game.runOnRenderThread(TagLayoutEditor::build);
 			}
 
 			@Override
 			public void onClick(PointerEvent event) {
-				if (!moved) openSettings(entry);
+				if (!dragging && !cancelled) openSettings(entry);
 			}
 		});
+	}
+
+	private static PointF toUi(PointerEvent event) {
+		return PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
 	}
 
 	/**
