@@ -122,6 +122,14 @@ final class TagPlacement {
 		return autoPlacement && CloverlordSettings.getInt(key + "_side") == AUTO_SIDE;
 	}
 
+	/**
+	 * Puts the tags back on their default edge, at their default distance along it.
+	 */
+	void resetPosition() {
+		storeInt(key + "_side", 0);
+		storeInt(key + "_offset", 0);
+	}
+
 	void setAuto() {
 		storeInt(key + "_side", AUTO_SIDE);
 		storeInt(key + "_offset", 0);
@@ -156,7 +164,8 @@ final class TagPlacement {
 	int maxOffset() {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
-		float span = side == Side.TOP ? ui.width : ui.height;
+		float[] insets = ScreenLayout.insets();
+		float span = side == Side.TOP ? ui.width - insets[0] - insets[2] : ui.height - insets[1] - insets[3];
 		float length = tagCount * (side == Side.TOP ? tagWidth() : tagHeight());
 		return Math.max(0, (int) (span - length));
 	}
@@ -316,13 +325,22 @@ final class TagPlacement {
 	 */
 	float[] rect(int index) {
 		Camera ui = PixelScene.uiCamera;
+		float[] insets = ScreenLayout.insets();
 		Side side = side();
 		float start = offset();
 		int width = tagWidth();
 		int height = tagHeight();
-		if (side == Side.TOP) return new float[] { start + index * width, 0, width, height };
-		float x = side == Side.LEFT ? 0 : ui.width - width;
-		return new float[] { x, start + index * height, width, height };
+		if (side == Side.TOP) return new float[] { insets[0] + start + index * width, insets[1], width, height };
+		float x = side == Side.LEFT ? insets[0] : ui.width - insets[2] - width;
+		return new float[] { x, insets[1] + start + index * height, width, height };
+	}
+
+	/**
+	 * Where along the chosen edge a point on the UI camera falls, as an offset, measured the way [offset] is.
+	 */
+	float offsetAt(float x, float y) {
+		float[] insets = ScreenLayout.insets();
+		return side() == Side.TOP ? x - insets[0] : y - insets[1];
 	}
 
 	int tagCount() {
@@ -333,22 +351,13 @@ final class TagPlacement {
 	 * Lines [tags] up along the chosen edge, in order, and styles them.
 	 */
 	void place(IconTag... tags) {
-		Camera ui = PixelScene.uiCamera;
 		Side side = side();
-		float start = offset();
-		int width = tagWidth();
-		int height = tagHeight();
 		for (int i = 0; i < tags.length; i++) {
 			IconTag tag = tags[i];
+			float[] rect = rect(i);
 			tag.onTop(side == Side.TOP);
-			if (side == Side.TOP) {
-				tag.setRect(start + i * width, 0, width, height);
-				tag.flip(false);
-			} else {
-				float x = side == Side.LEFT ? 0 : ui.width - width;
-				tag.setRect(x, start + i * height, width, height);
-				tag.flip(side == Side.LEFT);
-			}
+			tag.setRect(rect[0], rect[1], rect[2], rect[3]);
+			tag.flip(side == Side.LEFT);
 			tag.style(this);
 		}
 	}

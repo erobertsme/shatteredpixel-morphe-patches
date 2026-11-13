@@ -122,14 +122,14 @@ public class TagSettingsWindow extends EditorWindow {
 			@Override
 			public void onPointerDown(PointerEvent event) {
 				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
-				grab = (top ? point.x : point.y) - placement.offset();
+				grab = placement.offsetAt(point.x, point.y) - placement.offset();
 				moved = false;
 			}
 
 			@Override
 			public void onDrag(PointerEvent event) {
 				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
-				int offset = Math.round((top ? point.x : point.y) - grab);
+				int offset = Math.round(placement.offsetAt(point.x, point.y) - grab);
 				placement.offset(offset);
 				float[] rect = placement.rect(0);
 				if (top) this.x = rect[0];

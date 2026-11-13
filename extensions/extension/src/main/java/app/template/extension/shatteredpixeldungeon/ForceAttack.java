@@ -27,8 +27,6 @@ import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
-import com.watabou.utils.RectF;
-import com.watabou.utils.PlatformSupport;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
@@ -137,13 +135,9 @@ public final class ForceAttack {
 
 
 	private static float sideInset(boolean left) {
-		try {
-			RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
-			return (left ? insets.left : insets.right) / PixelScene.uiCamera.zoom;
-		} catch (Throwable e) {
-			return 0;
-		}
+		return ScreenLayout.insets()[left ? 0 : 2];
 	}
+
 
 	/**
 	 * Shows or hides the button and lays it out again. Runs when the scene is made, when its setting or look changes, and when the hero dies.

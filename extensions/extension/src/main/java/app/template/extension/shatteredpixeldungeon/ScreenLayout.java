@@ -1,7 +1,10 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.ui.Component;
+import com.watabou.utils.PlatformSupport;
+import com.watabou.utils.RectF;
 
 
 /**
@@ -31,5 +34,19 @@ final class ScreenLayout {
 	static float belowStatus() {
 		Object status = Reflect.gameScenePart("status");
 		return status instanceof Component ? ((Component) status).bottom() + GAP : STATUS_SPACE;
+	}
+
+	/**
+	 * How far in from each screen edge buttons and tags must stay on the UI camera, as left, top, right and bottom. It covers the phone's
+	 * notches and bars and the display margins, the same way the game keeps its own tags clear of them.
+	 */
+	static float[] insets() {
+		try {
+			RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
+			float zoom = PixelScene.uiCamera.zoom;
+			return new float[] { insets.left / zoom, insets.top / zoom, insets.right / zoom, insets.bottom / zoom };
+		} catch (Throwable e) {
+			return new float[4];
+		}
 	}
 }

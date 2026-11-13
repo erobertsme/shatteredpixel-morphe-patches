@@ -30,25 +30,36 @@ final class MenuPreview {
 	}
 
 	static boolean show() {
+		return show(true);
+	}
+
+	/**
+	 * Shows the stand-in game screen behind a page on the main menu, with every tag in place when [withTags].
+	 */
+	static boolean show(boolean withTags) {
 		hide();
 		Scene scene = Game.scene();
 		if (scene == null || scene instanceof GameScene) return false;
 		Camera ui = PixelScene.uiCamera;
+		float[] insets = ScreenLayout.insets();
+		float left = insets[0];
+		float right = ui.width - insets[2];
 		ColorBlock screen = new ColorBlock(ui.width, ui.height, 0xFF141414);
 		add(scene, screen);
-		add(scene, at(new Image(STATUS, 0, 0, 82, 38), 0, 0));
+		add(scene, at(new Image(STATUS, 0, 0, 82, 38), left, insets[1]));
 
-		float bottom = ui.height - TOOLBAR_HEIGHT;
-		add(scene, at(new ColorBlock(ui.width, TOOLBAR_HEIGHT, 0xFF0C0C0C), 0, bottom));
-		add(scene, at(new Image(TOOLBAR, 0, 0, 64, TOOLBAR_HEIGHT), 0, bottom));
-		Image pack = at(new Image(TOOLBAR, 0, 0, 24, TOOLBAR_HEIGHT), ui.width - 24, bottom);
+		float bottom = ui.height - insets[3] - TOOLBAR_HEIGHT;
+		add(scene, at(new ColorBlock(right - left, TOOLBAR_HEIGHT, 0xFF0C0C0C), left, bottom));
+		add(scene, at(new Image(TOOLBAR, 0, 0, 64, TOOLBAR_HEIGHT), left, bottom));
+		Image pack = at(new Image(TOOLBAR, 0, 0, 24, TOOLBAR_HEIGHT), right - 24, bottom);
 		add(scene, pack);
 		Image packIcon = Icons.get(Icons.BACKPACK_LRG);
 		add(scene, at(packIcon, pack.x + (24 - packIcon.width()) / 2f, bottom + (TOOLBAR_HEIGHT - packIcon.height()) / 2f));
 		for (int i = 1; i <= QUICKSLOTS; i++) {
-			add(scene, at(new Image(TOOLBAR, 64, 0, 22, 24), ui.width - 24 - i * 22, bottom + 2));
+			add(scene, at(new Image(TOOLBAR, 64, 0, 22, 24), right - 24 - i * 22, bottom + 2));
 		}
 
+		if (!withTags) return true;
 		List<TagPlacement> placements = new ArrayList<>();
 		placements.add(UndoTags.PLACEMENT);
 		placements.add(ForceAttack.PLACEMENT);
@@ -59,7 +70,7 @@ final class MenuPreview {
 			if (placement.isAuto()) {
 				int width = placement.tagWidth();
 				int height = placement.tagHeight();
-				tag.setRect(ui.width - width, bottom - height, width, height);
+				tag.setRect(right - width, bottom - height, width, height);
 				tag.flip(false);
 				tag.onTop(false);
 				tag.style(placement);

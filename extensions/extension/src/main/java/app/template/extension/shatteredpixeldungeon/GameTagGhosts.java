@@ -48,7 +48,8 @@ final class GameTagGhosts {
 		if (scene == null) return;
 		Camera ui = PixelScene.uiCamera;
 		boolean onLeft = SPDSettings.flipTags();
-		float left = onLeft ? 0 : ui.width - Tag.SIZE;
+		float[] insets = ScreenLayout.insets();
+		float left = onLeft ? insets[0] : ui.width - insets[2] - Tag.SIZE;
 		float pos = ScreenLayout.aboveToolbar() + 4;
 		float[] attackTile = ForceAttack.PLACEMENT.isAuto() ? ForceAttack.autoRect() : null;
 		if (attackTile != null) pos -= attackTile[3];
