@@ -21,6 +21,8 @@ public class TagSettingsWindow extends EditorWindow {
 	private static final String INFO = "Tag style\n\nPosition: pick the screen edge, then how many pixels along it the tag sits, from the top of the left and right edges or from the left end of the top edge. Tap the number to type it, or drag the tag itself along its edge. While this page is open in a game, faded outlines show where the game's own buttons appear when they're needed (Attack, Pick Up, Action and Resume), so you can keep your tags clear of them. On the main menu a stand-in game screen with the status pane, toolbar and all your tags is shown behind this page.\n\nColor: the tag's colour. Tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n\nIcon: every icon in the game, in a list you can scroll. The buttons above it show only one kind: interface icons, item sprites, small item icons, status icons or talent icons. Tap one to use it, and turn it in steps of 15 degrees.\n\nIcon Color: tint the icon, or Original for its own colours.\n\nSize: the tag's width and height on screen in pixels (the game's tags are 24 by 24), and the icon's size as a percentage. Reset puts the tag back to 24 by 24.\n\nOpacity: how see-through the tag and its icon are, from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.\n\nOn the top edge the tag turns to face the top of the screen, and on the left edge it is mirrored, so it always looks attached to its edge.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
+	private static final String[] TABS_GAME = { "Position", "Color" };
+	private static final int COLOR_TAB = 2;
 	private static final int[] SWATCHES = {
 		TagPlacement.DEFAULT_COLOR, 0xC0392B, 0xE67E22, 0xD4B92A, 0x3E9B4F, 0x2A9D8F,
 		0x3A6EC8, 0x8E44AD, 0xD9579A, 0x8B5A2B, 0xE0E0E0, 0x303030,
@@ -62,15 +64,23 @@ public class TagSettingsWindow extends EditorWindow {
 		this.back = back;
 		this.onDelete = onDelete;
 		addTitle(title, INFO);
-		addPreview();
-		addButtonRow(TABS_TOP, tab, index -> {
-			tab = index;
-			refresh();
-		});
-		addButtonRow(TABS_BOTTOM, tab - TABS_TOP.length, index -> {
-			tab = TABS_TOP.length + index;
-			refresh();
-		});
+		if (placement.styled()) addPreview();
+		if (placement.styled()) {
+			addButtonRow(TABS_TOP, tab, index -> {
+				tab = index;
+				refresh();
+			});
+			addButtonRow(TABS_BOTTOM, tab - TABS_TOP.length, index -> {
+				tab = TABS_TOP.length + index;
+				refresh();
+			});
+		} else {
+			if (tab != COLOR_TAB) tab = 0;
+			addButtonRow(TABS_GAME, tab == COLOR_TAB ? 1 : 0, index -> {
+				tab = index == 0 ? 0 : COLOR_TAB;
+				refresh();
+			});
+		}
 		pos += GAP;
 		if (tab == 0) addPlacementSettings(placement);
 		if (tab == 1) addSizes();

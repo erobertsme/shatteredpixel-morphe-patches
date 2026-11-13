@@ -123,13 +123,13 @@ abstract class EditorWindow extends Window {
 	 */
 	protected void addPlacementSettings(TagPlacement placement) {
 		TagPlacement.Side current = placement.side();
-		TagPlacement.Side[] sides = TagPlacement.Side.values();
+		TagPlacement.Side[] sides = placement.sides();
 		boolean auto = placement.supportsAuto();
 		int shift = auto ? 1 : 0;
 		String[] labels = new String[sides.length + shift];
 		if (auto) labels[0] = "Auto";
 		for (int i = 0; i < sides.length; i++) labels[i + shift] = sides[i].label;
-		int selected = placement.isAuto() ? 0 : current.ordinal() + shift;
+		int selected = placement.isAuto() ? 0 : Math.max(0, java.util.Arrays.asList(sides).indexOf(current)) + shift;
 		addButtonRow(labels, selected, index -> {
 			if (auto && index == 0) {
 				placement.setAuto();
@@ -139,7 +139,7 @@ abstract class EditorWindow extends Window {
 			refresh();
 		});
 		if (placement.isAuto()) {
-			addHint("Auto: next to the game's own tags, just above the toolbar.");
+			addHint(placement.styled() ? "Auto: next to the game's own tags, just above the toolbar." : "Auto: where the game puts it, stacked with its other tags above the toolbar.");
 			return;
 		}
 		int offset = placement.offset();

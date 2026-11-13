@@ -23,7 +23,7 @@ final class ScreenLayout {
 	 * The lowest y on the UI camera that buttons can reach, just above the toolbar and any extra quickslot row.
 	 */
 	static float aboveToolbar() {
-		float fallback = PixelScene.uiCamera.height - TOOLBAR_SPACE;
+		float fallback = PixelScene.uiCamera.height - insets()[3] - TOOLBAR_SPACE;
 		Object toolbar = Reflect.gameScenePart("toolbar");
 		return toolbar instanceof Component ? Math.min(fallback, ((Component) toolbar).top() - GAP) : fallback;
 	}

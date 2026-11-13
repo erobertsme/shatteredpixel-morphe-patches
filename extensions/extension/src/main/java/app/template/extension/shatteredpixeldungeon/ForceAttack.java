@@ -48,8 +48,6 @@ public final class ForceAttack {
 	private static final int MARKER_COLOR = 0xFFE06A5A;
 	private static final String MISS_SOUND = "sounds/miss.mp3";
 	private static final String LIGHTNING_SOUND = "sounds/lightning.mp3";
-	private static final String[] OTHER_TAGS = { "attack", "loot", "action", "resume" };
-	private static final String[] OTHER_FLAGS = { "tagAttack", "tagLoot", "tagAction", "tagResume" };
 	private static final Random random = new Random();
 
 	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(UndoTags.UNDO_TOP + com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
@@ -95,11 +93,9 @@ public final class ForceAttack {
 	}
 
 	/**
-	 * Called at the end of GameScene.layoutTags. Puts the Attack Tile button just above the toolbar and moves the
-	 * game's own buttons up to make room.
+	 * Called at the end of GameScene.layoutTags. Puts the Attack Tile button just above the toolbar while it keeps its automatic place.
 	 */
-	public static void afterLayoutTags() {
-		QuickslotRow.verifyRow();
+	static void afterLayoutTags() {
 		IconTag current = tag;
 		if (current == null || !current.visible || current.parent == null || !PLACEMENT.isAuto()) return;
 		try {
@@ -119,11 +115,6 @@ public final class ForceAttack {
 			current.flip(onLeft);
 			current.style(PLACEMENT);
 
-			for (int i = 0; i < OTHER_TAGS.length; i++) {
-				if (!(boolean) field(scene, OTHER_FLAGS[i])) continue;
-				Component other = (Component) field(scene, OTHER_TAGS[i]);
-				other.setPos(other.left(), other.top() - height);
-			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not place the Attack Tile button", e);
 		}

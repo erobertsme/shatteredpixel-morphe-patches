@@ -24,6 +24,15 @@ public final class GameEvents {
 	}
 
 	/**
+	 * Called at the end of GameScene.layoutTags, whenever the game lays out its tags.
+	 */
+	public static void afterLayoutTags() {
+		safely(QuickslotRow::verifyRow);
+		safely(ForceAttack::afterLayoutTags);
+		safely(GameTags::afterLayoutTags);
+	}
+
+	/**
 	 * Called at the end of QuickSlotButton.refresh, which the game runs whenever the hero's items change.
 	 */
 	public static void onItemsChanged() {

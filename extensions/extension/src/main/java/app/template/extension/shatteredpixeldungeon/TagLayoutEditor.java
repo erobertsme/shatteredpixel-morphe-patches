@@ -3,6 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shows every tag on the screen at once, with the game's own tags as outlines, so each can be dragged along its edge or onto another edge.
- * Changes apply straight away. On the main menu a stand-in game screen sits behind them.
+ * The tags editor: every tag on the screen at once, the game's own included, so each can be dragged along its edge or onto another edge,
+ * or tapped for all of its settings. Changes apply straight away. On the main menu a stand-in game screen sits behind them.
  */
 final class TagLayoutEditor {
 
@@ -26,17 +27,28 @@ final class TagLayoutEditor {
 	private static final int BUTTON_WIDTH = 50;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
+	private static final int HINT_TOP = 40;
+	private static final int HINT_SIDE_SPACE = 40;
 
 	private static final List<Gizmo> parts = new ArrayList<>();
 	private static Runnable onClose;
 
+	/**
+	 * One tag in the editor. [gameIndex] is the game tag it stands for, or -1 for a tag added by the patches.
+	 */
 	private static final class Entry {
 		final String name;
 		final TagPlacement placement;
+		final int gameIndex;
 
-		Entry(String name, TagPlacement placement) {
+		Entry(String name, TagPlacement placement, int gameIndex) {
 			this.name = name;
 			this.placement = placement;
+			this.gameIndex = gameIndex;
+		}
+
+		boolean isGameTag() {
+			return gameIndex >= 0;
 		}
 	}
 
@@ -53,10 +65,11 @@ final class TagLayoutEditor {
 
 	private static List<Entry> entries() {
 		List<Entry> entries = new ArrayList<>();
-		if (UndoHistory.isAvailable()) entries.add(new Entry("Undo / Redo", UndoTags.PLACEMENT));
+		if (UndoHistory.isAvailable()) entries.add(new Entry("Undo / Redo", UndoTags.PLACEMENT, -1));
 		if (QolSettings.isAvailable()) {
-			entries.add(new Entry("Attack Tile", ForceAttack.PLACEMENT));
-			for (int id : CustomItemTags.ids()) entries.add(new Entry(CustomItemTags.name(id), CustomItemTags.placement(id)));
+			entries.add(new Entry("Attack Tile", ForceAttack.PLACEMENT, -1));
+			for (int id : CustomItemTags.ids()) entries.add(new Entry(CustomItemTags.name(id), CustomItemTags.placement(id), -1));
+			for (int i = 0; i < GameTags.NAMES.length; i++) entries.add(new Entry(GameTags.NAMES[i], GameTags.PLACEMENTS[i], i));
 		}
 		return entries;
 	}
@@ -73,17 +86,15 @@ final class TagLayoutEditor {
 		blocker.blockLevel = PointerArea.ALWAYS_BLOCK;
 		add(scene, blocker);
 		if (inGame) add(scene, new ColorBlock(ui.width, ui.height, DIM_COLOR));
-		GameTagGhosts.show();
-
-		for (Entry entry : entries()) addTag(scene, entry);
 
 		float[] insets = ScreenLayout.insets();
-		float top = insets[1] + 40;
-		RenderedTextBlock hint = PixelScene.renderTextBlock("Drag a tag along its edge, or onto another edge. Outlines show where the game's own buttons appear.", 6);
-		hint.maxWidth((int) (ui.width - insets[0] - insets[2] - 2 * MARGIN - 40));
-		hint.setPos((ui.width - hint.width()) / 2f, top);
+		RenderedTextBlock hint = PixelScene.renderTextBlock("Drag a tag along its edge or onto another edge. Tap a tag for all of its settings.", 6);
+		hint.maxWidth((int) (ui.width - insets[0] - insets[2] - 2 * MARGIN - HINT_SIDE_SPACE));
+		hint.setPos((ui.width - hint.width()) / 2f, insets[1] + HINT_TOP);
 		PixelScene.align(hint);
 		add(scene, hint);
+
+		for (Entry entry : entries()) addTag(scene, entry);
 
 		float buttons = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
 		add(scene, button("Reset", (ui.width - MARGIN) / 2f - BUTTON_WIDTH, buttons, TagLayoutEditor::reset));
@@ -98,20 +109,26 @@ final class TagLayoutEditor {
 
 	private static void addTag(Scene scene, Entry entry) {
 		TagPlacement placement = entry.placement;
-		IconTag tag = new IconTag(() -> { });
-		float[] rect = rectOf(placement);
-		tag.setRect(rect[0], rect[1], rect[2], rect[3]);
-		tag.onTop(!placement.isAuto() && placement.side() == TagPlacement.Side.TOP);
-		tag.flip(!placement.isAuto() && placement.side() == TagPlacement.Side.LEFT);
-		tag.style(placement);
-		add(scene, tag);
-
-		RenderedTextBlock label = PixelScene.renderTextBlock(entry.name, 6);
-		label.hardlight(LABEL_COLOR);
-		float labelX = rect[0] + (rect[2] - label.width()) / 2f;
-		labelX = Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), labelX));
-		label.setPos(labelX, rect[1] + rect[3] + 1);
-		PixelScene.align(label);
+		float[] rect = rectOf(entry);
+		Tag visual;
+		Gizmo label;
+		if (entry.isGameTag()) {
+			Gizmo[] ghost = GameTagGhosts.ghost(entry.gameIndex, rect);
+			visual = (Tag) ghost[0];
+			label = ghost[1];
+		} else {
+			IconTag tag = new IconTag(() -> { });
+			tag.setRect(rect[0], rect[1], rect[2], rect[3]);
+			tag.onTop(!placement.isAuto() && placement.side() == TagPlacement.Side.TOP);
+			tag.flip(!placement.isAuto() && placement.side() == TagPlacement.Side.LEFT);
+			tag.style(placement);
+			visual = tag;
+			RenderedTextBlock name = PixelScene.renderTextBlock(entry.name, 6);
+			name.hardlight(LABEL_COLOR);
+			label = name;
+			placeLabel(entry, name, rect);
+		}
+		add(scene, visual);
 		add(scene, label);
 
 		add(scene, new PointerArea(rect[0], rect[1], rect[2], rect[3]) {
@@ -125,16 +142,16 @@ final class TagLayoutEditor {
 			@Override
 			public void onDrag(PointerEvent event) {
 				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
-				TagPlacement.Side side = nearestSide(point);
+				TagPlacement.Side side = nearestSide(point, placement.sides());
 				if (placement.isAuto() || side != placement.side()) placement.side(side);
 				float[] now = placement.rect(0);
 				float length = side == TagPlacement.Side.TOP ? now[2] : now[3];
 				placement.offset(Math.round(placement.offsetAt(point.x, point.y) - length / 2f));
 				float[] placed = placement.rect(0);
-				tag.onTop(side == TagPlacement.Side.TOP);
-				tag.flip(side == TagPlacement.Side.LEFT);
-				tag.setRect(placed[0], placed[1], placed[2], placed[3]);
-				label.setPos(Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), placed[0] + (placed[2] - label.width()) / 2f)), placed[1] + placed[3] + 1);
+				visual.setRect(placed[0], placed[1], placed[2], placed[3]);
+				visual.flip(side == TagPlacement.Side.LEFT);
+				if (visual instanceof IconTag) ((IconTag) visual).onTop(side == TagPlacement.Side.TOP);
+				placeLabel(entry, (RenderedTextBlock) label, placed);
 				moved = true;
 			}
 
@@ -142,13 +159,30 @@ final class TagLayoutEditor {
 			public void onPointerUp(PointerEvent event) {
 				if (moved) Game.runOnRenderThread(TagLayoutEditor::build);
 			}
+
+			@Override
+			public void onClick(PointerEvent event) {
+				if (!moved) openSettings(entry);
+			}
 		});
 	}
 
 	/**
-	 * Where a tag sits now: its own position, or for a tag that keeps its default place, next to the game's own tags.
+	 * Puts a tag's name under it, or for a game tag, on it.
 	 */
-	private static float[] rectOf(TagPlacement placement) {
+	private static void placeLabel(Entry entry, RenderedTextBlock label, float[] rect) {
+		float x = rect[0] + (rect[2] - label.width()) / 2f;
+		float y = entry.isGameTag() ? rect[1] + (rect[3] - label.height()) / 2f : rect[1] + rect[3] + 1;
+		label.setPos(Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), x)), y);
+		PixelScene.align(label);
+	}
+
+	/**
+	 * Where a tag sits now: its own position, or for one that keeps its automatic place, where that is.
+	 */
+	private static float[] rectOf(Entry entry) {
+		if (entry.isGameTag()) return GameTags.rects()[entry.gameIndex];
+		TagPlacement placement = entry.placement;
 		if (!placement.isAuto()) return placement.rect(0);
 		float[] live = placement == ForceAttack.PLACEMENT ? ForceAttack.autoRect() : null;
 		if (live != null) return live;
@@ -159,16 +193,31 @@ final class TagLayoutEditor {
 	}
 
 	/**
-	 * The edge of the usable screen closest to [point]. Tags can sit on the left, right or top edge.
+	 * The edge of the usable screen closest to [point], out of [allowed].
 	 */
-	private static TagPlacement.Side nearestSide(PointF point) {
+	private static TagPlacement.Side nearestSide(PointF point, TagPlacement.Side[] allowed) {
 		Camera ui = PixelScene.uiCamera;
 		float[] insets = ScreenLayout.insets();
-		float left = point.x - insets[0];
-		float right = ui.width - insets[2] - point.x;
-		float top = point.y - insets[1];
-		if (top < left && top < right) return TagPlacement.Side.TOP;
-		return left <= right ? TagPlacement.Side.LEFT : TagPlacement.Side.RIGHT;
+		TagPlacement.Side best = allowed[0];
+		float bestDistance = Float.MAX_VALUE;
+		for (TagPlacement.Side side : allowed) {
+			float distance = side == TagPlacement.Side.TOP ? point.y - insets[1]
+				: side == TagPlacement.Side.LEFT ? point.x - insets[0]
+				: ui.width - insets[2] - point.x;
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = side;
+			}
+		}
+		return best;
+	}
+
+	/**
+	 * Opens a tag's full settings, coming back to the editor afterwards.
+	 */
+	private static void openSettings(Entry entry) {
+		clear();
+		EditorWindow.show(new TagSettingsWindow(entry.placement, entry.name, TagLayoutEditor::build));
 	}
 
 	private static void reset() {

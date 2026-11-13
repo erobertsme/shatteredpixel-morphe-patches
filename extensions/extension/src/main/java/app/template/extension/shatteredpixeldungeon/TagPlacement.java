@@ -38,6 +38,42 @@ final class TagPlacement {
 	private final int defaultColor;
 	private final boolean autoPlacement;
 	private Runnable listener;
+	private boolean autoByDefault;
+	private boolean styled = true;
+
+	/**
+	 * Keeps the tag in its automatic place until it is moved, for one of the game's own tags.
+	 */
+	TagPlacement autoByDefault() {
+		autoByDefault = true;
+		return this;
+	}
+
+	/**
+	 * Marks a tag whose look the game draws itself, so only its position and colour can be changed.
+	 */
+	TagPlacement positionAndColorOnly() {
+		styled = false;
+		return this;
+	}
+
+	boolean styled() {
+		return styled;
+	}
+
+	/**
+	 * The edges these tags can sit on. The game's own tags only sit on the left or right edge.
+	 */
+	Side[] sides() {
+		return styled ? Side.values() : new Side[] { Side.LEFT, Side.RIGHT };
+	}
+
+	/**
+	 * Whether the colour was chosen, rather than left as the tag's own.
+	 */
+	boolean colorChosen() {
+		return (CloverlordSettings.getInt(key + "_color") & COLOR_SET) != 0;
+	}
 
 	/**
 	 * Runs [listener] whenever one of this placement's settings changes, so the tags it places are laid out again only then. Replaces any
@@ -119,7 +155,9 @@ final class TagPlacement {
 	 * Whether the tag keeps its default position, for a placement that has one.
 	 */
 	boolean isAuto() {
-		return autoPlacement && CloverlordSettings.getInt(key + "_side") == AUTO_SIDE;
+		if (!autoPlacement) return false;
+		int stored = CloverlordSettings.getInt(key + "_side");
+		return stored == AUTO_SIDE || autoByDefault && stored == 0;
 	}
 
 	/**

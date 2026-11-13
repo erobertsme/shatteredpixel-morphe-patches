@@ -111,7 +111,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		HeapDropFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->onDrop($ITEM_TYPE$ITEM_TYPE)V")
 		ItemStoreInBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->store($ITEM_TYPE$ITEM_TYPE)V")
 		ItemRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->restore($ITEM_TYPE$ITEM_TYPE)V")
-		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $FORCE_ATTACK_CLASS->afterLayoutTags()V")
+		GameSceneLayoutTagsFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->afterLayoutTags()V")
 		GameSceneBossSlainFingerprint.method.addInstruction(0, "invoke-static { }, $CHEST_CLASS->onBossSlain()V")
 		HeroStoreInBundleFingerprint.method.addInstruction(
 			0,
