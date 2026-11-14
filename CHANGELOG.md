@@ -1,3 +1,9 @@
+## [1.0.0-dev.139](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.138...v1.0.0-dev.139) (2026-11-14)
+
+### 🐛 Bug Fixes
+
+* Vault enemies listed after the Dwarven City in the spawn list ([4648d99](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4648d993d82c8d49a40655fc68fe7682f05683a4))
+
 ## [1.0.0-dev.138](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.137...v1.0.0-dev.138) (2026-11-14)
 
 ### 🐛 Bug Fixes
