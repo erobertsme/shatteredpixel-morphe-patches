@@ -1,3 +1,9 @@
+## [1.0.0-dev.138](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.137...v1.0.0-dev.138) (2026-11-14)
+
+### 🐛 Bug Fixes
+
+* Spawn creature list keeps every enemy in one sorted list ([a5eb695](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a5eb695da6ab338001ba072a050106c5bd53c18e))
+
 ## [1.0.0-dev.137](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.136...v1.0.0-dev.137) (2026-11-14)
 
 ### ✨ New Features
