@@ -577,6 +577,18 @@ public final class FloorEditor {
 		GameScene.updateFog();
 	}
 
+	static void exploreMap() {
+		Level level = level();
+		if (level == null) return;
+		for (int i = 0; i < level.length(); i++) {
+			if (!level.discoverable[i]) continue;
+			level.mapped[i] = true;
+			level.visited[i] = true;
+		}
+		Dungeon.observe();
+		GameScene.updateFog();
+	}
+
 	static void forgetMap() {
 		Level level = level();
 		if (level == null) return;
