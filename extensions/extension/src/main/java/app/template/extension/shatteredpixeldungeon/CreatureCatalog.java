@@ -16,16 +16,55 @@ final class CreatureCatalog {
 	static final int NPCS = 2;
 	static final int OTHER = 3;
 
+	static final String[] AREAS = { "Sewers", "Prison", "Caves", "Dwarven City", "Demon Halls", "Anywhere" };
+	static final String[] AREA_LABELS = { "Sewers", "Prison", "Caves", "City", "Halls", "Anywhere" };
+	static final int ANYWHERE = AREAS.length - 1;
+
+	private static final String[][] AREA_MOBS = {
+		{ "Rat", "Albino", "Snake", "Gnoll", "GnollExile", "Swarm", "Crab", "HermitCrab", "GreatCrab", "Slime", "CausticSlime", "FetidRat", "GnollTrickster", "Goo" },
+		{ "Skeleton", "Thief", "Bandit", "DM100", "Guard", "Necromancer", "SpectralNecromancer", "Necromancer$NecroSkeleton", "RotHeart", "RotLasher",
+			"Elemental$NewbornFireElemental", "Tengu" },
+		{ "Bat", "Brute", "ArmoredBrute", "Shaman$RedShaman", "Shaman$BlueShaman", "Shaman$PurpleShaman", "Spinner", "DM200", "DM201", "GnollGuard",
+			"GnollSapper", "GnollGeomancer", "CrystalWisp", "CrystalGuardian", "CrystalSpire", "FungalSpinner", "FungalSentry", "FungalCore", "Pylon", "DM300" },
+		{ "Ghoul", "Elemental$FireElemental", "Elemental$FrostElemental", "Elemental$ShockElemental", "Elemental$ChaosElemental", "Warlock", "Monk", "Senior",
+			"Golem", "DwarfKing", "DwarfKing$DKGhoul", "DwarfKing$DKMonk", "DwarfKing$DKWarlock", "DwarfKing$DKGolem" },
+		{ "Succubus", "Eye", "Scorpio", "Acidic", "RipperDemon", "DemonSpawner", "YogDzewa", "YogDzewa$Larva", "YogDzewa$YogEye", "YogDzewa$YogRipper",
+			"YogDzewa$YogScorpio", "YogFist$BrightFist", "YogFist$BurningFist", "YogFist$DarkFist", "YogFist$RottingFist", "YogFist$RustedFist", "YogFist$SoiledFist" },
+	};
+	private static final String MOBS_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.actors.mobs.";
+
 	static final class Entry {
 		final Class<? extends Mob> type;
 		final String name;
 		final int kind;
+		final int area;
 
 		Entry(Class<? extends Mob> type, String name, int kind) {
 			this.type = type;
 			this.name = name;
 			this.kind = kind;
+			this.area = areaOf(type.getName());
 		}
+	}
+
+	/**
+	 * The area of the dungeon a creature belongs to, as an index into [AREAS], or [ANYWHERE] for those found on any floor.
+	 */
+	static int areaOf(String className) {
+		if (!className.startsWith(MOBS_PACKAGE)) return ANYWHERE;
+		String name = className.substring(MOBS_PACKAGE.length());
+		for (int area = 0; area < AREA_MOBS.length; area++) {
+			for (String mob : AREA_MOBS[area]) if (mob.equals(name)) return area;
+		}
+		return ANYWHERE;
+	}
+
+	/**
+	 * Where the first of [entries] from [area] sits in the list, or -1 when there are none.
+	 */
+	static int firstInArea(List<Entry> entries, int area) {
+		for (int i = 0; i < entries.size(); i++) if (entries.get(i).area == area) return i;
+		return -1;
 	}
 
 	private static List<Entry> catalog;
@@ -44,7 +83,7 @@ final class CreatureCatalog {
 			if (existing == null || entry.type.getName().length() < existing.type.getName().length()) byName.put(key, entry);
 		}
 		List<Entry> entries = new ArrayList<>(byName.values());
-		Collections.sort(entries, (a, b) -> a.name.compareToIgnoreCase(b.name));
+		Collections.sort(entries, (a, b) -> a.area != b.area ? Integer.compare(a.area, b.area) : a.name.compareToIgnoreCase(b.name));
 		catalog = entries;
 		return catalog;
 	}
