@@ -1,3 +1,9 @@
+## [1.0.0-dev.137](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.136...v1.0.0-dev.137) (2026-11-14)
+
+### ✨ New Features
+
+* Spawn creature list groups enemies by dungeon area with jump buttons ([b8c8cde](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b8c8cde16d0a8945a24508a5c7019fce3393aa94))
+
 ## [1.0.0-dev.136](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.135...v1.0.0-dev.136) (2026-11-14)
 
 ### ✨ New Features

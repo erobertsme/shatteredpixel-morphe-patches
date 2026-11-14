@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-14T07:39:02",
-  "description": "## [1.0.0-dev.136](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.135...v1.0.0-dev.136) (2026-11-14)\n\n### ✨ New Features\n\n* Mark explored button in the floor editor ([07df9d6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/07df9d6c619b2af0dfcb6129543bba880d14257d))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.136/patches-1.0.0-dev.136.mpp",
+  "created_at": "2026-11-14T08:19:57",
+  "description": "## [1.0.0-dev.137](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.136...v1.0.0-dev.137) (2026-11-14)\n\n### ✨ New Features\n\n* Spawn creature list groups enemies by dungeon area with jump buttons ([b8c8cde](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b8c8cde16d0a8945a24508a5c7019fce3393aa94))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.137/patches-1.0.0-dev.137.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.136"
+  "version": "1.0.0-dev.137"
 }
