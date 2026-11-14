@@ -16,22 +16,21 @@ final class CreatureCatalog {
 	static final int NPCS = 2;
 	static final int OTHER = 3;
 
-	static final String[] AREA_LABELS = { "Sewers", "Prison", "Caves", "City", "Halls" };
+	static final String[] AREA_LABELS = { "Sewers", "Prison", "Caves", "City", "Vault", "Halls" };
 	private static final int UNKNOWN_AREA = AREA_LABELS.length;
 
 	private static final String[][] AREA_MOBS = {
 		{ "Rat", "Albino", "Snake", "Gnoll", "GnollExile", "Swarm", "Crab", "HermitCrab", "GreatCrab", "Slime", "CausticSlime", "FetidRat", "GnollTrickster", "Goo",
-			"Mimic", "GoldenMimic", "CrystalMimic", "EbonyMimic", "Statue", "ArmoredStatue", "Wraith", "TormentedSpirit", "Bee", "Piranha", "PhantomPiranha",
-			"quest.vault.VaultRat" },
+			"Mimic", "GoldenMimic", "CrystalMimic", "EbonyMimic", "Statue", "ArmoredStatue", "Wraith", "TormentedSpirit", "Bee", "Piranha", "PhantomPiranha" },
 		{ "Skeleton", "Thief", "Bandit", "DM100", "Guard", "Necromancer", "SpectralNecromancer", "Necromancer$NecroSkeleton", "RotHeart", "RotLasher",
-			"Elemental$NewbornFireElemental", "Elemental$AllyNewBornElemental", "Tengu", "quest.vault.VaultSkeleton", "quest.vault.VaultDM100" },
+			"Elemental$NewbornFireElemental", "Elemental$AllyNewBornElemental", "Tengu" },
 		{ "Bat", "Brute", "ArmoredBrute", "Shaman$RedShaman", "Shaman$BlueShaman", "Shaman$PurpleShaman", "Spinner", "DM200", "DM201", "GnollGuard",
-			"GnollSapper", "GnollGeomancer", "CrystalWisp", "CrystalGuardian", "CrystalSpire", "FungalSpinner", "FungalSentry", "FungalCore", "Pylon", "DM300", "quest.vault.VaultShaman",
-			"quest.vault.VaultDM200" },
+			"GnollSapper", "GnollGeomancer", "CrystalWisp", "CrystalGuardian", "CrystalSpire", "FungalSpinner", "FungalSentry", "FungalCore", "Pylon", "DM300" },
 		{ "Ghoul", "Elemental$FireElemental", "Elemental$FrostElemental", "Elemental$ShockElemental", "Elemental$ChaosElemental", "Warlock", "Monk", "Senior",
-			"Golem", "DwarfKing", "DwarfKing$DKGhoul", "DwarfKing$DKMonk", "DwarfKing$DKWarlock", "DwarfKing$DKGolem", "quest.vault.VaultGhoul",
-			"quest.vault.VaultGolem", "quest.vault.VaultElemental$Fire", "quest.vault.VaultElemental$Frost", "quest.vault.VaultElemental$Shock",
-			"quest.vault.VaultBossElemental" },
+			"Golem", "DwarfKing", "DwarfKing$DKGhoul", "DwarfKing$DKMonk", "DwarfKing$DKWarlock", "DwarfKing$DKGolem" },
+		{ "quest.vault.VaultRat", "quest.vault.VaultSkeleton", "quest.vault.VaultDM100", "quest.vault.VaultShaman", "quest.vault.VaultDM200",
+			"quest.vault.VaultGhoul", "quest.vault.VaultGolem", "quest.vault.VaultElemental$Fire", "quest.vault.VaultElemental$Frost",
+			"quest.vault.VaultElemental$Shock", "quest.vault.VaultBossElemental" },
 		{ "Succubus", "Eye", "Scorpio", "Acidic", "RipperDemon", "DemonSpawner", "YogDzewa", "YogDzewa$Larva", "YogDzewa$YogEye", "YogDzewa$YogRipper",
 			"YogDzewa$YogScorpio", "YogFist$BrightFist", "YogFist$BurningFist", "YogFist$DarkFist", "YogFist$RottingFist", "YogFist$RustedFist", "YogFist$SoiledFist" },
 	};
@@ -82,7 +81,7 @@ final class CreatureCatalog {
 		for (String className : MobClasses.NAMES) {
 			Entry entry = load(className);
 			if (entry == null) continue;
-			String key = entry.name.toLowerCase(Locale.ENGLISH) + "#" + entry.kind;
+			String key = entry.name.toLowerCase(Locale.ENGLISH) + "#" + entry.kind + "#" + entry.area;
 			Entry existing = byName.get(key);
 			if (existing == null || entry.type.getName().length() < existing.type.getName().length()) byName.put(key, entry);
 		}
