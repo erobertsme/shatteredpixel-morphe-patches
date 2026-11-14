@@ -1,3 +1,9 @@
+## [1.0.0-dev.136](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.135...v1.0.0-dev.136) (2026-11-14)
+
+### ✨ New Features
+
+* Mark explored button in the floor editor ([07df9d6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/07df9d6c619b2af0dfcb6129543bba880d14257d))
+
 ## [1.0.0-dev.135](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.134...v1.0.0-dev.135) (2026-11-13)
 
 ### 🐛 Bug Fixes
