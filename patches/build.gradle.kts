@@ -1,14 +1,13 @@
 group = "app.template"
 
 patches {
-    // TODO: Update this section with your project details.
     about {
-        name = "UserXYZ Patches"
-        description = "Patches for apps I like"
-        source = "git@github.com:UserXYZ/morphe-patches.git"
-        author = "Awesome dev"
+        name = "Cloverlord Patches"
+        description = "Save file access, editing and backup patches for Shattered Pixel Dungeon"
+        source = "git@github.com:erobertsme/shatteredpixel-morphe-patches.git"
+        author = "erobertsme"
         contact = "na"
-        website = "na"
+        website = "https://github.com/erobertsme/shatteredpixel-morphe-patches"
         license = "GPLv3"
     }
 }
@@ -21,6 +20,20 @@ dependencies {
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
 }
+
+val generatePatchesVersion = tasks.register("generatePatchesVersion") {
+    val outputDir = layout.buildDirectory.dir("generated/patchesVersion")
+    val versionName = project.version.toString()
+    inputs.property("version", versionName)
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().file("app/template/patches/shared/PatchesVersion.kt").asFile
+        file.parentFile.mkdirs()
+        file.writeText("package app.template.patches.shared\n\ninternal const val PATCHES_VERSION = \"$versionName\"\n")
+    }
+}
+
+sourceSets["main"].java.srcDir(generatePatchesVersion)
 
 tasks {
     register<JavaExec>("generatePatchesList") {

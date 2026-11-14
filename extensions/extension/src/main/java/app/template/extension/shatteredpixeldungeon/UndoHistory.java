@@ -1,0 +1,798 @@
+package app.template.extension.shatteredpixeldungeon;
+
+import android.util.Log;
+
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.watabou.noosa.Game;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.Set;
+
+/**
+ * Undo and Redo. Each time your hero is ready for a new action the game is saved and copies of the game file and
+ * the current floor's file are kept in memory. Undo and Redo write a copy back and reload the game from it.
+ */
+@SuppressWarnings("unused")
+public final class UndoHistory {
+
+	private static final String TAG = "UndoHistory";
+
+	static final int MODE_LAST = 0;
+	static final int MODE_FLOOR = 1;
+	static final int MODE_UNLIMITED = 2;
+	static final String[] MODES = { "Last actions", "This floor", "Unlimited" };
+	static final int DEFAULT_SIZE = 20;
+	static final int MAX_SIZE = 200;
+	private static final int LIST_LINE_LENGTH = 24;
+
+	private static final String KEY_ON = "qol_undo_on";
+	private static final String KEY_MODE = "qol_undo_mode";
+	private static final String KEY_SIZE = "qol_undo_size";
+	private static final String KEY_FLOOR_ONLY = "qol_undo_floor_only";
+	private static final String KEY_NO_BOSS = "qol_undo_no_boss";
+
+	private static final class Snapshot {
+		private byte[] game;
+		final String levelFile;
+		private byte[] level;
+		private File source;
+		final int depth;
+		final int branch;
+		final int turn;
+		final int hp;
+		final int ht;
+		UndoScene scene;
+		long id;
+
+		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
+			this.game = game;
+			this.levelFile = levelFile;
+			this.level = level;
+			this.depth = depth;
+			this.branch = branch;
+			this.turn = turn;
+			this.hp = hp;
+			this.ht = ht;
+		}
+
+		/**
+		 * A step read back from the app's storage keeps only its summary and picture in memory. Its saved game is read from [file] the
+		 * first time it is needed.
+		 */
+		static Snapshot onDisk(File file, int depth, int branch, int turn, int hp, int ht, String levelFile) {
+			Snapshot snapshot = new Snapshot(null, levelFile, null, depth, branch, turn, hp, ht);
+			snapshot.source = file;
+			return snapshot;
+		}
+
+		synchronized byte[] game() {
+			load();
+			return game;
+		}
+
+		synchronized byte[] level() {
+			load();
+			return level;
+		}
+
+		private void load() {
+			if (game != null || source == null) return;
+			Snapshot full = readSnapshot(source);
+			if (full == null) return;
+			game = full.game;
+			level = full.level;
+		}
+
+		synchronized int size() {
+			return game == null ? 0 : game.length + level.length;
+		}
+	}
+
+	private static final List<Snapshot> history = new ArrayList<>();
+	private static int index = -1;
+	private static int selected = -1;
+	private static Runnable listener;
+
+	/**
+	 * Runs [listener] whenever the history or the chosen step changes. Replaces any earlier listener.
+	 */
+	static void onChange(Runnable listener) {
+		UndoHistory.listener = listener;
+	}
+
+	private static void changed() {
+		Runnable current = listener;
+		if (current != null) current.run();
+	}
+	private static String gameId;
+	private static boolean skipNext;
+	private static boolean pending;
+
+	private static long lastSaveNanos;
+	private static long lastCopyNanos;
+	private static long slowestNanos;
+	private static long totalNanos;
+	private static int timedSnapshots;
+
+	private UndoHistory() {
+	}
+
+	static boolean isAvailable() {
+		return SaveBackupActivity.isAvailable();
+	}
+
+	static boolean isOn() {
+		return isAvailable() && CloverlordSettings.get(KEY_ON);
+	}
+
+	static void setOn(boolean on) {
+		CloverlordSettings.set(KEY_ON, on);
+		UndoTags.refreshTag();
+		if (on) return;
+		clear();
+		deleteStored(gameId);
+	}
+
+	static int mode() {
+		int mode = CloverlordSettings.getInt(KEY_MODE);
+		return mode < MODE_LAST || mode > MODE_UNLIMITED ? MODE_LAST : mode;
+	}
+
+	static void mode(int mode) {
+		CloverlordSettings.setInt(KEY_MODE, mode);
+		trim();
+	}
+
+	static int size() {
+		int size = CloverlordSettings.getInt(KEY_SIZE);
+		return size <= 0 ? DEFAULT_SIZE : Math.min(MAX_SIZE, size);
+	}
+
+	static void size(int size) {
+		CloverlordSettings.setInt(KEY_SIZE, Math.max(1, Math.min(MAX_SIZE, size)));
+		trim();
+	}
+
+	static boolean acrossFloors() {
+		return !CloverlordSettings.get(KEY_FLOOR_ONLY);
+	}
+
+	static void acrossFloors(boolean on) {
+		CloverlordSettings.set(KEY_FLOOR_ONLY, !on);
+	}
+
+	static boolean duringBosses() {
+		return !CloverlordSettings.get(KEY_NO_BOSS);
+	}
+
+	static void duringBosses(boolean on) {
+		CloverlordSettings.set(KEY_NO_BOSS, !on);
+	}
+
+	/**
+	 * Called at the end of Hero.ready, when the hero waits for your next action. The snapshot is taken on the
+	 * render thread, while the game waits for input.
+	 */
+	public static void onHeroReady() {
+		if (!isOn() || pending) return;
+		pending = true;
+		Game.runOnRenderThread(() -> {
+			pending = false;
+			capture();
+		});
+	}
+
+	private static void capture() {
+		Hero hero = Dungeon.hero;
+		if (!isOn() || hero == null || !hero.isAlive() || !hero.ready) return;
+		String id = GamesInProgress.curSlot + ":" + Dungeon.seed;
+		if (!id.equals(gameId)) {
+			clear();
+			gameId = id;
+			loadStored();
+		}
+		if (skipNext) {
+			skipNext = false;
+			UndoScene.discardLines();
+			return;
+		}
+		try {
+			long start = System.nanoTime();
+			Dungeon.saveAll();
+			long saved = System.nanoTime();
+			File root = SaveLocation.currentRoot();
+			if (root == null) return;
+			String levelFile = GamesInProgress.depthFile(GamesInProgress.curSlot, Dungeon.depth, Dungeon.branch);
+			byte[] game = FileHelpers.read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
+			byte[] level = FileHelpers.read(new File(root, levelFile));
+			long copied = System.nanoTime();
+			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) (Statistics.duration + Actor.now()), hero.HP, hero.HT);
+			snapshot.scene = UndoScene.capture();
+			push(snapshot);
+			storeAsync();
+			recordTiming(saved - start, copied - saved);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not take a snapshot", e);
+		}
+	}
+
+	private static void push(Snapshot snapshot) {
+		snapshot.id = nextId++;
+		while (history.size() > index + 1) history.remove(history.size() - 1);
+		Snapshot last = index >= 0 ? history.get(index) : null;
+		boolean newFloor = last != null && (last.depth != snapshot.depth || last.branch != snapshot.branch);
+		if (newFloor && (mode() == MODE_FLOOR || !acrossFloors())) history.clear();
+		history.add(snapshot);
+		index = history.size() - 1;
+		trim();
+		selected = index;
+		changed();
+	}
+
+	private static void trim() {
+		if (mode() != MODE_LAST) return;
+		while (history.size() > size()) {
+			history.remove(0);
+			index--;
+		}
+		if (index < -1) index = -1;
+		selected = index;
+	}
+
+	private static boolean allowedNow() {
+		Hero hero = Dungeon.hero;
+		if (!isOn() || hero == null || !hero.isAlive() || !hero.ready) return false;
+		return duringBosses() || Dungeon.level == null || !Dungeon.level.locked;
+	}
+
+	private static void restore(int target) {
+		Snapshot snapshot = history.get(target);
+		try {
+			File root = SaveLocation.currentRoot();
+			if (root == null) return;
+			byte[] game = snapshot.game();
+			byte[] level = snapshot.level();
+			if (game == null || level == null) return;
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), game);
+			FileHelpers.write(new File(root, snapshot.levelFile), level);
+			index = target;
+			selected = target;
+			skipNext = true;
+			storeAsync();
+			GamesInProgress.setUnknown(GamesInProgress.curSlot);
+			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
+			Game.switchScene(InterlevelScene.class);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not restore a snapshot", e);
+		}
+	}
+
+	static int count() {
+		return history.size();
+	}
+
+	static int current() {
+		return index;
+	}
+
+	static String describe(int position) {
+		Snapshot snapshot = history.get(position);
+		return "Depth " + snapshot.depth + ", turn " + snapshot.turn + ", HP " + snapshot.hp + "/" + snapshot.ht;
+	}
+
+	static int selected() {
+		return selected;
+	}
+
+	/**
+	 * Starts choosing from the step the game is on now.
+	 */
+	static void resetSelection() {
+		selected = index;
+		changed();
+	}
+
+	static boolean canSelect(int position) {
+		return position >= 0 && position < history.size() && allowedNow();
+	}
+
+	static void select(int position) {
+		if (!canSelect(position) || position == selected) return;
+		selected = position;
+		changed();
+	}
+
+	static boolean canSelectPrevious() {
+		return canSelect(selected - 1);
+	}
+
+	static boolean canSelectNext() {
+		return selected >= 0 && canSelect(selected + 1);
+	}
+
+	static void selectPrevious() {
+		select(selected - 1);
+	}
+
+	static void selectNext() {
+		select(selected + 1);
+	}
+
+	/**
+	 * Whether the chosen step is a different one from where the game is now.
+	 */
+	static boolean selectionPending() {
+		return selected >= 0 && selected != index && selected < history.size();
+	}
+
+	/**
+	 * Loads the chosen step, if it isn't the one the game is on.
+	 */
+	static void loadSelected() {
+		if (selectionPending() && allowedNow()) restore(selected);
+	}
+
+	/**
+	 * A short label for the History list: the step's number, depth, turn and first log line.
+	 */
+	static String listLabel(int position) {
+		Snapshot snapshot = history.get(position);
+		String label = (position + 1) + ". D" + snapshot.depth + " T" + snapshot.turn;
+		String line = snapshot.scene == null ? null : snapshot.scene.firstLine();
+		if (line == null) return label + " HP " + snapshot.hp + "/" + snapshot.ht;
+		if (line.length() > LIST_LINE_LENGTH) line = line.substring(0, LIST_LINE_LENGTH - 1) + "..";
+		return label + " - " + line;
+	}
+
+	private static Snapshot cachedFor;
+	private static Hero cachedHero;
+
+	/**
+	 * The hero as they were at a step, read from that step's saved game. The last one read is kept.
+	 */
+	static Hero hero(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		Snapshot snapshot = history.get(position);
+		if (snapshot != cachedFor) {
+			cachedHero = SnapshotHero.read(snapshot.game());
+			cachedFor = snapshot;
+		}
+		return cachedHero;
+	}
+
+	static UndoScene scene(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		return history.get(position).scene;
+	}
+
+	/**
+	 * Depth, turn, HP and max HP of a step, or null if there is no such step.
+	 */
+	static int[] stats(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		Snapshot snapshot = history.get(position);
+		return new int[] { snapshot.depth, snapshot.turn, snapshot.hp, snapshot.ht };
+	}
+
+	private static final String DEATH_BACKUP = "undo-death-backup";
+	private static boolean deathBackup;
+
+	/**
+	 * Called at the start of Dungeon.deleteGame, which removes the floors of a game that has ended. When the hero
+	 * has just died, the game's folder is copied first so Undo can bring it back.
+	 */
+	public static void beforeDeleteGame(int slot) {
+		deathBackup = false;
+		if (gameId != null && gameId.startsWith(slot + ":") && Dungeon.hero != null && Dungeon.hero.isAlive()) deleteStored(gameId);
+		Hero hero = Dungeon.hero;
+		if (!isOn() || hero == null || hero.isAlive() || index < 0 || slot != GamesInProgress.curSlot) return;
+		try {
+			File root = SaveLocation.currentRoot();
+			File cache = SaveLocation.cacheDir();
+			if (root == null || cache == null) return;
+			File backup = new File(cache, DEATH_BACKUP);
+			FileHelpers.delete(backup);
+			FileHelpers.copy(new File(root, GamesInProgress.gameFolder(slot)), backup);
+			deathBackup = true;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not back up the game before it was deleted", e);
+		}
+	}
+
+	static boolean canUndoDeath() {
+		if (!deathBackup || index < 0 || index >= history.size()) return false;
+		return duringBosses() || Dungeon.level == null || !Dungeon.level.locked;
+	}
+
+	/**
+	 * Brings the game back to the moment before the action that killed the hero.
+	 */
+	static void undoDeath() {
+		if (!canUndoDeath()) return;
+		try {
+			File root = SaveLocation.currentRoot();
+			File cache = SaveLocation.cacheDir();
+			if (root == null || cache == null) return;
+			File backup = new File(cache, DEATH_BACKUP);
+			File folder = new File(root, GamesInProgress.gameFolder(GamesInProgress.curSlot));
+			FileHelpers.copy(backup, folder);
+			FileHelpers.delete(backup);
+			deathBackup = false;
+			restore(index);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not undo the death", e);
+		}
+	}
+
+	/**
+	 * Called at the end of GameScene.gameOver. Adds an Undo button below the game's own buttons.
+	 */
+	public static void afterGameOver() {
+		UndoTags.refreshTag();
+		if (!canUndoDeath()) return;
+		try {
+			UndoTags.addDeathButton();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not add the Undo button", e);
+		}
+	}
+
+	static void clear() {
+		history.clear();
+		index = -1;
+		selected = -1;
+		changed();
+		skipNext = false;
+	}
+
+	private static final String STORE_FOLDER = "morphe_undo";
+	private static final String INDEX_FILE = "index";
+	private static final String SNAPSHOT_SUFFIX = ".snap";
+	private static final int STORE_FORMAT = 1;
+	private static long nextId;
+
+	private static final String INDEX_TEMP = "index.tmp";
+	private static final ExecutorService writer = Executors.newSingleThreadExecutor(task -> {
+		Thread thread = new Thread(task, "undo-history-writer");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MIN_PRIORITY);
+		return thread;
+	});
+
+	/**
+	 * Writes the history to the app's private storage on a background thread, so the game is never held up. Each step is written once, after
+	 * it is taken, and the list of steps is replaced in one move so a half-written list is never read.
+	 */
+	private static void storeAsync() {
+		if (!isOn() || gameId == null) return;
+		String id = gameId;
+		int storedIndex = index;
+		List<Snapshot> steps = new ArrayList<>(history);
+		writer.execute(() -> store(id, storedIndex, steps));
+	}
+
+	private static void store(String id, int storedIndex, List<Snapshot> steps) {
+		try {
+			File folder = storeFolder(id);
+			if (folder == null) return;
+			if (steps.isEmpty()) {
+				FileHelpers.delete(folder);
+				return;
+			}
+			if (!folder.isDirectory() && !folder.mkdirs()) return;
+			Set<String> keep = new HashSet<>();
+			for (Snapshot snapshot : steps) {
+				String name = snapshot.id + SNAPSHOT_SUFFIX;
+				keep.add(name);
+				File file = new File(folder, name);
+				if (!file.isFile()) writeSnapshot(file, snapshot);
+			}
+			File temp = new File(folder, INDEX_TEMP);
+			try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(temp)))) {
+				out.writeInt(STORE_FORMAT);
+				out.writeUTF(id);
+				out.writeInt(storedIndex);
+				out.writeInt(steps.size());
+				for (Snapshot snapshot : steps) out.writeLong(snapshot.id);
+			}
+			if (!temp.renameTo(new File(folder, INDEX_FILE))) return;
+			File[] files = folder.listFiles();
+			if (files == null) return;
+			for (File file : files) {
+				if (file.getName().endsWith(SNAPSHOT_SUFFIX) && !keep.contains(file.getName())) file.delete();
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not keep the undo history", e);
+		}
+	}
+
+	private static void loadStored() {
+		File folder = storeFolder(gameId);
+		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
+		if (indexFile == null || !indexFile.isFile()) return;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
+			if (in.readInt() != STORE_FORMAT || !gameId.equals(in.readUTF())) return;
+			int storedIndex = in.readInt();
+			int count = in.readInt();
+			List<Snapshot> loaded = new ArrayList<>();
+			for (int i = 0; i < count; i++) {
+				long id = in.readLong();
+				Snapshot snapshot = readSummary(new File(folder, id + SNAPSHOT_SUFFIX));
+				if (snapshot == null) return;
+				snapshot.id = id;
+				loaded.add(snapshot);
+				nextId = Math.max(nextId, id + 1);
+			}
+			history.clear();
+			history.addAll(loaded);
+			index = Math.min(storedIndex, history.size() - 1);
+			selected = index;
+			changed();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read the kept undo history", e);
+		}
+	}
+
+	/**
+	 * A kept step's summary and picture, skipping its saved game, which stays on disk until needed.
+	 */
+	private static Snapshot readSummary(File file) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			int branch = in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			String levelFile = in.readUTF();
+			skip(in, in.readInt());
+			skip(in, in.readInt());
+			Snapshot snapshot = Snapshot.onDisk(file, depth, branch, turn, hp, ht, levelFile);
+			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
+			return snapshot;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read " + file, e);
+			return null;
+		}
+	}
+
+	private static void skip(DataInputStream in, int count) throws IOException {
+		int left = count;
+		while (left > 0) {
+			int skipped = in.skipBytes(left);
+			if (skipped <= 0) throw new IOException("File ends early");
+			left -= skipped;
+		}
+	}
+
+	private static void writeSnapshot(File file, Snapshot snapshot) throws IOException {
+		byte[] game = snapshot.game();
+		byte[] level = snapshot.level();
+		if (game == null || level == null) return;
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+			out.writeInt(snapshot.depth);
+			out.writeInt(snapshot.branch);
+			out.writeInt(snapshot.turn);
+			out.writeInt(snapshot.hp);
+			out.writeInt(snapshot.ht);
+			out.writeUTF(snapshot.levelFile);
+			out.writeInt(game.length);
+			out.write(game);
+			out.writeInt(level.length);
+			out.write(level);
+			out.writeBoolean(snapshot.scene != null);
+			if (snapshot.scene != null) snapshot.scene.write(out);
+		}
+	}
+
+	private static Snapshot readSnapshot(File file) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			int branch = in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			String levelFile = in.readUTF();
+			byte[] game = new byte[in.readInt()];
+			in.readFully(game);
+			byte[] level = new byte[in.readInt()];
+			in.readFully(level);
+			Snapshot snapshot = new Snapshot(game, levelFile, level, depth, branch, turn, hp, ht);
+			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
+			return snapshot;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not read " + file, e);
+			return null;
+		}
+	}
+
+	/**
+	 * A kept undo step of a game that isn't being played, described without loading its saved game.
+	 */
+	static final class StoredStep {
+		final long id;
+		final int depth;
+		final int turn;
+		final int hp;
+		final int ht;
+
+		StoredStep(long id, int depth, int turn, int hp, int ht) {
+			this.id = id;
+			this.depth = depth;
+			this.turn = turn;
+			this.hp = hp;
+			this.ht = ht;
+		}
+
+		String title() {
+			return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
+		}
+	}
+
+	/**
+	 * The slot and seed of each game with kept undo steps.
+	 */
+	static List<long[]> storedGames() {
+		List<long[]> games = new ArrayList<>();
+		File base = SaveLocation.privateDir();
+		File[] folders = base == null ? null : new File(base, STORE_FOLDER).listFiles();
+		if (folders == null) return games;
+		for (File folder : folders) {
+			String name = folder.getName();
+			int split = name.indexOf('_');
+			if (!folder.isDirectory() || split < 0) continue;
+			try {
+				games.add(new long[] { Integer.parseInt(name.substring(0, split)), Long.parseLong(name.substring(split + 1)) });
+			} catch (NumberFormatException ignored) {
+			}
+		}
+		return games;
+	}
+
+	/**
+	 * The kept undo steps of the game in [slot] with [seed], newest first.
+	 */
+	static List<StoredStep> storedSteps(int slot, long seed) {
+		List<StoredStep> steps = new ArrayList<>();
+		String id = slot + ":" + seed;
+		File folder = storeFolder(id);
+		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
+		if (indexFile == null || !indexFile.isFile()) return steps;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
+			if (in.readInt() != STORE_FORMAT || !id.equals(in.readUTF())) return steps;
+			in.readInt();
+			int count = in.readInt();
+			for (int i = 0; i < count; i++) {
+				long stepId = in.readLong();
+				StoredStep step = readHeader(new File(folder, stepId + SNAPSHOT_SUFFIX), stepId);
+				if (step != null) steps.add(0, step);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not list the kept undo steps", e);
+		}
+		return steps;
+	}
+
+	private static StoredStep readHeader(File file, long id) {
+		if (!file.isFile()) return null;
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			int depth = in.readInt();
+			in.readInt();
+			int turn = in.readInt();
+			int hp = in.readInt();
+			int ht = in.readInt();
+			return new StoredStep(id, depth, turn, hp, ht);
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+
+	/**
+	 * The picture and hero of a kept undo step, or nulls when they can't be read.
+	 */
+	static Object[] storedPreview(int slot, long seed, long stepId) {
+		File folder = storeFolder(slot + ":" + seed);
+		Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
+		if (snapshot == null) return new Object[] { null, null };
+		return new Object[] { snapshot.scene, SnapshotHero.read(snapshot.game()) };
+	}
+
+	/**
+	 * Puts a kept undo step back into [slot] as its game in progress. Whatever is in the slot is copied to the app's cache first. Returns an
+	 * error message, or null when it worked.
+	 */
+	static String restoreStored(int slot, long seed, long stepId) {
+		try {
+			File folder = storeFolder(slot + ":" + seed);
+			Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
+			File root = SaveLocation.currentRoot();
+			if (snapshot == null || root == null) return "That undo step could not be read.";
+			File gameFolder = new File(root, GamesInProgress.gameFolder(slot));
+			File cache = SaveLocation.cacheDir();
+			if (cache != null && gameFolder.isDirectory()) FileHelpers.copy(gameFolder, new File(cache, "replaced_" + gameFolder.getName() + "_" + System.currentTimeMillis()));
+			if (!gameFolder.isDirectory() && !gameFolder.mkdirs()) return "The game's folder could not be made.";
+			FileHelpers.write(new File(root, GamesInProgress.gameFile(slot)), snapshot.game());
+			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level());
+			GamesInProgress.setUnknown(slot);
+			Game.resetScene();
+			return null;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not restore the undo step", e);
+			return "Restoring failed: " + e.getMessage();
+		}
+	}
+
+	private static File storeFolder(String id) {
+		File base = SaveLocation.privateDir();
+		if (base == null || id == null) return null;
+		return new File(new File(base, STORE_FOLDER), id.replace(':', '_'));
+	}
+
+	private static void deleteStored(String id) {
+		File folder = storeFolder(id);
+		if (folder != null) writer.execute(() -> FileHelpers.delete(folder));
+	}
+
+	/**
+	 * Deletes the kept history of the game in [slot] with [seed].
+	 */
+	static void deleteStored(int slot, long seed) {
+		deleteStored(slot + ":" + seed);
+	}
+
+	private static void recordTiming(long saveNanos, long copyNanos) {
+		lastSaveNanos = saveNanos;
+		lastCopyNanos = copyNanos;
+		long total = saveNanos + copyNanos;
+		slowestNanos = Math.max(slowestNanos, total);
+		totalNanos += total;
+		timedSnapshots++;
+	}
+
+	static void resetTiming() {
+		lastSaveNanos = lastCopyNanos = slowestNanos = totalNanos = 0;
+		timedSnapshots = 0;
+	}
+
+	static String lastTiming() {
+		if (timedSnapshots == 0) return "None yet";
+		return ms(lastSaveNanos + lastCopyNanos) + " (save " + ms(lastSaveNanos) + ", copy " + ms(lastCopyNanos) + ")";
+	}
+
+	static String averageTiming() {
+		return timedSnapshots == 0 ? "None yet" : ms(totalNanos / timedSnapshots) + " over " + timedSnapshots;
+	}
+
+	static String slowestTiming() {
+		return timedSnapshots == 0 ? "None yet" : ms(slowestNanos);
+	}
+
+	static String memoryText() {
+		long bytes = 0;
+		for (Snapshot snapshot : history) bytes += snapshot.size();
+		return history.size() + " kept, " + Math.round(bytes / 1024f) + " KB";
+	}
+
+	private static String ms(long nanos) {
+		return Math.round(nanos / 100_000f) / 10f + " ms";
+	}
+
+}
