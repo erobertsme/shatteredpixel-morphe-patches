@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.144",
+  "version": "1.0.0-dev.145",
   "patches": [
     {
       "name": "Character editor",
@@ -73,6 +73,40 @@
     {
       "name": "Floor editor",
       "description": "Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.shatteredpixel.shatteredpixeldungeon",
+          "name": "Shattered Pixel Dungeon",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#2B2B2B",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "4.0.2",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Fun",
+      "description": "Just for fun: change your hero's sprite to another hero, an enemy or an NPC.",
       "default": true,
       "category": null,
       "compatiblePackages": [

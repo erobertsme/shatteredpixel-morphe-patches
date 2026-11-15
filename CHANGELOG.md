@@ -1,3 +1,9 @@
+## [1.0.0-dev.145](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.144...v1.0.0-dev.145) (2026-11-15)
+
+### ✨ New Features
+
+* Fun patch with a Hero Sprite chooser ([6186686](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/61866862484d61ee9c90b4445c18ec47b174f62b))
+
 ## [1.0.0-dev.144](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.143...v1.0.0-dev.144) (2026-11-15)
 
 ### 🐛 Bug Fixes
