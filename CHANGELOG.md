@@ -1,3 +1,9 @@
+## [1.0.0-dev.143](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.142...v1.0.0-dev.143) (2026-11-15)
+
+### ✨ New Features
+
+* Shops keep every sold item in the save ([34bd2e2](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/34bd2e2348b9150c5609af4ee65a3a12e3f175b5))
+
 ## [1.0.0-dev.142](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.141...v1.0.0-dev.142) (2026-11-15)
 
 ### 🐛 Bug Fixes
