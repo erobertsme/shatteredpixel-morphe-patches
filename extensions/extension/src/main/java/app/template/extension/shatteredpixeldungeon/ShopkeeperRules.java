@@ -153,7 +153,15 @@ public final class ShopkeeperRules {
 
 	private static Object soldItemsLevel;
 
-	private static void applySoldItems() {
+	/**
+	 * How many sold items each shop keeps for buying back, after making sure the game uses this game's setting.
+	 */
+	static int buybackLimit() {
+		applySoldItems();
+		return Shopkeeper.MAX_BUYBACK_HISTORY;
+	}
+
+	static void applySoldItems() {
 		if (!isAvailable()) return;
 		try {
 			Shopkeeper.MAX_BUYBACK_HISTORY = soldItems();

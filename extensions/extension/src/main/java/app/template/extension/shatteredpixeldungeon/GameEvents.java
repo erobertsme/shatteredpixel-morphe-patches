@@ -21,6 +21,7 @@ public final class GameEvents {
 		safely(() -> QuantumChest.onSceneCreated(scene));
 		safely(() -> ForceAttack.onSceneCreated(scene));
 		safely(() -> CustomItemTags.onSceneCreated(scene));
+		safely(ShopkeeperRules::applySoldItems);
 	}
 
 	/**

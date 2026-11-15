@@ -19,7 +19,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem;
 import com.watabou.noosa.Game;
 
 /**
- * An item's details at the shop, with how much is known about it, its price and buttons to sell it or buy it back, or go back.
+ * An item's details when selling it, with its price and buttons to sell it or go back.
  */
 public class ShopItemWindow extends WndInfoItem {
 
@@ -38,14 +38,6 @@ public class ShopItemWindow extends WndInfoItem {
 		super(item);
 		CurrencyIndicator.showGold = true;
 		bottom = height;
-		ItemCondition condition = ItemCondition.of(item);
-		if (condition == null) return;
-		RenderedTextBlock line = PixelScene.renderTextBlock(condition.label, 6);
-		line.hardlight(condition.color);
-		line.setPos(0, bottom + GAP);
-		PixelScene.align(line);
-		add(line);
-		bottom = line.bottom();
 	}
 
 	/**
@@ -97,28 +89,6 @@ public class ShopItemWindow extends WndInfoItem {
 			});
 		}
 		window.finish(window::hide);
-	}
-
-	/**
-	 * Shows [item] from [shopkeeper]'s buy back list. Back, or buying it, returns to the shop window at [page].
-	 */
-	static void forBuyback(Item item, Shopkeeper shopkeeper, int page) {
-		ShopItemWindow window = new ShopItemWindow(item);
-		int price = item.value();
-		boolean affordable = Dungeon.gold >= price;
-		Runnable back = () -> {
-			window.hide();
-			EditorWindow.show(new ShopWindow(shopkeeper, page));
-		};
-		window.addPrice("Buy back for", price, null, affordable);
-		window.addButtons(new String[] { "Buy back", "Back" }, new boolean[] { affordable, true }, new Runnable[] {
-			() -> {
-				ShopWindow.buyBack(shopkeeper, item);
-				back.run();
-			},
-			back,
-		});
-		window.finish(back);
 	}
 
 	private void addPrice(String label, int price, String note, boolean affordable) {

@@ -14,10 +14,14 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.InventorySlot;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage;
 
 import java.util.ArrayList;
@@ -25,17 +29,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The shopkeeper's menu: sell, talk, and buy back sold items, newest first, each with its price and how much is known about it.
+ * The shopkeeper's menu: sell, talk, and buy back sold items, newest first, each with its price and an i button to examine it.
  */
 public class ShopWindow extends EditorWindow {
 
 	private static final String TAG = "ShopWindow";
-	private static final int PER_PAGE = 6;
+	private static final int PER_PAGE = 7;
 	private static final int PER_PAGE_LANDSCAPE = 3;
-	private static final int BUYBACK_ROW_HEIGHT = 22;
-	private static final int PRICE_WIDTH = 34;
+	private static final int BUYBACK_ROW_HEIGHT = 20;
+	private static final int SLOT_SIZE = 18;
+	private static final int SLOT_INSET = 1;
+	private static final int PRICE_WIDTH = 30;
 	private static final int ROW_PADDING = 3;
-	private static final int FULL_COLOR = 0xFF5555;
+	private static final float GOLD_SCALE = 0.75f;
+	private static final int SHORT_COLOR = 0xFF5555;
 
 	private final Shopkeeper shopkeeper;
 	private final int page;
@@ -82,63 +89,91 @@ public class ShopWindow extends EditorWindow {
 	private void addBuybackHeader(int count) {
 		float top = pos;
 		addSection("Buy Back");
-		RenderedTextBlock counter = PixelScene.renderTextBlock(count + "/" + Shopkeeper.MAX_BUYBACK_HISTORY + " items sold", 6);
-		counter.hardlight(count >= Shopkeeper.MAX_BUYBACK_HISTORY ? FULL_COLOR : CharacterWindow.DIM_COLOR);
+		int limit = ShopkeeperRules.buybackLimit();
+		RenderedTextBlock counter = PixelScene.renderTextBlock(count + "/" + limit + " items sold", 6);
+		counter.hardlight(count >= limit ? SHORT_COLOR : CharacterWindow.DIM_COLOR);
 		counter.setPos(WIDTH - counter.width(), top + 2 * GAP + 1);
 		PixelScene.align(counter);
 		add(counter);
 	}
 
 	/**
-	 * A sold item: a button with its picture, name and how much is known about it, and its price beside it. Tapping it shows the item
-	 * with a Buy back button.
+	 * A sold item: a button with the item in an inventory slot, tinted the way the backpack shows cursed and unidentified items, and its
+	 * name, then its price and an i button. Tapping it buys the item back.
 	 */
 	private void addBuybackRow(Item item) {
 		int price = item.value();
-		float buttonWidth = WIDTH - PRICE_WIDTH - GAP;
+		boolean affordable = Dungeon.gold >= price;
+		Runnable buy = () -> buyBack(item);
+		Runnable info = () -> show(new WndInfoItem(item));
+		float buttonWidth = WIDTH - PRICE_WIDTH - INFO_SIZE - 2 * GAP;
+
 		RedButton button = new RedButton("") {
 			@Override
 			public void onClick() {
-				hide();
-				ShopItemWindow.forBuyback(item, shopkeeper, page);
+				buy.run();
+			}
+
+			@Override
+			public boolean onLongClick() {
+				info.run();
+				return true;
 			}
 		};
 		button.setRect(0, pos, buttonWidth, BUYBACK_ROW_HEIGHT);
+		button.enable(affordable);
 		add(button);
 
-		ItemSprite icon = new ItemSprite(item);
-		icon.x = ROW_PADDING;
-		icon.y = pos + (BUYBACK_ROW_HEIGHT - icon.height()) / 2f;
-		PixelScene.align(icon);
-		add(icon);
+		InventorySlot slot = new InventorySlot(item) {
+			@Override
+			public void onClick() {
+				if (affordable) buy.run();
+			}
 
-		float textLeft = icon.x + icon.width() + ROW_PADDING;
-		float textWidth = buttonWidth - textLeft - ROW_PADDING;
-		ItemCondition condition = ItemCondition.of(item);
-		RenderedTextBlock name = PixelScene.renderTextBlock(PreviewParts.fit(InventoryEditor.capitalize(item.title()), 6, textWidth), 6);
-		float nameTop = condition == null ? pos + (BUYBACK_ROW_HEIGHT - name.height()) / 2f : pos + ROW_PADDING;
-		name.setPos(textLeft, nameTop);
+			@Override
+			public boolean onLongClick() {
+				info.run();
+				return true;
+			}
+		};
+		slot.setRect(SLOT_INSET, pos + SLOT_INSET, SLOT_SIZE, SLOT_SIZE);
+		add(slot);
+
+		float textLeft = SLOT_INSET + SLOT_SIZE + ROW_PADDING;
+		RenderedTextBlock name = PixelScene.renderTextBlock(InventoryEditor.capitalize(item.title()), 6);
+		name.maxWidth((int) (buttonWidth - textLeft - ROW_PADDING));
+		if (!affordable) name.alpha(0.3f);
+		name.setPos(textLeft, pos + (BUYBACK_ROW_HEIGHT - name.height()) / 2f);
 		PixelScene.align(name);
 		add(name);
-		if (condition != null) {
-			RenderedTextBlock state = PixelScene.renderTextBlock(PreviewParts.fit(condition.label, 6, textWidth), 6);
-			state.hardlight(condition.color);
-			state.setPos(textLeft, name.bottom() + 1);
-			PixelScene.align(state);
-			add(state);
-		}
 
 		RenderedTextBlock amount = PixelScene.renderTextBlock(String.valueOf(price), 7);
-		amount.hardlight(Dungeon.gold >= price ? 0xFFFFFF : FULL_COLOR);
-		amount.setPos(WIDTH - amount.width(), pos + (BUYBACK_ROW_HEIGHT - amount.height()) / 2f);
+		amount.hardlight(affordable ? 0xFFFFFF : SHORT_COLOR);
+		float priceRight = WIDTH - INFO_SIZE - GAP;
+		amount.setPos(priceRight - amount.width(), pos + (BUYBACK_ROW_HEIGHT - amount.height()) / 2f);
 		PixelScene.align(amount);
 		add(amount);
 		ItemSprite gold = new ItemSprite(ItemSpriteSheet.GOLD);
-		gold.x = amount.left() - gold.width();
+		gold.scale.set(GOLD_SCALE, GOLD_SCALE);
+		gold.x = amount.left() - gold.width() - 1;
 		gold.y = pos + (BUYBACK_ROW_HEIGHT - gold.height()) / 2f;
 		PixelScene.align(gold);
 		add(gold);
+
+		IconButton infoButton = new IconButton(Icons.get(Icons.INFO)) {
+			@Override
+			public void onClick() {
+				info.run();
+			}
+		};
+		infoButton.setRect(WIDTH - INFO_SIZE, pos, INFO_SIZE, BUYBACK_ROW_HEIGHT);
+		add(infoButton);
 		pos += BUYBACK_ROW_HEIGHT + GAP;
+	}
+
+	private void buyBack(Item item) {
+		hide();
+		buyBack(shopkeeper, item);
 	}
 
 	/**
