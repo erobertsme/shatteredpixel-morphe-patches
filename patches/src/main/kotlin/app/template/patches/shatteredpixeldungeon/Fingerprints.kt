@@ -459,6 +459,13 @@ object ShopkeeperRestoreFingerprint : Fingerprint(
 	parameters = listOf("Lcom/watabou/utils/Bundle;"),
 )
 
+object ShopkeeperSellSelectFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper\$2;",
+	name = "onSelect",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
 object ShopkeeperInteractFingerprint : Fingerprint(
 	definingClass = SHOPKEEPER_TYPE,
 	name = "interact",

@@ -42,6 +42,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		ShopkeeperStoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 		ShopkeeperRestoreFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V")
 
+		ShopkeeperSellSelectFingerprint.skipWhen("invoke-static { p1 }, $EXTENSION_PACKAGE/ShopItemWindow;->onSellSelected(Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;)Z")
 		ShopkeeperInteractFingerprint.skipWhen("invoke-static { p0, p1 }, $SHOPKEEPER_CLASS->onInteract(Ljava/lang/Object;Ljava/lang/Object;)Z", result = true)
 
 		ShopkeeperFleeFingerprint.skipWhen("invoke-static { p0 }, $SHOPKEEPER_CLASS->onFlee(Ljava/lang/Object;)Z")
