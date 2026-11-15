@@ -149,18 +149,17 @@ public class ShopWindow extends EditorWindow {
 		PixelScene.align(name);
 		add(name);
 
-		RenderedTextBlock amount = PixelScene.renderTextBlock(String.valueOf(price), 7);
-		amount.hardlight(affordable ? 0xFFFFFF : SHORT_COLOR);
-		float priceRight = WIDTH - INFO_SIZE - GAP;
-		amount.setPos(priceRight - amount.width(), pos + (BUYBACK_ROW_HEIGHT - amount.height()) / 2f);
-		PixelScene.align(amount);
-		add(amount);
 		ItemSprite gold = new ItemSprite(ItemSpriteSheet.GOLD);
 		gold.scale.set(GOLD_SCALE, GOLD_SCALE);
-		gold.x = amount.left() - gold.width() - 1;
+		gold.x = buttonWidth + GAP;
 		gold.y = pos + (BUYBACK_ROW_HEIGHT - gold.height()) / 2f;
 		PixelScene.align(gold);
 		add(gold);
+		RenderedTextBlock amount = PixelScene.renderTextBlock(String.valueOf(price), 7);
+		amount.hardlight(affordable ? 0xFFFFFF : SHORT_COLOR);
+		amount.setPos(gold.x + gold.width() + 1, pos + (BUYBACK_ROW_HEIGHT - amount.height()) / 2f);
+		PixelScene.align(amount);
+		add(amount);
 
 		IconButton infoButton = new IconButton(Icons.get(Icons.INFO)) {
 			@Override
