@@ -297,6 +297,20 @@ object WndHeroConstructorFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object FunAvailableFingerprint : Fingerprint(
+	definingClass = "Lapp/template/extension/shatteredpixeldungeon/Fun;",
+	name = "isAvailable",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object HeroSpriteUpdateArmorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/sprites/HeroSprite;",
+	name = "updateArmor",
+	returnType = "V",
+	parameters = listOf(),
+)
+
 object HungerEditorAvailableFingerprint : Fingerprint(
 	definingClass = "Lapp/template/extension/shatteredpixeldungeon/HungerEditor;",
 	name = "isAvailable",

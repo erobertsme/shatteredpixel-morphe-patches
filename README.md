@@ -38,6 +38,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Character editor](#character-editor) | Edit your hero's stats, talents, subclass, armor ability, modifiers and status effects. |  |
 | [Enemy editor](#enemy-editor) | Edit any creature's health, side, behavior and status effects. |  |
 | [Floor editor](#floor-editor) | Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging. |  |
+| [Fun](#fun) | Just for fun: change your hero's sprite to another hero, an enemy or an NPC. |  |
 | [Hunger editor](#hunger-editor) | Change how long each hunger stage lasts and how starving hurts, or switch hunger off. |  |
 | [Inventory editor](#inventory-editor) | Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs. |  |
 | [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags, display margins and a stronger Mageroyal. |  |
@@ -78,6 +79,11 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - **Whole floor:** list every gas and area effect, including a Wand of Regrowth Lotus with its range and turns left (its falling leaves cover every tile in range), and remove them one at a time or all at once; remove all traps, reveal, hide, disarm or re-arm all traps, reveal the map, mark every tile as explored or forget the map, defeat all enemies, allies or neutral creatures.
 - **Draw:** drag across the map to paint floor, wall or empty pit, move the view around, then Finish to keep or Cancel to undo.
 - **Edit Floor** mode: the game is saved, then tapping any tile shows its info with an Edit button and a button for each creature, item, plant or trap on it; drag to look around. **Save** keeps the changes, **Cancel** asks "Dismiss all changes and exit edit mode?" and then reloads the game as it was.
+
+### Fun
+- **Fun** window (Extras → General).
+- **Hero Sprite**: a grid of every look your hero can have: your own hero, the other heroes, and every enemy and NPC sprite. Tap one and your hero changes straight away; the first picture puts your own look back. Only the look changes, and the choice stays through armor changes.
+- Main menu choice is the default for new games; a choice made during a game is saved with that game.
 
 ### Hunger editor
 - **Hunger** window (Extras → General, the character editor, and the hunger summary on the hero info window).
