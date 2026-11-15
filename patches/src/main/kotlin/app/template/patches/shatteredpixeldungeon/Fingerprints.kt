@@ -231,6 +231,13 @@ object ItemExecuteFingerprint : Fingerprint(
 	parameters = listOf(HERO_CLASS, "Ljava/lang/String;"),
 )
 
+object WndBagLastBagFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	name = "lastBag",
+	returnType = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$ItemSelector;"),
+)
+
 object WndBagConstructorFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag;",
 	name = "<init>",

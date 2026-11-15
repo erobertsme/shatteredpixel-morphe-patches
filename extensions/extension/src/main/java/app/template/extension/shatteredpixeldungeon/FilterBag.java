@@ -39,6 +39,10 @@ final class FilterBag extends Bag {
 		return TABS[kind];
 	}
 
+	int kind() {
+		return kind;
+	}
+
 	static String label(int kind) {
 		return NAMES[kind];
 	}

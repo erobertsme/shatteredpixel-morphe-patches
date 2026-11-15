@@ -27,6 +27,10 @@ internal val bagLayoutPatch = bytecodePatch(
 			"invoke-static/range { p0 .. p0 }, $INVENTORY_SPACE_CLASS->afterBagCreated(Lcom/shatteredpixel/shatteredpixeldungeon/ui/Window;)V",
 		)
 
+		WndBagLastBagFingerprint.skipWhen(
+			"invoke-static/range { p0 .. p0 }, $INVENTORY_SPACE_CLASS->reopenTab(${WND_BAG_CLASS.dropLast(1)}\$ItemSelector;)$WND_BAG_CLASS",
+		)
+
 		BAG_CAPACITY_CLASSES.forEach { className ->
 			BagCapacityFingerprint(className).adjustReturns(
 				"$INVENTORY_SPACE_CLASS->capacity(I$BAG_CLASS)I",

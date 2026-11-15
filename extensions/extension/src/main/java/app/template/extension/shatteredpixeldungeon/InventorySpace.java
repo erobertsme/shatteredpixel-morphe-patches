@@ -327,6 +327,24 @@ public final class InventorySpace {
 	 * Called at the start of WndBag.placeItem. Returns true to leave out an item that is on another page, or the
 	 * Weapons, Armor or Rings tab itself.
 	 */
+	/**
+	 * Called at the start of WndBag.lastBag. The game only reopens the last bag when it is inside the backpack, so after selling or
+	 * choosing an item from a Weapons, Armor or Rings tab it would go back to the backpack. Returns that tab's window instead, or null to
+	 * let the game decide.
+	 */
+	public static WndBag reopenTab(WndBag.ItemSelector selector) {
+		try {
+			Object last = Reflect.getStatic(WndBag.class, "lastBag");
+			if (!(last instanceof FilterBag)) return null;
+			FilterBag tab = (FilterBag) last;
+			if (!FilterBag.isOn(tab.kind())) return null;
+			return new WndBag(tab, selector);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not reopen the tab", e);
+			return null;
+		}
+	}
+
 	public static boolean skipSlot(Item item) {
 		if (item == null) return false;
 		if (item instanceof FilterBag) return true;
