@@ -1,3 +1,9 @@
+## [1.0.0-dev.142](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.141...v1.0.0-dev.142) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Buy back rows use the game's slot colours, keep the info button and count against the real limit ([f8eeccb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f8eeccba55d7ae880e6af0b560d90c384aadd33b))
+
 ## [1.0.0-dev.141](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.140...v1.0.0-dev.141) (2026-11-15)
 
 ### ✨ New Features
