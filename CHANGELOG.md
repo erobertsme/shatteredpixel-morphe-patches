@@ -1,3 +1,9 @@
+## [1.0.0-dev.140](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.139...v1.0.0-dev.140) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Selling from the Weapons, Armor or Rings tab stays on that tab ([8aec3b2](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8aec3b23d1de89bd998847cb276af1c732dbaafc))
+
 ## [1.0.0-dev.139](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.138...v1.0.0-dev.139) (2026-11-14)
 
 ### 🐛 Bug Fixes
