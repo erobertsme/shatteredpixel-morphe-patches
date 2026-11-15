@@ -72,12 +72,15 @@ public class ShopWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 
 		List<Item> sold = shopkeeper.buybackItems;
-		if (sold != null && !sold.isEmpty()) {
+		int limit = ShopkeeperRules.buybackLimit();
+		if (sold != null && !sold.isEmpty() && limit > 0) {
 			List<Item> items = new ArrayList<>(sold);
 			Collections.reverse(items);
-			addBuybackHeader(items.size());
-			int perPage = Math.min(perPage(PER_PAGE, PER_PAGE_LANDSCAPE), items.size());
-			addPagedList(items.size(), perPage, page, index -> addBuybackRow(items.get(index)),
+			if (items.size() > limit) items = new ArrayList<>(items.subList(0, limit));
+			List<Item> offered = items;
+			addBuybackHeader(offered.size(), limit);
+			int perPage = Math.min(perPage(PER_PAGE, PER_PAGE_LANDSCAPE), offered.size());
+			addPagedList(offered.size(), perPage, page, index -> addBuybackRow(offered.get(index)),
 				newPage -> replaceWith(new ShopWindow(shopkeeper, newPage)));
 		}
 		finish();
@@ -86,10 +89,9 @@ public class ShopWindow extends EditorWindow {
 	/**
 	 * The Buy Back heading, with how many sold items the shop is holding out of the most it keeps.
 	 */
-	private void addBuybackHeader(int count) {
+	private void addBuybackHeader(int count, int limit) {
 		float top = pos;
 		addSection("Buy Back");
-		int limit = ShopkeeperRules.buybackLimit();
 		RenderedTextBlock counter = PixelScene.renderTextBlock(count + "/" + limit + " items sold", 6);
 		counter.hardlight(count >= limit ? SHORT_COLOR : CharacterWindow.DIM_COLOR);
 		counter.setPos(WIDTH - counter.width(), top + 2 * GAP + 1);
@@ -179,7 +181,7 @@ public class ShopWindow extends EditorWindow {
 	/**
 	 * Buys [item] back from [shopkeeper] when the hero can afford it, putting it in the backpack or at the hero's feet.
 	 */
-	static void buyBack(Shopkeeper shopkeeper, Item item) {
+	private static void buyBack(Shopkeeper shopkeeper, Item item) {
 		Hero hero = Dungeon.hero;
 		if (hero == null || !shopkeeper.buybackItems.contains(item) || Dungeon.gold < item.value()) return;
 		try {

@@ -154,17 +154,21 @@ public final class ShopkeeperRules {
 	private static Object soldItemsLevel;
 
 	/**
-	 * How many sold items each shop keeps for buying back, after making sure the game uses this game's setting.
+	 * How many of the most recently sold items can be bought back.
 	 */
 	static int buybackLimit() {
 		applySoldItems();
-		return Shopkeeper.MAX_BUYBACK_HISTORY;
+		return soldItems();
 	}
 
+	/**
+	 * Stops the game dropping old sold items, so a shop's save keeps everything sold there and raising the Sold Items setting later
+	 * brings older items back. The shop window only offers the most recent ones.
+	 */
 	static void applySoldItems() {
 		if (!isAvailable()) return;
 		try {
-			Shopkeeper.MAX_BUYBACK_HISTORY = soldItems();
+			Shopkeeper.MAX_BUYBACK_HISTORY = Integer.MAX_VALUE;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set the buyback history", e);
 		}

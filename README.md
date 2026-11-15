@@ -117,7 +117,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
   - Immune: gas, fire and cold don't drive him away.
   - Passive: your attacks only earn a remark, and thrown weapons go up for sale.
   - Lenient: two warnings, then you're thrown out until you apologize with gold or a potion of healing. Getting caught stealing means paying for the item or leaving.
-  - Shop window: buy back up to 24 sold items, newest first, with an "items sold" counter against the shop's limit so you can see which item goes next. Each row shows the item in an inventory slot tinted the way the backpack shows cursed and unidentified items, its price beside a gold icon and an [i] to examine it.
+  - Shop window: buy back up to 24 sold items, newest first, with an "items sold" counter against the Sold Items setting. Every sold item is kept in the save, so raising the setting later brings older ones back. Each row shows the item in an inventory slot tinted the way the backpack shows cursed and unidentified items, its price beside a gold icon and an [i] to examine it.
   - Selling: tapping an item shows its details and price with Sell (Sell 1 and Sell all for stacks) and Back.
 - **Quantum Chest:** a chest beside the exit of every beaten boss floor. Every chest opens the same storage of 1, 2 or 3 pages of 25 items. Tap an item for its details and Take Out or Store Item, or turn on Quick Move.
 - **Backpack** (window in Extras → QoL): 4 to 8 rows of items in every bag, and an optional extra page for each tab.
