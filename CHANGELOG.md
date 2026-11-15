@@ -1,3 +1,9 @@
+## [1.0.0-dev.144](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.143...v1.0.0-dev.144) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* Left-align the gold icon and price in buy back rows ([b22c142](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b22c1429cce8c3807d52806e78b69faf8f451182))
+
 ## [1.0.0-dev.143](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.142...v1.0.0-dev.143) (2026-11-15)
 
 ### ✨ New Features
