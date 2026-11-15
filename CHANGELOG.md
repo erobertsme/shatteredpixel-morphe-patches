@@ -1,3 +1,9 @@
+## [1.0.0-dev.141](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.140...v1.0.0-dev.141) (2026-11-15)
+
+### ✨ New Features
+
+* Shop sell and buy back windows show item details, status and prices ([3e3e3e4](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3e3e3e488498ac15305ca0bdb17c50faef20fb6c))
+
 ## [1.0.0-dev.140](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.139...v1.0.0-dev.140) (2026-11-15)
 
 ### 🐛 Bug Fixes
