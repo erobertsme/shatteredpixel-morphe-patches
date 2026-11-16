@@ -1,3 +1,9 @@
+## [1.0.0-dev.146](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.145...v1.0.0-dev.146) (2026-11-16)
+
+### 🐛 Bug Fixes
+
+* Hero Sprite attacks take no longer than the hero's own ([b4297bb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b4297bb98721729e2bf0776eb1bd7c557d8525ff))
+
 ## [1.0.0-dev.145](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.144...v1.0.0-dev.145) (2026-11-15)
 
 ### ✨ New Features
