@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.watabou.noosa.Image;
+import com.watabou.noosa.MovieClip.Animation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +27,6 @@ public final class HeroSkin {
 	private static final String TAG = "HeroSkin";
 	private static final String KEY = "fun_hero_sprite";
 	private static final String HERO_PREFIX = "hero:";
-	private static final String[] ANIMATIONS = { "idle", "run", "attack", "zap", "operate", "die" };
 
 	private static List<Skin> skins;
 
@@ -150,25 +150,31 @@ public final class HeroSkin {
 	}
 
 	/**
-	 * Gives [hero] the picture and animations of [type]. A creature without an animation the hero needs uses the closest one it has.
+	 * Gives [hero] the picture and animations of [type]. A creature without an animation the hero needs uses the closest one it has. Every
+	 * action gets its own copy that plays once and takes no longer than the hero's own, because the game waits for these to finish before
+	 * the hero's turn goes on.
 	 */
 	private static void wear(HeroSprite hero, Class<? extends CharSprite> type) throws ReflectiveOperationException {
 		CharSprite donor = type.getConstructor().newInstance();
 		try {
-			Reflect.set(Image.class, hero, "texture", Reflect.get(Image.class, donor, "texture"));
-			Object idle = Reflect.get(CharSprite.class, donor, "idle");
-			Object attack = orElse(Reflect.get(CharSprite.class, donor, "attack"), idle);
-			Object[] chosen = {
-				idle,
-				orElse(Reflect.get(CharSprite.class, donor, "run"), idle),
-				attack,
-				orElse(Reflect.get(CharSprite.class, donor, "zap"), attack),
-				orElse(Reflect.get(CharSprite.class, donor, "operate"), attack),
-				orElse(Reflect.get(CharSprite.class, donor, "die"), idle),
-			};
-			for (int i = 0; i < ANIMATIONS.length; i++) Reflect.set(CharSprite.class, hero, ANIMATIONS[i], chosen[i]);
+			Animation idle = animation(CharSprite.class, donor, "idle");
+			Animation run = animation(CharSprite.class, donor, "run");
+			Animation attack = animation(CharSprite.class, donor, "attack");
+			Animation zap = animation(CharSprite.class, donor, "zap");
+			Animation operate = animation(CharSprite.class, donor, "operate");
+			Animation die = animation(CharSprite.class, donor, "die");
+			if (idle == null) return;
+			Animation strike = attack != null ? attack : idle;
+
+			Reflect.set(CharSprite.class, hero, "attack", action(strike, animation(CharSprite.class, hero, "attack")));
+			Reflect.set(CharSprite.class, hero, "zap", action(zap != null ? zap : strike, animation(CharSprite.class, hero, "zap")));
+			Reflect.set(CharSprite.class, hero, "operate", action(operate != null ? operate : strike, animation(CharSprite.class, hero, "operate")));
+			Reflect.set(HeroSprite.class, hero, "read", action(operate != null ? operate : strike, animation(HeroSprite.class, hero, "read")));
+			Reflect.set(CharSprite.class, hero, "die", action(die != null ? die : idle, animation(CharSprite.class, hero, "die")));
+			Reflect.set(CharSprite.class, hero, "idle", idle);
+			Reflect.set(CharSprite.class, hero, "run", run != null ? run : idle);
 			Reflect.set(HeroSprite.class, hero, "fly", idle);
-			Reflect.set(HeroSprite.class, hero, "read", chosen[4]);
+			Reflect.set(Image.class, hero, "texture", Reflect.get(Image.class, donor, "texture"));
 			Hero owner = Dungeon.hero;
 			if (owner == null || owner.isAlive()) hero.idle();
 		} finally {
@@ -176,7 +182,19 @@ public final class HeroSkin {
 		}
 	}
 
-	private static Object orElse(Object value, Object fallback) {
-		return value != null ? value : fallback;
+	private static Animation animation(Class<?> type, Object sprite, String name) throws ReflectiveOperationException {
+		return (Animation) Reflect.get(type, sprite, name);
+	}
+
+	/**
+	 * A copy of [source] that plays once, sped up when needed so it is no slower than [timing], the hero's own animation for that action.
+	 */
+	private static Animation action(Animation source, Animation timing) {
+		Animation copy = source.clone();
+		copy.looped = false;
+		if (timing == null || copy.frames == null || copy.frames.length == 0) return copy;
+		float limit = timing.delay * timing.frames.length;
+		copy.delay = Math.min(copy.delay, limit / copy.frames.length);
+		return copy;
 	}
 }

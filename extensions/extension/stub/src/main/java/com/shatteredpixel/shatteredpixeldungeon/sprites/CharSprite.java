@@ -2,7 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.watabou.noosa.Image;
 
-public class CharSprite extends Image {
+public class CharSprite extends com.watabou.noosa.MovieClip {
 	public volatile boolean isMoving;
 	public void idle() { throw new RuntimeException("Stub"); }
 	public void place(int cell) { throw new RuntimeException("Stub"); }
