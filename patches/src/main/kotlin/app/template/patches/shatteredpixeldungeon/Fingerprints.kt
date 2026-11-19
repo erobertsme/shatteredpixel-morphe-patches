@@ -229,13 +229,6 @@ object HeroAttackProcFingerprint : Fingerprint(
 	parameters = listOf(CHAR_TYPE, "I"),
 )
 
-object HeroEarnExpFingerprint : Fingerprint(
-	definingClass = HERO_CLASS,
-	name = "earnExp",
-	returnType = "V",
-	parameters = listOf("I", "Ljava/lang/Class;"),
-)
-
 internal class ShieldBuffAmountFingerprint(name: String) : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/ShieldBuff;",
 	name = name,
