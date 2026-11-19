@@ -21,14 +21,28 @@ public final class HeroExtras {
 		ARMOR("Armor", false),
 		ATTACK_SPEED("Attack speed", true),
 		MOVE_SPEED("Move speed", true),
-		REGEN("HP regen", true);
+		REGEN("HP regen", true),
+		LUCK("Luck", false, -10, 20),
+		ENCHANT_POWER("Enchant power", false, -10, 20),
+		VISION("Vision", false, -7, 12),
+		SEARCH_RANGE("Search range", false, -2, 10),
+		SEARCH_CHANCE("Search chance", true),
+		STEALTH("Stealth", false, -10, 20);
 
 		public final String label;
 		public final boolean percent;
+		private final int min;
+		private final int max;
 
 		Mod(String label, boolean percent) {
+			this(label, percent, percent ? -90 : -999, percent ? 1000 : 999);
+		}
+
+		Mod(String label, boolean percent, int min, int max) {
 			this.label = label;
 			this.percent = percent;
+			this.min = min;
+			this.max = max;
 		}
 
 		public int step() {
@@ -36,13 +50,72 @@ public final class HeroExtras {
 		}
 
 		public int min() {
-			return percent ? -90 : -999;
+			return min;
 		}
 
 		public int max() {
-			return percent ? 1000 : 999;
+			return max;
 		}
 	}
+
+	/**
+	 * Kinds of harm the hero can resist, each with the effects the game uses for it.
+	 */
+	public enum Element {
+		FIRE("Fire", StatIcons.BUFF_FIRE, "actors.buffs.Burning", "actors.blobs.Fire", "items.wands.WandOfFireblast"),
+		COLD("Cold", StatIcons.BUFF_FROST, "actors.buffs.Chill", "actors.buffs.Frost", "actors.blobs.Freezing", "items.wands.WandOfFrost"),
+		LIGHTNING("Lightning", StatIcons.BUFF_RECHARGING, "actors.blobs.Electricity", "items.wands.WandOfLightning", "actors.mobs.DM100$LightningBolt",
+			"actors.mobs.Shaman$EarthenBolt", "actors.mobs.Elemental$ShockElemental", "levels.traps.ShockingTrap", "levels.traps.StormTrap"),
+		POISON("Poison", StatIcons.BUFF_CORRUPT, "actors.buffs.Poison", "actors.blobs.ToxicGas"),
+		CORROSION("Corrosion", StatIcons.BUFF_OOZE, "actors.buffs.Corrosion", "actors.blobs.CorrosiveGas"),
+		OOZE("Ooze", StatIcons.BUFF_OOZE, "actors.buffs.Ooze"),
+		PARALYSIS("Paralysis", StatIcons.BUFF_PARALYSIS, "actors.buffs.Paralysis", "actors.blobs.ParalyticGas");
+
+		private static final String GAME_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.";
+
+		public final String label;
+		public final int icon;
+		private final String[] names;
+		private Class<?>[] types;
+
+		Element(String label, int icon, String... names) {
+			this.label = label;
+			this.icon = icon;
+			this.names = names;
+		}
+
+		/**
+		 * Whether harm from [effect] counts as this element.
+		 */
+		boolean covers(Class<?> effect) {
+			if (effect == null) return false;
+			for (Class<?> type : types()) {
+				if (type.isAssignableFrom(effect)) return true;
+			}
+			return false;
+		}
+
+		private synchronized Class<?>[] types() {
+			if (types != null) return types;
+			java.util.List<Class<?>> found = new java.util.ArrayList<>();
+			for (String name : names) {
+				try {
+					found.add(Class.forName(GAME_PACKAGE + name));
+				} catch (Throwable ignored) {
+				}
+			}
+			types = found.toArray(new Class<?>[0]);
+			return types;
+		}
+	}
+
+	public static final int IMMUNE = 100;
+	private static final int MAX_DISTANCE = 20;
+	private static final String RING_WEALTH = "com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth$Wealth";
+	private static final String RING_ARCANA = "com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana$Arcana";
+	private static final int[] resistances = new int[Element.values().length];
+	private static final ThreadLocal<Object> ringTarget = new ThreadLocal<>();
+	private static final ThreadLocal<Class<?>> resistTarget = new ThreadLocal<>();
 
 	private static final String PREFIX = "morphe_extras_";
 	private static final int[] bonusTalentPoints = new int[TIERS + 1];
@@ -73,6 +146,15 @@ public final class HeroExtras {
 
 	public static void resetMods() {
 		for (int i = 0; i < mods.length; i++) mods[i] = 0;
+		for (int i = 0; i < resistances.length; i++) resistances[i] = 0;
+	}
+
+	public static int resistance(Element element) {
+		return resistances[element.ordinal()];
+	}
+
+	public static void resistance(Element element, int value) {
+		resistances[element.ordinal()] = Math.max(0, Math.min(IMMUNE, value));
 	}
 
 	public static boolean isTierLocked(Hero hero, int tier) {
@@ -96,6 +178,7 @@ public final class HeroExtras {
 	public static void store(Bundle bundle) {
 		for (int tier = 1; tier <= TIERS; tier++) bundle.put(PREFIX + "talents_" + tier, bonusTalentPoints[tier]);
 		for (Mod mod : Mod.values()) bundle.put(PREFIX + mod.name().toLowerCase(), mods[mod.ordinal()]);
+		for (Element element : Element.values()) bundle.put(PREFIX + "resist_" + element.name().toLowerCase(), resistances[element.ordinal()]);
 		InfiniteStatuses.store(bundle);
 	}
 
@@ -107,6 +190,7 @@ public final class HeroExtras {
 		reset();
 		for (int tier = 1; tier <= TIERS; tier++) bonusTalentPoints[tier] = bundle.getInt(PREFIX + "talents_" + tier);
 		for (Mod mod : Mod.values()) mods[mod.ordinal()] = bundle.getInt(PREFIX + mod.name().toLowerCase());
+		for (Element element : Element.values()) resistances[element.ordinal()] = bundle.getInt(PREFIX + "resist_" + element.name().toLowerCase());
 		InfiniteStatuses.restore(bundle);
 	}
 
@@ -162,5 +246,99 @@ public final class HeroExtras {
 
 	private static float multiplier(Mod mod) {
 		return 1f + mod(mod) / 100f;
+	}
+
+	/**
+	 * Called at the start of Ring.getBonus and Ring.getBuffedBonus, which reuse the character's register before returning.
+	 */
+	public static void beforeRingBonus(Object target, Class<?> ring) {
+		ringTarget.set(target);
+	}
+
+	/**
+	 * Called when Ring.getBonus or Ring.getBuffedBonus returns. Luck adds levels of Ring of Wealth and Enchant power adds levels of Ring of
+	 * Arcana for the hero, as if wearing that ring, unless magic is blocked.
+	 */
+	public static int adjustRingBonus(int value, Class<?> ring) {
+		Object target = ringTarget.get();
+		ringTarget.remove();
+		if (ring == null || target == null || target != Dungeon.hero) return value;
+		Mod mod = RING_WEALTH.equals(ring.getName()) ? Mod.LUCK : RING_ARCANA.equals(ring.getName()) ? Mod.ENCHANT_POWER : null;
+		if (mod == null || mod(mod) == 0 || magicBlocked(target)) return value;
+		return value + mod(mod);
+	}
+
+	private static boolean magicBlocked(Object target) {
+		try {
+			Class<?> immune = Class.forName("com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune");
+			for (Object buff : ((Hero) target).buffs()) {
+				if (immune.isInstance(buff)) return true;
+			}
+		} catch (Throwable ignored) {
+		}
+		return false;
+	}
+
+	/**
+	 * Called with how far a character sees, before the field of view is cast. Adds the Vision modifier for the hero.
+	 */
+	public static float adjustViewDistance(Object character, float distance) {
+		if (character != Dungeon.hero || mod(Mod.VISION) == 0) return distance;
+		return Math.max(1, Math.min(MAX_DISTANCE, distance + mod(Mod.VISION)));
+	}
+
+	/**
+	 * Called with how far the hero searches. Adds the Search range modifier.
+	 */
+	public static int adjustSearchDistance(int distance) {
+		if (mod(Mod.SEARCH_RANGE) == 0) return distance;
+		return Math.max(1, Math.min(MAX_DISTANCE, distance + mod(Mod.SEARCH_RANGE)));
+	}
+
+	/**
+	 * Called with the roll for spotting a hidden door or trap while searching, which succeeds when it is below the chance. Shrinking the
+	 * roll raises the chance by the Search chance modifier.
+	 */
+	public static float adjustSearchRoll(float roll) {
+		return roll / multiplier(Mod.SEARCH_CHANCE);
+	}
+
+	/**
+	 * Called when Hero.stealth returns. Adds the Stealth modifier; enemies notice a stealthier hero less often.
+	 */
+	public static float adjustStealth(float value) {
+		return value + mod(Mod.STEALTH);
+	}
+
+	/**
+	 * Called at the start of Char.resist, which reuses the effect's register before returning.
+	 */
+	public static void beforeResist(Object character, Class<?> effect) {
+		resistTarget.set(character == Dungeon.hero ? effect : null);
+	}
+
+	/**
+	 * Called when Char.resist returns. Lowers how much an element affects the hero.
+	 */
+	public static float adjustResist(float value) {
+		Class<?> effect = resistTarget.get();
+		resistTarget.remove();
+		if (effect == null) return value;
+		for (Element element : Element.values()) {
+			int percent = resistance(element);
+			if (percent > 0 && element.covers(effect)) value *= 1f - percent / 100f;
+		}
+		return value;
+	}
+
+	/**
+	 * Called at the start of Char.isImmune. Returns true when the hero is fully resistant to [effect].
+	 */
+	public static boolean isImmune(Object character, Class<?> effect) {
+		if (character != Dungeon.hero) return false;
+		for (Element element : Element.values()) {
+			if (resistance(element) >= IMMUNE && element.covers(effect)) return true;
+		}
+		return false;
 	}
 }

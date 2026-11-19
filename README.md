@@ -35,7 +35,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Character editor](#character-editor) | Edit your hero's stats, talents, subclass, armor ability, modifiers and status effects. |  |
+| [Character editor](#character-editor) | Edit your hero's stats, talents, subclass, armor ability, modifiers, resistances and status effects. |  |
 | [Enemy editor](#enemy-editor) | Edit any creature's health, side, behavior and status effects. |  |
 | [Floor editor](#floor-editor) | Edit the tiles, traps, plants, area effects, items and creatures on the current floor, and draw the floor by dragging. |  |
 | [Fun](#fun) | Just for fun: change your hero's sprite to another hero, an enemy or an NPC. |  |
@@ -60,7 +60,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - **Character** button in the in-game menu, shown with your hero's portrait, and an **Edit** button on each tab of the hero info window. A status's info window, opened from the status icons or the hero info window, has a **Remove** button in its top right corner.
 - **Stats:** health, max health, level, experience, strength and shield.
 - **Talents:** add or remove points and bonus points per tier, swap any talent like a Scroll of Metamorphosis (with an [i] for each choice), and change your **subclass** (bottom of tier 3) or **armor ability** (bottom of tier 4).
-- **Mods:** add or subtract modifiers to accuracy, evasion, damage, armor, speed and regeneration.
+- **Mods:** add or subtract modifiers to accuracy, evasion, damage, armor, speed, regeneration, luck (extra Ring of Wealth levels), enchant power (extra Ring of Arcana levels), vision, search range, search chance and stealth. **Resistances** sets how much less fire, cold, lightning, poison, corrosion, ooze and paralysis affect you, up to immune.
 - **Status:** edit the turns left on any status, make one infinite (the star), remove one or all negative ones, and add any status from a picker with favorites.
 - Everything is saved with the run.
 

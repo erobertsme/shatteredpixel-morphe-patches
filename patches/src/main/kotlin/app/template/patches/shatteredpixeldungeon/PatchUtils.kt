@@ -156,8 +156,8 @@ internal fun Fingerprint.adjustObjectReturns(adjust: String) {
 }
 
 /**
- * Passes the object result of every call to [called] in the method through [adjust], a static method that takes
- * the result and returns the one to use.
+ * Passes the result of every call to [called] in the method through [adjust], a static method that takes the result and returns the one
+ * to use. Works for object, int and float results.
  */
 context(_: BytecodePatchContext)
 internal fun Fingerprint.adjustCallResults(called: String, adjust: String) {
@@ -165,15 +165,16 @@ internal fun Fingerprint.adjustCallResults(called: String, adjust: String) {
 	val indices = instructions.withIndex()
 		.filter { (it.value as? ReferenceInstruction)?.reference?.toString() == called }
 		.map { it.index + 1 }
-		.filter { it < instructions.size && instructions[it].opcode == Opcode.MOVE_RESULT_OBJECT }
+		.filter { it < instructions.size && (instructions[it].opcode == Opcode.MOVE_RESULT_OBJECT || instructions[it].opcode == Opcode.MOVE_RESULT) }
 	if (indices.isEmpty()) throw PatchException("${method.name} never calls $called")
 	indices.reversed().forEach { index ->
 		val register = (instructions[index] as OneRegisterInstruction).registerA
+		val move = if (instructions[index].opcode == Opcode.MOVE_RESULT_OBJECT) "move-result-object" else "move-result"
 		method.addInstructions(
 			index + 1,
 			"""
 				invoke-static/range { v$register .. v$register }, $adjust
-				move-result-object v$register
+				$move v$register
 			""",
 		)
 	}

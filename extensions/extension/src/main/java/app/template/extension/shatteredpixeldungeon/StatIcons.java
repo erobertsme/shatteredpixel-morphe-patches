@@ -13,6 +13,8 @@ final class StatIcons {
 	private static final String ITEM_ICONS = "sprites/item_icons.png";
 
 	static final int RING_ACCURACY = 0;
+	static final int RING_ARCANA = 1;
+	static final int RING_ELEMENTS = 2;
 	static final int RING_EVASION = 4;
 	static final int RING_FORCE = 5;
 	static final int RING_FUROR = 6;
@@ -27,6 +29,7 @@ final class StatIcons {
 	static final int POTION_EXP = 91;
 	static final int POTION_SHIELDING = 97;
 
+	static final int BUFF_MIND_VISION = 0;
 	static final int BUFF_LEVITATION = 1;
 	static final int BUFF_FIRE = 2;
 	static final int BUFF_PARALYSIS = 4;
@@ -45,6 +48,9 @@ final class StatIcons {
 	static final int BUFF_BERSERK = 40;
 	static final int BUFF_HEALING = 44;
 	static final int BUFF_TARGETED = 54;
+	static final int BUFF_INVISIBLE = 12;
+	static final int BUFF_LIGHT = 22;
+	static final int BUFF_FORESIGHT = 32;
 
 	static final String HEALTH = "ITEM:" + POTION_HEALING;
 

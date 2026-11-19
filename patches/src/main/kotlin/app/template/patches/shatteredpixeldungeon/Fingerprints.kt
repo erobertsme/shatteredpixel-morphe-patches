@@ -180,6 +180,48 @@ object HeroAttackDelayFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object HeroStealthFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "stealth",
+	returnType = "F",
+	parameters = listOf(),
+)
+
+object HeroSearchFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "search",
+	returnType = "Z",
+	parameters = listOf("Z"),
+)
+
+object CharResistFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;",
+	name = "resist",
+	returnType = "F",
+	parameters = listOf("Ljava/lang/Class;"),
+)
+
+object CharIsImmuneFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;",
+	name = "isImmune",
+	returnType = "Z",
+	parameters = listOf("Ljava/lang/Class;"),
+)
+
+object LevelUpdateFieldOfViewFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;",
+	name = "updateFieldOfView",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;", "[Z"),
+)
+
+internal class RingBonusFingerprint(name: String) : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/rings/Ring;",
+	name = name,
+	returnType = "I",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;", "Ljava/lang/Class;"),
+)
+
 object HeroSpeedFingerprint : Fingerprint(
 	definingClass = HERO_CLASS,
 	name = "speed",

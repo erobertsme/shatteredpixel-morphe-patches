@@ -1,8 +1,14 @@
 package app.template.patches.shatteredpixeldungeon
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGEON
+import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 
 private const val EXTRAS_CLASS = "$EXTENSION_PACKAGE/HeroExtras;"
 private const val INFINITE_CLASS = "$EXTENSION_PACKAGE/InfiniteStatuses;"
@@ -10,7 +16,7 @@ private const val INFINITE_CLASS = "$EXTENSION_PACKAGE/InfiniteStatuses;"
 @Suppress("unused")
 val characterEditorPatch = bytecodePatch(
 	name = "Character editor",
-	description = "Edit your hero's stats, talents, subclass, armor ability, modifiers and status effects.",
+	description = "Edit your hero's stats, talents, subclass, armor ability, modifiers, resistances and status effects.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -39,6 +45,58 @@ val characterEditorPatch = bytecodePatch(
 		HeroAttackDelayFingerprint.adjustReturns("$EXTRAS_CLASS->adjustAttackDelay(F)F")
 		HeroSpeedFingerprint.adjustReturns("$EXTRAS_CLASS->adjustMoveSpeed(F)F")
 		SaltCubeRegenFingerprint.adjustReturns("$EXTRAS_CLASS->adjustRegen(F)F")
+		HeroStealthFingerprint.adjustReturns("$EXTRAS_CLASS->adjustStealth(F)F")
+
+		listOf("getBonus", "getBuffedBonus").forEach { name ->
+			val ringBonus = RingBonusFingerprint(name)
+			ringBonus.method.addInstruction(0, "invoke-static { p0, p1 }, $EXTRAS_CLASS->beforeRingBonus(Ljava/lang/Object;Ljava/lang/Class;)V")
+			ringBonus.adjustReturns("$EXTRAS_CLASS->adjustRingBonus(ILjava/lang/Class;)I", "p1")
+		}
+
+		CharResistFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $EXTRAS_CLASS->beforeResist(Ljava/lang/Object;Ljava/lang/Class;)V")
+		CharResistFingerprint.adjustReturns("$EXTRAS_CLASS->adjustResist(F)F")
+		CharIsImmuneFingerprint.skipWhen("invoke-static { p0, p1 }, $EXTRAS_CLASS->isImmune(Ljava/lang/Object;Ljava/lang/Class;)Z", result = true)
+
+		HeroSearchFingerprint.adjustCallResults("Lcom/watabou/utils/Random;->Float()F", "$EXTRAS_CLASS->adjustSearchRoll(F)F")
+		HeroSearchFingerprint.method.let { search ->
+			val instructions = search.implementation!!.instructions.toList()
+			val foresight = instructions.indexOfFirst {
+				it.opcode == Opcode.CONST_CLASS && (it as ReferenceInstruction).reference.toString() == "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight;"
+			}
+			if (foresight < 0) throw PatchException("Hero.search no longer checks Foresight")
+			val distance = (instructions.subList(0, foresight).last { it.opcode == Opcode.ADD_INT_LIT8 } as TwoRegisterInstruction).registerA
+			val after = foresight + 2
+			if (instructions[after].opcode != Opcode.MOVE_RESULT_OBJECT) throw PatchException("Hero.search changed around Foresight")
+			search.addInstructions(
+				after + 1,
+				"""
+					invoke-static/range { v$distance .. v$distance }, $EXTRAS_CLASS->adjustSearchDistance(I)I
+					move-result v$distance
+				""",
+			)
+		}
+
+		LevelUpdateFieldOfViewFingerprint.method.let { fieldOfView ->
+			val instructions = fieldOfView.implementation!!.instructions.toList()
+			val viewDistance = instructions.indexOfFirst {
+				it.opcode == Opcode.IGET && (it as ReferenceInstruction).reference.toString().endsWith("Char;->viewDistance:I")
+			}
+			if (viewDistance < 0) throw PatchException("Level.updateFieldOfView no longer reads viewDistance")
+			val character = (instructions[viewDistance] as TwoRegisterInstruction).registerB
+			val newt = instructions.indexOfFirst {
+				(it as? ReferenceInstruction)?.reference?.toString()?.contains("EyeOfNewt;->visionRangeMultiplier") == true
+			}
+			val multiply = newt + 2
+			if (newt < 0 || instructions[multiply].opcode != Opcode.MUL_FLOAT) throw PatchException("Level.updateFieldOfView changed around EyeOfNewt")
+			val distance = (instructions[multiply] as OneRegisterInstruction).registerA
+			fieldOfView.addInstructions(
+				multiply + 1,
+				"""
+					invoke-static { v$character, v$distance }, $EXTRAS_CLASS->adjustViewDistance(Ljava/lang/Object;F)F
+					move-result v$distance
+				""",
+			)
+		}
 
 		CharRemoveBuffFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $INFINITE_CLASS->beforeRemove(Ljava/lang/Object;Ljava/lang/Object;)V")
 		CharRemoveBuffFingerprint.adjustReturns("$INFINITE_CLASS->afterRemove(Z)Z")
