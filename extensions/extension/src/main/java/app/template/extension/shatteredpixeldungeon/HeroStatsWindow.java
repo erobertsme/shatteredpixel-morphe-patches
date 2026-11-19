@@ -18,6 +18,11 @@ import java.util.Locale;
 public class HeroStatsWindow extends EditorWindow {
 
 	private static final int BUTTON_SIZE = 16;
+	private static final HeroExtras.Mod[] OTHER_MODS = {
+		HeroExtras.Mod.DAMAGE_DEALT, HeroExtras.Mod.SURPRISE_DAMAGE, HeroExtras.Mod.REGEN, HeroExtras.Mod.HEALING, HeroExtras.Mod.SHIELDING,
+		HeroExtras.Mod.DAMAGE_TAKEN, HeroExtras.Mod.TRAP_FALL, HeroExtras.Mod.DEBUFF_TIME, HeroExtras.Mod.BUFF_TIME, HeroExtras.Mod.EXPERIENCE,
+		HeroExtras.Mod.GOLD, HeroExtras.Mod.SHOP_DEALS, HeroExtras.Mod.ENERGY, HeroExtras.Mod.THROWN_DURABILITY,
+	};
 
 	static boolean isOn() {
 		return QolSettings.heroStatsButton();
@@ -77,6 +82,15 @@ public class HeroStatsWindow extends EditorWindow {
 			if (!rings) addSection("Ring levels");
 			rings = true;
 			addIconRow(CharacterWindow.modIcon(mod), mod.label, signed(level));
+		}
+
+		boolean others = false;
+		for (HeroExtras.Mod mod : OTHER_MODS) {
+			int value = HeroExtras.mod(mod);
+			if (value == 0) continue;
+			if (!others) addSection("Other modifiers");
+			others = true;
+			addIconRow(CharacterWindow.modIcon(mod), mod.label, (value > 0 ? "+" : "") + value + "%");
 		}
 
 		ExtraStats.addResistances(this, hero);

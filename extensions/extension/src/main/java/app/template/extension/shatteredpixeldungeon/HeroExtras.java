@@ -1,7 +1,11 @@
 package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.watabou.utils.Bundle;
@@ -19,7 +23,9 @@ public final class HeroExtras {
 	 */
 	public enum Group {
 		COMBAT("Combat"),
-		SENSES("Senses & luck"),
+		SURVIVAL("Survival"),
+		SENSES("Senses"),
+		REWARDS("Rewards"),
 		RINGS("Rings");
 
 		public final String label;
@@ -36,13 +42,26 @@ public final class HeroExtras {
 		ARMOR("Armor", Group.COMBAT, false),
 		ATTACK_SPEED("Attack speed", Group.COMBAT, true),
 		MOVE_SPEED("Move speed", Group.COMBAT, true),
-		REGEN("HP regen", Group.COMBAT, true),
-		LUCK("Luck", "RingOfWealth$Wealth"),
-		ENCHANT_POWER("Enchant power", "RingOfArcana$Arcana"),
+		DAMAGE_DEALT("Damage dealt", Group.COMBAT, true),
+		SURPRISE_DAMAGE("Surprise hits", Group.COMBAT, true),
+		ENCHANT_POWER("Enchant power", Group.COMBAT, "RingOfArcana$Arcana"),
+		REGEN("HP regen", Group.SURVIVAL, true),
+		HEALING("Healing", Group.SURVIVAL, true),
+		SHIELDING("Shielding", Group.SURVIVAL, true),
+		DAMAGE_TAKEN("Damage taken", Group.SURVIVAL, true),
+		TRAP_FALL("Trap & fall", Group.SURVIVAL, true),
+		DEBUFF_TIME("Debuff time", Group.SURVIVAL, true),
+		BUFF_TIME("Buff time", Group.SURVIVAL, true),
 		VISION("Vision", Group.SENSES, false, -7, 12),
 		SEARCH_RANGE("Search range", Group.SENSES, false, -2, 10),
 		SEARCH_CHANCE("Search chance", Group.SENSES, true),
 		STEALTH("Stealth", Group.SENSES, false, -10, 20),
+		LUCK("Luck", Group.REWARDS, "RingOfWealth$Wealth"),
+		EXPERIENCE("XP gain", Group.REWARDS, true),
+		GOLD("Gold found", Group.REWARDS, true),
+		SHOP_DEALS("Shop deals", Group.REWARDS, true),
+		ENERGY("Energize", Group.REWARDS, true),
+		THROWN_DURABILITY("Thrown life", Group.REWARDS, true),
 		RING_ACCURACY("Accuracy", Group.RINGS, "RingOfAccuracy$Accuracy"),
 		RING_ELEMENTS("Elements", Group.RINGS, "RingOfElements$Resistance"),
 		RING_ENERGY("Energy", Group.RINGS, "RingOfEnergy$Energy"),
@@ -74,10 +93,6 @@ public final class HeroExtras {
 
 		Mod(String label, Group group, boolean percent, int min, int max) {
 			this(label, group, percent, min, max, null);
-		}
-
-		Mod(String label, String ring) {
-			this(label, Group.SENSES, false, RING_MIN, RING_MAX, RING_PACKAGE + ring);
 		}
 
 		Mod(String label, Group group, String ring) {
@@ -139,9 +154,8 @@ public final class HeroExtras {
 		POISON("Poison", StatIcons.BUFF_CORRUPT, "actors.buffs.Poison", "actors.blobs.ToxicGas"),
 		CORROSION("Corrosion", StatIcons.BUFF_OOZE, "actors.buffs.Corrosion", "actors.blobs.CorrosiveGas"),
 		OOZE("Ooze", StatIcons.BUFF_OOZE, "actors.buffs.Ooze"),
-		PARALYSIS("Paralysis", StatIcons.BUFF_PARALYSIS, "actors.buffs.Paralysis", "actors.blobs.ParalyticGas");
-
-		private static final String GAME_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.";
+		PARALYSIS("Paralysis", StatIcons.BUFF_PARALYSIS, "actors.buffs.Paralysis", "actors.blobs.ParalyticGas"),
+		MAGIC("Magic", StatIcons.BUFF_IMMUNITY, "items.wands.WandOfMagicMissile");
 
 		public final String label;
 		public final int icon;
@@ -182,8 +196,21 @@ public final class HeroExtras {
 				} catch (Throwable ignored) {
 				}
 			}
+			if (this == MAGIC) found.addAll(magicEffects());
 			types = found.toArray(new Class<?>[0]);
 			return types;
+		}
+
+		/**
+		 * Everything the Glyph of Anti-Magic protects against: wands, magical attacks, magic traps and bombs, and magical debuffs.
+		 */
+		@SuppressWarnings("unchecked")
+		private static java.util.Collection<Class<?>> magicEffects() {
+			try {
+				return (java.util.Collection<Class<?>>) Reflect.getStatic(Class.forName(GAME_PACKAGE + "items.armor.glyphs.AntiMagic"), "RESISTS");
+			} catch (Throwable e) {
+				return java.util.Collections.emptyList();
+			}
 		}
 	}
 
@@ -192,6 +219,13 @@ public final class HeroExtras {
 	private static final int[] resistances = new int[Element.values().length];
 	private static final ThreadLocal<Object> ringTarget = new ThreadLocal<>();
 	private static final ThreadLocal<Class<?>> resistTarget = new ThreadLocal<>();
+	private static final ThreadLocal<Boolean> surpriseHit = new ThreadLocal<>();
+	private static final java.util.Map<Class<?>, Buff.buffType> buffTypes = new java.util.HashMap<>();
+	private static final String GAME_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.";
+	private static Object healHero;
+	private static int healHP;
+	private static int healHT;
+	private static float healCarry;
 
 	private static final String PREFIX = "morphe_extras_";
 	private static final int[] bonusTalentPoints = new int[TIERS + 1];
@@ -416,5 +450,159 @@ public final class HeroExtras {
 			if (resistance(element) >= IMMUNE && element.covers(effect)) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Called at the start of Hero.damage with the damage and what caused it. Applies Damage taken, and Trap & fall for traps and falls.
+	 */
+	public static int adjustDamageTaken(int damage, Object source) {
+		if (damage <= 0) return damage;
+		float scale = multiplier(Mod.DAMAGE_TAKEN);
+		if (isTrapOrFall(source)) scale *= multiplier(Mod.TRAP_FALL);
+		if (scale == 1f) return damage;
+		return Math.max(0, Math.round(damage * scale));
+	}
+
+	private static boolean isTrapOrFall(Object source) {
+		if (source == null) return false;
+		String name = source.getClass().getName();
+		return name.startsWith(GAME_PACKAGE + "levels.traps.") || name.equals(GAME_PACKAGE + "levels.features.Chasm");
+	}
+
+	/**
+	 * Called at the start of Hero.attackProc, before the enemy reacts to the hit. Notes whether the enemy was caught by surprise.
+	 */
+	public static void beforeAttackProc(Object enemy) {
+		boolean surprised = false;
+		try {
+			surprised = enemy instanceof Mob && ((Mob) enemy).surprisedBy(Dungeon.hero);
+		} catch (Throwable ignored) {
+		}
+		surpriseHit.set(surprised);
+	}
+
+	/**
+	 * Called when Hero.attackProc returns. Applies Damage dealt, and Surprise hits when the enemy was caught by surprise.
+	 */
+	public static int adjustDamageDealt(int damage) {
+		Boolean surprised = surpriseHit.get();
+		surpriseHit.remove();
+		if (damage <= 0) return damage;
+		float scale = multiplier(Mod.DAMAGE_DEALT);
+		if (Boolean.TRUE.equals(surprised)) scale *= multiplier(Mod.SURPRISE_DAMAGE);
+		if (scale == 1f) return damage;
+		return Math.max(0, Math.round(damage * scale));
+	}
+
+	/**
+	 * Called at the start of Hero.act. Healing the game gave the hero since its last turn is scaled by the Healing modifier, keeping the
+	 * fraction for next time so small heals such as natural regeneration add up. A turn where max health also changed, such as a level up,
+	 * is skipped.
+	 */
+	public static void onHeroAct(Object actor) {
+		if (!(actor instanceof Hero)) return;
+		Hero hero = (Hero) actor;
+		if (healHero != hero) {
+			healHero = hero;
+			healCarry = 0;
+		} else if (hero.HT == healHT && hero.HP > healHP && mod(Mod.HEALING) != 0 && hero.isAlive()) {
+			float extra = (hero.HP - healHP) * mod(Mod.HEALING) / 100f + healCarry;
+			int whole = (int) extra;
+			healCarry = extra - whole;
+			hero.HP = Math.max(1, Math.min(hero.HT, hero.HP + whole));
+		}
+		healHP = hero.HP;
+		healHT = hero.HT;
+	}
+
+	/**
+	 * Called at the start of ShieldBuff.incShield. Scales a shield the hero gains by the Shielding modifier.
+	 */
+	public static int adjustShieldGain(Object buff, int amount) {
+		if (amount <= 0 || !(buff instanceof Buff) || ((Buff) buff).target != Dungeon.hero) return amount;
+		return Math.max(0, Math.round(amount * multiplier(Mod.SHIELDING)));
+	}
+
+	/**
+	 * Called at the start of ShieldBuff.setShield. When the hero's shield is raised, the rise is scaled by the Shielding modifier.
+	 */
+	public static int adjustShieldSet(Object buff, int value) {
+		if (!(buff instanceof ShieldBuff) || ((Buff) buff).target != Dungeon.hero) return value;
+		int current = ((ShieldBuff) buff).shielding();
+		if (value <= current) return value;
+		return current + Math.max(0, Math.round((value - current) * multiplier(Mod.SHIELDING)));
+	}
+
+	/**
+	 * Called at the start of Buff.affect and Buff.prolong with a timed effect's length. Lengthens or shortens the hero's positive effects by
+	 * Buff time and negative ones by Debuff time.
+	 */
+	public static float adjustBuffDuration(Object target, Class<?> type, float duration) {
+		if (target != Dungeon.hero || duration <= 0 || type == null) return duration;
+		Buff.buffType kind = buffType(type);
+		if (kind == Buff.buffType.POSITIVE) return duration * multiplier(Mod.BUFF_TIME);
+		if (kind == Buff.buffType.NEGATIVE) return duration * multiplier(Mod.DEBUFF_TIME);
+		return duration;
+	}
+
+	private static synchronized Buff.buffType buffType(Class<?> type) {
+		if (buffTypes.containsKey(type)) return buffTypes.get(type);
+		Buff.buffType kind = null;
+		try {
+			java.lang.reflect.Constructor<?> constructor = type.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			kind = ((Buff) constructor.newInstance()).type;
+		} catch (Throwable ignored) {
+		}
+		buffTypes.put(type, kind);
+		return kind;
+	}
+
+	/**
+	 * Called at the start of Hero.earnExp. Scales experience by the XP gain modifier.
+	 */
+	public static int adjustExperience(int amount) {
+		if (amount <= 0) return amount;
+		return Math.max(0, Math.round(amount * multiplier(Mod.EXPERIENCE)));
+	}
+
+	/**
+	 * Called at the start of Gold.doPickUp. Scales gold the hero picks up by the Gold found modifier.
+	 */
+	public static void beforeGoldPickup(Object gold, Object hero) {
+		if (hero != Dungeon.hero || mod(Mod.GOLD) == 0 || !(gold instanceof Item)) return;
+		Item item = (Item) gold;
+		item.quantity(Math.max(1, Math.round(item.quantity() * multiplier(Mod.GOLD))));
+	}
+
+	/**
+	 * Called when Shopkeeper.sellPrice returns, the price of buying an item. Shop deals lowers it.
+	 */
+	public static int adjustBuyPrice(int price) {
+		if (price <= 0 || mod(Mod.SHOP_DEALS) == 0) return price;
+		return Math.max(1, Math.round(price / multiplier(Mod.SHOP_DEALS)));
+	}
+
+	/**
+	 * What selling an item worth [value] pays. Shop deals raises it.
+	 */
+	public static int sellValue(int value) {
+		if (value <= 0 || mod(Mod.SHOP_DEALS) == 0) return value;
+		return Math.max(0, Math.round(value * multiplier(Mod.SHOP_DEALS)));
+	}
+
+	/**
+	 * Called with the energy an item gives when energized. Scales it by the Energize modifier.
+	 */
+	public static int adjustEnergy(int energy) {
+		if (energy <= 0 || mod(Mod.ENERGY) == 0) return energy;
+		return Math.max(0, Math.round(energy * multiplier(Mod.ENERGY)));
+	}
+
+	/**
+	 * Called when MissileWeapon.durabilityPerUse returns. Thrown life makes thrown weapons wear out more slowly.
+	 */
+	public static float adjustThrownWear(float wear) {
+		return wear / multiplier(Mod.THROWN_DURABILITY);
 	}
 }

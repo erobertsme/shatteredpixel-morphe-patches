@@ -59,8 +59,8 @@ public class ShopItemWindow extends WndInfoItem {
 		ShopItemWindow window = new ShopItemWindow(item);
 		Shopkeeper shop = shopkeeperHere();
 		boolean wholeOnly = item.quantity() == 1 || item instanceof MissileWeapon && item.isUpgradable();
-		int total = item.value();
-		int each = total / Math.max(1, item.quantity());
+		int total = HeroExtras.sellValue(item.value());
+		int each = HeroExtras.sellValue(item.value() / Math.max(1, item.quantity()));
 		window.addPrice("Sells for", total, wholeOnly ? null : each + " each", true);
 		Runnable reopen = () -> {
 			window.hide();

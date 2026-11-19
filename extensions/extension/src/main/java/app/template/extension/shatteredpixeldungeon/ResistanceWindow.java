@@ -5,7 +5,7 @@ package app.template.extension.shatteredpixeldungeon;
  */
 public class ResistanceWindow extends EditorWindow {
 
-	private static final String INFO = "Resistances\n\nHow much less fire, cold, lightning, poison, corrosion, ooze and paralysis affect your hero, added on top of anything else that protects you. Damage and how long an effect lasts both shrink by this much.\n\n100% makes you immune: the effect can't touch you at all.\n\nSaved with this run, like the other modifiers.";
+	private static final String INFO = "Resistances\n\nHow much less fire, cold, lightning, poison, corrosion, ooze, paralysis and magic affect your hero, added on top of anything else that protects you. Damage and how long an effect lasts both shrink by this much. Magic covers wands, magical attacks such as warlock and DM-200 bolts, magic traps and bombs, and magical debuffs like charm, weakness and hex.\n\n100% makes you immune: the effect can't touch you at all.\n\nSaved with this run, like the other modifiers.";
 	private static final int STEP = 10;
 
 	private final Runnable onBack;

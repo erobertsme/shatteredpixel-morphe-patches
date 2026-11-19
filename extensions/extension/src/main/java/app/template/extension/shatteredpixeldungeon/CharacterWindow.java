@@ -51,7 +51,7 @@ public class CharacterWindow extends Window {
 	private static final String[] TAB_NAMES = { "Stats", "Mods", "Talents", "Status" };
 	private static final String[] TAB_INFO = {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
-		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, percentages by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nCombat, Senses & luck and Rings switch between the three pages of modifiers.\n\nThe regeneration modifier has no effect while a boss floor is locked.\n\nLuck: counts as that many extra levels of Ring of Wealth, for more and better item drops from enemies.\n\nEnchant power: counts as that many extra levels of Ring of Arcana, which makes weapon enchantments and armor glyphs stronger and more likely to trigger.\n\nVision: how many more tiles you can see.\n\nSearch range: how many more tiles around you are searched for hidden doors and traps.\n\nSearch chance: how much more likely you are to spot a hidden door or trap as you walk past. Searching on purpose always finds what's in range.\n\nStealth: how much harder you are for enemies to notice. Each point counts like one more tile of distance between you and them.\n\nRings: each counts as that many extra levels of the ring, on top of any you wear, so Haste makes you faster, Energy recharges wands and artifacts faster, Might adds strength and health, Tenacity cuts damage when you're hurt, and so on.\n\nResistances: how much less you take from fire, cold, lightning, poison, corrosion, ooze and paralysis. 100% makes you immune.",
+		"Mods\n\nModifiers are added on top of everything else and are saved with this run. Percentages are changes from normal: +50% is half as much again, -50% is half as much.\n\nNumbers change by 1, percentages by 5%. Long-press - or + to change by 10 steps, or tap a value to type it. The buttons at the top switch between the pages.\n\nCombat\nAccuracy, Evasion, Damage and Armor add flat amounts; Attack and Move speed are percentages.\nDamage dealt: all damage your attacks do.\nSurprise hits: extra damage on enemies that didn't see you coming, such as sleeping or distracted ones.\nEnchant power: extra levels of Ring of Arcana, which makes enchantments and glyphs stronger and more likely to trigger.\n\nSurvival\nHP regen: natural regeneration speed. It has no effect while a boss floor is locked.\nHealing: all healing you receive, from potions, regeneration, food, plants and the rest. It is added at the start of your next turn.\nShielding: shields and barriers you gain.\nDamage taken: all damage you take. Trap & fall: damage from traps and from falling, on top of that.\nDebuff time and Buff time: how long timed negative and positive effects last on you.\n\nSenses\nVision: how many more tiles you can see. Search range: how many more tiles around you are searched. Search chance: how likely you are to spot hidden doors and traps as you walk past; searching on purpose always finds what's in range. Stealth: each point counts like one more tile of distance when enemies try to notice you.\n\nRewards\nLuck: extra levels of Ring of Wealth, for more and better drops. XP gain: experience earned. Gold found: gold picked up. Shop deals: buying costs less and selling pays more. Energize: energy from energizing items. Thrown life: how long thrown weapons last.\n\nRings\nEach counts as that many extra levels of the ring, on top of any you wear.\n\nResistances: how much less fire, cold, lightning, poison, corrosion, ooze, paralysis and magic affect you. 100% makes you immune.",
 		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Add Status adds a new one and Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.\n\nThe hunger buttons set how hungry you are. Well Fed also gives the Well Fed effect, as if you had just eaten a meat pie.",
 	};
@@ -372,7 +372,7 @@ public class CharacterWindow extends Window {
 	private void buildModifiers(Hero hero) {
 		HeroExtras.Group[] groups = HeroExtras.Group.values();
 		int shown = Math.max(0, Math.min(groups.length - 1, tier - 1));
-		float buttonWidth = (WIDTH - (groups.length - 1) * GAP) / (float) groups.length;
+		float buttonWidth = (WIDTH - (GROUPS_PER_ROW - 1) * GAP) / (float) GROUPS_PER_ROW;
 		for (int g = 0; g < groups.length; g++) {
 			int target = g + 1;
 			RedButton button = new RedButton(groups[g].label, 6) {
@@ -382,10 +382,10 @@ public class CharacterWindow extends Window {
 				}
 			};
 			if (g == shown) button.textColor(TITLE_COLOR);
-			button.setRect(g * (buttonWidth + GAP), pos, buttonWidth, ROW_HEIGHT);
+			button.setRect((g % GROUPS_PER_ROW) * (buttonWidth + GAP), pos + (g / GROUPS_PER_ROW) * (ROW_HEIGHT + GAP), buttonWidth, ROW_HEIGHT);
 			add(button);
 		}
-		pos += ROW_HEIGHT + 2 * GAP;
+		pos += ((groups.length + GROUPS_PER_ROW - 1) / GROUPS_PER_ROW) * (ROW_HEIGHT + GAP) + GAP;
 
 		List<HeroExtras.Mod> mods = HeroExtras.Mod.in(groups[shown]);
 		int perPage = PixelScene.landscape() ? MODS_PER_PAGE_LANDSCAPE : mods.size();
@@ -632,6 +632,7 @@ public class CharacterWindow extends Window {
 
 	private static final int ICON_SPACE = 10;
 	private static final int MODS_PER_PAGE_LANDSCAPE = 5;
+	private static final int GROUPS_PER_ROW = 3;
 	private Image nextIcon;
 
 	private void icon(Image image) {
@@ -777,6 +778,19 @@ public class CharacterWindow extends Window {
 			case SEARCH_RANGE: return StatIcons.buff(StatIcons.BUFF_MIND_VISION);
 			case SEARCH_CHANCE: return StatIcons.buff(StatIcons.BUFF_FORESIGHT);
 			case STEALTH: return StatIcons.buff(StatIcons.BUFF_INVISIBLE);
+			case DAMAGE_DEALT: return StatIcons.buff(StatIcons.BUFF_BERSERK);
+			case SURPRISE_DAMAGE: return StatIcons.buff(StatIcons.BUFF_TARGETED);
+			case HEALING: return StatIcons.item(StatIcons.POTION_HEALING);
+			case SHIELDING: return StatIcons.item(StatIcons.POTION_SHIELDING);
+			case DAMAGE_TAKEN: return StatIcons.buff(StatIcons.BUFF_BARKSKIN);
+			case TRAP_FALL: return StatIcons.buff(StatIcons.BUFF_LEVITATION);
+			case DEBUFF_TIME: return StatIcons.buff(StatIcons.BUFF_TERROR);
+			case BUFF_TIME: return StatIcons.buff(StatIcons.BUFF_TIME);
+			case EXPERIENCE: return StatIcons.item(StatIcons.POTION_EXP);
+			case GOLD: return StatIcons.icon(Icons.COIN_SML);
+			case SHOP_DEALS: return StatIcons.icon(Icons.COIN_SML);
+			case ENERGY: return StatIcons.icon(Icons.ENERGY_SML);
+			case THROWN_DURABILITY: return StatIcons.item(StatIcons.RING_SHARPSHOOTING);
 			case RING_ACCURACY: return StatIcons.item(StatIcons.RING_ACCURACY);
 			case RING_ELEMENTS: return StatIcons.item(StatIcons.RING_ELEMENTS);
 			case RING_ENERGY: return StatIcons.item(StatIcons.RING_ENERGY);

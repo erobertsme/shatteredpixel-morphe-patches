@@ -104,7 +104,7 @@ public class ShopWindow extends EditorWindow {
 	 * name, then its price and an i button. Tapping it buys the item back.
 	 */
 	private void addBuybackRow(Item item) {
-		int price = item.value();
+		int price = HeroExtras.sellValue(item.value());
 		boolean affordable = Dungeon.gold >= price;
 		Runnable buy = () -> buyBack(item);
 		Runnable info = () -> show(new WndInfoItem(item));
@@ -182,12 +182,13 @@ public class ShopWindow extends EditorWindow {
 	 */
 	private static void buyBack(Shopkeeper shopkeeper, Item item) {
 		Hero hero = Dungeon.hero;
-		if (hero == null || !shopkeeper.buybackItems.contains(item) || Dungeon.gold < item.value()) return;
+		int price = HeroExtras.sellValue(item.value());
+		if (hero == null || !shopkeeper.buybackItems.contains(item) || Dungeon.gold < price) return;
 		try {
 			GLog.i(Messages.get(shopkeeper, "buyback"));
 			shopkeeper.buybackItems.remove(item);
-			Dungeon.gold -= item.value();
-			Statistics.goldCollected -= item.value();
+			Dungeon.gold -= price;
+			Statistics.goldCollected -= price;
 			if (item instanceof MissileWeapon && item.isUpgradable()) {
 				Buff.affect(hero, MissileWeapon.UpgradedSetTracker.class).levelThresholds.put(((MissileWeapon) item).setID, item.level());
 			}

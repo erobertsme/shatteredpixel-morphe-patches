@@ -7,6 +7,7 @@ public class Mob extends Char {
 	public interface AiState {
 	}
 
+	public final boolean surprisedBy(com.shatteredpixel.shatteredpixeldungeon.actors.Char attacker) { throw new RuntimeException("Stub"); }
 	public AiState SLEEPING;
 	public AiState HUNTING;
 	public AiState WANDERING;

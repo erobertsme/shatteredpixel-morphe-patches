@@ -222,6 +222,62 @@ internal class RingBonusFingerprint(name: String) : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;", "Ljava/lang/Class;"),
 )
 
+object HeroAttackProcFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "attackProc",
+	returnType = "I",
+	parameters = listOf(CHAR_TYPE, "I"),
+)
+
+object HeroEarnExpFingerprint : Fingerprint(
+	definingClass = HERO_CLASS,
+	name = "earnExp",
+	returnType = "V",
+	parameters = listOf("I", "Ljava/lang/Class;"),
+)
+
+internal class ShieldBuffAmountFingerprint(name: String) : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/ShieldBuff;",
+	name = name,
+	returnType = "V",
+	parameters = listOf("I"),
+)
+
+internal class BuffDurationFingerprint(name: String) : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/Buff;",
+	name = name,
+	returnType = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/buffs/FlavourBuff;",
+	parameters = listOf(CHAR_TYPE, "Ljava/lang/Class;", "F"),
+)
+
+object GoldDoPickUpFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/Gold;",
+	name = "doPickUp",
+	returnType = "Z",
+	parameters = listOf(HERO_CLASS, "I"),
+)
+
+internal class WndTradeSellFingerprint(name: String) : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTradeItem;",
+	name = name,
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;", "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper;"),
+)
+
+object MissileDurabilityFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/MissileWeapon;",
+	name = "durabilityPerUse",
+	returnType = "F",
+	parameters = listOf("I"),
+)
+
+object WndEnergizeFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndEnergizeItem;",
+	name = "energize",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
 object HeroSpeedFingerprint : Fingerprint(
 	definingClass = HERO_CLASS,
 	name = "speed",

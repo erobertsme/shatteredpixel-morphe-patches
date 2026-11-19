@@ -47,6 +47,49 @@ val characterEditorPatch = bytecodePatch(
 		SaltCubeRegenFingerprint.adjustReturns("$EXTRAS_CLASS->adjustRegen(F)F")
 		HeroStealthFingerprint.adjustReturns("$EXTRAS_CLASS->adjustStealth(F)F")
 
+		HeroDamageFingerprint.method.addInstructions(
+			0,
+			"""
+				invoke-static/range { p1 .. p2 }, $EXTRAS_CLASS->adjustDamageTaken(ILjava/lang/Object;)I
+				move-result p1
+			""",
+		)
+		HeroAttackProcFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->beforeAttackProc(Ljava/lang/Object;)V")
+		HeroAttackProcFingerprint.adjustReturns("$EXTRAS_CLASS->adjustDamageDealt(I)I")
+		HeroActFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p0 }, $EXTRAS_CLASS->onHeroAct(Ljava/lang/Object;)V")
+		HeroEarnExpFingerprint.method.addInstructions(
+			0,
+			"""
+				invoke-static/range { p1 .. p1 }, $EXTRAS_CLASS->adjustExperience(I)I
+				move-result p1
+			""",
+		)
+		mapOf("incShield" to "adjustShieldGain", "setShield" to "adjustShieldSet").forEach { (name, adjust) ->
+			ShieldBuffAmountFingerprint(name).method.addInstructions(
+				0,
+				"""
+					invoke-static/range { p0 .. p1 }, $EXTRAS_CLASS->$adjust(Ljava/lang/Object;I)I
+					move-result p1
+				""",
+			)
+		}
+		listOf("affect", "prolong").forEach { name ->
+			BuffDurationFingerprint(name).method.addInstructions(
+				0,
+				"""
+					invoke-static/range { p0 .. p2 }, $EXTRAS_CLASS->adjustBuffDuration(Ljava/lang/Object;Ljava/lang/Class;F)F
+					move-result p2
+				""",
+			)
+		}
+		GoldDoPickUpFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p1 }, $EXTRAS_CLASS->beforeGoldPickup(Ljava/lang/Object;Ljava/lang/Object;)V")
+		ShopkeeperSellPriceFingerprint.adjustReturns("$EXTRAS_CLASS->adjustBuyPrice(I)I")
+		listOf("sell", "sellOne").forEach { name ->
+			WndTradeSellFingerprint(name).adjustCallResults("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;->value()I", "$EXTRAS_CLASS->sellValue(I)I")
+		}
+		MissileDurabilityFingerprint.adjustReturns("$EXTRAS_CLASS->adjustThrownWear(F)F")
+		WndEnergizeFingerprint.adjustCallResults("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;->energyVal()I", "$EXTRAS_CLASS->adjustEnergy(I)I")
+
 		listOf("getBonus", "getBuffedBonus").forEach { name ->
 			val ringBonus = RingBonusFingerprint(name)
 			ringBonus.method.addInstruction(0, "invoke-static { p0, p1 }, $EXTRAS_CLASS->beforeRingBonus(Ljava/lang/Object;Ljava/lang/Class;)V")
