@@ -1,3 +1,13 @@
+## [1.0.0-dev.149](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.148...v1.0.0-dev.149) (2026-11-19)
+
+### ✨ New Features
+
+* Survival, reward and magic resistance modifiers ([6d40749](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6d40749983d512855765f6d3c81b1ab3cd11e63a))
+
+### 🐛 Bug Fixes
+
+* Remove a duplicate experience fingerprint ([0d1a4c3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0d1a4c3f0e9cb2b5ac172ced5b0fc8b3c723658a))
+
 ## [1.0.0-dev.148](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.147...v1.0.0-dev.148) (2026-11-19)
 
 ### ✨ New Features
