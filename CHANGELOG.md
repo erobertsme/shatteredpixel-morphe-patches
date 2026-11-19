@@ -1,3 +1,9 @@
+## [1.0.0-dev.147](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.146...v1.0.0-dev.147) (2026-11-19)
+
+### ✨ New Features
+
+* Luck, enchant power, vision, search, stealth and resistance modifiers ([f7c5985](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f7c598521a642bb863c52132e60ebceb895143fb))
+
 ## [1.0.0-dev.146](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.145...v1.0.0-dev.146) (2026-11-16)
 
 ### 🐛 Bug Fixes
