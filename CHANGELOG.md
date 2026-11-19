@@ -1,3 +1,9 @@
+## [1.0.0-dev.148](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.147...v1.0.0-dev.148) (2026-11-19)
+
+### ✨ New Features
+
+* Ring level modifiers and senses and resistances on the stats screens ([158c901](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/158c9012049e1f91ee691ac67df00d6dc66318dc))
+
 ## [1.0.0-dev.147](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.146...v1.0.0-dev.147) (2026-11-19)
 
 ### ✨ New Features
