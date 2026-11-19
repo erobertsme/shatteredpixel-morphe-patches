@@ -14,35 +14,83 @@ public final class HeroExtras {
 
 	public static final int TIERS = 4;
 
-	public enum Mod {
-		ACCURACY("Accuracy", false),
-		EVASION("Evasion", false),
-		DAMAGE("Damage", false),
-		ARMOR("Armor", false),
-		ATTACK_SPEED("Attack speed", true),
-		MOVE_SPEED("Move speed", true),
-		REGEN("HP regen", true),
-		LUCK("Luck", false, -10, 20),
-		ENCHANT_POWER("Enchant power", false, -10, 20),
-		VISION("Vision", false, -7, 12),
-		SEARCH_RANGE("Search range", false, -2, 10),
-		SEARCH_CHANCE("Search chance", true),
-		STEALTH("Stealth", false, -10, 20);
+	/**
+	 * The pages the modifiers are split into in the character editor.
+	 */
+	public enum Group {
+		COMBAT("Combat"),
+		SENSES("Senses & luck"),
+		RINGS("Rings");
 
 		public final String label;
+
+		Group(String label) {
+			this.label = label;
+		}
+	}
+
+	public enum Mod {
+		ACCURACY("Accuracy", Group.COMBAT, false),
+		EVASION("Evasion", Group.COMBAT, false),
+		DAMAGE("Damage", Group.COMBAT, false),
+		ARMOR("Armor", Group.COMBAT, false),
+		ATTACK_SPEED("Attack speed", Group.COMBAT, true),
+		MOVE_SPEED("Move speed", Group.COMBAT, true),
+		REGEN("HP regen", Group.COMBAT, true),
+		LUCK("Luck", "RingOfWealth$Wealth"),
+		ENCHANT_POWER("Enchant power", "RingOfArcana$Arcana"),
+		VISION("Vision", Group.SENSES, false, -7, 12),
+		SEARCH_RANGE("Search range", Group.SENSES, false, -2, 10),
+		SEARCH_CHANCE("Search chance", Group.SENSES, true),
+		STEALTH("Stealth", Group.SENSES, false, -10, 20),
+		RING_ACCURACY("Accuracy", Group.RINGS, "RingOfAccuracy$Accuracy"),
+		RING_ELEMENTS("Elements", Group.RINGS, "RingOfElements$Resistance"),
+		RING_ENERGY("Energy", Group.RINGS, "RingOfEnergy$Energy"),
+		RING_EVASION("Evasion", Group.RINGS, "RingOfEvasion$Evasion"),
+		RING_FORCE("Force", Group.RINGS, "RingOfForce$Force"),
+		RING_FUROR("Furor", Group.RINGS, "RingOfFuror$Furor"),
+		RING_HASTE("Haste", Group.RINGS, "RingOfHaste$Haste"),
+		RING_MIGHT("Might", Group.RINGS, "RingOfMight$Might"),
+		RING_SHARPSHOOTING("Sharpshot", Group.RINGS, "RingOfSharpshooting$Aim"),
+		RING_TENACITY("Tenacity", Group.RINGS, "RingOfTenacity$Tenacity");
+
+		private static final String RING_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.items.rings.";
+		private static final int RING_MIN = -10;
+		private static final int RING_MAX = 20;
+
+		public final String label;
+		public final Group group;
 		public final boolean percent;
+		/**
+		 * The ring buff this modifier adds levels to, or null for one that isn't a ring.
+		 */
+		public final String ring;
 		private final int min;
 		private final int max;
 
-		Mod(String label, boolean percent) {
-			this(label, percent, percent ? -90 : -999, percent ? 1000 : 999);
+		Mod(String label, Group group, boolean percent) {
+			this(label, group, percent, percent ? -90 : -999, percent ? 1000 : 999, null);
 		}
 
-		Mod(String label, boolean percent, int min, int max) {
+		Mod(String label, Group group, boolean percent, int min, int max) {
+			this(label, group, percent, min, max, null);
+		}
+
+		Mod(String label, String ring) {
+			this(label, Group.SENSES, false, RING_MIN, RING_MAX, RING_PACKAGE + ring);
+		}
+
+		Mod(String label, Group group, String ring) {
+			this(label, group, false, RING_MIN, RING_MAX, RING_PACKAGE + ring);
+		}
+
+		Mod(String label, Group group, boolean percent, int min, int max, String ring) {
 			this.label = label;
+			this.group = group;
 			this.percent = percent;
 			this.min = min;
 			this.max = max;
+			this.ring = ring;
 		}
 
 		public int step() {
@@ -55,6 +103,28 @@ public final class HeroExtras {
 
 		public int max() {
 			return max;
+		}
+
+		/**
+		 * The modifier that adds levels to [ringBuff], or null.
+		 */
+		static Mod forRing(Class<?> ringBuff) {
+			String name = ringBuff.getName();
+			for (Mod mod : values()) {
+				if (name.equals(mod.ring)) return mod;
+			}
+			return null;
+		}
+
+		/**
+		 * The modifiers in [group], in order.
+		 */
+		public static java.util.List<Mod> in(Group group) {
+			java.util.List<Mod> list = new java.util.ArrayList<>();
+			for (Mod mod : values()) {
+				if (mod.group == group) list.add(mod);
+			}
+			return list;
 		}
 	}
 
@@ -77,6 +147,14 @@ public final class HeroExtras {
 		public final int icon;
 		private final String[] names;
 		private Class<?>[] types;
+
+		/**
+		 * The main effect of this element, used to show how strongly a character resists it.
+		 */
+		public Class<?> primary() {
+			Class<?>[] all = types();
+			return all.length == 0 ? null : all[0];
+		}
 
 		Element(String label, int icon, String... names) {
 			this.label = label;
@@ -111,8 +189,6 @@ public final class HeroExtras {
 
 	public static final int IMMUNE = 100;
 	private static final int MAX_DISTANCE = 20;
-	private static final String RING_WEALTH = "com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth$Wealth";
-	private static final String RING_ARCANA = "com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana$Arcana";
 	private static final int[] resistances = new int[Element.values().length];
 	private static final ThreadLocal<Object> ringTarget = new ThreadLocal<>();
 	private static final ThreadLocal<Class<?>> resistTarget = new ThreadLocal<>();
@@ -256,14 +332,14 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called when Ring.getBonus or Ring.getBuffedBonus returns. Luck adds levels of Ring of Wealth and Enchant power adds levels of Ring of
-	 * Arcana for the hero, as if wearing that ring, unless magic is blocked.
+	 * Called when Ring.getBonus or Ring.getBuffedBonus returns. Ring modifiers add levels of their ring for the hero, as if wearing it,
+	 * unless magic is blocked: Luck for Ring of Wealth, Enchant power for Ring of Arcana, and one for each other ring.
 	 */
 	public static int adjustRingBonus(int value, Class<?> ring) {
 		Object target = ringTarget.get();
 		ringTarget.remove();
 		if (ring == null || target == null || target != Dungeon.hero) return value;
-		Mod mod = RING_WEALTH.equals(ring.getName()) ? Mod.LUCK : RING_ARCANA.equals(ring.getName()) ? Mod.ENCHANT_POWER : null;
+		Mod mod = Mod.forRing(ring);
 		if (mod == null || mod(mod) == 0 || magicBlocked(target)) return value;
 		return value + mod(mod);
 	}

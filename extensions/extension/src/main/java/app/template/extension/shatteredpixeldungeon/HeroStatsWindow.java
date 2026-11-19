@@ -60,10 +60,34 @@ public class HeroStatsWindow extends EditorWindow {
 		addIconRow(StatIcons.item(StatIcons.POTION_HEALING), "Health", hero.HP + " / " + hero.HT);
 		addIconRow(StatIcons.item(StatIcons.POTION_EXP), "Experience", hero.exp + " / " + hero.maxExp());
 		for (CharacterWindow.HeroStat stat : CharacterWindow.heroStats(hero)) addIconRow(stat.icon, stat.label, stat.value);
+
+		addSection("Senses & luck");
+		addIconRow(StatIcons.buff(StatIcons.BUFF_LIGHT), "Vision", ExtraStats.vision(hero) + " tiles");
+		addIconRow(StatIcons.buff(StatIcons.BUFF_MIND_VISION), "Search range", ExtraStats.searchRange(hero) + " tiles");
+		int searchChance = HeroExtras.mod(HeroExtras.Mod.SEARCH_CHANCE);
+		addIconRow(StatIcons.buff(StatIcons.BUFF_FORESIGHT), "Search chance", searchChance == 0 ? "Normal" : (searchChance > 0 ? "+" : "") + searchChance + "%");
+		addIconRow(StatIcons.buff(StatIcons.BUFF_INVISIBLE), "Stealth", StatsWindow.number(ExtraStats.stealth(hero)));
+		addIconRow(StatIcons.item(StatIcons.RING_WEALTH), "Luck", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.LUCK)));
+		addIconRow(StatIcons.item(StatIcons.RING_ARCANA), "Enchant power", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.ENCHANT_POWER)));
+
+		boolean rings = false;
+		for (HeroExtras.Mod mod : HeroExtras.Mod.in(HeroExtras.Group.RINGS)) {
+			int level = ExtraStats.ringLevel(hero, mod);
+			if (level == 0) continue;
+			if (!rings) addSection("Ring levels");
+			rings = true;
+			addIconRow(CharacterWindow.modIcon(mod), mod.label, signed(level));
+		}
+
+		ExtraStats.addResistances(this, hero);
 		pos += GAP;
 		addButton("Close", 0, WIDTH, this::hide);
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	private static String signed(int value) {
+		return (value > 0 ? "+" : "") + value;
 	}
 
 	@Override

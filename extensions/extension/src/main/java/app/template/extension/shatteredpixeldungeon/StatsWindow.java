@@ -35,7 +35,12 @@ public class StatsWindow extends EditorWindow {
 		addIconRow(StatIcons.buff(StatIcons.BUFF_ARMOR), "Armor", range(EnhancedBestiary.range(mob::drRoll)));
 		addIconRow(StatIcons.item(StatIcons.RING_FUROR), "Attack speed", safe(() -> speed(1f / mob.attackDelay())));
 		addIconRow(StatIcons.item(StatIcons.RING_HASTE), "Move speed", safe(() -> speed(mob.speed())));
-		addIconRow(StatIcons.item(StatIcons.POTION_MINDVIS), "Sight", mob.viewDistance + " tiles");
+
+		addSection("Senses");
+		addIconRow(StatIcons.buff(StatIcons.BUFF_LIGHT), "Vision", safe(() -> ExtraStats.vision(mob) + " tiles"));
+		addIconRow(StatIcons.buff(StatIcons.BUFF_INVISIBLE), "Stealth", safe(() -> number(ExtraStats.stealth(mob))));
+
+		ExtraStats.addResistances(this, mob);
 
 		addSection("Other");
 		addIconRow(StatIcons.item(StatIcons.POTION_EXP), "Experience", mob.EXP + " (until level " + mob.maxLvl + ")");
@@ -84,6 +89,14 @@ public class StatsWindow extends EditorWindow {
 	private static String speed(float value) {
 		if (Math.abs(value - Math.round(value)) < 0.01f) return Math.round(value) + "x";
 		return String.format(Locale.ROOT, "%.2fx", value);
+	}
+
+	/**
+	 * [value] with up to two decimals and no trailing zeros.
+	 */
+	static String number(float value) {
+		if (Math.abs(value - Math.round(value)) < 0.01f) return String.valueOf(Math.round(value));
+		return String.format(Locale.ROOT, "%.2f", value);
 	}
 
 	private static String titleCase(String text) {

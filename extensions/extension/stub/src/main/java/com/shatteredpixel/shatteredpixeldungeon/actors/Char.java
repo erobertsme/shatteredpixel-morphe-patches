@@ -34,6 +34,8 @@ public class Char {
 	public final void move(int step) { throw new RuntimeException("Stub"); }
 
 	public boolean isImmune(Class effect) { throw new RuntimeException("Stub"); }
+	public float resist(Class effect) { throw new RuntimeException("Stub"); }
+	public float stealth() { throw new RuntimeException("Stub"); }
 
 	public void damage(int dmg, Object src) { throw new RuntimeException("Stub"); }
 	public void die(Object src) { throw new RuntimeException("Stub"); }

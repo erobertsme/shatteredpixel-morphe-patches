@@ -15,11 +15,14 @@ final class StatIcons {
 	static final int RING_ACCURACY = 0;
 	static final int RING_ARCANA = 1;
 	static final int RING_ELEMENTS = 2;
+	static final int RING_ENERGY = 3;
 	static final int RING_EVASION = 4;
 	static final int RING_FORCE = 5;
 	static final int RING_FUROR = 6;
 	static final int RING_HASTE = 7;
 	static final int RING_MIGHT = 8;
+	static final int RING_SHARPSHOOTING = 9;
+	static final int RING_TENACITY = 10;
 	static final int RING_WEALTH = 11;
 	static final int SCROLL_UPGRADE = 32;
 	static final int SCROLL_IDENTIFY = 33;

@@ -51,7 +51,7 @@ public class CharacterWindow extends Window {
 	private static final String[] TAB_NAMES = { "Stats", "Mods", "Talents", "Status" };
 	private static final String[] TAB_INFO = {
 		"Stats\n\nTap a number to type a value, with Min and Max buttons. Long-press - or + to change by 10.\n\nMax health is saved as a bonus, so it survives level-ups. Shield adds a Barrier or drains your shields.\n\nThe totals at the bottom are read-only. Highlighted values include your modifiers.",
-		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, percentages by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nThe regeneration modifier has no effect while a boss floor is locked.\n\nLuck: counts as that many extra levels of Ring of Wealth, for more and better item drops from enemies.\n\nEnchant power: counts as that many extra levels of Ring of Arcana, which makes weapon enchantments and armor glyphs stronger and more likely to trigger.\n\nVision: how many more tiles you can see.\n\nSearch range: how many more tiles around you are searched for hidden doors and traps.\n\nSearch chance: how much more likely you are to spot a hidden door or trap as you walk past. Searching on purpose always finds what's in range.\n\nStealth: how much harder you are for enemies to notice. Each point counts like one more tile of distance between you and them.\n\nResistances: how much less you take from fire, cold, lightning, poison, corrosion, ooze and paralysis. 100% makes you immune.",
+		"Mods\n\nModifiers are added on top of everything else and are saved with this run.\n\nNumbers change by 1, percentages by 5%. Long-press - or + to change by 10 steps, or tap a value to type it.\n\nCombat, Senses & luck and Rings switch between the three pages of modifiers.\n\nThe regeneration modifier has no effect while a boss floor is locked.\n\nLuck: counts as that many extra levels of Ring of Wealth, for more and better item drops from enemies.\n\nEnchant power: counts as that many extra levels of Ring of Arcana, which makes weapon enchantments and armor glyphs stronger and more likely to trigger.\n\nVision: how many more tiles you can see.\n\nSearch range: how many more tiles around you are searched for hidden doors and traps.\n\nSearch chance: how much more likely you are to spot a hidden door or trap as you walk past. Searching on purpose always finds what's in range.\n\nStealth: how much harder you are for enemies to notice. Each point counts like one more tile of distance between you and them.\n\nRings: each counts as that many extra levels of the ring, on top of any you wear, so Haste makes you faster, Energy recharges wands and artifacts faster, Might adds strength and health, Tenacity cuts damage when you're hurt, and so on.\n\nResistances: how much less you take from fire, cold, lightning, poison, corrosion, ooze and paralysis. 100% makes you immune.",
 		"Talents\n\nPick a tier at the top. Bonus points add extra points to that tier.\n\n- and + remove or add a point. Adding needs an unspent point in that tier.\n\nThe swap button replaces a talent like a Scroll of Metamorphosis. Tier 4 talents depend on your armor ability and can't be swapped.\n\nSubclass, at the bottom of tier 3, and Armor Ability, at the bottom of tier 4, change your subclass or armor ability. The old one's talents, and the points in them, are replaced by the new one's.\n\nTap or long-press a talent to read it.",
 		"Status\n\nTap the number to change how many turns are left.\n\n{STAR}The star makes a status infinite: it never runs out and comes back straight away if something removes it. Bright means on.\n\nX removes a status. Add Status adds a new one and Remove Negative clears every negative status.\n\n{INFO}Tap i or long-press a status to read it.\n\nThe hunger buttons set how hungry you are. Well Fed also gives the Well Fed effect, as if you had just eaten a meat pie.",
 	};
@@ -370,13 +370,30 @@ public class CharacterWindow extends Window {
 	}
 
 	private void buildModifiers(Hero hero) {
-		HeroExtras.Mod[] all = HeroExtras.Mod.values();
-		int perPage = PixelScene.landscape() ? MODS_PER_PAGE_LANDSCAPE : all.length;
-		int pages = Math.max(1, (all.length + perPage - 1) / perPage);
+		HeroExtras.Group[] groups = HeroExtras.Group.values();
+		int shown = Math.max(0, Math.min(groups.length - 1, tier - 1));
+		float buttonWidth = (WIDTH - (groups.length - 1) * GAP) / (float) groups.length;
+		for (int g = 0; g < groups.length; g++) {
+			int target = g + 1;
+			RedButton button = new RedButton(groups[g].label, 6) {
+				@Override
+				public void onClick() {
+					if (target != tier) reopen(TAB_MODIFIERS, target);
+				}
+			};
+			if (g == shown) button.textColor(TITLE_COLOR);
+			button.setRect(g * (buttonWidth + GAP), pos, buttonWidth, ROW_HEIGHT);
+			add(button);
+		}
+		pos += ROW_HEIGHT + 2 * GAP;
+
+		List<HeroExtras.Mod> mods = HeroExtras.Mod.in(groups[shown]);
+		int perPage = PixelScene.landscape() ? MODS_PER_PAGE_LANDSCAPE : mods.size();
+		int pages = Math.max(1, (mods.size() + perPage - 1) / perPage);
 		int current = Math.min(page, pages - 1);
-		int end = Math.min(all.length, (current + 1) * perPage);
+		int end = Math.min(mods.size(), (current + 1) * perPage);
 		for (int i = current * perPage; i < end; i++) {
-			HeroExtras.Mod mod = all[i];
+			HeroExtras.Mod mod = mods.get(i);
 			icon(modIcon(mod));
 			int value = HeroExtras.mod(mod);
 			String text = (value >= 0 ? "+" : "") + value + (mod.percent ? "%" : "");
@@ -745,7 +762,7 @@ public class CharacterWindow extends Window {
 		return stats;
 	}
 
-	private static Image modIcon(HeroExtras.Mod mod) {
+	static Image modIcon(HeroExtras.Mod mod) {
 		switch (mod) {
 			case ACCURACY: return StatIcons.item(StatIcons.RING_ACCURACY);
 			case EVASION: return StatIcons.item(StatIcons.RING_EVASION);
@@ -760,6 +777,16 @@ public class CharacterWindow extends Window {
 			case SEARCH_RANGE: return StatIcons.buff(StatIcons.BUFF_MIND_VISION);
 			case SEARCH_CHANCE: return StatIcons.buff(StatIcons.BUFF_FORESIGHT);
 			case STEALTH: return StatIcons.buff(StatIcons.BUFF_INVISIBLE);
+			case RING_ACCURACY: return StatIcons.item(StatIcons.RING_ACCURACY);
+			case RING_ELEMENTS: return StatIcons.item(StatIcons.RING_ELEMENTS);
+			case RING_ENERGY: return StatIcons.item(StatIcons.RING_ENERGY);
+			case RING_EVASION: return StatIcons.item(StatIcons.RING_EVASION);
+			case RING_FORCE: return StatIcons.item(StatIcons.RING_FORCE);
+			case RING_FUROR: return StatIcons.item(StatIcons.RING_FUROR);
+			case RING_HASTE: return StatIcons.item(StatIcons.RING_HASTE);
+			case RING_MIGHT: return StatIcons.item(StatIcons.RING_MIGHT);
+			case RING_SHARPSHOOTING: return StatIcons.item(StatIcons.RING_SHARPSHOOTING);
+			case RING_TENACITY: return StatIcons.item(StatIcons.RING_TENACITY);
 			default: return null;
 		}
 	}
