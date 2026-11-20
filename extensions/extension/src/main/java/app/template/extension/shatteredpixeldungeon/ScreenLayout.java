@@ -88,6 +88,4 @@ final class ScreenLayout {
 			cachedInsets = new float[4];
 		}
 	}
-	}
-
 }
