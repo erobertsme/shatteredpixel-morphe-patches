@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0...v1.0.1) (2026-11-20)
+
+### 🐛 Bug Fixes
+
+* Emoji tag icons are drawn instead of falling back to the arrow ([cf9bf5f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/cf9bf5f3b2a3cf5b407ff6d7ddde8ce188c62d08))
+
 ## 1.0.0 (2026-11-20)
 
 ### ✨ New Features
