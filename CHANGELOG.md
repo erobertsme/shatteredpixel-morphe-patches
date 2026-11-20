@@ -1,3 +1,9 @@
+## [1.0.0-dev.151](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.150...v1.0.0-dev.151) (2026-11-20)
+
+### ✨ New Features
+
+* Quick Tags, and the floor editor's General tab comes first ([019b22f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/019b22f6cde7580852db4f7e4800bc68870c6544))
+
 ## [1.0.0-dev.150](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.149...v1.0.0-dev.150) (2026-11-20)
 
 ### 🐛 Bug Fixes
