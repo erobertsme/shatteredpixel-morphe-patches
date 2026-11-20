@@ -48,12 +48,24 @@ public final class AndroidUi {
 	 * what was typed, only when the positive button is tapped.
 	 */
 	static void askText(String title, String message, String initial, String positive, TextResult result) {
+		askText(title, message, initial, positive, InputType.TYPE_CLASS_TEXT, result);
+	}
+
+	/**
+	 * Like askText, with the keyboard set up for emoji: a short message, which keyboards like Gboard and Samsung Keyboard answer with an
+	 * emoji key on the main layout. Android doesn't let an app open the emoji panel itself.
+	 */
+	static void askEmoji(String title, String message, String initial, String positive, TextResult result) {
+		askText(title, message, initial, positive, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE, result);
+	}
+
+	private static void askText(String title, String message, String initial, String positive, int inputType, TextResult result) {
 		Activity activity = activity();
 		if (activity == null) return;
 		activity.runOnUiThread(() -> {
 			if (activity.isFinishing()) return;
 			EditText field = new EditText(activity);
-			field.setInputType(InputType.TYPE_CLASS_TEXT);
+			field.setInputType(inputType);
 			field.setSingleLine(true);
 			field.setText(initial == null ? "" : initial);
 			field.setSelection(field.getText().length());

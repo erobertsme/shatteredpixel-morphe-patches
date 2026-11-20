@@ -250,7 +250,7 @@ public class TagSettingsWindow extends EditorWindow {
 	private void chooseEmoji() {
 		String current = placement.icon();
 		String initial = current.startsWith(EmojiIcon.PREFIX) ? current.substring(EmojiIcon.PREFIX.length()) : "";
-		AndroidUi.askText("Emoji icon", "Pick an emoji from your keyboard's emoji panel. Only the first one is used.", initial, "Use", text -> {
+		AndroidUi.askEmoji("Emoji icon", "Tap the emoji key on your keyboard and pick one. Only the first emoji is used.", initial, "Use", text -> {
 			String emoji = EmojiIcon.first(text);
 			if (emoji == null) return;
 			placement.icon(EmojiIcon.PREFIX + emoji);

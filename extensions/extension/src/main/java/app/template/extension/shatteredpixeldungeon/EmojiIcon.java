@@ -22,7 +22,6 @@ final class EmojiIcon {
 
 	static final String PREFIX = "EMOJI:";
 	private static final String TAG = "EmojiIcon";
-	private static final String KEY_PREFIX = "cloverlord_emoji:";
 	private static final int SIZE = 16;
 	private static final float TEXT_SHARE = 0.85f;
 	private static final int BYTES_PER_PIXEL = 4;
@@ -47,17 +46,38 @@ final class EmojiIcon {
 	 * The icon for [emoji], drawn the first time it is needed and kept with the game's other pictures after that.
 	 */
 	static Image image(String emoji) {
-		String key = KEY_PREFIX + emoji;
+		Key key = new Key(emoji);
 		if (!TextureCache.contains(key) && !draw(key, emoji)) return null;
 		return new Image(key);
 	}
 
-	private static boolean draw(String key, String emoji) {
+	/**
+	 * The texture cache's key for an emoji. Not a String, because the cache treats String keys it doesn't hold as files to load.
+	 */
+	private static final class Key {
+		private final String emoji;
+
+		Key(String emoji) {
+			this.emoji = emoji;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			return other instanceof Key && ((Key) other).emoji.equals(emoji);
+		}
+
+		@Override
+		public int hashCode() {
+			return emoji.hashCode();
+		}
+	}
+
+	private static boolean draw(Key key, String emoji) {
 		try {
 			int[] pixels = render(emoji);
 			SmartTexture texture = TextureCache.create(key, SIZE, SIZE);
 			texture.filter(Texture.NEAREST, Texture.NEAREST);
-			ByteBuffer buffer = pixelBuffer(Reflect.callStatic(TextureCache.class, "getBitmap", new Class<?>[] { Object.class }, key));
+			ByteBuffer buffer = pixelBuffer(Reflect.get(SmartTexture.class, texture, "bitmap"));
 			buffer.rewind();
 			for (int pixel : pixels) {
 				buffer.put((byte) (pixel >> 16));
@@ -92,7 +112,8 @@ final class EmojiIcon {
 	}
 
 	/**
-	 * The pixel memory of the game's picture object, found by what it returns since the class is renamed in the game.
+	 * The pixel memory of the texture's picture, found by what it returns since the picture class is renamed in the game. The texture is
+	 * only sent to the graphics card the first time it's drawn, so filling it here is enough.
 	 */
 	private static ByteBuffer pixelBuffer(Object pixmap) throws ReflectiveOperationException {
 		for (Method method : pixmap.getClass().getMethods()) {
