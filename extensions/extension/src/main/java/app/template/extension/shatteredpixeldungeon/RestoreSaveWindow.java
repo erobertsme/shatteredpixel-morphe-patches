@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class RestoreSaveWindow extends EditorWindow {
 
-	private static final String INFO = "Restore a Save"
-		+ "\n\nPut one of this game's saves back into its slot, then continue the game from the title screen as usual. The other saves are kept."
-		+ "\n\nIf the slot still holds a damaged game, a copy of it is moved to the app's cache first.";
+	private static final String INFO = "Restore a Save\n\n"
+		+ "Put one of this game's saves back into its slot, then continue from the title screen as usual. The other saves are kept.\n\n"
+		+ "_Damaged game:_ if the slot still holds one, a copy of it is moved to the app's cache first.";
 	private static final int PER_PAGE = 6;
 
 	private final File folder;

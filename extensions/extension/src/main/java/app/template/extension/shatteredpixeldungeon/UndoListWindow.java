@@ -5,9 +5,9 @@ package app.template.extension.shatteredpixeldungeon;
  */
 public class UndoListWindow extends EditorWindow {
 
-	private static final String INFO = "Undo History"
-		+ "\n\nEvery step kept for this game, newest first. The step you are on now is marked (now) and the step you have picked is highlighted."
-		+ "\n\nEach row shows the step's depth (D), turn (T) and the first game message from that action.\n\nTap a step to pick it and see what the dungeon looked like. Tap Done in undo mode to load it. Steps after the one you load stay in the list until you take a new action, so you can still return to them.";
+	private static final String INFO = "Undo History\n\n"
+		+ "Every step kept for this game, newest first.\n\n"
+		+ "_(now)_ marks the step you're on. The step you've picked is highlighted.\n_Each row:_ the step's depth (D), turn (T) and first game message.\n_Tap a step_ to pick it and see the dungeon then. Tap Done in undo mode to load it.\n_Later steps_ stay in the list until you take a new action, so you can still return to them.";
 	private final int page;
 
 	public UndoListWindow() {

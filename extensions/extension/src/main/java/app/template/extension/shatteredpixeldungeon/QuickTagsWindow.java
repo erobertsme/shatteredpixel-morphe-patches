@@ -7,7 +7,11 @@ import java.util.List;
  */
 public class QuickTagsWindow extends EditorWindow {
 
-	private static final String INFO = "Quick Tags\n\nAdd Tag lets you pick an editor window, opened straight to one of its tabs where it has them, or an action like revealing the map, healing or defeating every enemy. A tag for it appears on the screen edge, and tapping the tag opens the window or runs the action. Each game keeps its own quick tags; the ones set on the main menu are the starting set for new games.\n\nTap a tag in the list to change its position, size, colour, icon and opacity, or to delete it. You can also move every tag at once with the Tags editor in Display.\n\nA tag whose editor is switched off, or that only works in a game, does nothing until it can run.";
+	private static final String INFO = "Quick Tags\n\n"
+		+ "Screen-edge tags that open an editor window or run an action when tapped. Each game keeps its own quick tags; the main menu set is the start for new games.\n\n"
+		+ "## Adding\n_Add Tag:_ pick a window, opened straight to one of its tabs where it has them, or an action like revealing the map, healing or defeating every enemy.\n\n"
+		+ "## Changing\n_Tap a tag in the list_ to change its position, size, colour, icon and opacity, or to delete it.\n_Tags editor_ in Display moves every tag at once.\n\n"
+		+ "## When it can't run\nA tag whose editor is switched off, or that only works in a game, does nothing until it can.";
 
 	public QuickTagsWindow() {
 		super();

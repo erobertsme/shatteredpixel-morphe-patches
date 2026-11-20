@@ -13,7 +13,9 @@ import java.util.List;
  */
 public class HeroSpriteWindow extends EditorWindow {
 
-	private static final String INFO = "Hero Sprite\n\nTap a picture to make your hero look like it: your own hero, another hero, or any enemy or NPC. It changes straight away, its name shows above the grid, and only the look changes.\n\nThe first picture puts your hero's own look back.";
+	private static final String INFO = "Hero Sprite\n\n"
+		+ "Tap a picture to make your hero look like it: your own hero, another hero, or any enemy or NPC. It changes straight away and only the look changes.\n\n"
+		+ "_The name_ of your choice shows above the grid.\n_The first picture_ puts your own look back.";
 	private static final int CELL = 22;
 	private static final int COLUMNS = 5;
 	private static final int ICON_SPACE = CELL - 4;

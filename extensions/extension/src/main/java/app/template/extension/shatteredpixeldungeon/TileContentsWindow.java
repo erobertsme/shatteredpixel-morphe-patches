@@ -16,7 +16,10 @@ import java.util.ArrayList;
 
 public class TileContentsWindow extends EditorWindow {
 
-	private static final String INFO = "On this tile\n\nEverything on the tile you examined. Tap a row to see its details.\n\nWhen several items lie in a pile, each one is listed. Pick one and use Pick Up to take that item instead of the one on top. With the Floor editor on, Move Item lets you tap another tile to move just that item there.\n\nItems that ended up inside a grave, skeleton or chest after the floor was made, such as gold dropped by a creature defeated on a grave, are listed under it. Whatever the container held from the start stays hidden until you open it.";
+	private static final String INFO = "On this tile\n\n"
+		+ "Everything on the tile you examined. Tap a row to see its details.\n\n"
+		+ "## Piles\nEach item in a pile is listed. Pick one and use _Pick Up_ to take that item instead of the top one.\nWith the Floor editor on, _Move Item_ lets you tap another tile to move just that item.\n\n"
+		+ "## Containers\nItems that ended up inside a grave, skeleton or chest after the floor was made, like gold dropped by a creature defeated on a grave, are listed under it. What the container held from the start stays hidden until you open it.";
 
 	private final int cell;
 

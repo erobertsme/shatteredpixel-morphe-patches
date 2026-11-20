@@ -15,9 +15,14 @@ public class HungerWindow extends EditorWindow {
 	private static final String[] TABS = { "Stages", "Starving" };
 	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 
-	private static final String GENERAL_INFO = "Changes made from the main menu are the default for every game. Changes made during a game only apply to that game and are saved with it; Use Main Menu Defaults goes back to the defaults. Shadows, the Salt Cube and other hunger effects still apply on top.\n\nDisable hunger stops hunger rising. Turn it off again and hunger continues from where it was.\n\n{CHANGES}The small reset button on a row restores that one setting. Reset all restores everything.";
-	private static final String STAGES_INFO = "Stages\n\nNot hungry is the number of turns from eating until you get Hungry. Hungry is the number of turns from then until you start Starving. The game defaults are 300 and 150.\n\n75%, 50% and 30% make hunger rise at that share of the normal rate, so every stage lasts longer. Default restores both.\n\nFood keeps its normal value, so longer stages also make meals last longer.\n\n" + GENERAL_INFO;
-	private static final String STARVING_INFO = "Starving\n\nFormula: the turns between hits are the formula divided by your max health. The game uses 1000, so with 50 max health you take damage every 20 turns. A higher formula means more time between hits. It changes by 10.\n\nFixed: you take damage every set number of turns, whatever your max health. Its reset uses the game's default for your max health.\n\nDamage is how much each hit takes.\n\n75%, 50% and 30% set the formula so you take damage at that share of the normal rate. They switch Fixed back to Formula.\n\nNow shows the result for your current max health.\n\n" + GENERAL_INFO;
+	private static final String GENERAL_INFO = "## Defaults and resets\n_Main menu changes_ are the default for every game. _Changes in a game_ apply only to that game and are saved with it. _Use Main Menu Defaults_ goes back to the defaults.\n_Disable hunger:_ stops hunger rising. Turn it back on and hunger continues from where it was.\n{CHANGES}The small reset button on a row restores that setting. _Reset all_ restores everything.\nShadows, the Salt Cube and other hunger effects still apply on top.";
+	private static final String STAGES_INFO = "Stages\n\n"
+		+ "## Stage lengths\n_Not hungry:_ turns from eating until you get Hungry. Game default 300.\n_Hungry:_ turns from then until you start Starving. Game default 150.\n_75%, 50%, 30%:_ hunger rises at that share of the normal rate, so every stage lasts longer. _Default_ restores both.\nFood keeps its normal value, so longer stages also make meals last longer.\n\n"
+		+ GENERAL_INFO;
+	private static final String STARVING_INFO = "Starving\n\n"
+		+ "## Damage timing\n_Formula:_ the turns between hits are the formula divided by your max health. The game uses 1000, so at 50 max health you're hit every 20 turns. Higher means more time between hits. Changes by 10.\n_Fixed:_ hit every set number of turns, whatever your max health. Its reset uses the game's default for your max health.\n_75%, 50%, 30%:_ set the formula so you're hit at that share of the normal rate. They switch Fixed back to Formula.\n\n"
+		+ "## Damage\n_Damage:_ how much each hit takes.\n_Now:_ the result for your current max health.\n\n"
+		+ GENERAL_INFO;
 
 	private static Runnable backAction;
 	private static int tab;

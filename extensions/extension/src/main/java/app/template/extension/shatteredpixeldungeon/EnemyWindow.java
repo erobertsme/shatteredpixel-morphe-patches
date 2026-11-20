@@ -24,8 +24,14 @@ public class EnemyWindow extends EditorWindow {
 	private static final String[] ALIGNMENTS = { "Enemy", "Neutral", "Ally" };
 	private static final String[] STATES = { "Sleep", "Wander", "Hunt", "Flee", "Passive" };
 	private static final String[] TAB_INFO = {
-		"Stats\n\nEdit this creature's health and max health. Tap a number to type it, with Min and Max buttons.\n\nSide changes who it fights: enemies attack you, allies fight for you, neutral creatures leave you alone.\n\nBehavior sets what it is doing right now. Hunting creatures chase their target, wandering ones roam, and sleeping ones wake when disturbed.\n\nMove to Tile lets you tap a tile, and the creature walks there. It may change its mind once it gets there or spots a target, just like a directed ally.\n\nTeleport (with the Teleport patch) moves it to the tile you tap straight away. The tile must be free to stand on.\n\nDefeat kills it straight away.",
-		"Status\n\nTap the number to change how many turns are left, X to remove a status, and i or long-press to read it.\n\nAdd Status uses the same picker as your hero. Infinite statuses are only available for your hero.",
+		"Stats\n\n"
+			+ "## Health\nEdit this creature's health and max health. Tap a number to type it, with Min and Max buttons.\n\n"
+			+ "## Side and behavior\n_Side:_ who it fights. Enemies attack you, allies fight for you, neutral creatures leave you alone.\n_Behavior:_ what it's doing now. Hunting creatures chase their target, wandering ones roam, sleeping ones wake when disturbed.\n\n"
+			+ "## Moving it\n_Move to Tile:_ tap a tile and the creature walks there. It may change its mind on arrival or when it spots a target, like a directed ally.\n_Teleport_ (Teleport patch): moves it to the tile you tap straight away. The tile must be free to stand on.\n\n"
+			+ "## Defeat\n_Defeat:_ kills it straight away.",
+		"Status\n\n"
+			+ "_Tap the number_ to change how many turns are left.\n_X_ removes a status.\n{INFO}Tap i or long-press a status to read it.\n\n"
+			+ "_Add Status_ uses the same picker as your hero. Infinite statuses are only for your hero.",
 	};
 
 	private final Mob mob;

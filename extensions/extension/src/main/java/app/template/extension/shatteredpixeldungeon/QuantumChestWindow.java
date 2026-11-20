@@ -19,15 +19,12 @@ import java.util.List;
  */
 public class QuantumChestWindow extends EditorWindow {
 
-	private static final String CHEST_INFO = "Quantum Chest"
-		+ "\n\nEvery quantum chest opens the same storage, so whatever you put in one waits for you in all the others."
-		+ "\n\nTap an item to see its details, with Take Out at the bottom. Store Items shows your bags so you can put things in."
-		+ "\n\n{CHECKED}Quick Move: tap an item to move it straight away, without the details window. Long-press still shows the details."
-		+ "\n\nThe chest holds 25 items a page. The number of pages is set in Extras, under QoL.";
-	private static final String STORE_INFO = "Store Items"
-		+ "\n\nEverything in your bags that can go in the chest. Equipped items and bags can't be stored."
-		+ "\n\nTap an item to see its details, with Store Item at the bottom. Back returns to the chest."
-		+ "\n\n{CHECKED}Quick Move: tap an item to store it straight away, and keep storing until you tap Back.";
+	private static final String CHEST_INFO = "Quantum Chest\n\n"
+		+ "Every quantum chest opens the same storage, so what you put in one waits in all the others.\n\n"
+		+ "_Tap an item_ for its details, with Take Out at the bottom.\n_Store Items_ shows your bags so you can put things in.\n{CHECKED}_Quick Move:_ tap an item to move it straight away. Long-press still shows the details.\n_Size:_ 25 items a page. The number of pages is set in Extras, under QoL.";
+	private static final String STORE_INFO = "Store Items\n\n"
+		+ "Everything in your bags that can go in the chest. Equipped items and bags can't be stored.\n\n"
+		+ "_Tap an item_ for its details, with Store Item at the bottom. Back returns to the chest.\n{CHECKED}_Quick Move:_ tap an item to store it straight away, and keep storing until you tap Back.";
 	private static final int COLUMNS = 5;
 	private static final int SLOT_SIZE = 24;
 	private static final int SLOT_GAP = 1;

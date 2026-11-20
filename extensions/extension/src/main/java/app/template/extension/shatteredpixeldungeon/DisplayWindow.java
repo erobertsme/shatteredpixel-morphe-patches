@@ -5,11 +5,10 @@ package app.template.extension.shatteredpixeldungeon;
  */
 public class DisplayWindow extends EditorWindow {
 
-	private static final String INFO = "Display"
-		+ "\n\nShrink the game inward from each edge of the screen, in screen pixels. Use it when the game is cut off by a rounded corner, or something like the camera hole or a gesture bar covers part of it."
-		+ "\n\nThe margins are painted black, and the game's buttons and windows move inward the same way they do for a notch. The screen is laid out again each time you change a margin."
-		+ "\n\nTags editor shows every tag on the screen at once, the game's own Attack, Pick Up, Action and Resume tags included. Tap a tag for all of its settings, or press and hold it briefly and then drag it along its edge or onto another edge; changes apply straight away. Reset puts them all back."
-		+ "\n\nTags always stay inside the margins.\n\nThese settings apply to every game.";
+	private static final String INFO = "Display\n\n"
+		+ "These settings apply to every game.\n\n"
+		+ "## Margins\nShrink the game in from each screen edge, in screen pixels, when a rounded corner, camera hole or gesture bar covers part of it.\nThe margins are painted black, and the game's buttons and windows move inward like they do for a notch. The screen is laid out again after each change.\n\n"
+		+ "## Tags editor\nEvery tag on screen at once, including the game's own Attack, Pick Up, Action and Resume tags.\n_Tap a tag_ for all of its settings.\n_Press and hold briefly, then drag_ to move it along its edge or onto another edge.\n_Reset_ puts them all back. Changes apply straight away, and tags always stay inside the margins.";
 
 	public DisplayWindow() {
 		super();

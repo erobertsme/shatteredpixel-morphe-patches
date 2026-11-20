@@ -10,10 +10,9 @@ import java.util.List;
  */
 public class RestoreUndoWindow extends EditorWindow {
 
-	private static final String INFO = "Restore an Undo Step"
-		+ "\n\nPut one of this game's kept undo steps back into its slot, then continue the game from the title screen as usual. The newest step is"
-		+ " first. Floors you weren't on at that step come from the game's own files in the slot."
-		+ "\n\nWhatever is in the slot now is copied to the app's cache first.";
+	private static final String INFO = "Restore an Undo Step\n\n"
+		+ "Put one of this game's kept undo steps back into its slot, then continue from the title screen as usual. The newest step is first.\n\n"
+		+ "_Other floors:_ floors you weren't on at that step come from the game's own files in the slot.\n_What's there now_ is copied to the app's cache first.";
 	private static final int PER_PAGE = 6;
 
 	private final int slot;

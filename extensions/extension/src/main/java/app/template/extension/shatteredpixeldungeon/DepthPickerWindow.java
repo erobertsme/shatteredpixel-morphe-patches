@@ -4,9 +4,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 
 public class DepthPickerWindow extends EditorWindow {
 
-	private static final String INFO = "Teleport to..."
-		+ "\n\nPick any floor to go there straight away. You arrive at its entrance or its exit, your choice. The current floor is highlighted."
-		+ "\n\nFloors you haven't reached yet are created when you arrive, just as if you had taken the stairs. Skipping floors also skips what's on them.";
+	private static final String INFO = "Teleport to...\n\n"
+		+ "Pick any floor to go there straight away. The current floor is highlighted.\n\n"
+		+ "_Arrive:_ at its entrance or its exit, your choice.\n_New floors:_ floors you haven't reached are created when you arrive, as if you took the stairs. Skipping floors also skips what's on them.";
 	private static final String[] REGIONS = { "Sewers", "Prison", "Caves", "Dwarven City", "Demon Halls", "Amulet" };
 	private static final int PER_ROW = 5;
 

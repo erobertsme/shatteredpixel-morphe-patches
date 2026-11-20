@@ -2,7 +2,11 @@ package app.template.extension.shatteredpixeldungeon;
 
 public class ConfirmWindow extends EditorWindow {
 
-	private static final String INFO = "Confirm actions\n\nWhen an action is ticked, tapping the map shows what will happen first: the path your hero will walk, the creature you will attack, or the danger you are stepping into. Tap Go, or the same tile again, to do it. Tap Cancel, or another tile, to change your mind.\n\nMoving and Attacking each have a distance. A move only asks when it is at least that many steps long, and an attack only asks when the target is at least that many tiles away. By default, single steps and attacks on adjacent enemies go ahead right away. Set Moving or Attacking to 1 to confirm those too.\n\nStepping into danger covers known traps, fire and harmful gas on the tile or anywhere along the way, and applies at any distance. Traps are ignored while you levitate, unless levitation runs out before you could step off again. Gas and fire you are immune to are ignored. The game itself already asks before you jump into a chasm.\n\nButtons such as the attack and pick up buttons, and keyboard or controller movement, are never confirmed.";
+	private static final String INFO = "Confirm actions\n\n"
+		+ "When an action is ticked, tapping the map first shows what will happen: the path, the creature you'll attack, or the danger.\n_Go_, or the same tile again, does it. _Cancel_, or another tile, changes your mind.\n\n"
+		+ "## Distances\n_Moving:_ only asks for walks at least this many steps long.\n_Attacking:_ only asks for targets at least this many tiles away.\nBy default single steps and attacks on adjacent enemies go ahead. Set either to 1 to confirm those too.\n\n"
+		+ "## Stepping into danger\nKnown traps, fire and harmful gas on the tile or along the way, at any distance.\nTraps are ignored while you levitate, unless it runs out before you could step off. Gas and fire you're immune to are ignored.\nThe game already asks before you jump into a chasm.\n\n"
+		+ "## Never confirmed\nButtons like attack and pick up, and keyboard or controller movement.";
 
 	public ConfirmWindow() {
 		super();

@@ -16,9 +16,17 @@ public class TileWindow extends EditorWindow {
 
 	private static final String[] TABS = { "Effects", "Objects", "Tile" };
 	private static final String[] INFO = {
-		"Effects\n\nEvery gas or area effect on this tile. Here clears it from this tile only, All removes it from the whole floor. Add effect places a new one on this tile.",
-		"Objects\n\nDoor: Open and Close open or shut it. Lock makes it a locked door that needs a key, Unlock turns any locked or crystal door into a normal door. Hide turns a plain door into a hidden door; locked and crystal doors can't be hidden. A door can't be closed, locked or hidden while someone stands in it.\n\nTrap: Active means it goes off when stepped on, Visible means you can see it (only for traps that can be hidden). Trigger sets it off now, Change swaps the trap type, Remove takes it away.\n\nPlant: plant a seed here or remove the plant that is here.",
-		"Tile\n\nTerrain changes what this tile is. Door places a normal door; use the Objects tab to lock or hide it. Walls, chasms and barricades can't be placed where a creature is standing. Changing the terrain removes any trap or plant here.\n\nTeleport here (with the Teleport patch) moves your hero to this tile. Spawn creature places any enemy, NPC or ally here. Place item puts any item on this tile. On an active trap, you choose whether the trap stays active; placed items never set it off.\n\nDelete tile removes everything here, including effects, traps, plants and items, and leaves an empty pit. It can't be used while a creature stands here.",
+		"Effects\n\n"
+			+ "Every gas or area effect on this tile.\n\n"
+			+ "_Here:_ clears it from this tile only.\n_All:_ removes it from the whole floor.\n_Add effect:_ places a new one on this tile.",
+		"Objects\n\n"
+			+ "## Door\n_Open / Close:_ open or shut it.\n_Lock:_ makes it a locked door that needs a key. _Unlock:_ turns any locked or crystal door into a normal door.\n_Hide:_ turns a plain door into a hidden door. Locked and crystal doors can't be hidden.\nA door can't be closed, locked or hidden while someone stands in it.\n\n"
+			+ "## Trap\n_Active:_ goes off when stepped on.\n_Visible:_ you can see it (only for traps that can be hidden).\n_Trigger:_ sets it off now. _Change:_ swaps the trap type. _Remove:_ takes it away.\n\n"
+			+ "## Plant\nPlant a seed here, or remove the plant that's here.",
+		"Tile\n\n"
+			+ "## Terrain\nChanges what this tile is. _Door_ places a normal door; lock or hide it on the Objects tab.\nWalls, chasms and barricades can't be placed where a creature stands.\nChanging the terrain removes any trap or plant here.\n\n"
+			+ "## Add to the tile\n_Teleport here_ (Teleport patch): moves your hero to this tile.\n_Spawn creature:_ places any enemy, NPC or ally here.\n_Place item:_ puts any item here. On an active trap you choose whether it stays active; placed items never set it off.\n\n"
+			+ "## Delete tile\nRemoves everything here, including effects, traps, plants and items, and leaves an empty pit. Can't be used while a creature stands here.",
 	};
 
 	private static Runnable backAction;

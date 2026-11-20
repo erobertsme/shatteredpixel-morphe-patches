@@ -38,7 +38,7 @@ public class StatusPickerWindow extends EditorWindow {
 		Char hero = target != null ? target : Dungeon.hero;
 		boolean isHero = hero == Dungeon.hero;
 
-		addTitle("Add status", "Tap a status to add it for the chosen duration. Infinite makes it never run out.\n\nYellow statuses are already active, and adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
+		addTitle("Add status", "Add status\n\nTap a status to add it for the chosen duration.\n\n_Infinite:_ never runs out.\n_Yellow statuses_ are already active; adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
 		addButtonRow(KIND_NAMES, kind, index -> {
 			if (index != kind) replaceWith(new StatusPickerWindow(index, 0));
 		});

@@ -7,8 +7,14 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
  */
 public class RewardRulesWindow extends EditorWindow {
 
-	private static final String EXPERIENCE_INFO = "Experience\n\nEvery kind of creature stops giving experience once your level is above its limit. Rats stop after level 5, for example, and scorpios after level 27. Bosses and summoned creatures never give any.\n\nNormal: the game's own rule.\n\nNo level limit: creatures always give their full experience.\n\nRaise the limit: each creature's limit goes up by the number of levels you choose.\n\nReduced past the limit: past the limit, creatures still give the percentage of their experience you choose, at least 1.\n\nMultiplier: all experience from creatures is multiplied, and the game's limit still applies.\n\nCreatures that never give experience are not changed.";
-	private static final String LOOT_INFO = "Loot\n\nEvery kind of creature stops dropping items once your level is more than 2 above its experience limit. Rats stop dropping after level 7, for example.\n\nNormal: the game's own rule.\n\nNo level limit: creatures always roll for their drops.\n\nRaise the limit: each creature's limit goes up by the number of levels you choose.\n\nReduced past the limit: past the limit, creatures still roll for drops at the percentage of their normal chance you choose.\n\nMultiplier: every creature's drop chance is multiplied, and the game's limit still applies.\n\nBoss drops and creatures that never drop anything are not changed.";
+	private static final String EXPERIENCE_INFO = "Experience\n\n"
+		+ "Each kind of creature stops giving experience once your level is above its limit. Rats stop after level 5, scorpios after level 27. Bosses and summoned creatures never give any.\n\n"
+		+ "## Rules\n_Normal:_ the game's own rule.\n_No level limit:_ creatures always give full experience.\n_Raise the limit:_ each limit goes up by the levels you choose.\n_Reduced past the limit:_ past it, creatures still give the percentage you choose, at least 1.\n_Multiplier:_ all experience from creatures is multiplied; the game's limit still applies.\n\n"
+		+ "Creatures that never give experience aren't changed.";
+	private static final String LOOT_INFO = "Loot\n\n"
+		+ "Each kind of creature stops dropping items once your level is more than 2 above its experience limit. Rats stop after level 7.\n\n"
+		+ "## Rules\n_Normal:_ the game's own rule.\n_No level limit:_ creatures always roll for their drops.\n_Raise the limit:_ each limit goes up by the levels you choose.\n_Reduced past the limit:_ past it, creatures still roll at the percentage of their normal chance you choose.\n_Multiplier:_ every drop chance is multiplied; the game's limit still applies.\n\n"
+		+ "Boss drops and creatures that never drop anything aren't changed.";
 
 	private final KillRewards.Kind kind;
 

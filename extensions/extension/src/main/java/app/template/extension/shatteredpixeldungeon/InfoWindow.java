@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shows the text behind an [i] button. A short first paragraph becomes the heading, long text is split into pages,
- * and a paragraph that starts with {NAME} gets that icon beside it: an Icons name, or HEART, FOOD or STAR.
+ * Shows the text behind an [i] button. Paragraphs are separated by a blank line. A short first paragraph becomes the title, a line
+ * starting with "## " at the start of a paragraph is a section heading for the lines below it, _text between underscores_ is highlighted, and a paragraph that starts with {NAME} gets that
+ * icon beside it: an Icons name, an ITEM: or BUFF: token, or HEART, FOOD or STAR. Long text is split into pages, starting a new page at a
+ * section heading when the whole section doesn't fit, and never leaving a heading alone at the bottom of a page.
  */
 final class InfoWindow extends Window {
 
@@ -29,14 +31,18 @@ final class InfoWindow extends Window {
 	private static final int MIN_PAGE_HEIGHT = 80;
 	private static final int HEART_ICON = 21;
 	private static final int TEXT_SIZE = 6;
+	private static final int SECTION_SIZE = 7;
+	private static final String SECTION_MARK = "## ";
 
 	private static final class Paragraph {
 		final String icon;
 		final String text;
+		final boolean section;
 
-		Paragraph(String icon, String text) {
+		Paragraph(String icon, String text, boolean section) {
 			this.icon = icon;
 			this.text = text;
+			this.section = section;
 		}
 	}
 
@@ -71,7 +77,11 @@ final class InfoWindow extends Window {
 
 		int[] range = content.pages.get(page);
 		float top = y;
-		for (int i = range[0]; i < range[1]; i++) y = addParagraph(content.paragraphs.get(i), y) + GAP;
+		for (int i = range[0]; i < range[1]; i++) {
+			Paragraph paragraph = content.paragraphs.get(i);
+			if (paragraph.section && i > range[0]) y += GAP;
+			y = addParagraph(paragraph, y) + GAP;
+		}
 		y = Math.max(y, top + content.pageHeight);
 
 		if (content.pages.size() > 1) y = addPager(y);
@@ -79,6 +89,14 @@ final class InfoWindow extends Window {
 	}
 
 	private float addParagraph(Paragraph paragraph, float y) {
+		if (paragraph.section) {
+			RenderedTextBlock heading = PixelScene.renderTextBlock(paragraph.text, SECTION_SIZE);
+			heading.hardlight(CharacterWindow.TITLE_COLOR);
+			heading.maxWidth(WIDTH);
+			heading.setPos(0, y);
+			add(heading);
+			return heading.bottom();
+		}
 		float left = 0;
 		Image icon = paragraph.icon == null ? null : icon(paragraph.icon);
 		if (icon != null) {
@@ -140,6 +158,14 @@ final class InfoWindow extends Window {
 		for (int i = start; i < parts.length; i++) {
 			String part = parts[i].trim();
 			if (part.isEmpty()) continue;
+			if (part.startsWith(SECTION_MARK)) {
+				int lineEnd = part.indexOf('\n');
+				String heading = lineEnd < 0 ? part : part.substring(0, lineEnd);
+				content.paragraphs.add(new Paragraph(null, heading.substring(SECTION_MARK.length()).trim(), true));
+				if (lineEnd < 0) continue;
+				part = part.substring(lineEnd + 1).trim();
+				if (part.isEmpty()) continue;
+			}
 			String icon = null;
 			if (part.startsWith("{")) {
 				int end = part.indexOf('}');
@@ -148,7 +174,7 @@ final class InfoWindow extends Window {
 					part = part.substring(end + 1).trim();
 				}
 			}
-			content.paragraphs.add(new Paragraph(icon, part));
+			content.paragraphs.add(new Paragraph(icon, part, false));
 		}
 		return content;
 	}
@@ -159,27 +185,50 @@ final class InfoWindow extends Window {
 
 	private static Content paginate(Content content) {
 		float maxHeight = Math.max(MIN_PAGE_HEIGHT, PixelScene.uiCamera.height * 0.6f - 40);
+		List<Paragraph> paragraphs = content.paragraphs;
+		float[] heights = new float[paragraphs.size()];
+		for (int i = 0; i < heights.length; i++) heights[i] = measure(paragraphs.get(i)) + GAP + (paragraphs.get(i).section ? GAP : 0);
 		int start = 0;
 		float height = 0;
 		float tallest = 0;
-		for (int i = 0; i < content.paragraphs.size(); i++) {
-			float paragraph = measure(content.paragraphs.get(i)) + GAP;
-			if (i > start && height + paragraph > maxHeight) {
+		for (int i = 0; i < paragraphs.size(); i++) {
+			boolean breakHere = i > start && startsNewPage(paragraphs, heights, i, height, maxHeight);
+			if (breakHere) {
 				content.pages.add(new int[] { start, i });
 				tallest = Math.max(tallest, height);
 				start = i;
 				height = 0;
 			}
-			height += paragraph;
+			height += heights[i];
 		}
-		content.pages.add(new int[] { start, content.paragraphs.size() });
+		content.pages.add(new int[] { start, paragraphs.size() });
 		tallest = Math.max(tallest, height);
 		content.pageHeight = content.pages.size() > 1 ? tallest : 0;
 		return content;
 	}
 
+	/**
+	 * Whether paragraph [index] has to start a new page on a page already [height] tall: when it doesn't fit, or it's a section heading
+	 * and either its whole section or the heading with its first paragraph doesn't fit.
+	 */
+	private static boolean startsNewPage(List<Paragraph> paragraphs, float[] heights, int index, float height, float maxHeight) {
+		if (height + heights[index] > maxHeight) return true;
+		if (!paragraphs.get(index).section) return false;
+		if (height + sectionHeight(paragraphs, heights, index) > maxHeight) return true;
+		return index + 1 < heights.length && height + heights[index] + heights[index + 1] > maxHeight;
+	}
+
+	/**
+	 * The height of the section starting at [start], up to the next section heading.
+	 */
+	private static float sectionHeight(List<Paragraph> paragraphs, float[] heights, int start) {
+		float total = heights[start];
+		for (int i = start + 1; i < heights.length && !paragraphs.get(i).section; i++) total += heights[i];
+		return total;
+	}
+
 	private static float measure(Paragraph paragraph) {
-		RenderedTextBlock text = PixelScene.renderTextBlock(paragraph.text, TEXT_SIZE);
+		RenderedTextBlock text = PixelScene.renderTextBlock(paragraph.text, paragraph.section ? SECTION_SIZE : TEXT_SIZE);
 		text.maxWidth(paragraph.icon == null ? WIDTH : WIDTH - ICON_SPACE);
 		float height = text.height();
 		text.destroy();

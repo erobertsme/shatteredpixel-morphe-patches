@@ -5,7 +5,9 @@ package app.template.extension.shatteredpixeldungeon;
  */
 public class FunWindow extends EditorWindow {
 
-	private static final String INFO = "Fun\n\nOptions that are just for fun.\n\nHero Sprite: make your hero look like another hero, an enemy or an NPC. Only the look changes; your hero plays exactly the same. Chosen in a game, it applies to that game; chosen on the main menu, it's the look for new games.";
+	private static final String INFO = "Fun\n\n"
+		+ "Options that are just for fun.\n\n"
+		+ "_Hero Sprite:_ make your hero look like another hero, an enemy or an NPC. Only the look changes. Chosen in a game, it applies to that game; on the main menu, it's the look for new games.";
 
 	public FunWindow() {
 		super();
