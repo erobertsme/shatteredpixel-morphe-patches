@@ -53,7 +53,8 @@ final class ScreenLayout {
 
 	/**
 	 * How far in from each screen edge buttons and tags must stay on the UI camera, as left, top, right and bottom. It covers the phone's
-	 * notches and bars and the display margins, the same way the game's getCommonInsets keeps its own tags clear of them.
+	 * notches and bars and the display margins. The top uses large cutouts only, the same as the game's status pane and menu buttons, so a
+	 * small camera hole doesn't push top tags down; the other edges follow the game's getCommonInsets, like its own tags.
 	 */
 	static float[] insets() {
 		refresh();
@@ -72,19 +73,21 @@ final class ScreenLayout {
 		cachedWidth = Game.width;
 		cachedHeight = Game.height;
 		float zoom = PixelScene.defaultZoom;
+		float largeTop = 0;
 		try {
-			RectF all = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
-			RectF blocking = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK);
-			cachedInsets = new float[] { blocking.left / zoom, all.top / zoom, blocking.right / zoom, all.bottom / zoom };
-		} catch (Throwable e) {
-			cachedInsets = new float[4];
-		}
-		try {
-			float top = Game.platform.getSafeInsets(PlatformSupport.INSET_LRG).top / zoom;
-			cachedStatusTop = top > 0 ? top : SPDSettings.interfaceSize() == 0 ? -1 : 0;
+			largeTop = Game.platform.getSafeInsets(PlatformSupport.INSET_LRG).top / zoom;
+			cachedStatusTop = largeTop > 0 ? largeTop : SPDSettings.interfaceSize() == 0 ? -1 : 0;
 		} catch (Throwable e) {
 			cachedStatusTop = 0;
 		}
+		try {
+			RectF all = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
+			RectF blocking = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK);
+			cachedInsets = new float[] { blocking.left / zoom, largeTop, blocking.right / zoom, all.bottom / zoom };
+		} catch (Throwable e) {
+			cachedInsets = new float[4];
+		}
+	}
 	}
 
 }
