@@ -1,3 +1,9 @@
+## [1.0.0-dev.152](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.151...v1.0.0-dev.152) (2026-11-20)
+
+### ✨ New Features
+
+* Readable info popups with sections and highlighted terms ([88613e1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/88613e1378a4a5d3592154bdec5b90a52cbb8732))
+
 ## [1.0.0-dev.151](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.150...v1.0.0-dev.151) (2026-11-20)
 
 ### ✨ New Features
