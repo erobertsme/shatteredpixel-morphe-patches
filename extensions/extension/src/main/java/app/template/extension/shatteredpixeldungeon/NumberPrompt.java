@@ -11,7 +11,7 @@ import com.watabou.noosa.TextInput;
 import java.lang.reflect.Field;
 
 /**
- * A number input with Min and Max buttons that apply the limits straight away.
+ * A number input with Min and Max buttons that apply the limits straight away. The keyboard shows numbers while it is open.
  */
 final class NumberPrompt {
 
@@ -38,9 +38,16 @@ final class NumberPrompt {
 				}
 				after.run();
 			}
+
+			@Override
+			public void hide() {
+				super.hide();
+				AndroidUi.endNumbers();
+			}
 		};
 		addLimitButtons(input, min, max, setter, after);
 		Game.scene().addToFront(input);
+		AndroidUi.startNumbers(min < 0);
 	}
 
 	private static void addLimitButtons(Window window, int min, int max, Setter setter, Runnable after) {

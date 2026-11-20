@@ -388,6 +388,12 @@ object WndHeroConstructorFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
+object KeyboardConnectionFingerprint : Fingerprint(
+	name = "onCreateInputConnection",
+	returnType = "Landroid/view/inputmethod/InputConnection;",
+	parameters = listOf("Landroid/view/inputmethod/EditorInfo;"),
+)
+
 object FunAvailableFingerprint : Fingerprint(
 	definingClass = "Lapp/template/extension/shatteredpixeldungeon/Fun;",
 	name = "isAvailable",

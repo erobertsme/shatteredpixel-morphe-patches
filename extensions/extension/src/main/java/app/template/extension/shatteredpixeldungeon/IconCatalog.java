@@ -148,6 +148,10 @@ final class IconCatalog {
 				if (item == null) item = CustomItemTags.sample(className);
 				return item == null ? Icons.get(Icons.BACKPACK_LRG) : new ItemSprite(item);
 			}
+			if (token.startsWith(EmojiIcon.PREFIX)) {
+				Image emoji = EmojiIcon.image(token.substring(EmojiIcon.PREFIX.length()));
+				if (emoji != null) return emoji;
+			}
 			if (token.startsWith("SPRITE:")) return new ItemSprite(Integer.parseInt(token.substring(7)));
 			if (token.startsWith("TALENT:")) return new TalentIcon(Talent.valueOf(token.substring(7)));
 			Image stat = StatIcons.fromToken(token);

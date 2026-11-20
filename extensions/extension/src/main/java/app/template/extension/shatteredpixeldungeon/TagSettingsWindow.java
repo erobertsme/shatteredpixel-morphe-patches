@@ -20,7 +20,7 @@ public class TagSettingsWindow extends EditorWindow {
 
 	private static final String INFO = "Tag style\n\n"
 		+ "## Position\n_Edge:_ pick the screen edge, then how many pixels along it the tag sits: from the top on the left and right edges, from the left on the top edge. Tap the number to type it, or drag the tag itself.\n_Outlines:_ in a game, faded outlines show where the game's own Attack, Pick Up, Action and Resume tags appear, so you can keep clear of them. On the main menu a stand-in game screen shows behind.\nOn the top edge the tag faces the top of the screen, and on the left edge it's mirrored, so it always looks attached.\n\n"
-		+ "## Look\n_Color:_ tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n_Icon:_ every icon in the game. The buttons above filter by kind: interface, item sprites, item icons, status or talents. Turn it in 15 degree steps.\n_Icon Color:_ tint the icon, or Original for its own colours.\n\n"
+		+ "## Look\n_Color:_ tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n_Icon:_ every icon in the game. The buttons above filter by kind: interface, item sprites, item icons, status or talents. Turn it in 15 degree steps.\n_Emoji:_ use any emoji, picked from your keyboard's emoji panel.\n_Icon Color:_ tint the icon, or Original for its own colours.\n\n"
 		+ "## Size and opacity\n_Size:_ the tag's width and height in pixels (the game's are 24 by 24) and the icon's size as a percentage. Reset goes back to 24 by 24.\n_Opacity:_ from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
@@ -244,13 +244,29 @@ public class TagSettingsWindow extends EditorWindow {
 		addStepper("Lightness", lightness + "%", lightness, 5, 0, 100, value -> setter.set(Colors.fromHsl(hue, saturation / 100f, clamp(value) / 100f)), true, reset);
 	}
 
+	/**
+	 * Asks for an emoji in an Android dialog, so the keyboard's own emoji panel can be used, and makes it the icon.
+	 */
+	private void chooseEmoji() {
+		String current = placement.icon();
+		String initial = current.startsWith(EmojiIcon.PREFIX) ? current.substring(EmojiIcon.PREFIX.length()) : "";
+		AndroidUi.askText("Emoji icon", "Pick an emoji from your keyboard's emoji panel. Only the first one is used.", initial, "Use", text -> {
+			String emoji = EmojiIcon.first(text);
+			if (emoji == null) return;
+			placement.icon(EmojiIcon.PREFIX + emoji);
+			refresh();
+		});
+	}
+
 	private void addIconChooser() {
 		String[] first = { IconCatalog.CATEGORIES[0], IconCatalog.CATEGORIES[1], IconCatalog.CATEGORIES[2] };
 		String[] second = { IconCatalog.CATEGORIES[3], IconCatalog.CATEGORIES[4], IconCatalog.CATEGORIES[5] };
-		addButton("Default Icon", 0, WIDTH, () -> {
+		float half = (WIDTH - GAP) / 2f;
+		addButton("Default Icon", 0, half, () -> {
 			placement.resetIcon();
 			refresh();
 		});
+		addButton("Emoji", half + GAP, half, this::chooseEmoji);
 		pos += ROW_HEIGHT + GAP;
 		addButtonRow(first, category, index -> chooseCategory(index));
 		addButtonRow(second, category - first.length, index -> chooseCategory(first.length + index));
