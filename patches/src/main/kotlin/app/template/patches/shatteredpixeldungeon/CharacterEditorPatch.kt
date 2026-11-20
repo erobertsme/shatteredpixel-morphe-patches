@@ -45,7 +45,7 @@ val characterEditorPatch = bytecodePatch(
 		HeroAttackDelayFingerprint.adjustReturns("$EXTRAS_CLASS->adjustAttackDelay(F)F")
 		HeroSpeedFingerprint.adjustReturns("$EXTRAS_CLASS->adjustMoveSpeed(F)F")
 		SaltCubeRegenFingerprint.adjustReturns("$EXTRAS_CLASS->adjustRegen(F)F")
-		HeroStealthFingerprint.adjustReturns("$EXTRAS_CLASS->adjustStealth(F)F")
+		CharStealthFingerprint.adjustReturns("$EXTRAS_CLASS->adjustStealth(FLjava/lang/Object;)F", "p0")
 
 		HeroDamageFingerprint.method.addInstructions(
 			0,

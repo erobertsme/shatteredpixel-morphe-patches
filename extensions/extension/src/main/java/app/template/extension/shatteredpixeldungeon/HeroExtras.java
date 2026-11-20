@@ -414,9 +414,10 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called when Hero.stealth returns. Adds the Stealth modifier; enemies notice a stealthier hero less often.
+	 * Called when Char.stealth returns. Adds the Stealth modifier for the hero; enemies notice a stealthier hero less often.
 	 */
-	public static float adjustStealth(float value) {
+	public static float adjustStealth(float value, Object character) {
+		if (character != Dungeon.hero) return value;
 		return value + mod(Mod.STEALTH);
 	}
 

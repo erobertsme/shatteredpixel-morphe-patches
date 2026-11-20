@@ -180,8 +180,8 @@ object HeroAttackDelayFingerprint : Fingerprint(
 	parameters = listOf(),
 )
 
-object HeroStealthFingerprint : Fingerprint(
-	definingClass = HERO_CLASS,
+object CharStealthFingerprint : Fingerprint(
+	definingClass = CHAR_TYPE,
 	name = "stealth",
 	returnType = "F",
 	parameters = listOf(),
