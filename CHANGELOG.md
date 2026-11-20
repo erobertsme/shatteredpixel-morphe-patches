@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.1...v1.0.2) (2026-11-20)
+
+### 🐛 Bug Fixes
+
+* Remove a stray brace that broke the build ([c398605](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c39860509e91a5d4a8c165cb196b69b2bacf17a2))
+* Tags on the top edge line up with the top of the game screen ([38fc3ee](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/38fc3ee734816d98fb347deb10d12eb056bd0901))
+
 ## [1.0.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0...v1.0.1) (2026-11-20)
 
 ### 🐛 Bug Fixes
