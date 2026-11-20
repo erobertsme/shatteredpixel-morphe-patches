@@ -14,6 +14,12 @@ import com.watabou.utils.RectF;
 final class ScreenLayout {
 
 	private static final int GAP = 4;
+
+	private static Object cachedScene;
+	private static int cachedWidth;
+	private static int cachedHeight;
+	private static float[] cachedInsets;
+	private static float cachedStatusTop;
 	private static final int STATUS_SPACE = 40;
 
 	private ScreenLayout() {
@@ -41,13 +47,8 @@ final class ScreenLayout {
 	 * GameScene uses.
 	 */
 	static float statusTop() {
-		try {
-			float top = Game.platform.getSafeInsets(PlatformSupport.INSET_LRG).top / PixelScene.defaultZoom;
-			if (top > 0) return top;
-			return SPDSettings.interfaceSize() == 0 ? -1 : 0;
-		} catch (Throwable e) {
-			return 0;
-		}
+		refresh();
+		return cachedStatusTop;
 	}
 
 	/**
@@ -55,13 +56,35 @@ final class ScreenLayout {
 	 * notches and bars and the display margins, the same way the game's getCommonInsets keeps its own tags clear of them.
 	 */
 	static float[] insets() {
+		refresh();
+		return cachedInsets.clone();
+	}
+
+	/**
+	 * Works out the insets again when the screen has been laid out since last time. Android looks them up from the window each time it's
+	 * asked, and they only change when the screen is laid out again: a new scene, which rotating, resizing, fullscreen and the display
+	 * margins all cause, or a new screen size.
+	 */
+	private static synchronized void refresh() {
+		Object scene = Game.scene();
+		if (cachedInsets != null && scene == cachedScene && Game.width == cachedWidth && Game.height == cachedHeight) return;
+		cachedScene = scene;
+		cachedWidth = Game.width;
+		cachedHeight = Game.height;
+		float zoom = PixelScene.defaultZoom;
 		try {
-			RectF insets = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
+			RectF all = Game.platform.getSafeInsets(PlatformSupport.INSET_ALL);
 			RectF blocking = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK);
-			float zoom = PixelScene.defaultZoom;
-			return new float[] { blocking.left / zoom, insets.top / zoom, blocking.right / zoom, insets.bottom / zoom };
+			cachedInsets = new float[] { blocking.left / zoom, all.top / zoom, blocking.right / zoom, all.bottom / zoom };
 		} catch (Throwable e) {
-			return new float[4];
+			cachedInsets = new float[4];
+		}
+		try {
+			float top = Game.platform.getSafeInsets(PlatformSupport.INSET_LRG).top / zoom;
+			cachedStatusTop = top > 0 ? top : SPDSettings.interfaceSize() == 0 ? -1 : 0;
+		} catch (Throwable e) {
+			cachedStatusTop = 0;
 		}
 	}
+
 }
