@@ -68,6 +68,7 @@ final class MenuPreview {
 		placements.add(UndoTags.PLACEMENT);
 		placements.add(ForceAttack.PLACEMENT);
 		for (int id : CustomItemTags.ids()) placements.add(CustomItemTags.placement(id));
+		for (int id : QuickTags.ids()) placements.add(QuickTags.placement(id));
 		for (TagPlacement placement : placements) {
 			IconTag tag = new IconTag(() -> { });
 			tag.camera = ui;

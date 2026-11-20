@@ -15,11 +15,14 @@ import java.util.List;
 
 public class FloorWindow extends EditorWindow {
 
-	private static final String[] TABS = { "Effects", "Traps", "Other" };
+	static final int TAB_GENERAL = 0;
+	static final int TAB_EFFECTS = 1;
+	static final int TAB_TRAPS = 2;
+	private static final String[] TABS = { "General", "Effects", "Traps" };
 	private static final String[] INFO = {
+		"General\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Mark Explored marks every tile on the floor as explored, as if you had walked past it, without uncovering secret doors or hidden traps. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
 		"Effects\n\nEvery gas and area effect on this floor with its total strength. A Lotus from a Wand of Regrowth shows its range and the turns it has left: it covers every tile in range with falling leaves and helps plants drop seeds and dew there. Remove clears one completely, Remove All Effects clears them all.\n\nTo edit a single tile, examine it with the magnifying glass and tap Edit Tile.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
 		"Traps\n\nReveal and Hide change whether you can see the traps on this floor. Disarm All stops them going off, Re-arm All switches them back on. Remove All Traps takes every trap off this floor.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
-		"Other\n\nReveal Map maps the whole floor and uncovers every secret door and hidden trap, like a Scroll of Magic Mapping. Mark Explored marks every tile on the floor as explored, as if you had walked past it, without uncovering secret doors or hidden traps. Forget Map clears what you have explored.\n\nDraw: pick Floor, Wall or Eraser, then drag across the map to paint tiles. You can switch brushes with the buttons at the bottom. Move View lets you drag the map around to reach other areas, then pick a brush again to keep drawing. The eraser removes everything on a tile and leaves an empty pit. Tiles with a creature on them are skipped for walls and the eraser.\n\nFinish (green, bottom right) keeps your changes. Cancel (red, bottom left) puts the floor back exactly as it was before you started drawing.\n\nCreatures: defeat every enemy, ally or neutral creature on this floor at once.\n\nEdit Floor (the button above the tabs): the game is saved, then every tile you tap shows its info with an Edit button, and buttons for each creature, item, plant or trap on it. Drag to look around. Save keeps your changes. Cancel asks first, then puts the whole game back as it was when you started.",
 	};
 
 	private static Runnable backAction;
@@ -33,8 +36,15 @@ public class FloorWindow extends EditorWindow {
 	}
 
 	static void open(Runnable back) {
+		open(back, TAB_GENERAL);
+	}
+
+	/**
+	 * Opens the floor editor on [startTab]. [back] runs when it is closed with Back.
+	 */
+	static void open(Runnable back, int startTab) {
 		backAction = back;
-		tab = 0;
+		tab = Math.max(0, Math.min(TABS.length - 1, startTab));
 		show(new FloorWindow());
 	}
 
@@ -69,9 +79,9 @@ public class FloorWindow extends EditorWindow {
 	}
 
 	private void buildTab(int index) {
-		if (index == 0) buildEffects();
-		if (index == 1) buildTraps();
-		if (index == 2) buildOther();
+		if (index == TAB_GENERAL) buildGeneral();
+		if (index == TAB_EFFECTS) buildEffects();
+		if (index == TAB_TRAPS) buildTraps();
 	}
 
 	private void buildEffects() {
@@ -109,7 +119,7 @@ public class FloorWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	private void buildOther() {
+	private void buildGeneral() {
 		addSection("Map");
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Reveal map", 0, half, () -> run(FloorEditor::revealMap));

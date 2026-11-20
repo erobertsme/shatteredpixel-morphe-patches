@@ -21,6 +21,7 @@ public final class GameEvents {
 		safely(() -> QuantumChest.onSceneCreated(scene));
 		safely(() -> ForceAttack.onSceneCreated(scene));
 		safely(() -> CustomItemTags.onSceneCreated(scene));
+		safely(() -> QuickTags.onSceneCreated(scene));
 		safely(ShopkeeperRules::applySoldItems);
 	}
 
@@ -62,6 +63,7 @@ public final class GameEvents {
 	public static void onGameOver() {
 		safely(ForceAttack::refreshTag);
 		safely(CustomItemTags::refresh);
+		safely(QuickTags::refresh);
 		safely(PathPreview::clear);
 	}
 

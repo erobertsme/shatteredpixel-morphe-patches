@@ -72,6 +72,7 @@ final class TagLayoutEditor {
 		if (QolSettings.isAvailable()) {
 			entries.add(new Entry("Attack Tile", ForceAttack.PLACEMENT, -1));
 			for (int id : CustomItemTags.ids()) entries.add(new Entry(CustomItemTags.name(id), CustomItemTags.placement(id), -1));
+			for (int id : QuickTags.ids()) entries.add(new Entry(QuickTags.name(id), QuickTags.placement(id), -1));
 			for (int i = 0; i < GameTags.NAMES.length; i++) entries.add(new Entry(GameTags.NAMES[i], GameTags.PLACEMENTS[i], i));
 		}
 		return entries;
