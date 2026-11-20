@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.2...v1.0.3) (2026-11-20)
+
+### 🐛 Bug Fixes
+
+* Auto save on new floors can be set from the main menu as the default ([70bc929](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/70bc9293273b23b982c6d5f1236e7b4f0fa7a763))
+
 ## [1.0.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.1...v1.0.2) (2026-11-20)
 
 ### 🐛 Bug Fixes
