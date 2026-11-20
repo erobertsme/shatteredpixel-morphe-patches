@@ -1,3 +1,9 @@
+## [1.0.0-dev.154](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.153...v1.0.0-dev.154) (2026-11-20)
+
+### ✨ New Features
+
+* Number keyboard for number prompts and emoji tag icons ([d8d197d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d8d197d1d33486d9bc1caca7752fe981c9b8e33a))
+
 ## [1.0.0-dev.153](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.152...v1.0.0-dev.153) (2026-11-20)
 
 ### ✨ New Features
