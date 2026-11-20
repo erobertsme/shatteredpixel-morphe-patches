@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-20T20:19:03",
-  "description": "## [1.0.0-dev.152](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.151...v1.0.0-dev.152) (2026-11-20)\n\n### ✨ New Features\n\n* Readable info popups with sections and highlighted terms ([88613e1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/88613e1378a4a5d3592154bdec5b90a52cbb8732))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.152/patches-1.0.0-dev.152.mpp",
+  "created_at": "2026-11-20T20:25:03",
+  "description": "## [1.0.0-dev.153](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.152...v1.0.0-dev.153) (2026-11-20)\n\n### ✨ New Features\n\n* Scrolling info popups, clearer scroll hints and a reorganized QoL tab ([8996c7d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8996c7dfe39ba8083dc694195021f54c3934ebc7))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.153/patches-1.0.0-dev.153.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.152"
+  "version": "1.0.0-dev.153"
 }

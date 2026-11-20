@@ -1,3 +1,9 @@
+## [1.0.0-dev.153](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.152...v1.0.0-dev.153) (2026-11-20)
+
+### ✨ New Features
+
+* Scrolling info popups, clearer scroll hints and a reorganized QoL tab ([8996c7d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8996c7dfe39ba8083dc694195021f54c3934ebc7))
+
 ## [1.0.0-dev.152](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.151...v1.0.0-dev.152) (2026-11-20)
 
 ### ✨ New Features
