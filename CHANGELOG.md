@@ -1,3 +1,9 @@
+## [1.0.0-dev.150](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.149...v1.0.0-dev.150) (2026-11-20)
+
+### 🐛 Bug Fixes
+
+* Stealth modifier hooks Char.stealth, where the game defines it ([792eca0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/792eca0987aabcf4312c5ddb993f48d1b327bc26))
+
 ## [1.0.0-dev.149](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.148...v1.0.0-dev.149) (2026-11-19)
 
 ### ✨ New Features
