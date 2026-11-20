@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-20T20:33:18",
-  "description": "## [1.0.0-dev.154](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.153...v1.0.0-dev.154) (2026-11-20)\n\n### ✨ New Features\n\n* Number keyboard for number prompts and emoji tag icons ([d8d197d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d8d197d1d33486d9bc1caca7752fe981c9b8e33a))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.154/patches-1.0.0-dev.154.mpp",
+  "created_at": "2026-11-20T20:39:18",
+  "description": "## [1.0.0-dev.155](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.154...v1.0.0-dev.155) (2026-11-20)\n\n### 🔧 Improvements\n\n* Cache the screen insets until the screen is laid out again ([547c6c9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/547c6c9a571da092870d99b1f7e16897e77d26d2))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.0.0-dev.155/patches-1.0.0-dev.155.mpp",
   "signature_download_url": "",
-  "version": "1.0.0-dev.154"
+  "version": "1.0.0-dev.155"
 }

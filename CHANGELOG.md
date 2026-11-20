@@ -1,3 +1,9 @@
+## [1.0.0-dev.155](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.154...v1.0.0-dev.155) (2026-11-20)
+
+### 🔧 Improvements
+
+* Cache the screen insets until the screen is laid out again ([547c6c9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/547c6c9a571da092870d99b1f7e16897e77d26d2))
+
 ## [1.0.0-dev.154](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.153...v1.0.0-dev.154) (2026-11-20)
 
 ### ✨ New Features
