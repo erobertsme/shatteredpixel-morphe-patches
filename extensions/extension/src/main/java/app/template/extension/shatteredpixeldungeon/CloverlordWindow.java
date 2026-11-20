@@ -5,7 +5,6 @@ import com.watabou.noosa.Visual;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
-import com.watabou.noosa.ColorBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -27,7 +26,6 @@ public class CloverlordWindow extends Window {
 
 	private static final int WIDTH = 128;
 	private static final int BTN_HEIGHT = 18;
-	private static final int SHADE_HEIGHT = 8;
 	private static final String CLICK_SOUND = "sounds/click.mp3";
 	private static final float MAX_HEIGHT_SHARE = 0.55f;
 	private static final int GAP = 2;
@@ -37,8 +35,12 @@ public class CloverlordWindow extends Window {
 		+ "Options added by Cloverlord Patches. Tabs and sections only appear when their patch is included. Settings changed during a game stay with that game; the main menu settings are the defaults for new games.\n\n"
 		+ "## Tabs\n_General:_ hunger, saves, undo and Fun.\n_QoL:_ quality of life options.\n_Unlocks:_ unlocks and supporter options.\n_Editors:_ switch each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal.\n\n"
 		+ "## General\n{FOOD}_Hunger:_ change how hunger and starvation work.\n_Saves:_ on the main menu, export every save to one zip or import one. Importing replaces your saves, keeps a copy in the app's cache, and closes the game. In a game, _Game Saves_ keeps up to 10 saves to load later. When a game ends, the title screen asks whether to keep its saves; _Clean Up Saves_ deletes kept ones.\n_Undo / Redo:_ a tag that opens undo mode to step back and forward through recent actions, with a History list. Off until you switch it on.\n_Fun:_ Hero Sprite makes your hero look like another hero, an enemy or an NPC.\n\n"
-		+ "## QoL: windows\n_Confirm actions:_ choose which taps ask first, like attacking, long walks, stairs or stepping into danger.\n_Shopkeeper:_ keep enemies out, stop him running off, and set how many sold items can be bought back.\n_Backpack:_ bag sizes and the Weapons, Armor and Rings tabs.\n_Toolbar:_ extra item slots and the Attack Tile button.\n_Experience / Loot:_ change the level limit past which creatures stop giving experience or drops.\n_Item Tags:_ screen-edge tags that use an item, like a quickslot.\n_Quick Tags:_ screen-edge tags that open an editor window or run an action.\n_Display:_ shrink the game in from each screen edge, and the Tags editor. Applies to every game.\n_Quantum Chest:_ after each boss, a chest beside the exit. Every chest shares one storage of 25, 50 or 75 items.\n\n"
-		+ "## QoL: options\n_List everything on a tile:_ examining a tile with several things lists each one. Pick one item from a pile to take it. Items inside a grave or chest are listed too.\n_Enhanced Bestiary:_ a Stats button and an i button with abilities, traits, immunities and resistances when you examine a creature.\n_Hero stats button:_ all your hero's numbers, beside the i button on the hero info window.\n_Energize more items:_ energize items the game normally won't, like the Arcane Stylus for 5 energy.\n_Reroll Catalyst:_ a Reroll 5 button for trinket choices, for 5 energy.\n_Walk through allies:_ swap past an ally when that's the shorter way, walking over wards without triggering them.\n_Mageroyal cures everything:_ stepping on one removes every harmful status, for any creature.\n_Tap unexplored areas:_ walk to the closest explored tile you can reach.\n_Show interrupted path:_ draws the rest of an interrupted walk.\n\n"
+		+ "## QoL: screen & tags\n_Display:_ shrink the game in from each screen edge. Applies to every game.\n_Tags editor:_ every tag on screen at once, the game's own included. Tap a tag for its settings, or press and hold briefly, then drag to move it.\n_Item Tags:_ screen-edge tags that use an item, like a quickslot.\n_Quick Tags:_ screen-edge tags that open an editor window or run an action.\n_Toolbar:_ extra item slots and the Attack Tile button.\n\n"
+		+ "## QoL: inventory & shops\n_Backpack:_ bag sizes and the Weapons, Armor and Rings tabs.\n_Shopkeeper:_ keep enemies out, stop him running off, and set how many sold items can be bought back.\n_Quantum Chest:_ after each boss, a chest beside the exit. Every chest shares one storage of 25, 50 or 75 items.\n\n"
+		+ "## QoL: rules\n_Confirm actions:_ choose which taps ask first, like attacking, long walks, stairs or stepping into danger.\n_Experience / Loot:_ change the level limit past which creatures stop giving experience or drops.\n\n"
+		+ "## QoL: movement\n_Show interrupted path:_ draws the rest of an interrupted walk.\n_Tap unexplored areas:_ walk to the closest explored tile you can reach.\n_Walk through allies:_ swap past an ally when that's the shorter way, walking over wards without triggering them.\n\n"
+		+ "## QoL: information\n_Enhanced Bestiary:_ a Stats button and an i button with abilities, traits, immunities and resistances when you examine a creature.\n_List everything on a tile:_ examining a tile with several things lists each one. Pick one item from a pile to take it. Items inside a grave or chest are listed too.\n_Hero stats button:_ all your hero's numbers, beside the i button on the hero info window.\n\n"
+		+ "## QoL: alchemy & plants\n_Energize more items:_ energize items the game normally won't, like the Arcane Stylus for 5 energy.\n_Reroll Catalyst:_ a Reroll 5 button for trinket choices, for 5 energy.\n_Mageroyal cures everything:_ stepping on one removes every harmful status, for any creature.\n\n"
 		+ "## Elsewhere\n_Inventory editor_ (Inventory in the in-game menu): unlimited inventory space and backpack tabs.\n_Floor editor_ (Floor in the in-game menu): Edit Floor mode, and an Edit button when you examine a tile, trap or item. Examining an item also lets you move it or its pile.\n_Supporter options:_ keep your supporter rewards and hide the Support button.";
 
 	private float pos;
@@ -84,58 +86,8 @@ public class CloverlordWindow extends Window {
 		resize(WIDTH, (int) (pos - GAP));
 		if (scrollPane != null) {
 			scrollPane.setRect(scrollPane.left(), scrollPane.top(), scrollPane.width(), scrollPane.height());
-			addScrollHints(scrollPane);
+			ScrollHints.add(this, scrollPane);
 		}
-	}
-
-	/**
-	 * Arrows and shading at the top and bottom edges of a scrolling page, shown while there is more to scroll to
-	 * in that direction.
-	 */
-	private void addScrollHints(ScrollPane pane) {
-		Component content = pane.content();
-		ColorBlock topShade = new ColorBlock(pane.width(), SHADE_HEIGHT, 0xFF000000);
-		topShade.x = pane.left();
-		topShade.y = pane.top();
-		ColorBlock bottomShade = new ColorBlock(pane.width(), SHADE_HEIGHT, 0xFF000000);
-		bottomShade.x = pane.left();
-		bottomShade.y = pane.bottom() - SHADE_HEIGHT;
-		Image up = chevron(false, pane.left() + pane.width() / 2f, pane.top() + 1);
-		Image down = chevron(true, pane.left() + pane.width() / 2f, pane.bottom() - 1);
-		Gizmo watcher = new Gizmo() {
-			private float shownScroll = Float.NaN;
-
-			@Override
-			public void update() {
-				super.update();
-				float scroll = content.camera == null || content.camera.scroll == null ? 0 : content.camera.scroll.y;
-				if (scroll == shownScroll) return;
-				shownScroll = scroll;
-				boolean more = scroll < content.height() - pane.height() - 1;
-				boolean less = scroll > 1;
-				down.visible = more;
-				bottomShade.visible = more;
-				up.visible = less;
-				topShade.visible = less;
-			}
-		};
-		topShade.alpha(0.35f);
-		bottomShade.alpha(0.35f);
-		add(topShade);
-		add(bottomShade);
-		add(up);
-		add(down);
-		add(watcher);
-		up.visible = topShade.visible = false;
-	}
-
-	private static Image chevron(boolean down, float centerX, float edgeY) {
-		Image image = Icons.get(Icons.CHEVRON);
-		image.origin.set(image.width() / 2f, image.height() / 2f);
-		if (down) image.angle = 180;
-		image.x = centerX - image.width() / 2f;
-		image.y = down ? edgeY - image.height() : edgeY;
-		return image;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,59 +226,48 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void buildQualityOfLife() {
-		addLabel("Quality of life");
-		addButton("Confirm actions", (Image) null, () -> {
+		addLabel("Screen & tags");
+		addButton("Display", Icons.DISPLAY, () -> open(new DisplayWindow()));
+		addButton("Tags editor", Icons.TARGET, () -> {
 			hide();
-			EditorWindow.show(new ConfirmWindow());
+			TagLayoutEditor.open(CloverlordMenu::show);
 		});
-		addButton("Shopkeeper", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new ShopkeeperWindow());
-		});
-		addButton("Backpack", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new BackpackSettingsWindow());
-		});
-		addButton("Toolbar", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new ToolbarSettingsWindow());
-		});
-		addButton("Experience", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new RewardRulesWindow(KillRewards.Kind.EXPERIENCE));
-		});
-		addButton("Loot", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new RewardRulesWindow(KillRewards.Kind.LOOT));
-		});
-		addButton("Item Tags", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new CustomTagsWindow());
-		});
-		addButton("Quick Tags", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new QuickTagsWindow());
-		});
-		addButton("Display", (Image) null, () -> {
-			hide();
-			EditorWindow.show(new DisplayWindow());
-		});
+		addButton("Item Tags", Icons.BACKPACK_LRG, () -> open(new CustomTagsWindow()));
+		addButton("Quick Tags", Icons.TALENT, () -> open(new QuickTagsWindow()));
+		addButton("Toolbar", Icons.PREFS, () -> open(new ToolbarSettingsWindow()));
+
+		addLabel("Inventory & shops");
+		addButton("Backpack", Icons.POTION_BANDOLIER, () -> open(new BackpackSettingsWindow()));
+		addButton("Shopkeeper", Icons.GOLD, () -> open(new ShopkeeperWindow()));
+		addOption("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
+		addChestPageButtons();
+
+		addLabel("Rules");
+		addButton("Confirm actions", Icons.WARNING, () -> open(new ConfirmWindow()));
+		addButton("Experience", StatIcons.item(StatIcons.POTION_EXP), () -> open(new RewardRulesWindow(KillRewards.Kind.EXPERIENCE)));
+		addButton("Loot", StatIcons.item(StatIcons.RING_WEALTH), () -> open(new RewardRulesWindow(KillRewards.Kind.LOOT)));
+
 		addLabel("Movement");
 		addOption("Show interrupted path", QolSettings.resumePath(), QolSettings::resumePath);
 		addOption("Tap unexplored areas", UnexploredTaps.isOn(), UnexploredTaps::setOn);
+		addOption("Walk through allies", AllyPathing.isOn(), AllyPathing::setOn);
+
 		addLabel("Information");
 		addOption("Enhanced Bestiary", QolSettings.enhancedBestiary(), QolSettings::enhancedBestiary);
 		addOption("List everything on a tile", TileContents.isOn(), TileContents::setOn);
-		addLabel("Alchemy");
+		addOption("Hero stats button", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
+
+		addLabel("Alchemy & plants");
 		addOption("Energize more items", EnergizeMore.isOn(), EnergizeMore::setOn);
 		addOption("Reroll Catalyst", RerollCatalyst.isOn(), RerollCatalyst::setOn);
-		addOption("Walk through allies", AllyPathing.isOn(), AllyPathing::setOn);
 		addOption("Mageroyal cures everything", MageroyalCure.isOn(), MageroyalCure::setOn);
-		addOption("Hero stats button", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
-		addLabel("Quantum Chest");
-		addOption("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
-		addChestPageButtons();
 	}
+
+	private void open(Window window) {
+		hide();
+		EditorWindow.show(window);
+	}
+
 
 	private void buildUnlocks() {
 		if (UnlockAll.isAvailable()) {
