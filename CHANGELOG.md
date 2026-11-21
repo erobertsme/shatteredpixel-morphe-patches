@@ -1,3 +1,17 @@
+## [1.3.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0) (2026-11-21)
+
+### ✨ New Features
+
+* Cancel resting or walking from the wait button, and same-spot unexplored taps ([fcc5cee](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/fcc5ceeb9f453b92e81961c799f27dc171049882))
+* Status and teleport quick tags, tag positions from the UI edge ([063f9d0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/063f9d072a5e1f515d9f432f663443bad44ca00e))
+* Tile and Back buttons between an examined thing and its tile ([a7c5c8a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a7c5c8a86ea37d02393211c7fa04e24172d3a63f))
+
+### 🐛 Bug Fixes
+
+* Keep the chosen hue and saturation of tag colours at high lightness ([73dec0c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/73dec0c00b45c94921031cc0e65b2d59f1ae3aff))
+* Spell grey as grey ([91ef62c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/91ef62ce55244d9d2f644965dc34e25d45dc4928))
+* Use US English spelling throughout ([72490f3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/72490f391b2f9140dafd671e753d4d1d4738a6eb))
+
 ## [1.3.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.5...v1.3.0-dev.6) (2026-11-21)
 
 ### ✨ New Features
