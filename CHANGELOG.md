@@ -1,3 +1,9 @@
+## [1.2.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.1.0...v1.2.0-dev.1) (2026-11-21)
+
+### ✨ New Features
+
+* Keep undo steps as Game Saves ([b17d1a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b17d1a56115dd4fa0101b11082ce38e0d350583e))
+
 ## [1.1.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.4...v1.1.0) (2026-11-21)
 
 ### ✨ New Features
