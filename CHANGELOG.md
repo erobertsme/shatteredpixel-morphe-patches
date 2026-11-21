@@ -1,3 +1,9 @@
+## [1.2.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.2...v1.2.0-dev.3) (2026-11-21)
+
+### ✨ New Features
+
+* Quick fades when loading saves and undo steps ([c703da7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c703da7671388756a88b7350ebfee0a4c48d0175))
+
 ## [1.2.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.1...v1.2.0-dev.2) (2026-11-21)
 
 ### ✨ New Features
