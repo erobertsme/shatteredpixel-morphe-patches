@@ -19,7 +19,6 @@ public final class BuffInfoActions {
 	private static final String TAG = "BuffInfoActions";
 	private static final int REMOVE_WIDTH = 42;
 
-	private static Object pendingBuff;
 	private static Runnable onRemoved;
 
 	private BuffInfoActions() {
@@ -30,28 +29,19 @@ public final class BuffInfoActions {
 	}
 
 	/**
-	 * Called at the start of the WndInfoBuff constructor, which reuses its parameter register before returning.
+	 * Adds a Remove button to a status's info window.
 	 */
-	public static void beforeBuffInfo(Object buff) {
-		pendingBuff = buff;
-	}
-
-	/**
-	 * Called at the end of the WndInfoBuff constructor.
-	 */
-	public static void afterBuffInfo(Object window) {
-		Object pending = pendingBuff;
-		pendingBuff = null;
+	static void decorateInfo(Window window, Object pending) {
+		if (!(pending instanceof Buff)) return;
 		Runnable after = onRemoved;
 		onRemoved = null;
-		if (!(window instanceof Window) || !(pending instanceof Buff)) return;
 		Buff buff = (Buff) pending;
 		boolean hero = buff.target != null && buff.target == Dungeon.hero;
 		boolean creature = buff.target instanceof Mob;
 		if (hero && !EditorSwitches.character()) return;
 		if (creature && !(EnemyWindow.isAvailable() && EditorSwitches.enemy())) return;
 		if (!hero && !creature) return;
-		Window info = (Window) window;
+		Window info = window;
 		try {
 			WindowHeader.add(info, WindowHeader.smallButton("Remove", Icons.CLOSE, () -> {
 				info.hide();

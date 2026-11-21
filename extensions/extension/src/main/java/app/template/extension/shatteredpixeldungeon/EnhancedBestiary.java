@@ -151,24 +151,14 @@ public final class EnhancedBestiary {
 		return QolSettings.enhancedBestiary();
 	}
 
-	private static Object pendingMob;
 	private static String pendingTitle;
 
 	/**
-	 * Called at the start of the WndInfoMob constructor, which reuses its parameter register before returning.
+	 * Adds the Stats and abilities buttons to a creature's info window.
 	 */
-	public static void beforeMobInfo(Object mob) {
-		pendingMob = mob;
-	}
-
-	/**
-	 * Called at the end of the WndInfoMob constructor.
-	 */
-	public static void afterMobInfo(Object window) {
-		Object mob = pendingMob;
-		pendingMob = null;
-		if (!isOn() || !(window instanceof Window) || !(mob instanceof Mob)) return;
-		decorate((Window) window, (Mob) mob);
+	static void decorateInfo(Window window, Object subject) {
+		if (!QolSettings.isAvailable() || !isOn() || !(subject instanceof Mob)) return;
+		decorate(window, (Mob) subject);
 	}
 
 	/**

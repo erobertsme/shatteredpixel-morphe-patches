@@ -179,3 +179,25 @@ internal fun Fingerprint.adjustCallResults(called: String, adjust: String) {
 		)
 	}
 }
+
+private const val INFO_WINDOWS_CLASS = "$EXTENSION_PACKAGE/InfoWindows;"
+
+/**
+ * Hooks the game's info windows for what you examine, so every feature can add its buttons to them through InfoWindows. Each patch that
+ * needs them calls this; the windows are still decorated only once.
+ */
+context(_: BytecodePatchContext)
+internal fun hookInfoWindows() {
+	listOf(
+		WndInfoMobConstructorFingerprint,
+		WndInfoBuffConstructorFingerprint,
+		WndInfoHeapConstructorFingerprint,
+		WndInfoPlantConstructorFingerprint,
+		WndInfoTrapConstructorFingerprint,
+	).forEach { window ->
+		window.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $INFO_WINDOWS_CLASS->before(Ljava/lang/Object;)V")
+		window.callWithThisBeforeReturns("$INFO_WINDOWS_CLASS->after(Ljava/lang/Object;)V")
+	}
+	WndInfoCellConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $INFO_WINDOWS_CLASS->beforeCell(I)V")
+	WndInfoCellConstructorFingerprint.callWithThisBeforeReturns("$INFO_WINDOWS_CLASS->after(Ljava/lang/Object;)V")
+}

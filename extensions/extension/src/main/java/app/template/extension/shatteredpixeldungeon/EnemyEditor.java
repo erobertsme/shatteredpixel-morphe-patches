@@ -27,7 +27,6 @@ public final class EnemyEditor {
 
 	private static final Set<Char> editedAlignment = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final ArrayDeque<Object[]> restoring = new ArrayDeque<>();
-	private static Object infoMob;
 
 	private EnemyEditor() {
 	}
@@ -120,18 +119,9 @@ public final class EnemyEditor {
 	}
 
 	/**
-	 * Called at the start of the WndInfoMob constructor, which reuses its parameter register before returning.
+	 * Adds an Edit button to a creature's info window.
 	 */
-	public static void beforeMobInfo(Object mob) {
-		infoMob = mob;
-	}
-
-	/**
-	 * Called at the end of the WndInfoMob constructor. Adds an Edit button under the description.
-	 */
-	public static void afterMobInfo(Window window) {
-		Object mob = infoMob;
-		infoMob = null;
+	static void decorateInfo(Window window, Object mob) {
 		if (!EditorSwitches.enemy() || !(mob instanceof Mob)) return;
 		try {
 			WindowHeader.addEdit(window, () -> {

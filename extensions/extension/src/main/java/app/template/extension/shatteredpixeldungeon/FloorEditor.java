@@ -121,7 +121,6 @@ public final class FloorEditor {
 		"com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap",
 	};
 
-	private static Object pendingTarget;
 
 	private FloorEditor() {
 	}
@@ -623,35 +622,13 @@ public final class FloorEditor {
 	}
 
 	/**
-	 * Called at the start of the WndInfoCell constructor.
+	 * Adds buttons for the common changes to a tile, trap or pile on the floor, and an Edit button, to its info window when the Floor
+	 * editor is on, and Teleport Here when Teleport is on.
 	 */
-	public static void beforeCellInfo(int cell) {
-		pendingTarget = cell;
-	}
-
-	/**
-	 * Called at the start of the WndInfoTrap constructor.
-	 */
-	public static void beforeTrapInfo(Object trap) {
-		pendingTarget = trap;
-	}
-
-	/**
-	 * Called at the start of the WndInfoItem constructor for an item or pile on the floor.
-	 */
-	public static void beforeHeapInfo(Object heap) {
-		pendingTarget = heap;
-	}
-
-	/**
-	 * Called at the end of the WndInfoCell, WndInfoTrap and heap info constructors. Adds buttons for the common
-	 * changes to that tile or trap and an Edit button when the Floor editor is on, and Teleport Here when Teleport is on.
-	 */
-	public static void afterInfo(Window window) {
-		Object target = pendingTarget;
-		pendingTarget = null;
+	static void decorateInfo(Window window, Object target) {
+		if (!(target instanceof Integer || target instanceof Trap || target instanceof Heap)) return;
 		boolean floor = EditorSwitches.floor();
-		if ((!floor && !EditorSwitches.teleport()) || target == null || Dungeon.hero == null) return;
+		if ((!floor && !EditorSwitches.teleport()) || Dungeon.hero == null) return;
 		int cell = target instanceof Trap ? ((Trap) target).pos : target instanceof Heap ? ((Heap) target).pos : (Integer) target;
 		try {
 			int width = Reflect.width(window);

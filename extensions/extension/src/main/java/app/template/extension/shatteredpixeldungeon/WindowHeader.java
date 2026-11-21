@@ -22,6 +22,7 @@ final class WindowHeader {
 
 	static final int PRIORITY_INFO = 0;
 	static final int PRIORITY_ACTION = 1;
+	static final int PRIORITY_NAVIGATION = 2;
 	static final int SMALL_HEIGHT = 12;
 	static final int EDIT_WIDTH = 24;
 	private static final int ROW = 16;
