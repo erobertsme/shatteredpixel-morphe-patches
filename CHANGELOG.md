@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.3...v1.0.4) (2026-11-21)
+
+### 🐛 Bug Fixes
+
+* Showing a save or undo step no longer resets the character editor and hunger settings ([3539422](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3539422938ac566f6c00775bd05d4d2ec8f7f512))
+
 ## [1.0.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.2...v1.0.3) (2026-11-20)
 
 ### 🐛 Bug Fixes
