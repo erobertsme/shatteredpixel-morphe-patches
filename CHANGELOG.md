@@ -1,3 +1,9 @@
+## [1.3.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.5...v1.3.0-dev.6) (2026-11-21)
+
+### ✨ New Features
+
+* Cancel resting or walking from the wait button, and same-spot unexplored taps ([fcc5cee](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/fcc5ceeb9f453b92e81961c799f27dc171049882))
+
 ## [1.3.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.4...v1.3.0-dev.5) (2026-11-21)
 
 ### ✨ New Features
