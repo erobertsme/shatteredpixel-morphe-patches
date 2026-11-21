@@ -1,3 +1,9 @@
+## [1.2.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.1...v1.2.0-dev.2) (2026-11-21)
+
+### ✨ New Features
+
+* Load saves and undo steps without the loading screen ([9c1c41e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9c1c41e6cff8788a6085d88546e860cc67ab1179))
+
 ## [1.2.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.1.0...v1.2.0-dev.1) (2026-11-21)
 
 ### ✨ New Features
