@@ -53,7 +53,8 @@ public class StatsWindow extends EditorWindow {
 		}
 
 		pos += GAP;
-		addButton("Back", 0, WIDTH, this::hide);
+		backTo(null);
+		addBackButton(0, WIDTH);
 		pos += ROW_HEIGHT;
 		finish();
 	}

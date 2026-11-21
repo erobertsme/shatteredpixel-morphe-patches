@@ -32,6 +32,11 @@ public final class UndoTags {
 	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 1, "CHANGES", 0).defaultOffset(52).defaultOpacity(70);
 
 	/**
+	 * The Undo / Redo tag. It hides while undo mode is open.
+	 */
+	static final ScreenTag TAG = new ScreenTag("Undo / Redo", PLACEMENT, () -> UndoHistory.isOn() && !UndoTags.modeOpen, tag -> openMode(Game.scene()));
+
+	/**
 	 * Below the hero portrait and the busy circle under it.
 	 */
 	static final int UNDO_TOP = 52;
@@ -73,13 +78,8 @@ public final class UndoTags {
 		if (!UndoHistory.isAvailable()) return;
 		try {
 			Scene target = (Scene) scene;
-			IconTag tag = new IconTag(() -> openMode(target));
-			tag.camera = PixelScene.uiCamera;
-			target.add(tag);
-			undoTag = tag;
-			PLACEMENT.onChange(UndoTags::refreshTag);
+			ScreenTags.onSceneCreated(target);
 			UndoHistory.onChange(null);
-			refreshTag();
 			UndoScene.listen();
 			if (modeOpen && UndoHistory.isOn()) buildMode(target);
 		} catch (Throwable e) {
@@ -87,7 +87,6 @@ public final class UndoTags {
 		}
 	}
 
-	private static IconTag undoTag;
 	private static Runnable panelRefresher;
 
 	private static void refreshPanel() {
@@ -95,21 +94,10 @@ public final class UndoTags {
 		if (modeOpen && refresher != null) refresher.run();
 	}
 
-	/**
-	 * Shows or hides the Undo / Redo tag and lays it out again. Runs when the scene is made, when undo mode opens or closes, when the setting or
-	 * the tag's look changes, and when the hero dies.
-	 */
-	static void refreshTag() {
-		IconTag tag = undoTag;
-		if (tag == null || tag.parent == null) return;
-		tag.visible = UndoHistory.isOn() && !modeOpen && Dungeon.hero != null && Dungeon.hero.isAlive();
-		if (tag.visible) PLACEMENT.place(tag);
-	}
-
 	private static void openMode(Scene scene) {
 		if (modeOpen) return;
 		modeOpen = true;
-		refreshTag();
+		TAG.refresh();
 		buildMode(scene);
 		UndoHistory.resetSelection();
 	}
@@ -125,7 +113,7 @@ public final class UndoTags {
 			gizmo.destroy();
 		}
 		overlay.clear();
-		refreshTag();
+		TAG.refresh();
 	}
 
 	/**
@@ -147,7 +135,7 @@ public final class UndoTags {
 		float width = backpackPanel[2] - 2 * PANEL_PADDING;
 		float top = backpackPanel[1] + PANEL_PADDING;
 		RenderedTextBlock title = PixelScene.renderTextBlock("Backpack at step " + (UndoHistory.selected() + 1), 9);
-		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.hardlight(EditorWindow.TITLE_COLOR);
 		title.setPos(left, top);
 		PixelScene.align(title);
 		addBackpackPart(scene, title);
@@ -345,7 +333,7 @@ public final class UndoTags {
 		try {
 			Component button = menuButton();
 			if (button == null || event == null) return false;
-			PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+			PointF point = ScreenLayout.toUi(event);
 			return point.x >= button.left() && point.x <= button.right() && point.y >= button.top() && point.y <= button.bottom();
 		} catch (Throwable e) {
 			return false;

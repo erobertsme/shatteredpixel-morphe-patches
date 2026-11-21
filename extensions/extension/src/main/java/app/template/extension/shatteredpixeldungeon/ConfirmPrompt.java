@@ -45,8 +45,7 @@ public class ConfirmPrompt extends EditorWindow {
 		}
 		for (int i = 0; i < labels.length; i++) {
 			int index = i;
-			addButton(labels[i], 0, WIDTH, () -> choose(index));
-			pos += ROW_HEIGHT + GAP;
+			addRowButton(labels[i], null, () -> choose(index));
 		}
 		addButton("Cancel", 0, WIDTH, this::hide);
 		pos += ROW_HEIGHT;

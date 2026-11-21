@@ -53,7 +53,7 @@ public class StatusPickerWindow extends EditorWindow {
 			addListRow(entry.name, statusIcon(entry), StatusEditor.isActive(hero, entry.type), true, () -> {
 				StatusEditor.add(hero, entry.type, duration);
 				if (infinite && isHero) InfiniteStatuses.pin(entry.type, duration);
-				back();
+				goBack();
 			}, () -> CharacterWindow.showBuffInfo(entry.sample), new Favorite() {
 				@Override
 				public boolean isFavorite() {
@@ -67,9 +67,7 @@ public class StatusPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new StatusPickerWindow(kind, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private static BuffIcon statusIcon(StatusEditor.Entry entry) {
@@ -81,7 +79,6 @@ public class StatusPickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		Runnable action = backAction;
 		if (action != null) {
 			action.run();

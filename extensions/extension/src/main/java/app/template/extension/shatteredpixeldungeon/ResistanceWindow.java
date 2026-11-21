@@ -29,19 +29,14 @@ public class ResistanceWindow extends EditorWindow {
 			for (HeroExtras.Element element : HeroExtras.Element.values()) HeroExtras.resistance(element, 0);
 			refresh();
 		});
-		addButton("Back", half + GAP, half, this::back);
+		backTo(this::back);
+		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT;
 		finish();
 	}
 
 	private void back() {
-		hide();
 		if (onBack != null) onBack.run();
-	}
-
-	@Override
-	public void onBackPressed() {
-		back();
 	}
 
 	@Override

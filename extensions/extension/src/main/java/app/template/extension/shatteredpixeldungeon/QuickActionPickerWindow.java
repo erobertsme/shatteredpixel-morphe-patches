@@ -32,16 +32,11 @@ public class QuickActionPickerWindow extends EditorWindow {
 			QuickActions.Action action = choices.get(index);
 			addListRow(action.name, IconCatalog.image(action.icon), false, true, () -> {
 				hide();
-				QuickTagsWindow.openTag(QuickTags.add(action));
+				QuickTagsWindow.openTag(QuickTags.LIST.add(action.id));
 			}, null);
 		}, newPage -> replaceWith(new QuickActionPickerWindow(kind, newPage)));
 
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			show(new QuickTagsWindow());
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> show(new QuickTagsWindow()));
 	}
 
 	/**

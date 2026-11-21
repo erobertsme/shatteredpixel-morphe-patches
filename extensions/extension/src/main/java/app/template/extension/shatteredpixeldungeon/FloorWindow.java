@@ -66,26 +66,13 @@ public class FloorWindow extends EditorWindow {
 			FloorEditSession.start();
 		});
 		pos += ROW_HEIGHT + GAP;
-		addButtonRow(TABS, tab, index -> {
+		addTabs(TABS, tab, index -> {
 			tab = index;
 			refresh();
-		});
-		pos += GAP;
-
-		float start = pos;
-		float height = 0;
-		for (int i = 0; i < TABS.length; i++) {
-			if (i == tab) continue;
-			int index = i;
-			height = Math.max(height, measure(() -> buildTab(index)));
-		}
-		buildTab(tab);
-		pos = Math.max(pos, start + height);
+		}, this::buildTab);
 
 		pos += GAP;
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private void buildTab(int index) {
@@ -135,8 +122,7 @@ public class FloorWindow extends EditorWindow {
 		addButton("Reveal map", 0, half, () -> run(FloorEditor::revealMap));
 		addButton("Mark explored", half + GAP, half, () -> run(FloorEditor::exploreMap));
 		pos += ROW_HEIGHT + GAP;
-		addButton("Forget map", 0, WIDTH, () -> run(FloorEditor::forgetMap));
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Forget map", null, () -> run(FloorEditor::forgetMap));
 
 		addSection("Draw");
 		float third = (WIDTH - 2 * GAP) / 3f;
@@ -219,7 +205,6 @@ public class FloorWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		Runnable action = backAction;
 		backAction = null;
 		if (action != null) action.run();

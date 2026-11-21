@@ -39,23 +39,18 @@ public class HungerWindow extends EditorWindow {
 		addTitle("Hunger", tab == 0 ? STAGES_INFO : STARVING_INFO);
 		addScope();
 		addCheckBox("Disable hunger", disabled, () -> HungerEditor.setDisabled(!HungerEditor.isDisabled()));
-		addButtonRow(TABS, tab, index -> {
+		addTabs(TABS, tab, index -> {
 			tab = index;
 			refresh();
-		});
-		pos += GAP;
-
-		float start = pos;
-		float otherHeight = measure(() -> buildTab(1 - tab, disabled));
-		buildTab(tab, disabled);
-		pos = Math.max(pos, start + otherHeight);
+		}, index -> buildTab(index, disabled));
 
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Reset all", 0, half, () -> {
 			HungerEditor.resetDefaults();
 			refresh();
 		});
-		addButton("Back", half + GAP, half, this::back);
+		backTo(this::back);
+		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT + GAP;
 		finish();
 	}
@@ -71,7 +66,7 @@ public class HungerWindow extends EditorWindow {
 			text = "This game (using main menu defaults)";
 		}
 		RenderedTextBlock scope = PixelScene.renderTextBlock(text, 6);
-		scope.hardlight(CharacterWindow.DIM_COLOR);
+		scope.hardlight(EditorWindow.DIM_COLOR);
 		scope.maxWidth(WIDTH);
 		scope.setPos(0, pos - GAP);
 		add(scope);
@@ -137,7 +132,7 @@ public class HungerWindow extends EditorWindow {
 		int maxHealth = HungerEditor.maxHealth();
 		RenderedTextBlock result = PixelScene.renderTextBlock("Now: " + HungerEditor.describeStarving(maxHealth) + " (" + maxHealth + " max health)", 6);
 		result.maxWidth(WIDTH);
-		result.hardlight(CharacterWindow.TITLE_COLOR);
+		result.hardlight(EditorWindow.TITLE_COLOR);
 		result.setPos(0, pos + GAP);
 		add(result);
 		pos = result.bottom() + 2 * GAP;
@@ -169,12 +164,12 @@ public class HungerWindow extends EditorWindow {
 	 */
 	static float addSummary(Group group, float x, float y, float width) {
 		RenderedTextBlock title = PixelScene.renderTextBlock("Hunger", 7);
-		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.hardlight(EditorWindow.TITLE_COLOR);
 		title.setPos(x, y);
 		group.add(title);
 
 		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap to Edit", 6);
-		hint.hardlight(CharacterWindow.DIM_COLOR);
+		hint.hardlight(EditorWindow.DIM_COLOR);
 		hint.setPos(x + width - hint.width(), y + (title.height() - hint.height()) / 2f);
 		group.add(hint);
 		y = title.bottom() + 2;
@@ -198,7 +193,7 @@ public class HungerWindow extends EditorWindow {
 		addSegment(group, left, y, x + width - left, STARVING_COLOR, disabled);
 
 		RenderedTextBlock legend = PixelScene.renderTextBlock("Not hungry " + notHungry + " - Hungry " + hungry + " - Starving", 6);
-		legend.hardlight(CharacterWindow.DIM_COLOR);
+		legend.hardlight(EditorWindow.DIM_COLOR);
 		legend.setPos(x + (width - legend.width()) / 2f, y + BAR_HEIGHT + 2);
 		group.add(legend);
 		return legend.bottom();
@@ -214,7 +209,6 @@ public class HungerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		Runnable action = backAction;
 		backAction = null;
 		if (action != null) action.run();

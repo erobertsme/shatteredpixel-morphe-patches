@@ -60,9 +60,7 @@ public class CreaturePickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new CreaturePickerWindow(cell, kind, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	/**
@@ -99,7 +97,6 @@ public class CreaturePickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		TileWindow.open(cell);
 	}
 

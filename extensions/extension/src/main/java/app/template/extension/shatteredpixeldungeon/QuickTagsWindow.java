@@ -16,11 +16,11 @@ public class QuickTagsWindow extends EditorWindow {
 	public QuickTagsWindow() {
 		super();
 		addTitle("Quick Tags", INFO);
-		List<Integer> ids = QuickTags.ids();
+		List<Integer> ids = QuickTags.LIST.ids();
 		if (ids.isEmpty()) addHint("No quick tags yet.");
 		for (int id : ids) {
 			QuickActions.Action action = QuickTags.action(id);
-			addListRow(QuickTags.name(id), IconCatalog.image(QuickTags.placement(id).icon()), false, action != null, () -> {
+			addListRow(QuickTags.LIST.name(id), IconCatalog.image(QuickTags.LIST.placement(id).icon()), false, action != null, () -> {
 				hide();
 				openTag(id);
 			}, null);
@@ -31,16 +31,11 @@ public class QuickTagsWindow extends EditorWindow {
 			show(new QuickActionPickerWindow(0));
 		});
 		pos += ROW_HEIGHT + GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	static void openTag(int id) {
-		show(new TagSettingsWindow(QuickTags.placement(id), QuickTags.name(id) + " Tag", () -> show(new QuickTagsWindow()), () -> QuickTags.delete(id)));
+		show(new TagSettingsWindow(QuickTags.LIST.placement(id), QuickTags.LIST.name(id) + " Tag", () -> show(new QuickTagsWindow()), () -> QuickTags.LIST.delete(id)));
 	}
 
 	@Override

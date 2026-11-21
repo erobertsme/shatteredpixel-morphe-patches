@@ -42,7 +42,7 @@ import java.util.Random;
 @SuppressWarnings("unused")
 public final class ForceAttack {
 
-	private static final String TAG = "ForceAttack";
+	private static final String LOG_TAG = "ForceAttack";
 	private static final int TILE_SIZE = 16;
 	private static final int MARKER_SIZE = 10;
 	private static final int MARKER_COLOR = 0xFFE06A5A;
@@ -52,19 +52,14 @@ public final class ForceAttack {
 
 	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(UndoTags.UNDO_TOP + com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
 
-	private static IconTag tag;
+	/**
+	 * The Attack Tile tag. Tapping it chooses a tile to attack.
+	 */
+	static final ScreenTag TAG = new ScreenTag("Attack Tile", PLACEMENT, ForceAttack::isOn, tag -> choose());
+
 	private static final List<Gizmo> markers = new ArrayList<>();
 
 	private ForceAttack() {
-	}
-
-	/**
-	 * Where the button sits while its position is Auto, or null when it isn't on screen.
-	 */
-	static float[] autoRect() {
-		IconTag current = tag;
-		if (current == null || current.parent == null || !current.visible) return null;
-		return new float[] { current.left(), current.top(), current.width(), current.height() };
 	}
 
 	static boolean isOn() {
@@ -73,31 +68,15 @@ public final class ForceAttack {
 
 	static void setOn(boolean on) {
 		QolSettings.forceAttack(on);
-		refreshTag();
-	}
-
-	/**
-	 * Called at the end of GameScene.create. Adds the Attack Tile button.
-	 */
-	public static void onSceneCreated(Object scene) {
-		if (!QolSettings.isAvailable() || !(scene instanceof Scene)) return;
-		try {
-			tag = new IconTag(ForceAttack::choose);
-			tag.camera = PixelScene.uiCamera;
-			((Scene) scene).add(tag);
-			PLACEMENT.onChange(ForceAttack::refreshTag);
-			refreshTag();
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not add the Attack Tile button", e);
-		}
+		TAG.refresh();
 	}
 
 	/**
 	 * Called at the end of GameScene.layoutTags. Puts the Attack Tile button just above the toolbar while it keeps its automatic place.
 	 */
 	static void afterLayoutTags() {
-		IconTag current = tag;
-		if (current == null || !current.visible || current.parent == null || !PLACEMENT.isAuto()) return;
+		IconTag current = TAG.view();
+		if (current == null || !current.visible || !PLACEMENT.isAuto()) return;
 		try {
 			Object scene = Reflect.getStatic(GameScene.class, "scene");
 			if (scene == null) return;
@@ -116,7 +95,7 @@ public final class ForceAttack {
 			current.style(PLACEMENT);
 
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not place the Attack Tile button", e);
+			Log.e(LOG_TAG, "Could not place the Attack Tile button", e);
 		}
 	}
 
@@ -129,23 +108,6 @@ public final class ForceAttack {
 		return ScreenLayout.insets()[left ? 0 : 2];
 	}
 
-
-	/**
-	 * Shows or hides the button and lays it out again. Runs when the scene is made, when its setting or look changes, and when the hero dies.
-	 */
-	static void refreshTag() {
-		IconTag current = tag;
-		if (current == null || current.parent == null) return;
-		current.visible = shouldShow();
-		if (current.visible && !PLACEMENT.isAuto()) PLACEMENT.place(current);
-		if (current.visible && PLACEMENT.isAuto()) current.style(PLACEMENT);
-		GameScene.updateTags = true;
-	}
-
-	private static boolean shouldShow() {
-		Hero hero = Dungeon.hero;
-		return isOn() && hero != null && hero.isAlive();
-	}
 
 	private static KindOfWeapon weapon(Hero hero) {
 		try {
@@ -241,7 +203,7 @@ public final class ForceAttack {
 			}
 			swingAt(hero, cell);
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not attack tile " + cell, e);
+			Log.e(LOG_TAG, "Could not attack tile " + cell, e);
 		}
 	}
 
@@ -253,7 +215,7 @@ public final class ForceAttack {
 				Sample.INSTANCE.play(MISS_SOUND);
 				if (QolSettings.forceAttackEnchants()) applyEnchantment(hero, cell);
 			} catch (Throwable e) {
-				Log.e(TAG, "Could not apply the enchantment to tile " + cell, e);
+				Log.e(LOG_TAG, "Could not apply the enchantment to tile " + cell, e);
 			}
 			hero.spendAndNext(hero.attackDelay());
 		});

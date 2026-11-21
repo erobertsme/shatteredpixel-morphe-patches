@@ -24,7 +24,8 @@ public class SavePreviewWindow extends PreviewWindow {
 		addButtonPair("Load", this::load, save.locked ? "Unlock" : "Lock", this::toggleLock);
 		float half = (WIDTH - GAP) / 2f;
 		addButton("Delete", 0, half, this::delete).enable(!save.locked);
-		addButton("Back", half + GAP, half, this::back);
+		backTo(this::back);
+		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT;
 	}
 
@@ -58,13 +59,7 @@ public class SavePreviewWindow extends PreviewWindow {
 	}
 
 	private void back() {
-		hide();
 		show(new GameSavesWindow(page, fromGameMenu));
-	}
-
-	@Override
-	public void onBackPressed() {
-		back();
 	}
 
 	@Override

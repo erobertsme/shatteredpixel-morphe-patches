@@ -20,7 +20,7 @@ public class HeroSpriteWindow extends EditorWindow {
 	private static final int COLUMNS = 5;
 	private static final int ICON_SPACE = CELL - 4;
 	private static final int SELECTED_BORDER = 1;
-	private static final int SELECTED_COLOR = 0xFF000000 | CharacterWindow.TITLE_COLOR;
+	private static final int SELECTED_COLOR = 0xFF000000 | EditorWindow.TITLE_COLOR;
 
 	private final int page;
 
@@ -31,7 +31,7 @@ public class HeroSpriteWindow extends EditorWindow {
 
 		HeroSkin.Skin current = HeroSkin.current();
 		RenderedTextBlock name = PixelScene.renderTextBlock(current.name, 7);
-		name.hardlight(CharacterWindow.TITLE_COLOR);
+		name.hardlight(EditorWindow.TITLE_COLOR);
 		name.setPos((WIDTH - name.width()) / 2f, pos);
 		PixelScene.align(name);
 		add(name);
@@ -52,12 +52,7 @@ public class HeroSpriteWindow extends EditorWindow {
 		pos = top + rows() * (CELL + GAP);
 		addPager(shown, pages, newPage -> replaceWith(new HeroSpriteWindow(newPage)));
 
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			show(new FunWindow());
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> show(new FunWindow()));
 	}
 
 	private void addCell(HeroSkin.Skin skin, HeroSkin.Skin current, float x, float y) {

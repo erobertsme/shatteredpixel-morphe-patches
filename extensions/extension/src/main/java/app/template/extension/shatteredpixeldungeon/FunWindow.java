@@ -17,12 +17,7 @@ public class FunWindow extends EditorWindow {
 			show(new HeroSpriteWindow(HeroSpriteWindow.pageOf(HeroSkin.current())));
 		}).icon(HeroSkin.icon(HeroSkin.skins().get(0)));
 		pos += ROW_HEIGHT + 2 * GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

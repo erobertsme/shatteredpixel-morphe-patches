@@ -43,7 +43,7 @@ public class TrapPickerWindow extends EditorWindow {
 			String name = traps.get(index)[1];
 			addListRow(name, null, replacing != null && replacing.getClass().getName().equals(className), true, () -> {
 				FloorEditor.placeTrap(className, cell, hidden);
-				back();
+				goBack();
 			}, () -> showInfo(className, name), new Favorite() {
 				@Override
 				public boolean isFavorite() {
@@ -57,9 +57,7 @@ public class TrapPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new TrapPickerWindow(cell, kind, newPage, replacing)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private static List<String[]> traps(int kind) {
@@ -93,7 +91,6 @@ public class TrapPickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		TileWindow.open(cell);
 	}
 

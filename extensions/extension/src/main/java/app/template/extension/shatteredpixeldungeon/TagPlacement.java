@@ -389,14 +389,17 @@ final class TagPlacement {
 	 * Lines [tags] up along the chosen edge, in order, and styles them.
 	 */
 	void place(IconTag... tags) {
-		Side side = side();
-		for (int i = 0; i < tags.length; i++) {
-			IconTag tag = tags[i];
-			float[] rect = rect(i);
-			tag.onTop(side == Side.TOP);
-			tag.setRect(rect[0], rect[1], rect[2], rect[3]);
-			tag.flip(side == Side.LEFT);
-			tag.style(this);
-		}
+		for (int i = 0; i < tags.length; i++) place(tags[i], rect(i));
+	}
+
+	/**
+	 * Puts [tag] at [rect] in this placement's look, facing its edge, or the right edge while it keeps its automatic place.
+	 */
+	void place(IconTag tag, float[] rect) {
+		Side side = isAuto() ? Side.RIGHT : side();
+		tag.onTop(side == Side.TOP);
+		tag.setRect(rect[0], rect[1], rect[2], rect[3]);
+		tag.flip(side == Side.LEFT);
+		tag.style(this);
 	}
 }

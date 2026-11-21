@@ -33,12 +33,7 @@ public class BackpackSettingsWindow extends EditorWindow {
 			}
 		}
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	private static final String SHOPKEEPER = "sprites/shopkeeper.png";

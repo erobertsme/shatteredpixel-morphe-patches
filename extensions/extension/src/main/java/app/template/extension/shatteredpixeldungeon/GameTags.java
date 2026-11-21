@@ -53,7 +53,7 @@ final class GameTags {
 		float width = Tag.SIZE + (onLeft ? insets[0] : insets[2]);
 		float left = onLeft ? 0 : PixelScene.uiCamera.width - width;
 		float pos = ((Component) Reflect.get(GameScene.class, scene, onLeft && SPDSettings.interfaceSize() > 0 ? "status" : "toolbar")).top();
-		float[] attackTile = ForceAttack.PLACEMENT.isAuto() ? ForceAttack.autoRect() : null;
+		float[] attackTile = ForceAttack.PLACEMENT.isAuto() ? ForceAttack.TAG.shownRect() : null;
 		if (attackTile != null) pos = attackTile[1];
 		for (int i = 0; i < NAMES.length; i++) {
 			Tag tag = (Tag) Reflect.get(GameScene.class, scene, FIELDS[i]);
@@ -86,7 +86,7 @@ final class GameTags {
 		float left = onLeft ? insets[0] : PixelScene.uiCamera.width - insets[2] - Tag.SIZE;
 		float pos = ScreenLayout.aboveToolbar() + 4;
 		if (ForceAttack.PLACEMENT.isAuto()) {
-			float[] attackTile = ForceAttack.autoRect();
+			float[] attackTile = ForceAttack.TAG.shownRect();
 			pos -= attackTile != null ? attackTile[3] : ForceAttack.PLACEMENT.tagHeight();
 		}
 		for (int i = 0; i < NAMES.length; i++) {

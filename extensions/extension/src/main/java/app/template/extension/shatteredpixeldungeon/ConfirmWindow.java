@@ -24,12 +24,7 @@ public class ConfirmWindow extends EditorWindow {
 			addStepper("  From", distance + " " + action.distanceUnit, distance, 1, 1, ConfirmSettings.MAX_DISTANCE, value -> ConfirmSettings.setMinDistance(action, value), ConfirmSettings.isOn() && ConfirmSettings.confirms(action), () -> ConfirmSettings.setMinDistance(action, action.defaultDistance));
 		}
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

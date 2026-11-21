@@ -8,7 +8,23 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
  */
 final class Grid {
 
+	private static final int TILE_SIZE = 16;
+
 	private Grid() {
+	}
+
+	/**
+	 * The cell of the current floor under the point [screen] on the screen, or -1 when it is off the floor.
+	 */
+	static int cellAt(com.watabou.utils.PointF screen) {
+		Level level = Dungeon.level;
+		if (level == null || screen == null) return -1;
+		com.watabou.utils.PointF world = com.watabou.noosa.Camera.main.screenToCamera((int) screen.x, (int) screen.y);
+		int width = level.width();
+		int x = (int) Math.floor(world.x / TILE_SIZE);
+		int y = (int) Math.floor(world.y / TILE_SIZE);
+		if (x < 0 || y < 0 || x >= width || y >= level.length() / width) return -1;
+		return x + y * width;
 	}
 
 	/**

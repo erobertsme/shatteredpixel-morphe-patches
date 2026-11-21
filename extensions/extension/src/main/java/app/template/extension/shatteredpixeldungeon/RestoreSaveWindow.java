@@ -42,9 +42,7 @@ public class RestoreSaveWindow extends EditorWindow {
 			GameSaves.Save save = saves.get(index);
 			addListRow(save.title(), save.locked ? new ItemSprite(ItemSpriteSheet.IRON_KEY) : null, undo && index == 0, true, () -> confirm(save), null);
 		}, newPage -> replaceWith(new RestoreSaveWindow(undo, folder, slot, seed, newPage, onBack)));
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(onBack);
 	}
 
 	/**
@@ -67,16 +65,6 @@ public class RestoreSaveWindow extends EditorWindow {
 			String error = GameSaves.restoreToSlot(save, folder, slot);
 			if (error != null) GLog.w(error);
 		}, this::reopen));
-	}
-
-	private void back() {
-		hide();
-		if (onBack != null) onBack.run();
-	}
-
-	@Override
-	public void onBackPressed() {
-		back();
 	}
 
 	@Override

@@ -64,24 +64,10 @@ final class MenuPreview {
 		}
 
 		if (!withTags) return true;
-		List<TagPlacement> placements = new ArrayList<>();
-		placements.add(UndoTags.PLACEMENT);
-		placements.add(ForceAttack.PLACEMENT);
-		for (int id : CustomItemTags.ids()) placements.add(CustomItemTags.placement(id));
-		for (int id : QuickTags.ids()) placements.add(QuickTags.placement(id));
-		for (TagPlacement placement : placements) {
+		for (ScreenTag screenTag : ScreenTags.all()) {
 			IconTag tag = new IconTag(() -> { });
 			tag.camera = ui;
-			if (placement.isAuto()) {
-				int width = placement.tagWidth();
-				int height = placement.tagHeight();
-				tag.setRect(right - width, ScreenLayout.aboveToolbar() - height, width, height);
-				tag.flip(false);
-				tag.onTop(false);
-				tag.style(placement);
-			} else {
-				placement.place(tag);
-			}
+			screenTag.placement.place(tag, screenTag.rect());
 			add(scene, tag);
 		}
 		return true;

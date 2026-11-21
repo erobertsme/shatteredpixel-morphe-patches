@@ -71,13 +71,14 @@ public class QuantumChestWindow extends EditorWindow {
 		if (pages > 1) addPager(pages);
 
 		RenderedTextBlock count = PixelScene.renderTextBlock((storing ? "In the chest: " : "") + QuantumChest.items().size() + " / " + capacity + " items", 6);
-		count.hardlight(CharacterWindow.DIM_COLOR);
+		count.hardlight(EditorWindow.DIM_COLOR);
 		count.setPos((WIDTH - count.width()) / 2f, pos);
 		add(count);
 		pos = count.bottom() + 2 * GAP;
 
 		if (storing) {
-			addButton("Back", 0, WIDTH, () -> replaceWith(new QuantumChestWindow(false, 0)));
+			backTo(() -> show(new QuantumChestWindow(false, 0)));
+			addBackButton(0, WIDTH);
 		} else {
 			addButton("Store Items", 0, WIDTH, () -> replaceWith(new QuantumChestWindow(true, 0)));
 		}
@@ -87,7 +88,7 @@ public class QuantumChestWindow extends EditorWindow {
 
 	private void addHeader(String text, String info) {
 		RenderedTextBlock title = PixelScene.renderTextBlock(text, 9);
-		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.hardlight(EditorWindow.TITLE_COLOR);
 		title.setPos(0, pos + (InfoButton.SIZE - title.height()) / 2f);
 		add(title);
 		InfoButton.add(this, WIDTH, pos, info);

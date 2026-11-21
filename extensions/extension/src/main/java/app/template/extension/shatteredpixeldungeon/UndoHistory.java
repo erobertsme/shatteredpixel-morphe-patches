@@ -111,7 +111,7 @@ public final class UndoHistory {
 
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY_ON, on);
-		UndoTags.refreshTag();
+		UndoTags.TAG.refresh();
 		if (on) return;
 		clear();
 		deleteStored(gameId);
@@ -441,7 +441,7 @@ public final class UndoHistory {
 	 * Called at the end of GameScene.gameOver. Adds an Undo button below the game's own buttons.
 	 */
 	public static void afterGameOver() {
-		UndoTags.refreshTag();
+		UndoTags.TAG.refresh();
 		if (!canUndoDeath()) return;
 		try {
 			UndoTags.addDeathButton();

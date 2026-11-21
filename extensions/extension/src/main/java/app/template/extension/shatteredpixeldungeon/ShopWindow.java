@@ -93,7 +93,7 @@ public class ShopWindow extends EditorWindow {
 		float top = pos;
 		addSection("Buy Back");
 		RenderedTextBlock counter = PixelScene.renderTextBlock(count + "/" + limit + " items sold", 6);
-		counter.hardlight(count >= limit ? SHORT_COLOR : CharacterWindow.DIM_COLOR);
+		counter.hardlight(count >= limit ? SHORT_COLOR : EditorWindow.DIM_COLOR);
 		counter.setPos(WIDTH - counter.width(), top + 2 * GAP + 1);
 		PixelScene.align(counter);
 		add(counter);

@@ -9,11 +9,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
-import com.watabou.noosa.Visual;
-import com.watabou.noosa.ui.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,58 +59,31 @@ final class InfoWindow extends Window {
 		float top = 0;
 		if (content.heading != null) {
 			RenderedTextBlock heading = PixelScene.renderTextBlock(content.heading, 9);
-			heading.hardlight(CharacterWindow.TITLE_COLOR);
+			heading.hardlight(EditorWindow.TITLE_COLOR);
 			heading.maxWidth(WIDTH);
 			heading.setPos(0, 0);
 			add(heading);
 			top = heading.bottom() + 2 * GAP;
 		}
 
-		Component body = new Component();
-		float y = 0;
+		int firstPart = ScrollArea.partCount(this);
+		float y = top;
 		for (int i = 0; i < content.paragraphs.size(); i++) {
 			Paragraph paragraph = content.paragraphs.get(i);
 			if (paragraph.section && i > 0) y += GAP;
-			y = addParagraph(body, paragraph, y) + GAP;
+			y = addParagraph(this, paragraph, y) + GAP;
 		}
-		float bodyHeight = Math.max(0, y - GAP);
-		body.setSize(WIDTH, bodyHeight);
-
+		float bodyHeight = Math.max(0, y - GAP - top);
 		float maxBody = PixelScene.uiCamera.height * MAX_HEIGHT_SHARE - top;
-		if (bodyHeight <= maxBody) {
-			for (Gizmo part : bodyParts(body)) {
-				body.remove(part);
-				if (part instanceof Component) {
-					Component component = (Component) part;
-					component.setPos(component.left(), component.top() + top);
-				} else if (part instanceof Visual) {
-					((Visual) part).y += top;
-				}
-				add(part);
-			}
-			resize(WIDTH, (int) Math.ceil(top + bodyHeight));
-			return;
-		}
-		ScrollPane pane = new ScrollPane(body);
-		add(pane);
-		resize(WIDTH, (int) Math.ceil(top + maxBody));
-		pane.setRect(0, top, WIDTH, maxBody);
-		ScrollHints.add(this, pane);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static List<Gizmo> bodyParts(Component body) {
-		try {
-			return new ArrayList<>(Reflect.members(body));
-		} catch (Throwable e) {
-			return new ArrayList<>();
-		}
+		ScrollPane pane = ScrollArea.wrapIfTall(this, firstPart, top, WIDTH, bodyHeight, maxBody);
+		resize(WIDTH, (int) Math.ceil(top + (pane == null ? bodyHeight : maxBody)));
+		ScrollArea.finish(this, pane);
 	}
 
 	private static float addParagraph(Group group, Paragraph paragraph, float y) {
 		if (paragraph.section) {
 			RenderedTextBlock heading = PixelScene.renderTextBlock(paragraph.text, SECTION_SIZE);
-			heading.hardlight(CharacterWindow.TITLE_COLOR);
+			heading.hardlight(EditorWindow.TITLE_COLOR);
 			heading.maxWidth(WIDTH);
 			heading.setPos(0, y);
 			group.add(heading);

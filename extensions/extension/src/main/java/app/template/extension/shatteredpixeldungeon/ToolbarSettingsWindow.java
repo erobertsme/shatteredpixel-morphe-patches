@@ -13,16 +13,10 @@ public class ToolbarSettingsWindow extends EditorWindow {
 		addTitle("Toolbar", INFO);
 		addCheckBox("Extra toolbar item slots", QuickslotRow.isOn(), () -> QuickslotRow.setOn(!QuickslotRow.isOn()));
 		addCheckBox("Attack Tile button", ForceAttack.isOn(), () -> ForceAttack.setOn(!ForceAttack.isOn()));
-		addButton("Attack Tile Tag Style", 0, WIDTH, () -> replaceWith(new TagSettingsWindow(ForceAttack.PLACEMENT, "Attack Tile Tag", () -> show(new ToolbarSettingsWindow())))).enable(ForceAttack.isOn());
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Attack Tile Tag Style", null, () -> replaceWith(new TagSettingsWindow(ForceAttack.PLACEMENT, "Attack Tile Tag", () -> show(new ToolbarSettingsWindow())))).enable(ForceAttack.isOn());
 		addCheckBox("Enchantments affect the tile", QolSettings.forceAttackEnchants(), () -> QolSettings.forceAttackEnchants(!QolSettings.forceAttackEnchants()), ForceAttack.isOn());
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

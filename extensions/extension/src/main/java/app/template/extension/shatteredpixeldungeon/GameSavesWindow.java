@@ -40,16 +40,7 @@ public class GameSavesWindow extends EditorWindow {
 		addButton("Save Now (" + counted + "/" + GameSaves.MAX_SAVES + ")", 0, WIDTH, this::saveNow);
 		pos += ROW_HEIGHT + 2 * GAP;
 
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			if (fromGameMenu) {
-				CloverlordMenu.showGameMenu();
-			} else {
-				CloverlordMenu.show();
-			}
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(fromGameMenu ? CloverlordMenu::showGameMenu : CloverlordMenu::show);
 	}
 
 	private void saveNow() {

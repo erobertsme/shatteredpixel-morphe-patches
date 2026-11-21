@@ -19,20 +19,16 @@ final class NumberPrompt {
 	private static final int BUTTON_HEIGHT = 16;
 	private static final int GAP = 2;
 
-	interface Setter {
-		void set(int value);
-	}
-
 	private NumberPrompt() {
 	}
 
-	static void show(String label, int current, int min, int max, Setter setter, Runnable after) {
+	static void show(String label, int current, int min, int max, IntAction setter, Runnable after) {
 		WndTextInput input = new WndTextInput(label, null, String.valueOf(current), 7, false, "Set", "Cancel") {
 			@Override
 			public void onSelect(boolean positive, String text) {
 				if (!positive) return;
 				try {
-					setter.set(clamp(Integer.parseInt(text.trim().replace("+", "").replace("%", "")), min, max));
+					setter.run(clamp(Integer.parseInt(text.trim().replace("+", "").replace("%", "")), min, max));
 				} catch (NumberFormatException ignored) {
 					return;
 				}
@@ -50,7 +46,7 @@ final class NumberPrompt {
 		AndroidUi.startNumbers(min < 0);
 	}
 
-	private static void addLimitButtons(Window window, int min, int max, Setter setter, Runnable after) {
+	private static void addLimitButtons(Window window, int min, int max, IntAction setter, Runnable after) {
 		try {
 			int width = Reflect.width(window);
 			int height = Reflect.height(window);
@@ -60,7 +56,7 @@ final class NumberPrompt {
 				@Override
 				public void onClick() {
 					window.hide();
-					setter.set(min);
+					setter.run(min);
 					after.run();
 				}
 			};
@@ -71,7 +67,7 @@ final class NumberPrompt {
 				@Override
 				public void onClick() {
 					window.hide();
-					setter.set(max);
+					setter.run(max);
 					after.run();
 				}
 			};

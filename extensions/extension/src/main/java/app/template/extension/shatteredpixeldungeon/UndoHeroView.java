@@ -100,7 +100,7 @@ final class UndoHeroView {
 		float earned = barWidth * Math.min(1f, hero.exp / (float) needed);
 		if (earned > 0) out.add(block(barLeft, xpTop, earned, XP_HEIGHT, XP_FILL));
 		RenderedTextBlock xp = PixelScene.renderTextBlock("XP " + hero.exp + "/" + needed, 6);
-		xp.hardlight(CharacterWindow.DIM_COLOR);
+		xp.hardlight(EditorWindow.DIM_COLOR);
 		xp.setPos(barLeft, xpTop + XP_HEIGHT + 1);
 		PixelScene.align(xp);
 		out.add(xp);
@@ -159,7 +159,7 @@ final class UndoHeroView {
 	static void slots(List<Gizmo> out, List<Item> items, float x, float y, float width, float height) {
 		if (items.isEmpty()) {
 			RenderedTextBlock none = PixelScene.renderTextBlock("Nothing carried", 6);
-			none.hardlight(CharacterWindow.DIM_COLOR);
+			none.hardlight(EditorWindow.DIM_COLOR);
 			none.setPos(x, y);
 			out.add(none);
 			return;

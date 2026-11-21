@@ -6,8 +6,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 
 /**
  * One item from a pile, with a button to pick up that item rather than the one on top.
@@ -23,22 +21,11 @@ public class PileItemWindow extends EditorWindow {
 		super();
 		this.cell = cell;
 		this.item = item;
-		addTitle(InventoryEditor.capitalize(item.title()));
-
-		String info;
-		try {
-			info = item.info();
-		} catch (Throwable e) {
-			info = "";
-		}
-		RenderedTextBlock text = PixelScene.renderTextBlock(info, 6);
-		text.maxWidth(WIDTH);
-		text.setPos(0, pos);
-		add(text);
-		pos = text.bottom() + 2 * GAP;
+		addItemDetails(item);
 
 		float half = (WIDTH - GAP) / 2f;
-		addButton("Back", 0, half, () -> replaceWith(new TileContentsWindow(cell)));
+		backTo(() -> show(new TileContentsWindow(cell)));
+		addBackButton(0, half);
 		addButton(Dungeon.hero != null && Dungeon.hero.pos == cell ? "Pick up" : "Go pick up", half + GAP, half, this::pickUp).enable(heap() != null);
 		pos += ROW_HEIGHT;
 		if (EditorSwitches.floor()) {

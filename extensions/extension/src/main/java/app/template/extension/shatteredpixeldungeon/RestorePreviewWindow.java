@@ -19,7 +19,8 @@ public class RestorePreviewWindow extends PreviewWindow {
 
 	@Override
 	protected void addActions() {
-		addButtonPair("Restore", this::restore, "Back", this::back);
+		backTo(onBack);
+		addButtonPair("Restore", this::restore, "Back", this::goBack);
 		pos -= GAP;
 	}
 
@@ -28,16 +29,6 @@ public class RestorePreviewWindow extends PreviewWindow {
 			hide();
 			onRestore.run();
 		});
-	}
-
-	private void back() {
-		hide();
-		onBack.run();
-	}
-
-	@Override
-	public void onBackPressed() {
-		back();
 	}
 
 	@Override

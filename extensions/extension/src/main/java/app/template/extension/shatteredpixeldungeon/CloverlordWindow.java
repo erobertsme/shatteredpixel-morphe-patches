@@ -1,18 +1,11 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.watabou.noosa.ui.Component;
-import com.watabou.noosa.Visual;
-import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.audio.Sample;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -22,14 +15,9 @@ import com.watabou.noosa.Image;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CloverlordWindow extends Window {
+public class CloverlordWindow extends EditorWindow {
 
-	private static final int WIDTH = 128;
-	private static final int BTN_HEIGHT = 18;
-	private static final String CLICK_SOUND = "sounds/click.mp3";
 	private static final float MAX_HEIGHT_SHARE = 0.55f;
-	private static final int GAP = 2;
-	private static final int TITLE_COLOR = 0xFFFF44;
 	private static final int UPGRADE_ICON = 50;
 	private static final String INFO = "Extras\n\n"
 		+ "Options added by Cloverlord Patches. Tabs and sections only appear when their patch is included. Settings changed during a game stay with that game; the main menu settings are the defaults for new games.\n\n"
@@ -43,8 +31,6 @@ public class CloverlordWindow extends Window {
 		+ "## QoL: alchemy & plants\n_Energize more items:_ energize items the game normally won't, like the Arcane Stylus for 5 energy.\n_Reroll Catalyst:_ a Reroll 5 button for trinket choices, for 5 energy.\n_Mageroyal cures everything:_ stepping on one removes every harmful status, for any creature.\n\n"
 		+ "## Elsewhere\n_Inventory editor_ (Inventory in the in-game menu): unlimited inventory space and backpack tabs.\n_Floor editor_ (Floor in the in-game menu): Edit Floor mode, and an Edit button when you examine a tile, trap or item. Examining an item also lets you move it or its pile.\n_Supporter options:_ keep your supporter rewards and hide the Support button.";
 
-	private float pos;
-
 	private static final int TAB_GENERAL = 0;
 	private static final int TAB_QOL = 1;
 	private static final int TAB_UNLOCKS = 2;
@@ -52,7 +38,6 @@ public class CloverlordWindow extends Window {
 	private static final String[] TAB_NAMES = { "General", "QoL", "Unlocks", "Editors" };
 
 	private static int page;
-	private ScrollPane scrollPane;
 
 	public CloverlordWindow() {
 		super();
@@ -65,105 +50,34 @@ public class CloverlordWindow extends Window {
 		pos = title.bottom() + GAP;
 
 		RenderedTextBlock version = PixelScene.renderTextBlock("Cloverlord Patches " + CloverlordMenu.patchesVersion(), 6);
-		version.hardlight(0x999999);
+		version.hardlight(DIM_COLOR);
 		version.setPos((WIDTH - version.width()) / 2f, pos);
 		add(version);
 		pos = version.bottom() + 2 * GAP;
 
 		List<Integer> tabs = availableTabs();
 		if (!tabs.contains(page)) page = TAB_GENERAL;
-		if (tabs.size() > 1) addTabs(tabs);
+		if (tabs.size() > 1) addTabBar(tabs);
 
 		float pageTop = pos;
-		int firstMember = memberCount();
+		int firstPart = ScrollArea.partCount(this);
 		if (page == TAB_EDITORS) buildEditors();
 		if (page == TAB_QOL) buildQualityOfLife();
 		if (page == TAB_UNLOCKS) buildUnlocks();
 		if (page == TAB_GENERAL) buildGeneral();
-		scrollIfTall(pageTop, firstMember);
-		pos += 2 * GAP;
-		addButton("Back", (Image) null, this::back);
-		resize(WIDTH, (int) (pos - GAP));
-		if (scrollPane != null) {
-			scrollPane.setRect(scrollPane.left(), scrollPane.top(), scrollPane.width(), scrollPane.height());
-			ScrollHints.add(this, scrollPane);
-		}
+		float viewHeight = PixelScene.uiCamera.height * MAX_HEIGHT_SHARE - pageTop - ROW_HEIGHT - 2 * GAP;
+		ScrollPane pane = viewHeight < 3 * ROW_HEIGHT ? null : ScrollArea.wrapIfTall(this, firstPart, pageTop, WIDTH, pos - pageTop, viewHeight);
+		if (pane != null) pos = pageTop + viewHeight;
+		pos += GAP;
+		finishWithBack(() -> {
+			if (Game.scene() instanceof GameScene) CloverlordMenu.showGameMenu();
+		});
+		ScrollArea.finish(this, pane);
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<Gizmo> members() {
-		try {
-			return Reflect.members(this);
-		} catch (Throwable e) {
-			return null;
-		}
-	}
-
-	private int memberCount() {
-		List<Gizmo> members = members();
-		return members == null ? 0 : members.size();
-	}
-
-	/**
-	 * Puts the page in a scrolling area when the window would be taller than most of the screen.
-	 */
-	private void scrollIfTall(float pageTop, int firstMember) {
-		float maxHeight = PixelScene.uiCamera.height * MAX_HEIGHT_SHARE;
-		float pageHeight = pos - pageTop;
-		float viewHeight = maxHeight - pageTop - BTN_HEIGHT - 2 * GAP;
-		List<Gizmo> members = members();
-		if (members == null || pageHeight <= viewHeight || viewHeight < 3 * BTN_HEIGHT) return;
-		try {
-			List<Gizmo> page = new ArrayList<>(members.subList(firstMember, members.size()));
-			ScrollPane pane = new ScrollPane(new Component()) {
-				@Override
-				public void onClick(float x, float y) {
-					tapInside(content(), x, y);
-				}
-			};
-			Component content = pane.content();
-			for (Gizmo gizmo : page) {
-				remove(gizmo);
-				if (gizmo instanceof Component) {
-					Component component = (Component) gizmo;
-					component.setPos(component.left(), component.top() - pageTop);
-				} else if (gizmo instanceof Visual) {
-					((Visual) gizmo).y -= pageTop;
-				}
-				content.add(gizmo);
-			}
-			content.setSize(WIDTH, pageHeight);
-			add(pane);
-			pane.setRect(0, pageTop, WIDTH, viewHeight);
-			scrollPane = pane;
-			pos = pageTop + viewHeight;
-		} catch (Throwable e) {
-			android.util.Log.e("CloverlordWindow", "Could not make the page scroll", e);
-		}
-	}
-
-	/**
-	 * The scroll pane takes every tap itself, so a tap is passed on to the button under it.
-	 */
-	@SuppressWarnings("unchecked")
-	private static void tapInside(Component content, float x, float y) {
-		try {
-			for (Gizmo gizmo : new ArrayList<>(Reflect.members(content))) {
-				if (!(gizmo instanceof Button) || !gizmo.visible || !gizmo.active) continue;
-				Button button = (Button) gizmo;
-				if (x < button.left() || x >= button.right() || y < button.top() || y >= button.bottom()) continue;
-				Sample.INSTANCE.play(CLICK_SOUND);
-				button.onClick();
-				return;
-			}
-		} catch (Throwable e) {
-			android.util.Log.e("CloverlordWindow", "Could not pass on the tap", e);
-		}
-	}
-
-	private void back() {
-		hide();
-		if (Game.scene() instanceof GameScene) CloverlordMenu.showGameMenu();
+	@Override
+	protected void reopen() {
+		CloverlordMenu.show();
 	}
 
 	private static List<Integer> availableTabs() {
@@ -177,7 +91,7 @@ public class CloverlordWindow extends Window {
 
 	private void buildGeneral() {
 		if (EditorSwitches.hunger()) {
-			addLabel("Gameplay");
+			addSection("Gameplay");
 			addButton("Hunger", new ItemSprite(new Food()), () -> {
 				hide();
 				HungerWindow.open(CloverlordMenu::show);
@@ -185,7 +99,7 @@ public class CloverlordWindow extends Window {
 		}
 
 		if (SaveBackupActivity.isAvailable() && GameSettings.inGame()) {
-			addLabel("Saves");
+			addSection("Saves");
 			addButton("Game Saves", Icons.SCROLL_COLOR, () -> {
 				hide();
 				EditorWindow.show(new GameSavesWindow(0));
@@ -195,10 +109,10 @@ public class CloverlordWindow extends Window {
 				EditorWindow.show(new UndoSettingsWindow());
 			});
 		} else if (SaveBackupActivity.isAvailable()) {
-			addLabel("Saves");
+			addSection("Saves");
 			addButton("Export saves", exportIcon(), () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_EXPORT));
 			addButton("Import saves", Icons.CHANGES, () -> SaveBackupActivity.launch(SaveBackupActivity.ACTION_IMPORT));
-			addOption("Auto save on new floors", GameSaves.autoSaves(), GameSaves::autoSaves);
+			addSwitch("Auto save on new floors", GameSaves.autoSaves(), GameSaves::autoSaves);
 			addButton("Undo / Redo", StatIcons.arrow(true), () -> {
 				hide();
 				EditorWindow.show(new UndoSettingsWindow());
@@ -216,18 +130,18 @@ public class CloverlordWindow extends Window {
 		}
 
 		if (Fun.isAvailable()) {
-			addLabel("Fun");
+			addSection("Fun");
 			addButton("Fun", HeroSkin.icon(HeroSkin.current()), () -> {
 				hide();
 				EditorWindow.show(new FunWindow());
 			});
 		}
 
-		if (!EditorSwitches.hunger() && !SaveBackupActivity.isAvailable() && !Fun.isAvailable()) addLabel("Nothing here yet. Try the other tabs.");
+		if (!EditorSwitches.hunger() && !SaveBackupActivity.isAvailable() && !Fun.isAvailable()) addSection("Nothing here yet. Try the other tabs.");
 	}
 
 	private void buildQualityOfLife() {
-		addLabel("Screen & tags");
+		addSection("Screen & tags");
 		addButton("Display", Icons.DISPLAY, () -> open(new DisplayWindow()));
 		addButton("Tags editor", Icons.TARGET, () -> {
 			hide();
@@ -237,31 +151,31 @@ public class CloverlordWindow extends Window {
 		addButton("Quick Tags", Icons.TALENT, () -> open(new QuickTagsWindow()));
 		addButton("Toolbar", Icons.PREFS, () -> open(new ToolbarSettingsWindow()));
 
-		addLabel("Inventory & shops");
+		addSection("Inventory & shops");
 		addButton("Backpack", Icons.POTION_BANDOLIER, () -> open(new BackpackSettingsWindow()));
 		addButton("Shopkeeper", Icons.GOLD, () -> open(new ShopkeeperWindow()));
-		addOption("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
+		addSwitch("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
 		addChestPageButtons();
 
-		addLabel("Rules");
+		addSection("Rules");
 		addButton("Confirm actions", Icons.WARNING, () -> open(new ConfirmWindow()));
 		addButton("Experience", StatIcons.item(StatIcons.POTION_EXP), () -> open(new RewardRulesWindow(KillRewards.Kind.EXPERIENCE)));
 		addButton("Loot", StatIcons.item(StatIcons.RING_WEALTH), () -> open(new RewardRulesWindow(KillRewards.Kind.LOOT)));
 
-		addLabel("Movement");
-		addOption("Show interrupted path", QolSettings.resumePath(), QolSettings::resumePath);
-		addOption("Tap unexplored areas", UnexploredTaps.isOn(), UnexploredTaps::setOn);
-		addOption("Walk through allies", AllyPathing.isOn(), AllyPathing::setOn);
+		addSection("Movement");
+		addSwitch("Show interrupted path", QolSettings.resumePath(), QolSettings::resumePath);
+		addSwitch("Tap unexplored areas", UnexploredTaps.isOn(), UnexploredTaps::setOn);
+		addSwitch("Walk through allies", AllyPathing.isOn(), AllyPathing::setOn);
 
-		addLabel("Information");
-		addOption("Enhanced Bestiary", QolSettings.enhancedBestiary(), QolSettings::enhancedBestiary);
-		addOption("List everything on a tile", TileContents.isOn(), TileContents::setOn);
-		addOption("Hero stats button", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
+		addSection("Information");
+		addSwitch("Enhanced Bestiary", QolSettings.enhancedBestiary(), QolSettings::enhancedBestiary);
+		addSwitch("List everything on a tile", TileContents.isOn(), TileContents::setOn);
+		addSwitch("Hero stats button", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
 
-		addLabel("Alchemy & plants");
-		addOption("Energize more items", EnergizeMore.isOn(), EnergizeMore::setOn);
-		addOption("Reroll Catalyst", RerollCatalyst.isOn(), RerollCatalyst::setOn);
-		addOption("Mageroyal cures everything", MageroyalCure.isOn(), MageroyalCure::setOn);
+		addSection("Alchemy & plants");
+		addSwitch("Energize more items", EnergizeMore.isOn(), EnergizeMore::setOn);
+		addSwitch("Reroll Catalyst", RerollCatalyst.isOn(), RerollCatalyst::setOn);
+		addSwitch("Mageroyal cures everything", MageroyalCure.isOn(), MageroyalCure::setOn);
 	}
 
 	private void open(Window window) {
@@ -272,7 +186,7 @@ public class CloverlordWindow extends Window {
 
 	private void buildUnlocks() {
 		if (UnlockAll.isAvailable()) {
-			addLabel("Unlocks");
+			addSection("Unlocks");
 			addToggle("All heroes", UnlockAll.HEROES);
 			addToggle("Guide books", UnlockAll.GUIDES);
 			addToggle("Intros and lore", UnlockAll.LORE);
@@ -281,55 +195,33 @@ public class CloverlordWindow extends Window {
 		}
 
 		if (SupporterRewards.isAvailable()) {
-			addLabel("Supporter options");
+			addSection("Supporter options");
 			addToggle("Hide Support button", CloverlordMenu.HIDE_SUPPORT);
 			addTierButtons();
 		}
 	}
 
-	private void addTabs(List<Integer> tabs) {
-		float width = (WIDTH - (tabs.size() - 1) * GAP) / (float) tabs.size();
-		for (int i = 0; i < tabs.size(); i++) {
-			int tab = tabs.get(i);
-			RedButton button = new RedButton(TAB_NAMES[tab], tabs.size() > 3 ? 6 : 7) {
-				@Override
-				public void onClick() {
-					if (tab == page) return;
-					page = tab;
-					hide();
-					CloverlordMenu.show();
-				}
-			};
-			if (tab == page) button.textColor(TITLE_COLOR);
-			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
-			add(button);
-		}
-		pos += BTN_HEIGHT + 2 * GAP;
+	private void addTabBar(List<Integer> tabs) {
+		String[] labels = new String[tabs.size()];
+		for (int i = 0; i < labels.length; i++) labels[i] = TAB_NAMES[tabs.get(i)];
+		addButtonRow(labels, tabs.indexOf(page), index -> {
+			if (tabs.get(index) == page) return;
+			page = tabs.get(index);
+			refresh();
+		});
+		pos += GAP;
 	}
 
 	private void buildEditors() {
-		addLabel("Editors");
-		if (CharacterWindow.isAvailable()) addSwitch("Character editor", EditorSwitches.CHARACTER);
-		if (InventoryWindow.isAvailable()) addSwitch("Inventory editor", EditorSwitches.INVENTORY);
-		if (EnemyWindow.isAvailable()) addSwitch("Enemy and NPC editor", EditorSwitches.ENEMY);
-		if (FloorWindow.isAvailable()) addSwitch("Floor editor", EditorSwitches.FLOOR);
-		if (HungerEditor.isAvailable()) addSwitch("Hunger editor", EditorSwitches.HUNGER);
-		if (Teleport.isAvailable()) addSwitch("Teleport", EditorSwitches.TELEPORT);
+		addSection("Editors");
+		if (CharacterWindow.isAvailable()) addEditorSwitch("Character editor", EditorSwitches.CHARACTER);
+		if (InventoryWindow.isAvailable()) addEditorSwitch("Inventory editor", EditorSwitches.INVENTORY);
+		if (EnemyWindow.isAvailable()) addEditorSwitch("Enemy and NPC editor", EditorSwitches.ENEMY);
+		if (FloorWindow.isAvailable()) addEditorSwitch("Floor editor", EditorSwitches.FLOOR);
+		if (HungerEditor.isAvailable()) addEditorSwitch("Hunger editor", EditorSwitches.HUNGER);
+		if (Teleport.isAvailable()) addEditorSwitch("Teleport", EditorSwitches.TELEPORT);
 	}
 
-	private void addSwitch(String text, String key) {
-		CheckBox box = new ToggleBox(text) {
-			@Override
-			public void onClick() {
-				super.onClick();
-				EditorSwitches.setOn(key, checked());
-			}
-		};
-		box.checked(EditorSwitches.isOn(key));
-		box.setRect(0, pos, WIDTH, BTN_HEIGHT);
-		add(box);
-		pos = box.bottom() + GAP;
-	}
 
 	private static Image exportIcon() {
 		BuffIcon icon = new BuffIcon(UPGRADE_ICON, true);
@@ -338,100 +230,34 @@ public class CloverlordWindow extends Window {
 	}
 
 	private void addTierButtons() {
-		String[] names = SupporterRewards.TIER_NAMES;
-		float width = (WIDTH - (names.length - 1) * GAP) / (float) names.length;
-		int selected = SupporterRewards.tier();
-		for (int i = 0; i < names.length; i++) {
-			final int tier = i;
-			RedButton button = new RedButton(names[i], 6) {
-				@Override
-				public void onClick() {
-					SupporterRewards.tier(tier);
-					hide();
-					CloverlordMenu.show();
-				}
-			};
-			if (i == selected) button.textColor(TITLE_COLOR);
-			button.setRect(i * (width + GAP), pos, width, BTN_HEIGHT);
-			add(button);
-		}
-		pos += BTN_HEIGHT + GAP;
+		addButtonRow(SupporterRewards.TIER_NAMES, SupporterRewards.tier(), tier -> {
+			SupporterRewards.tier(tier);
+			refresh();
+		});
 	}
 
 	private void addChestPageButtons() {
-		int selected = QuantumChest.pages();
-		float width = (WIDTH - (QuantumChest.MAX_PAGES - 1) * GAP) / (float) QuantumChest.MAX_PAGES;
-		for (int i = 1; i <= QuantumChest.MAX_PAGES; i++) {
-			int pages = i;
-			RedButton button = new RedButton(pages + (pages == 1 ? " Page" : " Pages"), 6) {
-				@Override
-				public void onClick() {
-					QuantumChest.pages(pages);
-					hide();
-					CloverlordMenu.show();
-				}
-			};
-			if (i == selected) button.textColor(TITLE_COLOR);
-			button.setRect((i - 1) * (width + GAP), pos, width, BTN_HEIGHT);
-			add(button);
-		}
-		pos += BTN_HEIGHT + GAP;
+		String[] labels = new String[QuantumChest.MAX_PAGES];
+		for (int i = 0; i < labels.length; i++) labels[i] = (i + 1) + (i == 0 ? " Page" : " Pages");
+		addButtonRow(labels, QuantumChest.pages() - 1, index -> {
+			QuantumChest.pages(index + 1);
+			refresh();
+		});
 	}
 
-	private void addLabel(String text) {
-		RenderedTextBlock label = PixelScene.renderTextBlock(text, 7);
-		label.hardlight(TITLE_COLOR);
-		label.setPos(0, pos + GAP);
-		add(label);
-		pos = label.bottom() + GAP;
+	private void addEditorSwitch(String text, String key) {
+		addSwitch(text, EditorSwitches.isOn(key), on -> EditorSwitches.setOn(key, on));
 	}
 
 	private void addToggle(String text, String key) {
-		CheckBox box = new ToggleBox(text) {
-			@Override
-			public void onClick() {
-				super.onClick();
-				CloverlordSettings.set(key, checked());
-			}
-		};
-		box.checked(CloverlordSettings.get(key));
-		box.setRect(0, pos, WIDTH, BTN_HEIGHT);
-		add(box);
-		pos = box.bottom() + GAP;
-	}
-
-	interface OptionSetter {
-		void set(boolean on);
-	}
-
-	private void addOption(String text, boolean on, OptionSetter setter) {
-		CheckBox box = new ToggleBox(text) {
-			@Override
-			public void onClick() {
-				super.onClick();
-				setter.set(checked());
-			}
-		};
-		box.checked(on);
-		box.setRect(0, pos, WIDTH, BTN_HEIGHT);
-		add(box);
-		pos = box.bottom() + GAP;
+		addSwitch(text, CloverlordSettings.get(key), on -> CloverlordSettings.set(key, on));
 	}
 
 	private void addButton(String text, Icons icon, Runnable action) {
-		addButton(text, Icons.get(icon), action);
+		addRowButton(text, Icons.get(icon), action);
 	}
 
 	private void addButton(String text, Image icon, Runnable action) {
-		RedButton button = new RedButton(TitleCase.of(text)) {
-			@Override
-			public void onClick() {
-				action.run();
-			}
-		};
-		if (icon != null) button.icon(icon);
-		button.setRect(0, pos, WIDTH, BTN_HEIGHT);
-		add(button);
-		pos = button.bottom() + GAP;
+		addRowButton(text, icon, action);
 	}
 }

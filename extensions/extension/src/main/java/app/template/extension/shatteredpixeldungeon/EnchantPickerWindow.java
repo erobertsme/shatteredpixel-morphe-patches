@@ -35,14 +35,12 @@ public class EnchantPickerWindow extends EditorWindow {
 			addListRow(InventoryEditor.shortEnchantmentName(option), null, selected, true, () -> apply(option), () -> showInfo(option));
 		}, newPage -> replaceWith(new EnchantPickerWindow(item, armor, curses, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private void apply(Object option) {
 		InventoryEditor.applyEnchantment(item, option);
-		back();
+		goBack();
 	}
 
 	private static void showInfo(Object option) {
@@ -53,7 +51,7 @@ public class EnchantPickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		replaceWith(new ItemEditWindow(item));
+		show(new ItemEditWindow(item));
 	}
 
 	@Override

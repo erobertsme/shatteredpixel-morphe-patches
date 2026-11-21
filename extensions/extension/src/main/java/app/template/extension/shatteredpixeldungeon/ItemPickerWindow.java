@@ -65,9 +65,7 @@ public class ItemPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	/**
@@ -110,7 +108,6 @@ public class ItemPickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		if (dropCell >= 0) {
 			int cell = dropCell;
 			dropCell = -1;

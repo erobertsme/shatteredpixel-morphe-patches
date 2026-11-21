@@ -31,7 +31,7 @@ public class RewardRulesWindow extends EditorWindow {
 				KillRewards.mode(kind, choice);
 				refresh();
 			});
-			if (i == mode) button.textColor(CharacterWindow.TITLE_COLOR);
+			if (i == mode) button.textColor(EditorWindow.TITLE_COLOR);
 			pos += ROW_HEIGHT + GAP;
 		}
 
@@ -52,12 +52,7 @@ public class RewardRulesWindow extends EditorWindow {
 		}
 
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

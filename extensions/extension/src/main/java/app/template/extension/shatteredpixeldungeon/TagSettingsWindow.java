@@ -35,10 +35,6 @@ public class TagSettingsWindow extends EditorWindow {
 	private static final int ICON_CELL = 18;
 	private static final int SELECTED_COLOR = 0xFFFFFF44;
 
-	interface ColorSetter {
-		void set(int rgb);
-	}
-
 	private static int tab;
 	private static int category;
 	private static float iconScroll;
@@ -101,12 +97,7 @@ public class TagSettingsWindow extends EditorWindow {
 			})).icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.CLOSE));
 			pos += ROW_HEIGHT + GAP;
 		}
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			back.run();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> back.run());
 		relayoutIcons();
 		MenuPreview.show();
 		GameTagGhosts.show();
@@ -134,14 +125,14 @@ public class TagSettingsWindow extends EditorWindow {
 
 			@Override
 			public void onPointerDown(PointerEvent event) {
-				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+				PointF point = ScreenLayout.toUi(event);
 				grab = placement.offsetAt(point.x, point.y) - placement.offset();
 				moved = false;
 			}
 
 			@Override
 			public void onDrag(PointerEvent event) {
-				PointF point = PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+				PointF point = ScreenLayout.toUi(event);
 				int offset = Math.round(placement.offsetAt(point.x, point.y) - grab);
 				placement.offset(offset);
 				float[] rect = placement.rect(0);
@@ -189,7 +180,7 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += height + 2 * GAP;
 	}
 
-	private void addColorChooser(int current, ColorSetter setter, Runnable reset, boolean original) {
+	private void addColorChooser(int current, IntAction setter, Runnable reset, boolean original) {
 		float width = (WIDTH - (PER_ROW - 1) * GAP) / (float) PER_ROW;
 		int count = SWATCHES.length + (original ? 1 : 0);
 		for (int i = 0; i < count; i++) {
@@ -224,7 +215,7 @@ public class TagSettingsWindow extends EditorWindow {
 					if (swatch < 0 || (!original && swatch == placement.defaultColor())) {
 						reset.run();
 					} else {
-						setter.set(swatch);
+						setter.run(swatch);
 					}
 					refresh();
 				}
@@ -239,9 +230,9 @@ public class TagSettingsWindow extends EditorWindow {
 		int hue = Math.round(hsl[0]);
 		int saturation = Math.round(hsl[1] * 100);
 		int lightness = Math.round(hsl[2] * 100);
-		addStepper("Hue", String.valueOf(hue), hue, 10, 0, 359, value -> setter.set(Colors.fromHsl(((value % 360) + 360) % 360, saturation / 100f, lightness / 100f)), true, reset);
-		addStepper("Saturation", saturation + "%", saturation, 5, 0, 100, value -> setter.set(Colors.fromHsl(hue, clamp(value) / 100f, lightness / 100f)), true, reset);
-		addStepper("Lightness", lightness + "%", lightness, 5, 0, 100, value -> setter.set(Colors.fromHsl(hue, saturation / 100f, clamp(value) / 100f)), true, reset);
+		addStepper("Hue", String.valueOf(hue), hue, 10, 0, 359, value -> setter.run(Colors.fromHsl(((value % 360) + 360) % 360, saturation / 100f, lightness / 100f)), true, reset);
+		addStepper("Saturation", saturation + "%", saturation, 5, 0, 100, value -> setter.run(Colors.fromHsl(hue, clamp(value) / 100f, lightness / 100f)), true, reset);
+		addStepper("Lightness", lightness + "%", lightness, 5, 0, 100, value -> setter.run(Colors.fromHsl(hue, saturation / 100f, clamp(value) / 100f)), true, reset);
 	}
 
 	/**

@@ -99,7 +99,7 @@ public class ItemEditWindow extends EditorWindow {
 			for (Class<? extends Item> target : conversions) {
 				addButton("Turn into " + ItemAlchemy.name(target), 0, WIDTH, () -> {
 					ItemAlchemy.convert(hero, item, target);
-					back();
+					goBack();
 				});
 				pos += ROW_HEIGHT + GAP;
 			}
@@ -109,13 +109,14 @@ public class ItemEditWindow extends EditorWindow {
 		float third = (WIDTH - 2 * GAP) / 3f;
 		addButton("Duplicate", 0, third, () -> {
 			InventoryEditor.duplicate(hero, item);
-			back();
+			goBack();
 		});
 		addButton("Delete", third + GAP, third, () -> {
 			InventoryEditor.delete(hero, item);
-			back();
+			goBack();
 		}).icon(Icons.get(Icons.CLOSE));
-		addButton("Back", 2 * (third + GAP), third, this::back);
+		backTo(this::back);
+		addBackButton(2 * (third + GAP), third);
 		pos += ROW_HEIGHT + GAP;
 
 		finish();
@@ -124,8 +125,7 @@ public class ItemEditWindow extends EditorWindow {
 	private void addPickerRow(String label, Object current, boolean armor) {
 		boolean curse = InventoryEditor.isCurse(current, armor);
 		String text = (curse ? "Curse" : label) + ": " + InventoryEditor.shortEnchantmentName(current);
-		addButton(text, 0, WIDTH, () -> replaceWith(new EnchantPickerWindow(item, armor, curse, 0)));
-		pos += ROW_HEIGHT + GAP;
+		addRowButton(text, null, () -> replaceWith(new EnchantPickerWindow(item, armor, curse, 0)));
 	}
 
 	private static <T> int indexOf(T[] values, T value) {
@@ -149,7 +149,6 @@ public class ItemEditWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		if (!customBack) {
 			BackpackEditor.open();
 			return;

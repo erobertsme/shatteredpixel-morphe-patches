@@ -23,29 +23,23 @@ public class CustomTagsWindow extends EditorWindow {
 	public CustomTagsWindow() {
 		super();
 		addTitle("Item Tags", INFO);
-		List<Integer> ids = CustomItemTags.ids();
+		List<Integer> ids = CustomItemTags.LIST.ids();
 		if (ids.isEmpty()) addHint("No item tags yet.");
 		for (int id : ids) {
-			addListRow(CustomItemTags.name(id), icon(id), false, true, () -> {
+			addListRow(CustomItemTags.LIST.name(id), icon(id), false, true, () -> {
 				hide();
 				openTag(id);
 			}, null);
 		}
 		pos += GAP;
 		boolean inGame = Dungeon.hero != null && Dungeon.hero.isAlive() && GameSettings.inGame();
-		addButton("Add Tag", 0, WIDTH, this::addTag).enable(inGame);
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Add Tag", null, this::addTag).enable(inGame);
 		if (!inGame) addHint("Open this during a game to add tags.");
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	private static Image icon(int id) {
-		String className = CustomItemTags.itemClass(id);
+		String className = CustomItemTags.LIST.target(id);
 		Item item = CustomItemTags.held(className);
 		if (item == null) item = CustomItemTags.sample(className);
 		try {
@@ -56,8 +50,8 @@ public class CustomTagsWindow extends EditorWindow {
 	}
 
 	static void openTag(int id) {
-		show(new TagSettingsWindow(CustomItemTags.placement(id), CustomItemTags.name(id) + " Tag",
-			() -> show(new CustomTagsWindow()), () -> CustomItemTags.delete(id)));
+		show(new TagSettingsWindow(CustomItemTags.LIST.placement(id), CustomItemTags.LIST.name(id) + " Tag",
+			() -> show(new CustomTagsWindow()), () -> CustomItemTags.LIST.delete(id)));
 	}
 
 	private void addTag() {

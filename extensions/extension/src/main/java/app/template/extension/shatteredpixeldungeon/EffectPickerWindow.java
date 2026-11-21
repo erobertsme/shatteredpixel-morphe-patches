@@ -35,7 +35,7 @@ public class EffectPickerWindow extends EditorWindow {
 			FloorEditor.Effect effect = effects.get(index);
 			addListRow(effect.name, null, false, true, () -> {
 				FloorEditor.addEffect(effect, cell, strength);
-				back();
+				goBack();
 			}, null, new Favorite() {
 				@Override
 				public boolean isFavorite() {
@@ -49,13 +49,10 @@ public class EffectPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new EffectPickerWindow(cell, kind, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private void back() {
-		hide();
 		TileWindow.open(cell);
 	}
 

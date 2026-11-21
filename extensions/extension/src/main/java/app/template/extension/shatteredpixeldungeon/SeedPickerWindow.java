@@ -31,13 +31,11 @@ public class SeedPickerWindow extends EditorWindow {
 			Item sample = sample(entry);
 			addListRow(entry.name, sample == null ? null : new ItemSprite(sample), false, true, () -> {
 				FloorEditor.plant(entry.type, cell);
-				back();
+				goBack();
 			}, sample == null ? null : () -> InventoryWindow.showInfo(sample));
 		}, newPage -> replaceWith(new SeedPickerWindow(cell, newPage)));
 
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private static Item sample(InventoryEditor.Entry entry) {
@@ -49,7 +47,6 @@ public class SeedPickerWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		TileWindow.open(cell);
 	}
 

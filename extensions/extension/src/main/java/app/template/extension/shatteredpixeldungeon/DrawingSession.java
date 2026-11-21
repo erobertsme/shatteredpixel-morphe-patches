@@ -179,16 +179,8 @@ final class DrawingSession {
 	}
 
 	private void paintAt(PointF screen) {
-		Level level = Dungeon.level;
-		if (level == null || screen == null) return;
-		PointF world = Camera.main.screenToCamera((int) screen.x, (int) screen.y);
-		int width = level.width();
-		int height = level.length() / width;
-		int x = (int) Math.floor(world.x / TILE_SIZE);
-		int y = (int) Math.floor(world.y / TILE_SIZE);
-		if (x < 0 || y < 0 || x >= width || y >= height) return;
-		int cell = x + y * width;
-		if (cell == lastCell) return;
+		int cell = Grid.cellAt(screen);
+		if (cell < 0 || cell == lastCell) return;
 		lastCell = cell;
 		paint(cell);
 	}

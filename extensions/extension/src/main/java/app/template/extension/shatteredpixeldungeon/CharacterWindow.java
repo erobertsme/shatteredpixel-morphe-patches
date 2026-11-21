@@ -17,7 +17,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
-import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
@@ -30,19 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class CharacterWindow extends Window {
+public class CharacterWindow extends EditorWindow {
 
-	static final int WIDTH = 128;
 	private static final int TALENT_ROW_HEIGHT = 18;
-	static final int ROW_HEIGHT = 16;
-	static final int GAP = 3;
-	static final int TITLE_COLOR = 0xFFFF44;
-	static final int DIM_COLOR = 0x999999;
-	static final int POSITIVE_COLOR = 0x7AD35C;
-	static final int NEGATIVE_COLOR = 0xE06A5A;
-	static final int INFO_SIZE = 16;
-	private static final int STEP_WIDTH = 15;
-	private static final int VALUE_WIDTH = 34;
 
 	public static final int TAB_STATS = 0;
 	public static final int TAB_TALENTS = 2;
@@ -75,14 +64,9 @@ public class CharacterWindow extends Window {
 			+ "## Hunger\nThe hunger buttons set how hungry you are. _Well Fed_ also gives the Well Fed effect, as if you had just eaten a meat pie.",
 	};
 
-	interface IntSetter {
-		void set(int value);
-	}
-
 	private final int tab;
 	private final int tier;
 	private final int page;
-	private float pos;
 
 	public CharacterWindow() {
 		this(TAB_STATS, 1);
@@ -99,7 +83,7 @@ public class CharacterWindow extends Window {
 		this.page = page;
 
 		Hero hero = Dungeon.hero;
-		addTabs();
+		addTabBar();
 		if (hero != null) {
 			if (tab == TAB_STATS) buildStats(hero);
 			if (tab == TAB_TALENTS) buildTalents(hero);
@@ -107,7 +91,7 @@ public class CharacterWindow extends Window {
 			if (tab == TAB_STATUS) buildStatus(hero);
 		}
 		addBackButton();
-		resize(WIDTH, (int) pos);
+		finish();
 	}
 
 	private void addBackButton() {
@@ -165,12 +149,12 @@ public class CharacterWindow extends Window {
 		open(tab, tier, newPage);
 	}
 
-	private void refresh() {
-		hide();
+	@Override
+	protected void reopen() {
 		open(tab, tier, page);
 	}
 
-	private void addTabs() {
+	private void addTabBar() {
 		float tabsWidth = WIDTH - InfoButton.SIZE - GAP;
 		float width = (tabsWidth - (TAB_NAMES.length - 1) * GAP) / (float) TAB_NAMES.length;
 		InfoButton.add(this, WIDTH, 0, TAB_INFO[tab]);
@@ -196,36 +180,34 @@ public class CharacterWindow extends Window {
 		add(title);
 		pos = title.bottom() + 2 * GAP;
 
-		icon(StatIcons.item(StatIcons.POTION_HEALING));
-		addStepper("Health", String.valueOf(hero.HP), hero.HP, 1, hero.HT, value -> hero.HP = clamp(value, 1, hero.HT));
-		icon(StatIcons.item(StatIcons.POTION_HEALING));
-		addStepper("Max health", String.valueOf(hero.HT), hero.HT, 1, 999, value -> {
+		stepperIcon(StatIcons.item(StatIcons.POTION_HEALING));
+		addStepper("Health", String.valueOf(hero.HP), hero.HP, 1, 1, hero.HT, value -> hero.HP = clamp(value, 1, hero.HT));
+		stepperIcon(StatIcons.item(StatIcons.POTION_HEALING));
+		addStepper("Max health", String.valueOf(hero.HT), hero.HT, 1, 1, 999, value -> {
 			int target = Math.max(1, value);
 			hero.HTBoost += target - hero.HT;
 			hero.updateHT(false);
 		});
-		icon(StatIcons.item(StatIcons.SCROLL_UPGRADE));
-		addStepper("Level", String.valueOf(hero.lvl), hero.lvl, 1, 30, value -> {
+		stepperIcon(StatIcons.item(StatIcons.SCROLL_UPGRADE));
+		addStepper("Level", String.valueOf(hero.lvl), hero.lvl, 1, 1, 30, value -> {
 			int previous = hero.lvl;
 			hero.lvl = clamp(value, 1, 30);
 			hero.exp = Math.min(hero.exp, hero.maxExp() - 1);
 			hero.updateHT(hero.lvl > previous);
 		});
-		icon(StatIcons.item(StatIcons.POTION_EXP));
-		addStepper("Experience", hero.exp + " / " + hero.maxExp(), hero.exp, 0, hero.maxExp() - 1, value -> hero.exp = clamp(value, 0, hero.maxExp() - 1));
-		icon(StatIcons.item(StatIcons.POTION_STRENGTH));
-		addStepper("Strength", String.valueOf(hero.STR), hero.STR, 1, 99, value -> hero.STR = clamp(value, 1, 99));
+		stepperIcon(StatIcons.item(StatIcons.POTION_EXP));
+		addStepper("Experience", hero.exp + " / " + hero.maxExp(), hero.exp, 1, 0, hero.maxExp() - 1, value -> hero.exp = clamp(value, 0, hero.maxExp() - 1));
+		stepperIcon(StatIcons.item(StatIcons.POTION_STRENGTH));
+		addStepper("Strength", String.valueOf(hero.STR), hero.STR, 1, 1, 99, value -> hero.STR = clamp(value, 1, 99));
 		int shield = hero.shielding();
-		icon(StatIcons.item(StatIcons.POTION_SHIELDING));
-		addStepper("Shield", String.valueOf(shield), shield, 0, 999, value -> StatusEditor.setShield(hero, clamp(value, 0, 999)));
+		stepperIcon(StatIcons.item(StatIcons.POTION_SHIELDING));
+		addStepper("Shield", String.valueOf(shield), shield, 1, 0, 999, value -> StatusEditor.setShield(hero, clamp(value, 0, 999)));
 
 		addSection("Current totals");
 		for (HeroStat stat : heroStats(hero)) {
-			icon(stat.icon);
-			addStat(stat.label, stat.value);
+			addIconRow(stat.icon, stat.label, stat.value);
 		}
-		icon(StatIcons.icon(Icons.COIN_SML));
-		addStat("Gold / Energy", Dungeon.gold + " / " + Dungeon.energy);
+		addIconRow(StatIcons.icon(Icons.COIN_SML), "Gold / Energy", Dungeon.gold + " / " + Dungeon.energy);
 	}
 
 	private void buildTalents(Hero hero) {
@@ -250,9 +232,9 @@ public class CharacterWindow extends Window {
 			return;
 		}
 
-		addStat("Unspent points", String.valueOf(hero.talentPointsAvailable(tier)));
+		addIconRow(null, "Unspent points", String.valueOf(hero.talentPointsAvailable(tier)));
 		int bonus = HeroExtras.bonusTalentPoints(tier);
-		addStepper("Bonus points", "+" + bonus, bonus, 0, 99, value -> HeroExtras.bonusTalentPoints(tier, value));
+		addStepper("Bonus points", "+" + bonus, bonus, 1, 0, 99, value -> HeroExtras.bonusTalentPoints(tier, value));
 		pos += GAP;
 
 		ArrayList<Talent> talents = new ArrayList<>(hero.talents.get(tier - 1).keySet());
@@ -291,33 +273,16 @@ public class CharacterWindow extends Window {
 		addChoiceRow(labels, selected, index -> TalentEditor.setArmorAbility(hero, index == 0 ? null : abilities[index - 1]));
 	}
 
-	interface ChoiceSetter {
-		void choose(int index);
-	}
-
-	private void addChoiceRow(String[] labels, int selected, ChoiceSetter setter) {
+	private void addChoiceRow(String[] labels, int selected, IntAction setter) {
 		addChoiceRow(labels, selected, labels.length <= 3 ? labels.length : 2, setter);
 	}
 
-	private void addChoiceRow(String[] labels, int selected, int perRow, ChoiceSetter setter) {
-		float width = (WIDTH - (perRow - 1) * GAP) / (float) perRow;
-		for (int i = 0; i < labels.length; i++) {
-			int index = i;
-			int column = i % perRow;
-			if (i > 0 && column == 0) pos += ROW_HEIGHT + GAP;
-			RedButton button = new RedButton(labels[i], 6) {
-				@Override
-				public void onClick() {
-					if (index == selected) return;
-					setter.choose(index);
-					refresh();
-				}
-			};
-			if (i == selected) button.textColor(TITLE_COLOR);
-			button.setRect(column * (width + GAP), pos, width, ROW_HEIGHT);
-			add(button);
-		}
-		pos += ROW_HEIGHT + GAP;
+	private void addChoiceRow(String[] labels, int selected, int perRow, IntAction setter) {
+		addButtonRow(labels, selected, perRow, index -> {
+			if (index == selected) return;
+			setter.run(index);
+			refresh();
+		});
 	}
 
 	private void addTalentRow(Hero hero, Talent talent) {
@@ -413,10 +378,10 @@ public class CharacterWindow extends Window {
 		int end = Math.min(mods.size(), (current + 1) * perPage);
 		for (int i = current * perPage; i < end; i++) {
 			HeroExtras.Mod mod = mods.get(i);
-			icon(modIcon(mod));
+			stepperIcon(modIcon(mod));
 			int value = HeroExtras.mod(mod);
 			String text = (value >= 0 ? "+" : "") + value + (mod.percent ? "%" : "");
-			addStepper(mod.label, text, value, mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue), mod.step());
+			addStepper(mod.label, text, value, mod.step(), mod.min(), mod.max(), newValue -> HeroExtras.mod(mod, newValue));
 		}
 		if (pages > 1) {
 			pos += (perPage - (end - current * perPage)) * (ROW_HEIGHT + GAP);
@@ -602,37 +567,6 @@ public class CharacterWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	interface PageOpener {
-		void open(int page);
-	}
-
-	void addPager(int current, int pages, PageOpener opener) {
-		RedButton previous = new RedButton("", 7) {
-			@Override
-			public void onClick() {
-				opener.open((current + pages - 1) % pages);
-			}
-		};
-		previous.icon(StatIcons.arrow(true));
-		previous.setRect(0, pos, 24, ROW_HEIGHT);
-		add(previous);
-
-		RenderedTextBlock label = PixelScene.renderTextBlock("Page " + (current + 1) + " / " + pages, 6);
-		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);
-		add(label);
-
-		RedButton next = new RedButton("", 7) {
-			@Override
-			public void onClick() {
-				opener.open((current + 1) % pages);
-			}
-		};
-		next.icon(StatIcons.arrow(false));
-		next.setRect(WIDTH - 24, pos, 24, ROW_HEIGHT);
-		add(next);
-		pos += ROW_HEIGHT + GAP;
-	}
-
 	static void showBuffInfo(Buff buff) {
 		showBuffInfo(buff, null);
 	}
@@ -645,102 +579,12 @@ public class CharacterWindow extends Window {
 		}
 	}
 
-	private void addStepper(String label, String display, int current, int min, int max, IntSetter setter) {
-		addStepper(label, display, current, min, max, setter, 1);
-	}
-
-	private static final int ICON_SPACE = 10;
 	private static final int MODS_PER_PAGE_LANDSCAPE = 5;
 	private static final int GROUPS_PER_ROW = 3;
 	private Image nextIcon;
 
-	private void icon(Image image) {
-		nextIcon = image;
-	}
-
-	private float placeIcon(float rowHeight) {
-		Image image = nextIcon;
-		nextIcon = null;
-		if (image == null) return 0;
-		image.x = (ICON_SPACE - image.width()) / 2f;
-		image.y = pos + (rowHeight - image.height()) / 2f;
-		PixelScene.align(image);
-		add(image);
-		return ICON_SPACE;
-	}
-
-	private void addStepper(String label, String display, int current, int min, int max, IntSetter setter, int step) {
-		float left = placeIcon(ROW_HEIGHT);
-		RenderedTextBlock text = PixelScene.renderTextBlock(label, 7);
-		text.setPos(left, pos + (ROW_HEIGHT - text.height()) / 2f);
-		add(text);
-
-		float x = WIDTH - 2 * STEP_WIDTH - VALUE_WIDTH - 2 * GAP;
-		add(stepButton("-", x, current, -step, setter));
-
-		RedButton value = new RedButton(display, 6) {
-			@Override
-			public void onClick() {
-				promptValue(label, current, min, max, setter);
-			}
-		};
-		value.setRect(x + STEP_WIDTH + GAP, pos, VALUE_WIDTH, ROW_HEIGHT);
-		add(value);
-
-		add(stepButton("+", value.right() + GAP, current, step, setter));
-		pos += ROW_HEIGHT + GAP;
-	}
-
-	private RedButton stepButton(String label, float x, int current, int delta, IntSetter setter) {
-		RedButton button = new RedButton(label) {
-			@Override
-			public void onClick() {
-				setter.set(current + delta);
-				refresh();
-			}
-
-			@Override
-			public boolean onLongClick() {
-				setter.set(current + delta * 10);
-				refresh();
-				return true;
-			}
-		};
-		button.setRect(x, pos, STEP_WIDTH, ROW_HEIGHT);
-		return button;
-	}
-
-	private void promptValue(String label, int current, int min, int max, IntSetter setter) {
-		NumberPrompt.show(label, current, min, max, setter::set, this::refresh);
-	}
-
-	private void addSection(String text) {
-		pos += GAP;
-		RenderedTextBlock block = PixelScene.renderTextBlock(text, 7);
-		block.hardlight(TITLE_COLOR);
-		block.setPos(0, pos);
-		add(block);
-		pos = block.bottom() + 2 * GAP;
-	}
-
-	private void addStat(String label, String value) {
-		float iconLeft = placeIcon(7);
-		RenderedTextBlock left = PixelScene.renderTextBlock(label, 6);
-		left.setPos(iconLeft, pos);
-		add(left);
-		RenderedTextBlock right = PixelScene.renderTextBlock(value, 6);
-		right.setPos(WIDTH - right.width(), pos);
-		add(right);
-		pos = Math.max(left.bottom(), right.bottom()) + GAP;
-	}
-
-	private void addHint(String text) {
-		RenderedTextBlock block = PixelScene.renderTextBlock(text, 6);
-		block.maxWidth(WIDTH);
-		block.hardlight(DIM_COLOR);
-		block.setPos(0, pos + GAP);
-		add(block);
-		pos = block.bottom() + 2 * GAP;
+	private void promptValue(String label, int current, int min, int max, IntAction setter) {
+		NumberPrompt.show(label, current, min, max, setter, this::refresh);
 	}
 
 	private static void showInfo(Talent talent, int points) {

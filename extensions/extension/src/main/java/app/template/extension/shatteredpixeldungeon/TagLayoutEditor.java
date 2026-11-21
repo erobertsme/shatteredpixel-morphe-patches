@@ -37,16 +37,25 @@ final class TagLayoutEditor {
 	private static Runnable onClose;
 
 	/**
-	 * One tag in the editor. [gameIndex] is the game tag it stands for, or -1 for a tag added by the patches.
+	 * One tag in the editor: a tag added by the patches, or with [gameIndex] at 0 or more, the game tag it stands for.
 	 */
 	private static final class Entry {
 		final String name;
 		final TagPlacement placement;
+		final ScreenTag screenTag;
 		final int gameIndex;
 
-		Entry(String name, TagPlacement placement, int gameIndex) {
-			this.name = name;
-			this.placement = placement;
+		Entry(ScreenTag screenTag) {
+			this.name = screenTag.name();
+			this.placement = screenTag.placement;
+			this.screenTag = screenTag;
+			this.gameIndex = -1;
+		}
+
+		Entry(int gameIndex) {
+			this.name = GameTags.NAMES[gameIndex];
+			this.placement = GameTags.PLACEMENTS[gameIndex];
+			this.screenTag = null;
 			this.gameIndex = gameIndex;
 		}
 
@@ -68,13 +77,9 @@ final class TagLayoutEditor {
 
 	private static List<Entry> entries() {
 		List<Entry> entries = new ArrayList<>();
-		if (UndoHistory.isAvailable()) entries.add(new Entry("Undo / Redo", UndoTags.PLACEMENT, -1));
-		if (QolSettings.isAvailable()) {
-			entries.add(new Entry("Attack Tile", ForceAttack.PLACEMENT, -1));
-			for (int id : CustomItemTags.ids()) entries.add(new Entry(CustomItemTags.name(id), CustomItemTags.placement(id), -1));
-			for (int id : QuickTags.ids()) entries.add(new Entry(QuickTags.name(id), QuickTags.placement(id), -1));
-			for (int i = 0; i < GameTags.NAMES.length; i++) entries.add(new Entry(GameTags.NAMES[i], GameTags.PLACEMENTS[i], i));
-		}
+		for (ScreenTag tag : ScreenTags.all()) entries.add(new Entry(tag));
+		if (!QolSettings.isAvailable()) return entries;
+		for (int i = 0; i < GameTags.NAMES.length; i++) entries.add(new Entry(i));
 		return entries;
 	}
 
@@ -122,10 +127,7 @@ final class TagLayoutEditor {
 			label = ghost[1];
 		} else {
 			IconTag tag = new IconTag(() -> { });
-			tag.setRect(rect[0], rect[1], rect[2], rect[3]);
-			tag.onTop(!placement.isAuto() && placement.side() == TagPlacement.Side.TOP);
-			tag.flip(!placement.isAuto() && placement.side() == TagPlacement.Side.LEFT);
-			tag.style(placement);
+			placement.place(tag, rect);
 			visual = tag;
 			RenderedTextBlock name = PixelScene.renderTextBlock(entry.name, 6);
 			name.hardlight(LABEL_COLOR);
@@ -145,7 +147,7 @@ final class TagLayoutEditor {
 			@Override
 			public void onPointerDown(PointerEvent event) {
 				downAt = System.currentTimeMillis();
-				downPoint = toUi(event);
+				downPoint = ScreenLayout.toUi(event);
 				pressed = true;
 				dragging = false;
 				cancelled = false;
@@ -162,7 +164,7 @@ final class TagLayoutEditor {
 
 			@Override
 			public void onDrag(PointerEvent event) {
-				PointF point = toUi(event);
+				PointF point = ScreenLayout.toUi(event);
 				if (!dragging) {
 					if (Math.abs(point.x - downPoint.x) > TAP_SLOP || Math.abs(point.y - downPoint.y) > TAP_SLOP) cancelled = true;
 					return;
@@ -192,10 +194,6 @@ final class TagLayoutEditor {
 		});
 	}
 
-	private static PointF toUi(PointerEvent event) {
-		return PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
-	}
-
 	/**
 	 * Puts a tag's name under it, or for a game tag, on it.
 	 */
@@ -210,15 +208,7 @@ final class TagLayoutEditor {
 	 * Where a tag sits now: its own position, or for one that keeps its automatic place, where that is.
 	 */
 	private static float[] rectOf(Entry entry) {
-		if (entry.isGameTag()) return GameTags.rects()[entry.gameIndex];
-		TagPlacement placement = entry.placement;
-		if (!placement.isAuto()) return placement.rect(0);
-		float[] live = placement == ForceAttack.PLACEMENT ? ForceAttack.autoRect() : null;
-		if (live != null) return live;
-		float[] insets = ScreenLayout.insets();
-		float width = placement.tagWidth();
-		float height = placement.tagHeight();
-		return new float[] { PixelScene.uiCamera.width - insets[2] - width, ScreenLayout.aboveToolbar() - height, width, height };
+		return entry.isGameTag() ? GameTags.rects()[entry.gameIndex] : entry.screenTag.rect();
 	}
 
 	/**

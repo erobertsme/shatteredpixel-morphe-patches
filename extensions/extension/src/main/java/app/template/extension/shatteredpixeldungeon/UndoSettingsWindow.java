@@ -30,8 +30,7 @@ public class UndoSettingsWindow extends EditorWindow {
 		addCheckBox("Allow during boss fights", UndoHistory.duringBosses(), () -> UndoHistory.duringBosses(!UndoHistory.duringBosses()), on);
 
 		addSection("Tags");
-		addButton("Tag Style", 0, WIDTH, () -> replaceWith(new TagSettingsWindow(UndoTags.PLACEMENT, "Undo / Redo Tag", () -> show(new UndoSettingsWindow()))));
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Tag Style", null, () -> replaceWith(new TagSettingsWindow(UndoTags.PLACEMENT, "Undo / Redo Tag", () -> show(new UndoSettingsWindow()))));
 
 		addSection("Performance");
 		addIconRow(null, "Last copy", UndoHistory.lastTiming());
@@ -50,12 +49,7 @@ public class UndoSettingsWindow extends EditorWindow {
 		pos += ROW_HEIGHT + GAP;
 
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

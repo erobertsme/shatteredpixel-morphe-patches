@@ -16,24 +16,21 @@ import com.watabou.noosa.Image;
  */
 abstract class EditorWindow extends Window {
 
-	static final int WIDTH = CharacterWindow.WIDTH;
-	static final int ROW_HEIGHT = CharacterWindow.ROW_HEIGHT;
-	static final int GAP = CharacterWindow.GAP;
-	static final int INFO_SIZE = CharacterWindow.INFO_SIZE;
-	private static final int STEP_WIDTH = 15;
+	static final int WIDTH = 128;
+	static final int ROW_HEIGHT = 16;
+	static final int GAP = 3;
+	static final int INFO_SIZE = 16;
+	static final int TITLE_COLOR = 0xFFFF44;
+	static final int DIM_COLOR = 0x999999;
+	static final int POSITIVE_COLOR = 0x7AD35C;
+	static final int NEGATIVE_COLOR = 0xE06A5A;
+	static final int STEP_WIDTH = 15;
 	private static final int FAVORITE_SIZE = 14;
 	private static final int RESET_SIZE = 14;
 	private static final int ROW_PADDING = 3;
 	private static final int HEART_ICON = 21;
-	private static final int VALUE_WIDTH = 40;
-
-	interface IntSetter {
-		void set(int value);
-	}
-
-	interface PageOpener {
-		void open(int page);
-	}
+	private static final int VALUE_WIDTH = 34;
+	private static final int ITEM_ICON_SPACE = 20;
 
 	protected float pos;
 
@@ -48,7 +45,7 @@ abstract class EditorWindow extends Window {
 	 */
 	protected void addTitle(String text, String info) {
 		RenderedTextBlock title = PixelScene.renderTextBlock(text, 9);
-		title.hardlight(CharacterWindow.TITLE_COLOR);
+		title.hardlight(TITLE_COLOR);
 		title.maxWidth(info == null ? WIDTH : WIDTH - InfoButton.SIZE - GAP);
 		title.setPos(0, pos + (InfoButton.SIZE - title.height()) / 2f);
 		add(title);
@@ -58,7 +55,7 @@ abstract class EditorWindow extends Window {
 
 	protected void addSection(String text) {
 		RenderedTextBlock block = PixelScene.renderTextBlock(text, 7);
-		block.hardlight(CharacterWindow.TITLE_COLOR);
+		block.hardlight(TITLE_COLOR);
 		block.setPos(0, pos + 2 * GAP);
 		add(block);
 		pos = block.bottom() + 2 * GAP;
@@ -90,7 +87,7 @@ abstract class EditorWindow extends Window {
 	protected void addHint(String text) {
 		RenderedTextBlock block = PixelScene.renderTextBlock(text, 6);
 		block.maxWidth(WIDTH);
-		block.hardlight(CharacterWindow.DIM_COLOR);
+		block.hardlight(DIM_COLOR);
 		block.setPos(0, pos);
 		add(block);
 		pos = block.bottom() + 2 * GAP;
@@ -165,27 +162,27 @@ abstract class EditorWindow extends Window {
 		nextStepperIcon = icon;
 	}
 
-	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter) {
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntAction setter) {
 		addStepper(label, display, current, step, min, max, setter, true);
 	}
 
-	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled) {
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntAction setter, boolean enabled) {
 		addStepper(label, display, current, step, min, max, setter, enabled, null);
 	}
 
 	/**
 	 * A stepper row. When [onReset] is given, a small reset button at the end of the row restores that one value.
 	 */
-	protected void addStepper(String label, String display, int current, int step, int min, int max, IntSetter setter, boolean enabled, Runnable onReset) {
+	protected void addStepper(String label, String display, int current, int step, int min, int max, IntAction setter, boolean enabled, Runnable onReset) {
 		float textLeft = 0;
 		Image icon = nextStepperIcon;
 		nextStepperIcon = null;
 		if (icon != null) {
-			icon.x = 0;
+			icon.x = (ICON_SPACE - icon.width()) / 2f;
 			icon.y = pos + (ROW_HEIGHT - icon.height()) / 2f;
 			PixelScene.align(icon);
 			add(icon);
-			textLeft = icon.width() + GAP;
+			textLeft = ICON_SPACE;
 		}
 		if (labelAbove) {
 			labelAbove = false;
@@ -218,7 +215,7 @@ abstract class EditorWindow extends Window {
 		RedButton value = new RedButton(display, 6) {
 			@Override
 			public void onClick() {
-				NumberPrompt.show(label, current, min, max, setter::set, () -> {
+				NumberPrompt.show(label, current, min, max, setter, () -> {
 					EditorWindow.this.hide();
 					reopen();
 				});
@@ -232,17 +229,17 @@ abstract class EditorWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	private RedButton addStepButton(String label, float x, int current, int delta, IntSetter setter) {
+	private RedButton addStepButton(String label, float x, int current, int delta, IntAction setter) {
 		RedButton button = new RedButton(label) {
 			@Override
 			public void onClick() {
-				setter.set(current + delta);
+				setter.run(current + delta);
 				refresh();
 			}
 
 			@Override
 			public boolean onLongClick() {
-				setter.set(current + delta * 10);
+				setter.run(current + delta * 10);
 				refresh();
 				return true;
 			}
@@ -261,12 +258,32 @@ abstract class EditorWindow extends Window {
 	}
 
 	protected void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled, int textSize) {
+		addCheckBox(label, checked, onToggle, enabled, textSize, true);
+	}
+
+	interface Toggle {
+		void set(boolean on);
+	}
+
+	/**
+	 * A check box that applies [setter] straight away without building the window again, for a setting nothing else in the window
+	 * depends on, so a scrolled window stays where it is.
+	 */
+	protected void addSwitch(String label, boolean on, Toggle setter) {
+		boolean[] state = { on };
+		addCheckBox(label, on, () -> {
+			state[0] = !state[0];
+			setter.set(state[0]);
+		}, true, 0, false);
+	}
+
+	private void addCheckBox(String label, boolean checked, Runnable onToggle, boolean enabled, int textSize, boolean rebuild) {
 		CheckBox box = new ToggleBox(label) {
 			@Override
 			public void onClick() {
 				super.onClick();
 				onToggle.run();
-				refresh();
+				if (rebuild) refresh();
 			}
 
 			@Override
@@ -317,15 +334,79 @@ abstract class EditorWindow extends Window {
 		return button;
 	}
 
-	protected void addButtonRow(String[] labels, int selected, PageOpener onSelect) {
-		float width = (WIDTH - (labels.length - 1) * GAP) / (float) labels.length;
+	/**
+	 * A button across the whole window, with [icon] when one is given.
+	 */
+	protected RedButton addRowButton(String label, Image icon, Runnable action) {
+		RedButton button = addButton(label, 0, WIDTH, action);
+		if (icon != null) button.icon(icon);
+		pos += ROW_HEIGHT + GAP;
+		return button;
+	}
+
+	protected void addButtonRow(String[] labels, int selected, IntAction onSelect) {
+		addButtonRow(labels, selected, labels.length, onSelect);
+	}
+
+	/**
+	 * A row of buttons, [perRow] to a line, with the [selected] one highlighted. Empty labels leave a gap.
+	 */
+	protected void addButtonRow(String[] labels, int selected, int perRow, IntAction onSelect) {
+		float width = (WIDTH - (perRow - 1) * GAP) / (float) perRow;
 		for (int i = 0; i < labels.length; i++) {
+			int column = i % perRow;
+			if (i > 0 && column == 0) pos += ROW_HEIGHT + GAP;
 			if (labels[i].isEmpty()) continue;
 			final int index = i;
-			RedButton button = addButton(labels[i], i * (width + GAP), width, () -> onSelect.open(index));
-			if (i == selected) button.textColor(CharacterWindow.TITLE_COLOR);
+			RedButton button = addButton(labels[i], column * (width + GAP), width, () -> onSelect.run(index));
+			if (i == selected) button.textColor(TITLE_COLOR);
 		}
 		pos += ROW_HEIGHT + GAP;
+	}
+
+	/**
+	 * Adds [item]'s icon and name as the window's title, then its description.
+	 */
+	protected void addItemDetails(com.shatteredpixel.shatteredpixeldungeon.items.Item item) {
+		com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite icon = new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(item);
+		icon.x = (ITEM_ICON_SPACE - icon.width()) / 2f;
+		icon.y = pos;
+		add(icon);
+		RenderedTextBlock title = PixelScene.renderTextBlock(InventoryEditor.capitalize(item.title()), 9);
+		title.hardlight(TITLE_COLOR);
+		title.maxWidth(WIDTH - ITEM_ICON_SPACE);
+		title.setPos(ITEM_ICON_SPACE, pos + (icon.height() - title.height()) / 2f);
+		add(title);
+		pos = Math.max(icon.y + icon.height(), title.bottom()) + 2 * GAP;
+		String info;
+		try {
+			info = item.info();
+		} catch (Throwable e) {
+			info = "";
+		}
+		RenderedTextBlock text = PixelScene.renderTextBlock(info, 6);
+		text.maxWidth(WIDTH);
+		text.setPos(0, pos);
+		add(text);
+		pos = text.bottom() + 2 * GAP;
+	}
+
+	/**
+	 * Adds a row of [tabs] with [tab] chosen, then that tab's contents from [content]. The contents take as much room as the tallest tab, so
+	 * what comes after them stays put when another tab is chosen. Choosing a tab runs [onSelect].
+	 */
+	protected void addTabs(String[] tabs, int tab, IntAction onSelect, IntAction content) {
+		addButtonRow(tabs, tab, onSelect);
+		pos += GAP;
+		float start = pos;
+		float height = 0;
+		for (int i = 0; i < tabs.length; i++) {
+			if (i == tab || tabs[i].isEmpty()) continue;
+			int index = i;
+			height = Math.max(height, measure(() -> content.run(index)));
+		}
+		content.run(tab);
+		pos = Math.max(pos, start + height);
 	}
 
 	interface Favorite {
@@ -385,7 +466,7 @@ abstract class EditorWindow extends Window {
 
 		RenderedTextBlock text = PixelScene.renderTextBlock(label, 6);
 		text.maxWidth((int) (x + width - textLeft - ROW_PADDING));
-		if (highlighted) text.hardlight(CharacterWindow.TITLE_COLOR);
+		if (highlighted) text.hardlight(TITLE_COLOR);
 		if (!enabled) text.alpha(0.3f);
 		text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
 		add(text);
@@ -403,34 +484,30 @@ abstract class EditorWindow extends Window {
 		pos += ROW_HEIGHT + GAP;
 	}
 
-	interface RowRenderer {
-		void render(int index);
-	}
-
 	/**
 	 * Shows one page of a list. The page always takes the height of a full page plus the page buttons,
 	 * so the window keeps its size when a page has fewer rows.
 	 */
-	protected void addPagedList(int count, int perPage, int page, RowRenderer renderer, PageOpener opener) {
+	protected void addPagedList(int count, int perPage, int page, IntAction renderer, IntAction opener) {
 		int pages = pageCount(count, perPage);
 		int current = Math.min(page, pages - 1);
 		int start = current * perPage;
 		int end = Math.min(count, start + perPage);
-		for (int i = start; i < end; i++) renderer.render(i);
+		for (int i = start; i < end; i++) renderer.run(i);
 		pos += (perPage - (end - start)) * (ROW_HEIGHT + GAP);
 		addPager(current, pages, opener);
 	}
 
-	protected void addPager(int current, int pages, PageOpener opener) {
+	protected void addPager(int current, int pages, IntAction opener) {
 		if (pages <= 1) {
 			pos += ROW_HEIGHT + GAP;
 			return;
 		}
-		addButton("", 0, 24, () -> opener.open((current + pages - 1) % pages)).icon(StatIcons.arrow(true));
+		addButton("", 0, 24, () -> opener.run((current + pages - 1) % pages)).icon(StatIcons.arrow(true));
 		RenderedTextBlock label = PixelScene.renderTextBlock("Page " + (current + 1) + " / " + pages, 6);
 		label.setPos((WIDTH - label.width()) / 2f, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
-		addButton("", WIDTH - 24, 24, () -> opener.open((current + 1) % pages)).icon(StatIcons.arrow(false));
+		addButton("", WIDTH - 24, 24, () -> opener.run((current + 1) % pages)).icon(StatIcons.arrow(false));
 		pos += ROW_HEIGHT + GAP;
 	}
 
@@ -444,6 +521,49 @@ abstract class EditorWindow extends Window {
 
 	protected void finish() {
 		resize(WIDTH, (int) pos);
+	}
+
+	private Runnable backAction;
+
+	/**
+	 * Adds a Back button across the window and sizes it. Back, and the device's back button, close the window and run [back].
+	 */
+	protected void finishWithBack(Runnable back) {
+		backTo(back);
+		addBackButton(0, WIDTH);
+		pos += ROW_HEIGHT;
+		finish();
+	}
+
+	/**
+	 * Sets where Back, and the device's back button, lead once the window closes.
+	 */
+	protected void backTo(Runnable back) {
+		backAction = back;
+	}
+
+	/**
+	 * A Back button at [x], [width] wide, on the current row. It leads where [backTo] says.
+	 */
+	protected RedButton addBackButton(float x, float width) {
+		return addButton("Back", x, width, this::goBack);
+	}
+
+	/**
+	 * Closes the window and goes where its Back button leads.
+	 */
+	protected void goBack() {
+		hide();
+		if (backAction != null) backAction.run();
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (backAction == null) {
+			super.onBackPressed();
+			return;
+		}
+		goBack();
 	}
 
 	protected void refresh() {

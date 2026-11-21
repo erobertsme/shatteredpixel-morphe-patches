@@ -19,9 +19,8 @@ public final class GameEvents {
 	 */
 	public static void onSceneCreated(Object scene) {
 		safely(() -> QuantumChest.onSceneCreated(scene));
-		safely(() -> ForceAttack.onSceneCreated(scene));
 		safely(() -> CustomItemTags.onSceneCreated(scene));
-		safely(() -> QuickTags.onSceneCreated(scene));
+		safely(() -> ScreenTags.onSceneCreated(scene));
 		safely(() -> GameCapture.onSceneCreated(scene));
 		safely(ShopkeeperRules::applySoldItems);
 	}
@@ -39,7 +38,7 @@ public final class GameEvents {
 	 * Called at the end of QuickSlotButton.refresh, which the game runs whenever the hero's items change.
 	 */
 	public static void onItemsChanged() {
-		safely(CustomItemTags::refresh);
+		safely(CustomItemTags.LIST::refresh);
 		safely(QuickslotRow::verifyRow);
 	}
 
@@ -62,9 +61,7 @@ public final class GameEvents {
 	 * Called at the end of GameScene.gameOver.
 	 */
 	public static void onGameOver() {
-		safely(ForceAttack::refreshTag);
-		safely(CustomItemTags::refresh);
-		safely(QuickTags::refresh);
+		safely(ScreenTags::refresh);
 		safely(PathPreview::clear);
 	}
 

@@ -62,13 +62,13 @@ public class EnemyWindow extends EditorWindow {
 			RedButton button = addButton(TABS[i], i * (width + GAP), width, () -> {
 				if (index != tab) replaceWith(new EnemyWindow(mob, index, 0));
 			});
-			if (i == tab) button.textColor(CharacterWindow.TITLE_COLOR);
+			if (i == tab) button.textColor(EditorWindow.TITLE_COLOR);
 		}
 		InfoButton.add(this, WIDTH, pos, TAB_INFO[tab]);
 		pos += ROW_HEIGHT + 2 * GAP;
 
 		RenderedTextBlock name = PixelScene.renderTextBlock(InventoryEditor.capitalize(mob.name()).toUpperCase(Locale.ENGLISH), 9);
-		name.hardlight(CharacterWindow.TITLE_COLOR);
+		name.hardlight(EditorWindow.TITLE_COLOR);
 		name.maxWidth(WIDTH);
 		name.setPos(0, pos);
 		add(name);
@@ -83,12 +83,9 @@ public class EnemyWindow extends EditorWindow {
 		}
 
 		pos += GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
+		finishWithBack(() -> {
 			if (mob.isAlive()) show(new WndInfoMob(mob));
 		});
-		pos += ROW_HEIGHT;
-		finish();
 	}
 
 	private void buildStats() {
@@ -205,8 +202,8 @@ public class EnemyWindow extends EditorWindow {
 		}
 		RenderedTextBlock label = PixelScene.renderTextBlock(StatusEditor.nameOf(buff), 6);
 		label.maxWidth((int) (nameWidth - textLeft - 3));
-		if (buff.type == Buff.buffType.POSITIVE) label.hardlight(CharacterWindow.POSITIVE_COLOR);
-		if (buff.type == Buff.buffType.NEGATIVE) label.hardlight(CharacterWindow.NEGATIVE_COLOR);
+		if (buff.type == Buff.buffType.POSITIVE) label.hardlight(EditorWindow.POSITIVE_COLOR);
+		if (buff.type == Buff.buffType.NEGATIVE) label.hardlight(EditorWindow.NEGATIVE_COLOR);
 		label.setPos(textLeft, pos + (ROW_HEIGHT - label.height()) / 2f);
 		add(label);
 

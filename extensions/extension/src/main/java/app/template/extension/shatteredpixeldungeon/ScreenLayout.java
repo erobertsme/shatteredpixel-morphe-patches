@@ -56,6 +56,13 @@ final class ScreenLayout {
 	 * notches and bars and the display margins. The top uses large cutouts only, the same as the game's status pane and menu buttons, so a
 	 * small camera hole doesn't push top tags down; the other edges follow the game's getCommonInsets, like its own tags.
 	 */
+	/**
+	 * Where [event] is, in the interface camera's coordinates.
+	 */
+	static com.watabou.utils.PointF toUi(com.watabou.input.PointerEvent event) {
+		return PixelScene.uiCamera.screenToCamera((int) event.current.x, (int) event.current.y);
+	}
+
 	static float[] insets() {
 		refresh();
 		return cachedInsets.clone();

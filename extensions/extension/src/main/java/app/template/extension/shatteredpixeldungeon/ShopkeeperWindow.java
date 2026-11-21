@@ -19,12 +19,7 @@ public class ShopkeeperWindow extends EditorWindow {
 		int sold = ShopkeeperRules.soldItems();
 		addStepper("Sold Items", String.valueOf(sold), sold, 1, 0, ShopkeeperRules.MAX_SOLD_ITEMS, ShopkeeperRules::soldItems, true, () -> ShopkeeperRules.soldItems(ShopkeeperRules.DEFAULT_SOLD_ITEMS));
 		pos += 2 * GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

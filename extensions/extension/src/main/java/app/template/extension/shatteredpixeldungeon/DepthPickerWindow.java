@@ -31,13 +31,10 @@ public class DepthPickerWindow extends EditorWindow {
 			addButtonRow(labels, current >= 0 && current < PER_ROW ? current : -1, index -> choose(first + index));
 		}
 		pos += GAP;
-		addButton("Back", 0, WIDTH, this::back);
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(this::back);
 	}
 
 	private void back() {
-		hide();
 		Runnable action = backAction;
 		backAction = null;
 		if (action != null) action.run();

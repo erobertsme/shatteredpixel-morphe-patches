@@ -31,8 +31,7 @@ public class ApologyWindow extends EditorWindow {
 		add(text);
 		pos = text.bottom() + 2 * GAP;
 
-		addButton("Nevermind", 0, WIDTH, this::hide);
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Nevermind", null, this::hide);
 
 		PotionOfHealing sample = new PotionOfHealing();
 		int price = goldPrice(sample);

@@ -1,7 +1,5 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
@@ -129,15 +127,8 @@ final class FloorEditSession {
 	}
 
 	private void tap(PointF screen) {
-		Level level = Dungeon.level;
-		if (level == null || screen == null) return;
-		PointF world = Camera.main.screenToCamera((int) screen.x, (int) screen.y);
-		int width = level.width();
-		int height = level.length() / width;
-		int x = (int) Math.floor(world.x / TILE_SIZE);
-		int y = (int) Math.floor(world.y / TILE_SIZE);
-		if (x < 0 || y < 0 || x >= width || y >= height) return;
-		GameScene.show(new WndInfoCell(x + y * width));
+		int cell = Grid.cellAt(screen);
+		if (cell >= 0) GameScene.show(new WndInfoCell(cell));
 	}
 
 	private void save() {

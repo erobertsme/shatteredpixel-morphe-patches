@@ -22,12 +22,7 @@ public class DisplayWindow extends EditorWindow {
 			refresh();
 		});
 		pos += ROW_HEIGHT + GAP;
-		addButton("Back", 0, WIDTH, () -> {
-			hide();
-			CloverlordMenu.show();
-		});
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> CloverlordMenu.show());
 	}
 
 	@Override

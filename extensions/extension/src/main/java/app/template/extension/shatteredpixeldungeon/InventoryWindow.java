@@ -34,9 +34,7 @@ public class InventoryWindow extends EditorWindow {
 
 		addTitle("INVENTORY", "Changes apply straight away. Tap a number to type it, with Min and Max buttons.\n\n## Items\n_Open Backpack:_ your backpack in edit mode, with an Edit button on every item. Back returns here.\n{PREFS}The gear button in the backpack editor brings you back here too.\n_Add Item:_ any item in the game.\n\n## Identify and cleanse\n_Identify Carried Items:_ identifies everything you carry.\n_Identify All Types:_ Potions, Scrolls and Rings learn every type of that kind, so you know each color, rune or gem, even unfound ones.\n_Cleanse All:_ removes every curse from what you carry, including cursed enchantments and glyphs, like a Scroll of Remove Curse.\n\n## Space\n_Unlimited inventory space:_ every bag always has room for one more. Bags show up to 8 rows, with arrows for more pages.\nThe Weapons, Armor and Rings tabs are switched on in Extras, under QoL.");
 		if (hero == null) {
-			addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
-			pos += ROW_HEIGHT;
-			finish();
+			finishWithBack(() -> show(new WndGame()));
 			return;
 		}
 
@@ -79,9 +77,7 @@ public class InventoryWindow extends EditorWindow {
 		addButton("Rings", 2 * (third + GAP), third, () -> identifyAll(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING)).enable(!allKnown(com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category.RING));
 		pos += ROW_HEIGHT + 2 * GAP;
 
-		addButton("Back", 0, WIDTH, () -> replaceWith(new WndGame()));
-		pos += ROW_HEIGHT;
-		finish();
+		finishWithBack(() -> show(new WndGame()));
 	}
 
 	/**

@@ -49,21 +49,10 @@ public class TileWindow extends EditorWindow {
 		int width = Dungeon.level.width();
 		String terrain = FloorEditor.terrainName(cell);
 		addTitle("TILE " + (cell % width) + ", " + (cell / width) + (terrain == null ? "" : " - " + terrain), INFO[tab]);
-		addButtonRow(TABS, tab, index -> {
+		addTabs(TABS, tab, index -> {
 			tab = index;
 			refresh();
-		});
-		pos += GAP;
-
-		float start = pos;
-		float height = 0;
-		for (int i = 0; i < TABS.length; i++) {
-			if (i == tab) continue;
-			int index = i;
-			height = Math.max(height, measure(() -> buildTab(index)));
-		}
-		buildTab(tab);
-		pos = Math.max(pos, start + height);
+		}, this::buildTab);
 
 		pos += GAP;
 		float half = (WIDTH - GAP) / 2f;
@@ -71,7 +60,8 @@ public class TileWindow extends EditorWindow {
 			hide();
 			FloorWindow.open(() -> open(cell));
 		});
-		addButton("Back", half + GAP, half, this::back);
+		backTo(this::back);
+		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT;
 		finish();
 	}
@@ -91,8 +81,7 @@ public class TileWindow extends EditorWindow {
 			addEffectRow(blob, here);
 		}
 		if (!any) addHint("No effects on this tile.");
-		addButton("Add effect", 0, WIDTH, () -> replaceWith(new EffectPickerWindow(cell, 0, 0)));
-		pos += ROW_HEIGHT + GAP;
+		addRowButton("Add effect", null, () -> replaceWith(new EffectPickerWindow(cell, 0, 0)));
 	}
 
 	private void buildObjects() {
@@ -101,8 +90,7 @@ public class TileWindow extends EditorWindow {
 		addSection("Trap");
 		Trap trap = FloorEditor.trapAt(cell);
 		if (trap == null) {
-			addButton("Add trap", 0, WIDTH, () -> replaceWith(new TrapPickerWindow(cell, 0, 0, null))).enable(FloorEditor.canPlaceTrap(cell));
-			pos += ROW_HEIGHT + GAP;
+			addRowButton("Add trap", null, () -> replaceWith(new TrapPickerWindow(cell, 0, 0, null))).enable(FloorEditor.canPlaceTrap(cell));
 		} else {
 			addTrap(trap);
 		}
@@ -136,7 +124,7 @@ public class TileWindow extends EditorWindow {
 				FloorEditor.setTerrain(cell, terrain);
 				refresh();
 			});
-			if (terrain == current) button.textColor(CharacterWindow.TITLE_COLOR);
+			if (terrain == current) button.textColor(EditorWindow.TITLE_COLOR);
 			button.enable(!(occupied && FloorEditor.isBlocking(terrain)));
 		}
 		pos += ROW_HEIGHT + GAP;
@@ -265,7 +253,6 @@ public class TileWindow extends EditorWindow {
 	}
 
 	private void back() {
-		hide();
 		Runnable action = backAction;
 		backAction = null;
 		if (action != null) action.run();
