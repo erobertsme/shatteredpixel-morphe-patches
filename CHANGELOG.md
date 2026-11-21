@@ -1,3 +1,9 @@
+## [1.4.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0...v1.4.0-dev.1) (2026-11-21)
+
+### ✨ New Features
+
+* Edit statuses from their info window, status amounts, change a quick tag's action ([a295731](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a295731e9ca9f921f7382bc65c06238baf95dcda))
+
 ## [1.3.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0) (2026-11-21)
 
 ### ✨ New Features
