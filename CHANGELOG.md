@@ -1,3 +1,9 @@
+## [1.2.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.3...v1.2.0-dev.4) (2026-11-21)
+
+### ✨ New Features
+
+* Identify speed mod, and dim instead of black when loading ([8f80fad](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8f80fadaf8f2f3a72da7eead1accec41b6bd5f80))
+
 ## [1.2.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.2...v1.2.0-dev.3) (2026-11-21)
 
 ### ✨ New Features
