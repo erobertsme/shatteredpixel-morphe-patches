@@ -5,7 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 
 /**
- * A gray game button tinted to a color, with white text so it stays readable.
+ * A grey game button tinted to a color, with white text so it stays readable.
  */
 class TintedButton extends StyledButton {
 

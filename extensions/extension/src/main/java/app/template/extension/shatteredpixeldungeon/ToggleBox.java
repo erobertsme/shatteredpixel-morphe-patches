@@ -5,7 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.watabou.noosa.NinePatch;
 
 /**
- * A check box that turns gray while it is unchecked.
+ * A check box that turns grey while it is unchecked.
  */
 class ToggleBox extends CheckBox {
 	private boolean red = true;
