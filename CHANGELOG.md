@@ -1,3 +1,9 @@
+## [1.3.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.4...v1.3.0-dev.5) (2026-11-21)
+
+### ✨ New Features
+
+* Tile and Back buttons between an examined thing and its tile ([a7c5c8a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a7c5c8a86ea37d02393211c7fa04e24172d3a63f))
+
 ## [1.3.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.3...v1.3.0-dev.4) (2026-11-21)
 
 ### 🐛 Bug Fixes
