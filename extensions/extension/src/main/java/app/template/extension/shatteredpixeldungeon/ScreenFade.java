@@ -7,7 +7,7 @@ import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.Scene;
 
 /**
- * A quick fade of the whole screen towards or back from black, over everything in the scene.
+ * A quick fade of the whole screen toward or back from black, over everything in the scene.
  */
 final class ScreenFade extends ColorBlock {
 

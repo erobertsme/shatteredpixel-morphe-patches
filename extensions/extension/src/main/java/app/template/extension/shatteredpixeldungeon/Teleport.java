@@ -31,7 +31,7 @@ import java.util.WeakHashMap;
 
 /**
  * The Teleport patch: teleporting the hero and other creatures from the editors, and a Teleport to... button in
- * the Adventuring Notes for travelling to any floor.
+ * the Adventuring Notes for traveling to any floor.
  */
 @SuppressWarnings("unused")
 public final class Teleport {

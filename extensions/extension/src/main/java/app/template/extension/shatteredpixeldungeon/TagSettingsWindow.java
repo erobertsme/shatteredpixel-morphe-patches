@@ -15,14 +15,14 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import java.util.List;
 
 /**
- * Position, colour and icon settings for a toolbar tag. Any tag that uses a [TagPlacement] can open this page.
+ * Position, color and icon settings for a toolbar tag. Any tag that uses a [TagPlacement] can open this page.
  */
 public class TagSettingsWindow extends EditorWindow {
 
 	private static final String INFO = "Tag style\n\n"
 		+ "## Position\n_Edge:_ pick the screen edge, then how many pixels along it the tag sits: from the top on the left and right edges, from the left on the top edge. Tap the number to type it, or drag the tag itself.\n_Outlines:_ in a game, faded outlines show where the game's own Attack, Pick Up, Action and Resume tags appear, so you can keep clear of them. On the main menu a stand-in game screen shows behind.\nOn the top edge the tag faces the top of the screen, and on the left edge it's mirrored, so it always looks attached.\n\n"
-		+ "## Look\n_Color:_ tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own colour.\n_Icon:_ every icon in the game. The buttons above filter by kind: interface, item sprites, item icons, status or talents. Turn it in 15 degree steps.\n_Emoji:_ use any emoji, picked from your keyboard's emoji panel.\n_Icon Color:_ tint the icon, or Original for its own colours.\n\n"
-		+ "## Size and opacity\n_Size:_ the tag's width and height in pixels (the game's are 24 by 24) and the icon's size as a percentage. Reset goes back to 24 by 24.\n_Opacity:_ from 0% (invisible) to 100% (solid). With Link tag and icon ticked, changing one changes both.";
+		+ "## Look\n_Color:_ tap a swatch, or set Hue, Saturation and Lightness. Reset goes back to the tag's own color.\n_Icon:_ every icon in the game. The buttons above filter by kind: interface, item sprites, item icons, status or talents. Turn it in 15 degree steps.\n_Emoji:_ use any emoji, picked from your keyboard's emoji panel.\n_Icon Color:_ tint the icon, or Original for its own colors.\n\n"
+		+ "## Size and opacity\n_Size:_ the tag's width and height in pixels (the game's are 24 by 24) and the icon's size as a percentage. Reset goes back to 24 by 24.\n_Opacity:_ from 0% (invisible) to 100% (solid). With Link tag and icon checked, changing one changes both.";
 	private static final String[] TABS_TOP = { "Position", "Size", "Color" };
 	private static final String[] TABS_BOTTOM = { "Icon", "Icon Color", "Opacity" };
 	private static final String[] TABS_GAME = { "Position", "Color" };

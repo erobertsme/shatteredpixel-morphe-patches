@@ -2,7 +2,7 @@
 
 ### 🐛 Bug Fixes
 
-* Keep the chosen hue and saturation of tag colours at high lightness ([73dec0c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/73dec0c00b45c94921031cc0e65b2d59f1ae3aff))
+* Keep the chosen hue and saturation of tag colors at high lightness ([73dec0c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/73dec0c00b45c94921031cc0e65b2d59f1ae3aff))
 
 ## [1.3.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0-dev.1) (2026-11-21)
 
@@ -124,7 +124,7 @@
 * Empty Quickslot always works, and a close button on the rename window ([1c6a302](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1c6a3028e1e2e883cdee6bd73efc1186ebf6575b))
 * Empty Quickslot button when choosing an item for a quickslot ([5dfd7fa](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5dfd7fac02388d00dcc45a441379642d12be22fd))
 * Energize more items in alchemy, starting with the Arcane Stylus ([5190992](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5190992d6d6b1024f0be68d42eaace8880ca4e33))
-* Enhanced Bestiary and cancelling Attack Tile with a second tap ([c616277](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6162773ac34e80bde5899708d30d0625eb63a10))
+* Enhanced Bestiary and canceling Attack Tile with a second tap ([c616277](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6162773ac34e80bde5899708d30d0625eb63a10))
 * Experience and Loot rules in the QoL tab ([8261b64](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8261b64901513615491323e60a337dcb9d3a969f))
 * Extra quickslot row, arrow icons on every pager, a taller talents list in the hero window, and short patch descriptions with full details in the README ([b20843f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b20843f476371e05f52761d6ab7eb84a17ede0df))
 * Extra toolbar item slots and the quickslot swapper switch the toolbar layout straight away ([ab970a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ab970a578660c2d88164bc57b9fb6c89a4915180))
@@ -135,7 +135,7 @@
 * Game Saves preview gets the hero, talents and backpack; undo backpack hides the undo buttons and puts Back on top ([0dba816](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0dba8167d658d131939a8e58be965d18f93656a2))
 * game saves replace the oldest unlocked save when full, and saves can be locked ([2f3a586](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/2f3a5864e7ec2f55b4e6bca44b69d6d42ba9c498))
 * Hero avatar, BUFFS and SCROLL_COLOR icons on the game menu buttons, and more space below the backpack header ([4316943](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4316943f46a3ad2f2a5ce864dfbe176fc4f36331))
-* Item editor shortcuts, grey unticked boxes, Lotus in floor effects, toolbar overlap fixes ([d22690b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d22690bfde616401c011c8b028ac3c64f197d5c8))
+* Item editor shortcuts, gray unchecked boxes, Lotus in floor effects, toolbar overlap fixes ([d22690b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d22690bfde616401c011c8b028ac3c64f197d5c8))
 * Item tags auto-target like quickslots, and a screen map of all tags on the Position tab ([31cd6a1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/31cd6a106cb10153c22356d5e73df894dc6fa510))
 * Keep edit mode across bag tabs, add starvation damage settings, split supporter options into their own patch ([bfa8b75](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/bfa8b7558e10a47733b1004b0a073b0995f05cde))
 * Keep game saves in game<slot>_<seed> folders and ask what to do with them when a game ends ([9c1f8bd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9c1f8bdf5f3f1156a50ac025d18c410d41026033))
@@ -151,7 +151,7 @@
 * Quantum Chest on every beaten boss floor, sharing one storage of 1 to 3 pages across floors ([e1dd3e8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e1dd3e85d62b509fe52c2a03302ecab250f44504))
 * Quantum Chest out of the way beside each boss exit, item details with Take Out and Store Item, a Store Items screen, and Quick Move ([6ec9dc8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6ec9dc8c1f1fe3a04712008adc46d39d9d5fbf6a))
 * Quick Tags, and the floor editor's General tab comes first ([019b22f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/019b22f6cde7580852db4f7e4800bc68870c6544))
-* Quickslot-style tags with colour settings and a reusable tag settings page ([c0a60ce](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c0a60ce0d36bfe56e9d9e0850b63f1b6962e5a9d))
+* Quickslot-style tags with color settings and a reusable tag settings page ([c0a60ce](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c0a60ce0d36bfe56e9d9e0850b63f1b6962e5a9d))
 * Readable info popups with sections and highlighted terms ([88613e1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/88613e1378a4a5d3592154bdec5b90a52cbb8732))
 * Reroll Catalyst button on the trinket choice window ([3a300dc](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3a300dc486e781ebe77baf6f8199575ed8bd8dc5))
 * Rework hunger editor, add favorites and stable list layouts, fix back navigation and hero window icons ([5e81c33](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5e81c33f9b05228d58d354cae22c356f0a6997dc))
@@ -170,7 +170,7 @@
 * Shopkeeper options for banishing enemies, fearless, immune, passive and lenient behavior and buyback count, paged info with icons, and Back buttons on every Extras tab ([240b7b5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/240b7b55f99d916f56a038c929419a307c716067))
 * Shops keep every sold item in the save ([34bd2e2](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/34bd2e2348b9150c5609af4ee65a3a12e3f175b5))
 * Shorter scrolling Extras pages with arrows showing there is more ([6b06c27](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6b06c27a2cc01af4cc4620f8c49fd0287f25c7cf))
-* Show owned talents greyed out and add info buttons in the talent swap picker ([dab16a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dab16a5dad67d721b7a6c25ff70276d1af3827b1))
+* Show owned talents grayed out and add info buttons in the talent swap picker ([dab16a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dab16a5dad67d721b7a6c25ff70276d1af3827b1))
 * Show the current terrain in the tile editor title ([439ecc9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/439ecc9e14db60c59f14571d6d83f69c8e303c50))
 * Show the game's own situational buttons while styling a tag, instead of a map ([caddd11](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/caddd11e4764f02b620c56f1c48c81a1a4b19cc9))
 * Show the rest of an interrupted walk while the resume button is on screen ([ab93694](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ab93694e5322555c59e67ae8d97facc4a35bc5b2))
@@ -214,7 +214,7 @@
 * Add backup shortcut labels to strings.xml ([e78678c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e78678ca77e900eb87f330f6a167feaf268b079c))
 * Add the missing back button to the character editor ([e7d2f5b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/e7d2f5bec0176366582faa4af3dc3d18ed3db559))
 * Bestiary crash and missing [i], header Edit and Remove buttons, currency icons ([99616ca](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/99616cacf64ec75b9269fbb60cdddf32d3a27bb4))
-* Buy back rows use the game's slot colours, keep the info button and count against the real limit ([f8eeccb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f8eeccba55d7ae880e6af0b560d90c384aadd33b))
+* Buy back rows use the game's slot colors, keep the info button and count against the real limit ([f8eeccb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f8eeccba55d7ae880e6af0b560d90c384aadd33b))
 * Confirm attacks, stairs and steps into danger as well as walking, with a setting for each ([5e8bbbf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5e8bbbfb2d965cadc66f1414c59bdedc232a790e))
 * Deduplicate item list, sort weapons by tier, add trinkets tab and editable status turns ([874e145](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/874e1457498f785a1c0477f39d2a0f2d4eef63c8))
 * Extra quickslots match the normal slot size, work with the quickslot swapper, and stay clear of the confirm and drawing buttons; the talents list scrolls correctly ([8ee76be](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8ee76be1af3a6428e1de4131e8932160d1dc57d1))
@@ -238,7 +238,7 @@
 * Remove a duplicate experience fingerprint ([0d1a4c3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0d1a4c3f0e9cb2b5ac172ced5b0fc8b3c723658a))
 * Remove duplicate statuses from the add status list ([0255b20](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0255b20566d01d32e6eb91e801f7c0168d3b6ba1))
 * Rename menu to Extras and place title button below the others ([0e52b69](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0e52b69a6a2102d6dd3c24f40dff6cda1064768e))
-* Replace the backpack star with Edit and Add buttons and grey out turns on infinite statuses ([8af00f9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8af00f9b321349198d3a3c2f1307589d9fbb283c))
+* Replace the backpack star with Edit and Add buttons and gray out turns on infinite statuses ([8af00f9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8af00f9b321349198d3a3c2f1307589d9fbb283c))
 * Restore missing release notes so a half-finished release can't block later ones ([1439d18](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/1439d18782f096f9333305cd1991829d107f4d81))
 * Reuse the WndInfoMob fingerprint and share the bottom row with the Edit button ([7d88d16](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/7d88d16eaed6374685a767ff440be2726dc96966))
 * Selling from the Weapons, Armor or Rings tab stays on that tab ([8aec3b2](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8aec3b23d1de89bd998847cb276af1c732dbaafc))
@@ -343,7 +343,7 @@
 
 ### 🐛 Bug Fixes
 
-* Buy back rows use the game's slot colours, keep the info button and count against the real limit ([f8eeccb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f8eeccba55d7ae880e6af0b560d90c384aadd33b))
+* Buy back rows use the game's slot colors, keep the info button and count against the real limit ([f8eeccb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f8eeccba55d7ae880e6af0b560d90c384aadd33b))
 
 ## [1.0.0-dev.141](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.140...v1.0.0-dev.141) (2026-11-15)
 
@@ -643,7 +643,7 @@
 
 ### ✨ New Features
 
-* Quickslot-style tags with colour settings and a reusable tag settings page ([c0a60ce](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c0a60ce0d36bfe56e9d9e0850b63f1b6962e5a9d))
+* Quickslot-style tags with color settings and a reusable tag settings page ([c0a60ce](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c0a60ce0d36bfe56e9d9e0850b63f1b6962e5a9d))
 
 ## [1.0.0-dev.91](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.90...v1.0.0-dev.91) (2026-11-08)
 
@@ -763,7 +763,7 @@
 
 ### ✨ New Features
 
-* Enhanced Bestiary and cancelling Attack Tile with a second tap ([c616277](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6162773ac34e80bde5899708d30d0625eb63a10))
+* Enhanced Bestiary and canceling Attack Tile with a second tap ([c616277](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c6162773ac34e80bde5899708d30d0625eb63a10))
 
 ### 🐛 Bug Fixes
 
@@ -773,7 +773,7 @@
 
 ### ✨ New Features
 
-* Item editor shortcuts, grey unticked boxes, Lotus in floor effects, toolbar overlap fixes ([d22690b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d22690bfde616401c011c8b028ac3c64f197d5c8))
+* Item editor shortcuts, gray unchecked boxes, Lotus in floor effects, toolbar overlap fixes ([d22690b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d22690bfde616401c011c8b028ac3c64f197d5c8))
 
 ## [1.0.0-dev.70](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.69...v1.0.0-dev.70) (2026-11-06)
 
@@ -1122,7 +1122,7 @@
 
 ### 🐛 Bug Fixes
 
-* Replace the backpack star with Edit and Add buttons and grey out turns on infinite statuses ([8af00f9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8af00f9b321349198d3a3c2f1307589d9fbb283c))
+* Replace the backpack star with Edit and Add buttons and gray out turns on infinite statuses ([8af00f9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8af00f9b321349198d3a3c2f1307589d9fbb283c))
 
 ## [1.0.0-dev.17](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.16...v1.0.0-dev.17) (2026-11-04)
 
@@ -1197,7 +1197,7 @@
 
 ### ✨ New Features
 
-* Show owned talents greyed out and add info buttons in the talent swap picker ([dab16a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dab16a5dad67d721b7a6c25ff70276d1af3827b1))
+* Show owned talents grayed out and add info buttons in the talent swap picker ([dab16a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/dab16a5dad67d721b7a6c25ff70276d1af3827b1))
 
 ## [1.0.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-11-04)
 

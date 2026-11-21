@@ -9,7 +9,7 @@ public class BackpackSettingsWindow extends EditorWindow {
 	private static final String INFO = "Backpack\n\n"
 		+ "## Rows and pages\n_Rows of items:_ rows on each page of the backpack and every bag, from the game's 4 up to 8. Each extra row is 5 more slots.\n_Extra page for each tab:_ gives every bag a second page of the same size.\nWith unlimited inventory space on, bags show 8 rows and grow as needed instead.\n\n"
 		+ "## Tabs\n_Weapons, Armor, Rings:_ hold those items like the potion bandolier holds potions, 19 each, without using backpack space. Needs the Inventory editor patch.\n\n"
-		+ "## Buying tabs\n_Shopkeeper button_ beside each tab: red means that tab has to be bought first. Every shop sells a pouch for it for 1000 gold, and once bought the other shops stop selling it. Grey means the tab is free.\nPouches are only sold while the tab is switched on.";
+		+ "## Buying tabs\n_Shopkeeper button_ beside each tab: red means that tab has to be bought first. Every shop sells a pouch for it for 1000 gold, and once bought the other shops stop selling it. Gray means the tab is free.\nPouches are only sold while the tab is switched on.";
 
 	public BackpackSettingsWindow() {
 		super();
@@ -41,7 +41,7 @@ public class BackpackSettingsWindow extends EditorWindow {
 
 	/**
 	 * The shopkeeper button beside a tab: red with the shopkeeper solid when the tab has to be bought from a shop,
-	 * grey with the shopkeeper faded when it doesn't.
+	 * gray with the shopkeeper faded when it doesn't.
 	 */
 	private StyledButton shopToggle(int tab) {
 		boolean on = TabPouches.soldInShops(tab);

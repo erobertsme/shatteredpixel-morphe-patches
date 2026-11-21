@@ -133,7 +133,7 @@ abstract class PreviewWindow extends EditorWindow {
 	}
 
 	/**
-	 * A button centred just above a window, outside it, like the buttons below undo mode's panel.
+	 * A button centered just above a window, outside it, like the buttons below undo mode's panel.
 	 */
 	static final class TopButton {
 
@@ -156,10 +156,10 @@ abstract class PreviewWindow extends EditorWindow {
 			Camera ui = PixelScene.uiCamera;
 			Camera own = window.camera;
 			float top = (own.y - ui.y) / ui.zoom;
-			float centre = (own.x - ui.x + own.width * own.zoom / 2f) / ui.zoom;
+			float center = (own.x - ui.x + own.width * own.zoom / 2f) / ui.zoom;
 			button = new TintedButton(label, null, 1f, 1f, 1f, action);
 			button.camera = ui;
-			button.setRect(centre - TOP_BUTTON_WIDTH / 2f, Math.max(0, top - TOP_BUTTON_HEIGHT - 2), TOP_BUTTON_WIDTH, TOP_BUTTON_HEIGHT);
+			button.setRect(center - TOP_BUTTON_WIDTH / 2f, Math.max(0, top - TOP_BUTTON_HEIGHT - 2), TOP_BUTTON_WIDTH, TOP_BUTTON_HEIGHT);
 			Game.scene().add(button);
 		}
 

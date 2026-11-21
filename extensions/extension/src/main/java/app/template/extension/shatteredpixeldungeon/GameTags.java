@@ -10,7 +10,7 @@ import com.watabou.noosa.ui.Component;
 
 /**
  * The game's own situational tags (Attack, Pick Up, Action and Resume). Each keeps its automatic place, stacked above the toolbar, until it
- * is moved to a place of its own. Their colour can be changed too; the game draws the rest of their look itself.
+ * is moved to a place of its own. Their color can be changed too; the game draws the rest of their look itself.
  */
 final class GameTags {
 
@@ -35,7 +35,7 @@ final class GameTags {
 
 	/**
 	 * Called at the end of GameScene.layoutTags, after the Attack Tile button is placed. Puts each moved tag in its own place, stacks the
-	 * rest in their usual order above the toolbar and the Attack Tile button, and applies any chosen colours.
+	 * rest in their usual order above the toolbar and the Attack Tile button, and applies any chosen colors.
 	 */
 	static void afterLayoutTags() {
 		try {

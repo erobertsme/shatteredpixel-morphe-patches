@@ -428,7 +428,7 @@ public final class GameSaves {
 	}
 
 	/**
-	 * How many saves count towards the limit. Locked saves don't.
+	 * How many saves count toward the limit. Locked saves don't.
 	 */
 	static int unlockedCount() {
 		return unlockedCount(false);
@@ -568,7 +568,7 @@ public final class GameSaves {
 	}
 
 	/**
-	 * What a save says about the game as it is now, labelled with [prefix] before the depth and the hero. Read on the render thread, just
+	 * What a save says about the game as it is now, labeled with [prefix] before the depth and the hero. Read on the render thread, just
 	 * after the game was saved, so it matches the saved game.
 	 */
 	static Properties details(String prefix, boolean partial) {

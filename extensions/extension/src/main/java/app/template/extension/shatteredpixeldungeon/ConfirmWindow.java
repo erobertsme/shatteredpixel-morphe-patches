@@ -3,7 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 public class ConfirmWindow extends EditorWindow {
 
 	private static final String INFO = "Confirm actions\n\n"
-		+ "When an action is ticked, tapping the map first shows what will happen: the path, the creature you'll attack, or the danger.\n_Go_, or the same tile again, does it. _Cancel_, or another tile, changes your mind.\n\n"
+		+ "When an action is checked, tapping the map first shows what will happen: the path, the creature you'll attack, or the danger.\n_Go_, or the same tile again, does it. _Cancel_, or another tile, changes your mind.\n\n"
 		+ "## Distances\n_Moving:_ only asks for walks at least this many steps long.\n_Attacking:_ only asks for targets at least this many tiles away.\nBy default single steps and attacks on adjacent enemies go ahead. Set either to 1 to confirm those too.\n\n"
 		+ "## Stepping into danger\nKnown traps, fire and harmful gas on the tile or along the way, at any distance.\nTraps are ignored while you levitate, unless it runs out before you could step off. Gas and fire you're immune to are ignored.\nThe game already asks before you jump into a chasm.\n\n"
 		+ "## Never confirmed\nButtons like attack and pick up, and keyboard or controller movement.";

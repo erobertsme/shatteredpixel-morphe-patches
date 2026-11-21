@@ -96,7 +96,7 @@ final class PreviewParts {
 	}
 
 	/**
-	 * Up to four game messages in their own colours, one per line, or [empty] when there are none.
+	 * Up to four game messages in their own colors, one per line, or [empty] when there are none.
 	 */
 	static void logLines(List<Gizmo> out, List<String> lines, float x, float y, float width, String empty) {
 		float inner = width - 2 * LOG_PADDING;

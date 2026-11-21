@@ -4,7 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Camera;
 
 /**
- * Where a group of toolbar tags sits on screen and what colour they are: along the left, top or right edge, a
+ * Where a group of toolbar tags sits on screen and what color they are: along the left, top or right edge, a
  * chosen number of pixels from the start of that edge (the top for the left and right edges, the left end for the
  * top edge). TagSettingsWindow holds the controls.
  */
@@ -54,7 +54,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * Marks a tag whose look the game draws itself, so only its position and colour can be changed.
+	 * Marks a tag whose look the game draws itself, so only its position and color can be changed.
 	 */
 	TagPlacement positionAndColorOnly() {
 		styled = false;
@@ -73,7 +73,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * Whether the colour was chosen, rather than left as the tag's own.
+	 * Whether the color was chosen, rather than left as the tag's own.
 	 */
 	boolean colorChosen() {
 		return (CloverlordSettings.getInt(key + "_color") & COLOR_SET) != 0;
@@ -103,7 +103,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * Like the other constructor, with the tag's own default colour, and [autoPlacement] for a tag whose default
+	 * Like the other constructor, with the tag's own default color, and [autoPlacement] for a tag whose default
 	 * position is worked out elsewhere, such as next to the game's own tags. Choosing an edge overrides it.
 	 */
 	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount, String defaultIcon, int defaultRotation, int defaultColor, boolean autoPlacement) {
@@ -262,7 +262,7 @@ final class TagPlacement {
 	static final String ICON_COLOR = "_icon_color";
 
 	/**
-	 * The hue (0 to 359), saturation and lightness (0 to 100) last chosen for the colour [which], TAG_COLOR or ICON_COLOR, while they still
+	 * The hue (0 to 359), saturation and lightness (0 to 100) last chosen for the color [which], TAG_COLOR or ICON_COLOR, while they still
 	 * give [rgb]. Otherwise they are worked out from [rgb]. This keeps the hue and saturation when lightness alone would hide them, such as
 	 * at full lightness, where every hue is white.
 	 */
@@ -280,7 +280,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * Sets the colour [which], TAG_COLOR or ICON_COLOR, from [hue], [saturation] and [lightness], keeping them as chosen.
+	 * Sets the color [which], TAG_COLOR or ICON_COLOR, from [hue], [saturation] and [lightness], keeping them as chosen.
 	 */
 	void hsl(String which, int hue, int saturation, int lightness) {
 		int h = ((hue % 360) + 360) % 360;
@@ -309,7 +309,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * The icon's tint, or -1 for its own colours.
+	 * The icon's tint, or -1 for its own colors.
 	 */
 	int iconColor() {
 		int stored = CloverlordSettings.getInt(key + "_icon_color");

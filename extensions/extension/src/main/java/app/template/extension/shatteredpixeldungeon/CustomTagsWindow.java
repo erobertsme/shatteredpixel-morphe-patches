@@ -18,7 +18,7 @@ public class CustomTagsWindow extends EditorWindow {
 	private static final String INFO = "Item Tags\n\n"
 		+ "Screen-edge tags that use an item when tapped, like a quickslot. Each game keeps its own item tags.\n\n"
 		+ "## Adding\n_Add Tag:_ pick an item from your backpack. Its tag follows the kind of item, using the first one you carry, and hides while you carry none.\n\n"
-		+ "## Changing\n_Tap a tag in the list_ to change its position, size, colour, icon and opacity, or to delete it.\n_Default Icon_ on the Icon tab shows the item again.";
+		+ "## Changing\n_Tap a tag in the list_ to change its position, size, color, icon and opacity, or to delete it.\n_Default Icon_ on the Icon tab shows the item again.";
 
 	public CustomTagsWindow() {
 		super();

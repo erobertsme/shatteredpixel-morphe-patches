@@ -8,7 +8,7 @@ public class UndoSettingsWindow extends EditorWindow {
 	private static final String INFO = "Undo / Redo\n\n"
 		+ "Each time your hero is ready for a new action, the game is saved and a copy kept.\n\n"
 		+ "## Undo mode\nTap the Undo / Redo tag to open it.\n_Undo_ (left) goes back one action, _Redo_ (right) goes forward, each with a short loading screen. _Done_ closes undo mode.\nThe line above the buttons shows where you are. A walk of many steps counts as one action. A new action after an undo clears Redo.\nRandom rolls aren't saved, so repeating an action can turn out differently. Redo always restores exactly what happened.\n\n"
-		+ "## Settings\n_Keep:_ Last actions keeps the number you choose, This floor keeps every action since you arrived, Unlimited keeps everything until you leave the game.\n_Keep history across floors:_ when off, history starts over on each floor.\n_Allow during boss fights:_ when off, Undo and Redo can't be used while a boss has the floor locked.\n_Tag Style:_ the tag's edge, position, colour, icon, icon colour and rotation.\n_Performance:_ how long each copy takes. Save is the game's own saving, copy is keeping it in memory.";
+		+ "## Settings\n_Keep:_ Last actions keeps the number you choose, This floor keeps every action since you arrived, Unlimited keeps everything until you leave the game.\n_Keep history across floors:_ when off, history starts over on each floor.\n_Allow during boss fights:_ when off, Undo and Redo can't be used while a boss has the floor locked.\n_Tag Style:_ the tag's edge, position, color, icon, icon color and rotation.\n_Performance:_ how long each copy takes. Save is the game's own saving, copy is keeping it in memory.";
 
 	public UndoSettingsWindow() {
 		super();

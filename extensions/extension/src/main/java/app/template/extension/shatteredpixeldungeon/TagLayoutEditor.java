@@ -143,7 +143,7 @@ final class TagLayoutEditor {
 			private PointF downPoint;
 			private boolean pressed;
 			private boolean dragging;
-			private boolean cancelled;
+			private boolean canceled;
 
 			@Override
 			public void onPointerDown(PointerEvent event) {
@@ -151,13 +151,13 @@ final class TagLayoutEditor {
 				downPoint = ScreenLayout.toUi(event);
 				pressed = true;
 				dragging = false;
-				cancelled = false;
+				canceled = false;
 			}
 
 			@Override
 			public void update() {
 				super.update();
-				if (!pressed || dragging || cancelled || System.currentTimeMillis() - downAt < HOLD_MS) return;
+				if (!pressed || dragging || canceled || System.currentTimeMillis() - downAt < HOLD_MS) return;
 				dragging = true;
 				visual.flash();
 				Game.vibrate(HOLD_VIBRATION_MS);
@@ -167,7 +167,7 @@ final class TagLayoutEditor {
 			public void onDrag(PointerEvent event) {
 				PointF point = ScreenLayout.toUi(event);
 				if (!dragging) {
-					if (Math.abs(point.x - downPoint.x) > TAP_SLOP || Math.abs(point.y - downPoint.y) > TAP_SLOP) cancelled = true;
+					if (Math.abs(point.x - downPoint.x) > TAP_SLOP || Math.abs(point.y - downPoint.y) > TAP_SLOP) canceled = true;
 					return;
 				}
 				TagPlacement.Side side = nearestSide(point, placement.sides());
@@ -190,7 +190,7 @@ final class TagLayoutEditor {
 
 			@Override
 			public void onClick(PointerEvent event) {
-				if (!dragging && !cancelled) openSettings(entry);
+				if (!dragging && !canceled) openSettings(entry);
 			}
 		});
 	}

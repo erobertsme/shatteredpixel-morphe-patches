@@ -6,7 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
 import com.watabou.noosa.Image;
 
 /**
- * A toolbar tag in the game's own style, with an icon and an action. Its colour, icon, icon colour and icon
+ * A toolbar tag in the game's own style, with an icon and an action. Its color, icon, icon color and icon
  * rotation come from a [TagPlacement].
  */
 class IconTag extends Tag {

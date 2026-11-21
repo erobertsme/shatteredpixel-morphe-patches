@@ -327,7 +327,7 @@ final class UndoScene {
 	}
 
 	/**
-	 * Notes the colour of the area effect on each tile of the area that the hero could see, or that is always visible.
+	 * Notes the color of the area effect on each tile of the area that the hero could see, or that is always visible.
 	 */
 	private void captureEffects(Level level, int width, int height) {
 		if (level.blobs == null) return;
@@ -553,7 +553,7 @@ final class UndoScene {
 	}
 
 	/**
-	 * The first log line, without its colour mark.
+	 * The first log line, without its color mark.
 	 */
 	String firstLine() {
 		return lines.isEmpty() ? null : plain(lines.get(0));
@@ -686,7 +686,7 @@ final class UndoScene {
 	}
 
 	/**
-	 * Draws the explored floor as coloured squares into [out], fitting a [size] square with its top left corner at [x], [y].
+	 * Draws the explored floor as colored squares into [out], fitting a [size] square with its top left corner at [x], [y].
 	 */
 	void drawMap(List<Gizmo> out, Camera camera, float x, float y, float size) {
 		float cell = size / Math.max(mapWidth, mapHeight);

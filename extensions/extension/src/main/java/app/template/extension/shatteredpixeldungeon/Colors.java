@@ -1,7 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
 /**
- * Converts colours between RGB and hue, saturation and lightness.
+ * Converts colors between RGB and hue, saturation and lightness.
  */
 final class Colors {
 

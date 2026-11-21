@@ -10,7 +10,7 @@ public class GameSavesWindow extends EditorWindow {
 
 	private static final String INFO = "Game Saves\n\n"
 		+ "Up to 10 saves of the game you're playing, to load later. Saves belong to this game only.\n\n"
-		+ "## Saving\n_Save Now:_ saves and keeps a copy. At 10, saving again deletes the oldest unlocked save, after asking.\n_Locked saves_ (key icon) don't count towards the 10 and can't be deleted until unlocked.\n_Auto save on new floors:_ saves on arriving at each floor, including side areas like the Blacksmith's mine. Auto saves start with \"Auto:\", keep the latest 5 (locked aside) and don't count towards your 10. The switch in Extras on the main menu is the default for new games.\n\n"
+		+ "## Saving\n_Save Now:_ saves and keeps a copy. At 10, saving again deletes the oldest unlocked save, after asking.\n_Locked saves_ (key icon) don't count toward the 10 and can't be deleted until unlocked.\n_Auto save on new floors:_ saves on arriving at each floor, including side areas like the Blacksmith's mine. Auto saves start with \"Auto:\", keep the latest 5 (locked aside) and don't count toward your 10. The switch in Extras on the main menu is the default for new games.\n\n"
 		+ "## Loading\n_Tap a save_ for a picture of the dungeon then, the last game messages, and buttons to load or delete it.\nLoading replaces where you are now, so save first if you want to come back.\n\n"
 		+ "## Files\nKept in the save folder, a folder per game named after its slot and seed, so the first slot's start with game1. Included when you export saves from the main menu.\nWhen this game ends, the title screen asks whether to keep its saves.";
 	private static final int PER_PAGE = 5;

@@ -4,7 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 
 /**
- * Tile maths on the current floor.
+ * Tile math on the current floor.
  */
 final class Grid {
 
