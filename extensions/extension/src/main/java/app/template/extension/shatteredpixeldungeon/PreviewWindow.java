@@ -11,6 +11,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,13 @@ abstract class PreviewWindow extends EditorWindow {
 		if (wide) pictureBottom = addPicture(scene, WIDTH + 2 * GAP, columnTop);
 		addActions();
 		resize(wide ? 2 * WIDTH + 2 * GAP : WIDTH, (int) Math.max(pos, pictureBottom));
+	}
+
+	/**
+	 * A picture of the dungeon saved from the game's own drawing, used for the area view instead of drawing it again, or null.
+	 */
+	protected File areaPicture() {
+		return null;
 	}
 
 	/**
@@ -102,7 +110,7 @@ abstract class PreviewWindow extends EditorWindow {
 		float size = WIDTH - 2 * PreviewParts.BORDER;
 		List<Gizmo> parts = new ArrayList<>();
 		PreviewParts.frame(parts, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size);
-		PreviewParts.picture(parts, scene, null, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size, this::refresh);
+		PreviewParts.picture(parts, scene, areaPicture(), null, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size, this::refresh);
 		addAll(parts);
 		float bottom = y + size + 2 * PreviewParts.BORDER + 2 * GAP;
 		if (x == 0) pos = bottom;

@@ -2,6 +2,8 @@ package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
+import java.io.File;
+
 /**
  * A game save in the Game Saves list, with buttons to load, lock, delete or go back.
  */
@@ -65,6 +67,11 @@ public class SavePreviewWindow extends PreviewWindow {
 	@Override
 	public void onBackPressed() {
 		back();
+	}
+
+	@Override
+	protected File areaPicture() {
+		return save.picture();
 	}
 
 	@Override

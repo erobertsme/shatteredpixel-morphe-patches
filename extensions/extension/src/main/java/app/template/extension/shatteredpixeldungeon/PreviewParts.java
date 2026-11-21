@@ -8,8 +8,10 @@ import com.watabou.input.PointerEvent;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.PointerArea;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -117,18 +119,33 @@ final class PreviewParts {
 	 * [onToggle].
 	 */
 	static void picture(List<Gizmo> out, UndoScene scene, Camera camera, float x, float y, float size, Runnable onToggle) {
-		boolean map = UndoTags.showsMap() ? scene.hasMap() : !scene.hasArea() && scene.hasMap();
-		if (!map && !scene.hasArea()) return;
+		picture(out, scene, null, camera, x, y, size, onToggle);
+	}
+
+	/**
+	 * Like picture, using [areaPicture], a picture saved from the game's own drawing, for the area view when there is one.
+	 */
+	static void picture(List<Gizmo> out, UndoScene scene, File areaPicture, Camera camera, float x, float y, float size, Runnable onToggle) {
+		Image saved = PreviewImage.load(areaPicture);
+		boolean hasArea = saved != null || scene.hasArea();
+		boolean map = UndoTags.showsMap() ? scene.hasMap() : !hasArea && scene.hasMap();
+		if (!map && !hasArea) return;
 		try {
 			if (map) {
 				scene.drawMap(out, camera, x, y, size);
+			} else if (saved != null) {
+				saved.scale.set(size / saved.width(), size / saved.height());
+				saved.x = x;
+				saved.y = y;
+				if (camera != null) saved.camera = camera;
+				out.add(saved);
 			} else {
 				scene.drawArea(out, camera, x, y, size);
 			}
 		} catch (Throwable e) {
 			Log.e("PreviewParts", "Could not draw the dungeon", e);
 		}
-		if (!scene.hasMap() || !scene.hasArea()) return;
+		if (!scene.hasMap() || !hasArea) return;
 		out.add(new PointerArea(x, y, size, size) {
 			@Override
 			public void onClick(PointerEvent event) {

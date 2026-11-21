@@ -5,13 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 
-import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
-import com.watabou.glwrap.Texture;
 import com.watabou.noosa.Image;
 
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.text.BreakIterator;
 
 /**
@@ -24,7 +20,6 @@ final class EmojiIcon {
 	private static final String TAG = "EmojiIcon";
 	private static final int SIZE = 16;
 	private static final float TEXT_SHARE = 0.85f;
-	private static final int BYTES_PER_PIXEL = 4;
 
 	private EmojiIcon() {
 	}
@@ -74,19 +69,7 @@ final class EmojiIcon {
 
 	private static boolean draw(Key key, String emoji) {
 		try {
-			int[] pixels = render(emoji);
-			SmartTexture texture = TextureCache.create(key, SIZE, SIZE);
-			texture.filter(Texture.NEAREST, Texture.NEAREST);
-			ByteBuffer buffer = pixelBuffer(Reflect.get(SmartTexture.class, texture, "bitmap"));
-			buffer.rewind();
-			for (int pixel : pixels) {
-				buffer.put((byte) (pixel >> 16));
-				buffer.put((byte) (pixel >> 8));
-				buffer.put((byte) pixel);
-				buffer.put((byte) (pixel >>> 24));
-			}
-			buffer.rewind();
-			return true;
+			return PixelTexture.create(key, SIZE, SIZE, render(emoji));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not draw the emoji", e);
 			TextureCache.remove(key);
@@ -109,19 +92,5 @@ final class EmojiIcon {
 		bitmap.getPixels(pixels, 0, SIZE, 0, 0, SIZE, SIZE);
 		bitmap.recycle();
 		return pixels;
-	}
-
-	/**
-	 * The pixel memory of the texture's picture, found by what it returns since the picture class is renamed in the game. The texture is
-	 * only sent to the graphics card the first time it's drawn, so filling it here is enough.
-	 */
-	private static ByteBuffer pixelBuffer(Object pixmap) throws ReflectiveOperationException {
-		for (Method method : pixmap.getClass().getMethods()) {
-			if (method.getParameterTypes().length == 0 && method.getReturnType() == ByteBuffer.class) {
-				ByteBuffer buffer = (ByteBuffer) method.invoke(pixmap);
-				if (buffer != null && buffer.capacity() >= SIZE * SIZE * BYTES_PER_PIXEL) return buffer;
-			}
-		}
-		throw new NoSuchMethodException("No pixel buffer on " + pixmap.getClass().getName());
 	}
 }

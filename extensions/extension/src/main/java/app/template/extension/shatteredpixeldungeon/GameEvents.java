@@ -22,6 +22,7 @@ public final class GameEvents {
 		safely(() -> ForceAttack.onSceneCreated(scene));
 		safely(() -> CustomItemTags.onSceneCreated(scene));
 		safely(() -> QuickTags.onSceneCreated(scene));
+		safely(() -> GameCapture.onSceneCreated(scene));
 		safely(ShopkeeperRules::applySoldItems);
 	}
 

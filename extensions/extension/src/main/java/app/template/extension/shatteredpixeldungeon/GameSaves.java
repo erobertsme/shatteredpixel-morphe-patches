@@ -7,11 +7,13 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
+import com.watabou.utils.Bundle;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,6 +40,10 @@ public final class GameSaves {
 	private static final java.util.regex.Pattern FOLDER = java.util.regex.Pattern.compile("game(\\d+)_([0-9a-f]+)");
 	private static final String INFO_FILE = "morphe_save_info.properties";
 	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
+	private static final String PICTURE_FILE = "morphe_save_picture.png";
+	private static final String HERO_FILE = "morphe_save_hero.dat";
+	private static final String HERO_KEY = "hero";
+	private static final String[] SAVE_ONLY_FILES = { INFO_FILE, PREVIEW_FILE, PICTURE_FILE, HERO_FILE };
 	private static final String GAME_FILE = "game.dat";
 	static final int MAX_SAVES = 10;
 	static final int MAX_AUTO_SAVES = 5;
@@ -71,10 +77,20 @@ public final class GameSaves {
 		}
 
 		/**
-		 * The hero as they were in this save, or null if it can't be read.
+		 * The picture of the dungeon around the hero taken from the game's own drawing when this save was made, or null for older saves.
+		 */
+		File picture() {
+			File file = new File(folder, PICTURE_FILE);
+			return file.isFile() ? file : null;
+		}
+
+		/**
+		 * The hero as they were in this save, or null if it can't be read. Reads the small copy of just the hero kept with the save, or the
+		 * whole saved game for older saves.
 		 */
 		Hero hero() {
-			File file = new File(folder, GAME_FILE);
+			File file = new File(folder, HERO_FILE);
+			if (!file.isFile()) file = new File(folder, GAME_FILE);
 			if (!file.isFile()) return null;
 			try {
 				return SnapshotHero.read(FileHelpers.read(file));
@@ -248,8 +264,7 @@ public final class GameSaves {
 				for (File file : current) FileHelpers.delete(file);
 			}
 			FileHelpers.copy(save.folder, target);
-			new File(target, INFO_FILE).delete();
-			new File(target, PREVIEW_FILE).delete();
+			stripSaveOnlyFiles(target);
 			GamesInProgress.setUnknown(slot);
 			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
 			Game.resetScene();
@@ -475,6 +490,8 @@ public final class GameSaves {
 				info.store(out, null);
 			}
 			writePreview(new File(target, PREVIEW_FILE));
+			writeHero(new File(target, GAME_FILE), new File(target, HERO_FILE));
+			GameCapture.request(new File(target, PICTURE_FILE));
 			return null;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not save", e);
@@ -530,6 +547,32 @@ public final class GameSaves {
 		});
 	}
 
+	/**
+	 * Keeps a copy of just the hero from the saved game [game] in [file], so showing the save doesn't read the whole game.
+	 */
+	private static void writeHero(File game, File file) {
+		try {
+			Bundle saved = Bundle.read(new ByteArrayInputStream(FileHelpers.read(game)));
+			Bundle hero = saved == null ? null : saved.getBundle(HERO_KEY);
+			if (hero == null) return;
+			Bundle copy = new Bundle();
+			copy.put(HERO_KEY, hero);
+			try (OutputStream out = new FileOutputStream(file)) {
+				Bundle.write(copy, out);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not keep a copy of the hero", e);
+			file.delete();
+		}
+	}
+
+	/**
+	 * Removes the files only a save has from [folder], a game's own slot that a save was just copied into.
+	 */
+	private static void stripSaveOnlyFiles(File folder) {
+		for (String name : SAVE_ONLY_FILES) new File(folder, name).delete();
+	}
+
 	private static void writePreview(File file) {
 		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
 			UndoScene.capture(false).write(out);
@@ -552,8 +595,7 @@ public final class GameSaves {
 				for (File file : current) FileHelpers.delete(file);
 			}
 			FileHelpers.copy(save.folder, target);
-			new File(target, INFO_FILE).delete();
-			new File(target, PREVIEW_FILE).delete();
+			stripSaveOnlyFiles(target);
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
 			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
 			Game.switchScene(InterlevelScene.class);
