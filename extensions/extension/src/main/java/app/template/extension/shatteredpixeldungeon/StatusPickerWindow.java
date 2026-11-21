@@ -18,6 +18,11 @@ public class StatusPickerWindow extends EditorWindow {
 	private static boolean infinite;
 	private static Char target;
 	private static Runnable backAction;
+	private static Chooser chooser;
+
+	interface Chooser {
+		void chosen(StatusEditor.Entry entry, int duration, boolean infinite);
+	}
 
 	/**
 	 * Opens the picker for [character]. [back] reopens the window the picker was opened from.
@@ -25,6 +30,18 @@ public class StatusPickerWindow extends EditorWindow {
 	static void openFor(Char character, Runnable back) {
 		target = character;
 		backAction = back;
+		chooser = null;
+		show(new StatusPickerWindow(FAVORITES, 0));
+	}
+
+	/**
+	 * Opens the picker to choose a status and duration for later, for the hero, and passes them to [onChosen] instead of adding the
+	 * status. [back] reopens the window the picker was opened from.
+	 */
+	static void openToChoose(Chooser onChosen, Runnable back) {
+		target = null;
+		backAction = back;
+		chooser = onChosen;
 		show(new StatusPickerWindow(FAVORITES, 0));
 	}
 
@@ -38,7 +55,7 @@ public class StatusPickerWindow extends EditorWindow {
 		Char hero = target != null ? target : Dungeon.hero;
 		boolean isHero = hero == Dungeon.hero;
 
-		addTitle("Add status", "Add status\n\nTap a status to add it for the chosen duration.\n\n_Infinite:_ never runs out.\n_Yellow statuses_ are already active; adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
+		addTitle(chooser == null ? "Add status" : "Choose status", "Add status\n\nTap a status to add it for the chosen duration.\n\n_Infinite:_ never runs out.\n_Yellow statuses_ are already active; adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
 		addButtonRow(KIND_NAMES, kind, index -> {
 			if (index != kind) replaceWith(new StatusPickerWindow(index, 0));
 		});
@@ -50,11 +67,7 @@ public class StatusPickerWindow extends EditorWindow {
 		if (entries.isEmpty()) addHint("No favorites yet. Tap the heart next to a status to add it here.");
 		addPagedList(entries.size(), perPage(7, 4), page, index -> {
 			StatusEditor.Entry entry = entries.get(index);
-			addListRow(entry.name, statusIcon(entry), StatusEditor.isActive(hero, entry.type), true, () -> {
-				StatusEditor.add(hero, entry.type, duration);
-				if (infinite && isHero) InfiniteStatuses.pin(entry.type, duration);
-				goBack();
-			}, () -> CharacterWindow.showBuffInfo(entry.sample), new Favorite() {
+			addListRow(entry.name, statusIcon(entry), StatusEditor.isActive(hero, entry.type), true, () -> choose(hero, entry), () -> CharacterWindow.showBuffInfo(entry.sample), new Favorite() {
 				@Override
 				public boolean isFavorite() {
 					return Favorites.isStatus(entry.type);
@@ -68,6 +81,19 @@ public class StatusPickerWindow extends EditorWindow {
 		}, newPage -> replaceWith(new StatusPickerWindow(kind, newPage)));
 
 		finishWithBack(this::back);
+	}
+
+	private void choose(Char hero, StatusEditor.Entry entry) {
+		boolean forever = infinite && hero == Dungeon.hero;
+		Chooser onChosen = chooser;
+		if (onChosen == null) {
+			StatusEditor.apply(hero, entry.type, duration, forever);
+			goBack();
+			return;
+		}
+		chooser = null;
+		hide();
+		onChosen.chosen(entry, duration, forever);
 	}
 
 	private static BuffIcon statusIcon(StatusEditor.Entry entry) {

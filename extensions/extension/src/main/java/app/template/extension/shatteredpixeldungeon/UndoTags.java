@@ -29,17 +29,14 @@ import java.util.List;
 @SuppressWarnings("unused")
 public final class UndoTags {
 
-	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 1, "CHANGES", 0).defaultOffset(52).defaultOpacity(70);
+	static final TagPlacement PLACEMENT = new TagPlacement("qol_undo_tags", TagPlacement.Side.LEFT, 0.35f, 1, "CHANGES", 0).defaultOffset(0).defaultOpacity(70);
 
 	/**
 	 * The Undo / Redo tag. It hides while undo mode is open.
 	 */
-	static final ScreenTag TAG = new ScreenTag("Undo / Redo", PLACEMENT, () -> UndoHistory.isOn() && !UndoTags.modeOpen, tag -> openMode(Game.scene()));
-
-	/**
-	 * Below the hero portrait and the busy circle under it.
-	 */
-	static final int UNDO_TOP = 52;
+	static final ScreenTag TAG = new ScreenTag("Undo / Redo", PLACEMENT, () -> !UndoTags.modeOpen, tag -> openMode(Game.scene()))
+		.enabledWhen(UndoHistory::isOn)
+		.removable("Remove the Undo / Redo tag? This switches Undo / Redo off. Switch it back on in Extras.", () -> UndoHistory.setOn(false));
 
 	private static final int BUTTON_WIDTH = 50;
 	private static final int BUTTON_HEIGHT = 20;

@@ -140,9 +140,9 @@ abstract class EditorWindow extends Window {
 			return;
 		}
 		int offset = placement.offset();
-		String from = current == TagPlacement.Side.TOP ? "from the left" : "from the top";
+		String from = current == TagPlacement.Side.TOP ? "past the health bar" : current == TagPlacement.Side.LEFT ? "below the turn timer" : "below the enemy counter";
 		stepperLabelAbove();
-		addStepper("Distance " + from + " (0 - " + placement.maxOffset() + ")", offset + " px", offset, 1, 0, placement.maxOffset(), placement::offset, true, placement::resetOffset);
+		addStepper("Distance " + from + " (" + placement.minOffset() + " to " + placement.maxOffset() + ")", offset + " px", offset, 1, placement.minOffset(), placement.maxOffset(), placement::offset, true, placement::resetOffset);
 	}
 
 	private Image nextStepperIcon;

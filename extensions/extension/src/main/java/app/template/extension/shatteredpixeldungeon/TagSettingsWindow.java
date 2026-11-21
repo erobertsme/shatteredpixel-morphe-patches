@@ -1,5 +1,6 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.watabou.noosa.ui.Component;
@@ -47,21 +48,28 @@ public class TagSettingsWindow extends EditorWindow {
 	private final TagPlacement placement;
 	private final String title;
 	private final Runnable back;
-	private final Runnable onDelete;
+	private final ScreenTag.Removal removal;
 
 	public TagSettingsWindow(TagPlacement placement, String title, Runnable back) {
 		this(placement, title, back, null);
 	}
 
 	/**
-	 * With [onDelete], the page also has a Delete Tag button that asks first.
+	 * The settings of one of the patches' tags, with a Remove Tag button when it can be removed.
 	 */
-	public TagSettingsWindow(TagPlacement placement, String title, Runnable back, Runnable onDelete) {
+	public TagSettingsWindow(ScreenTag tag, String title, Runnable back) {
+		this(tag.placement, title, back, tag.removal());
+	}
+
+	/**
+	 * With [removal], the page also has a Remove Tag button that asks first.
+	 */
+	private TagSettingsWindow(TagPlacement placement, String title, Runnable back, ScreenTag.Removal removal) {
 		super();
 		this.placement = placement;
 		this.title = title;
 		this.back = back;
-		this.onDelete = onDelete;
+		this.removal = removal;
 		addTitle(title, INFO);
 		if (placement.styled()) addPreview();
 		if (placement.styled()) {
@@ -89,13 +97,12 @@ public class TagSettingsWindow extends EditorWindow {
 		if (tab == 5) addOpacity();
 
 		pos += GAP;
-		if (onDelete != null) {
-			addButton("Delete Tag", 0, WIDTH, () -> ConfirmPrompt.ask("Delete Tag", "Delete this tag?", "Delete", () -> {
+		if (removal != null) {
+			addRowButton("Remove Tag", Icons.get(Icons.CLOSE), () -> ConfirmPrompt.ask("Remove Tag", removal.question, "Remove", () -> {
 				hide();
-				onDelete.run();
+				removal.remove.run();
 				back.run();
-			})).icon(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.CLOSE));
-			pos += ROW_HEIGHT + GAP;
+			}));
 		}
 		finishWithBack(() -> back.run());
 		relayoutIcons();
@@ -353,6 +360,6 @@ public class TagSettingsWindow extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new TagSettingsWindow(placement, title, back, onDelete));
+		show(new TagSettingsWindow(placement, title, back, removal));
 	}
 }

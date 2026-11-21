@@ -107,7 +107,8 @@ final class TagList {
 		int position = Math.max(0, ids().indexOf(id));
 		float share = Math.min(0.9f, 0.15f + 0.1f * position);
 		TagPlacement placement = new TagPlacement(prefix + "_" + id, side, share, 1, kind.icon(target(id)), 0);
-		tag = new ScreenTag(() -> name(id), placement, () -> kind.shows(target(id)), view -> kind.use(target(id), view));
+		tag = new ScreenTag(() -> name(id), placement, () -> kind.shows(target(id)), view -> kind.use(target(id), view))
+			.removable("Remove this tag?", () -> delete(id));
 		tags.put(id, tag);
 		return tag;
 	}

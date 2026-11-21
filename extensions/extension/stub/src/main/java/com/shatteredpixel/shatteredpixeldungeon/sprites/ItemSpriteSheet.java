@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.sprites;
 public class ItemSpriteSheet {
 	public static int SWORD;
 	public static int GOLD;
+	public static int RATION;
 	public static int CHEST;
 	public static int EBONY_CHEST;
 	public static int IRON_KEY;

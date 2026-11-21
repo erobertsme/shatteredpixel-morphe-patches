@@ -96,6 +96,7 @@ final class QuickActions {
 		list.add(window("game_saves", "Game Saves", "SCROLL_COLOR", SaveBackupActivity::isAvailable, () -> EditorWindow.show(new GameSavesWindow(0))));
 		list.add(window("undo_history", "Undo history", "CHANGES", UndoHistory::isAvailable, () -> EditorWindow.show(new UndoListWindow())));
 
+		list.add(action("teleport_tile", "Teleport to a tile", gameIcon("ITEM:", "SCROLL_TELEPORT"), EditorSwitches::teleport, Teleport::pickTile, null));
 		list.add(action("reveal_map", "Reveal map", gameIcon("ITEM:", "SCROLL_MAGICMAP"), EditorSwitches::floor, FloorEditor::revealMap, "The map is revealed."));
 		list.add(action("explore_map", "Mark explored", "BUFF:" + StatIcons.BUFF_MIND_VISION, EditorSwitches::floor, FloorEditor::exploreMap, "Every tile is marked as explored."));
 		list.add(action("forget_map", "Forget map", "BUFF:" + StatIcons.BUFF_DROWSY, EditorSwitches::floor, FloorEditor::forgetMap, "The map is forgotten."));
@@ -114,6 +115,7 @@ final class QuickActions {
 	 */
 	static Action find(String id) {
 		if (id == null) return null;
+		if (id.startsWith(STATUS_PREFIX)) return statusAction(id);
 		for (Action action : all()) {
 			if (action.id.equals(id)) return action;
 		}
@@ -124,10 +126,44 @@ final class QuickActions {
 		return new Action(id, name, icon, true, included, open);
 	}
 
+	/**
+	 * An action that runs straight away, then tells the player [done], when given.
+	 */
 	private static Action action(String id, String name, String icon, Check included, Runnable run, String done) {
 		return new Action(id, name, icon, false, included, () -> {
 			run.run();
-			GLog.i(done);
+			if (done != null) GLog.i(done);
+		});
+	}
+
+	private static final String STATUS_PREFIX = "status:";
+	private static final String INFINITE = "infinite";
+
+	/**
+	 * The id of an action that gives the hero the status [entry] for [turns] turns, or for good when [infinite].
+	 */
+	static String statusId(StatusEditor.Entry entry, int turns, boolean infinite) {
+		return STATUS_PREFIX + entry.type.getName() + ":" + turns + (infinite ? ":" + INFINITE : "");
+	}
+
+	/**
+	 * The action a status id from [statusId] stands for, or null when it is broken or its status no longer exists.
+	 */
+	private static Action statusAction(String id) {
+		String[] parts = id.substring(STATUS_PREFIX.length()).split(":");
+		StatusEditor.Entry entry = parts.length < 2 ? null : StatusEditor.entry(parts[0]);
+		if (entry == null) return null;
+		int turns;
+		try {
+			turns = Math.max(1, Integer.parseInt(parts[1]));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+		boolean infinite = parts.length > 2 && parts[2].equals(INFINITE);
+		String name = entry.name + " (" + (infinite ? "infinite" : turns + " turns") + ")";
+		return new Action(id, name, "BUFF:" + StatusEditor.iconOf(entry.sample), false, EditorSwitches::character, () -> {
+			StatusEditor.apply(Dungeon.hero, entry.type, turns, infinite);
+			GLog.i(entry.name + " applied.");
 		});
 	}
 

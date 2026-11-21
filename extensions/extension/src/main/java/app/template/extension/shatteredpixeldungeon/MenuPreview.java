@@ -64,7 +64,7 @@ final class MenuPreview {
 		}
 
 		if (!withTags) return true;
-		for (ScreenTag screenTag : ScreenTags.all()) {
+		for (ScreenTag screenTag : ScreenTags.enabled()) {
 			IconTag tag = new IconTag(() -> { });
 			tag.camera = ui;
 			screenTag.placement.place(tag, screenTag.rect());

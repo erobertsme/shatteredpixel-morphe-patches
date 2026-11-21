@@ -6,8 +6,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.utils.Bundle;
 
@@ -52,17 +50,8 @@ public final class EnemyEditor {
 	 * Lets the player pick a tile and sends [mob] there.
 	 */
 	static void chooseDestination(Mob mob) {
-		GameScene.selectCell(new CellSelector.Listener() {
-			@Override
-			public void onSelect(Integer cell) {
-				if (cell == null || !mob.isAlive()) return;
-				moveTo(mob, cell);
-			}
-
-			@Override
-			public String prompt() {
-				return "Choose where " + mob.name() + " should go";
-			}
+		CellPicker.pick("Choose where " + mob.name() + " should go", cell -> {
+			if (mob.isAlive()) moveTo(mob, cell);
 		});
 	}
 
@@ -81,23 +70,8 @@ public final class EnemyEditor {
 	 * Lets the player pick a tile and teleports [mob] there.
 	 */
 	static void chooseTeleport(Mob mob) {
-		GameScene.selectCell(new CellSelector.Listener() {
-			@Override
-			public void onSelect(Integer cell) {
-				if (cell == null || !mob.isAlive() || !FloorEditor.canStandOn(cell)) return;
-				try {
-					com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation.appear(mob, cell);
-					com.shatteredpixel.shatteredpixeldungeon.Dungeon.observe();
-					GameScene.updateFog();
-				} catch (Throwable e) {
-					Log.e(TAG, "Could not teleport " + mob.getClass().getName(), e);
-				}
-			}
-
-			@Override
-			public String prompt() {
-				return "Choose where to teleport " + mob.name();
-			}
+		CellPicker.pick("Choose where to teleport " + mob.name(), cell -> {
+			if (mob.isAlive()) Teleport.toCell(mob, cell);
 		});
 	}
 

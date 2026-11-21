@@ -35,7 +35,7 @@ public class QuickTagsWindow extends EditorWindow {
 	}
 
 	static void openTag(int id) {
-		show(new TagSettingsWindow(QuickTags.LIST.placement(id), QuickTags.LIST.name(id) + " Tag", () -> show(new QuickTagsWindow()), () -> QuickTags.LIST.delete(id)));
+		show(new TagSettingsWindow(QuickTags.LIST.tag(id), QuickTags.LIST.name(id) + " Tag", () -> show(new QuickTagsWindow())));
 	}
 
 	@Override

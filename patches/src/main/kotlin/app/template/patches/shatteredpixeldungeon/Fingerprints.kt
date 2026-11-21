@@ -619,6 +619,13 @@ object MobGetCloserFingerprint : Fingerprint(
 	parameters = listOf("I"),
 )
 
+object CellSelectorClickFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/CellSelector;",
+	name = "onClick",
+	returnType = "V",
+	parameters = listOf("Lcom/watabou/input/PointerEvent;"),
+)
+
 object GameSceneCreateFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/GameScene;",
 	name = "create",

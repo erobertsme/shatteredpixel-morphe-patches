@@ -77,7 +77,7 @@ final class TagLayoutEditor {
 
 	private static List<Entry> entries() {
 		List<Entry> entries = new ArrayList<>();
-		for (ScreenTag tag : ScreenTags.all()) entries.add(new Entry(tag));
+		for (ScreenTag tag : ScreenTags.enabled()) entries.add(new Entry(tag));
 		if (!QolSettings.isAvailable()) return entries;
 		for (int i = 0; i < GameTags.NAMES.length; i++) entries.add(new Entry(i));
 		return entries;
@@ -103,6 +103,7 @@ final class TagLayoutEditor {
 		PixelScene.align(hint);
 		add(scene, hint);
 
+		if (QolSettings.isAvailable()) add(scene, GameTagGhosts.danger());
 		for (Entry entry : entries()) addTag(scene, entry);
 
 		float buttons = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
@@ -132,7 +133,7 @@ final class TagLayoutEditor {
 			RenderedTextBlock name = PixelScene.renderTextBlock(entry.name, 6);
 			name.hardlight(LABEL_COLOR);
 			label = name;
-			placeLabel(entry, name, rect);
+			placeLabel(name, rect);
 		}
 		add(scene, visual);
 		add(scene, label);
@@ -178,7 +179,7 @@ final class TagLayoutEditor {
 				visual.setRect(placed[0], placed[1], placed[2], placed[3]);
 				visual.flip(side == TagPlacement.Side.LEFT);
 				if (visual instanceof IconTag) ((IconTag) visual).onTop(side == TagPlacement.Side.TOP);
-				placeLabel(entry, (RenderedTextBlock) label, placed);
+				placeLabel((RenderedTextBlock) label, placed);
 			}
 
 			@Override
@@ -195,11 +196,11 @@ final class TagLayoutEditor {
 	}
 
 	/**
-	 * Puts a tag's name under it, or for a game tag, on it.
+	 * Puts a tag's name under it.
 	 */
-	private static void placeLabel(Entry entry, RenderedTextBlock label, float[] rect) {
+	private static void placeLabel(RenderedTextBlock label, float[] rect) {
 		float x = rect[0] + (rect[2] - label.width()) / 2f;
-		float y = entry.isGameTag() ? rect[1] + (rect[3] - label.height()) / 2f : rect[1] + rect[3] + 1;
+		float y = rect[1] + rect[3] + 1;
 		label.setPos(Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), x)), y);
 		PixelScene.align(label);
 	}
@@ -236,7 +237,9 @@ final class TagLayoutEditor {
 	 */
 	private static void openSettings(Entry entry) {
 		clear();
-		EditorWindow.show(new TagSettingsWindow(entry.placement, entry.name, TagLayoutEditor::build));
+		EditorWindow.show(entry.screenTag == null
+			? new TagSettingsWindow(entry.placement, entry.name, TagLayoutEditor::build)
+			: new TagSettingsWindow(entry.screenTag, entry.name, TagLayoutEditor::build));
 	}
 
 	private static void reset() {

@@ -3,6 +3,9 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -170,6 +173,28 @@ public final class Teleport {
 			Game.switchScene(InterlevelScene.class);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not teleport to depth " + depth, e);
+		}
+	}
+
+	/**
+	 * Lets the player tap a tile on this floor and teleports the hero there.
+	 */
+	static void pickTile() {
+		Hero hero = Dungeon.hero;
+		if (hero == null || !hero.isAlive()) return;
+		CellPicker.pick("Choose where to teleport", cell -> {
+			if (hero.isAlive()) toCell(hero, cell);
+		});
+	}
+
+	/**
+	 * Teleports [ch] to [cell] on this floor, the way a Scroll of Teleportation does, or to the closest tile it can stand on.
+	 */
+	static void toCell(Char ch, int cell) {
+		try {
+			ScrollOfTeleportation.teleportToLocation(ch, cell);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not teleport to tile " + cell, e);
 		}
 	}
 

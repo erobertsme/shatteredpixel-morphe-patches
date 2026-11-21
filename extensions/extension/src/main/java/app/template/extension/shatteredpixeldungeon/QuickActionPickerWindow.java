@@ -26,6 +26,11 @@ public class QuickActionPickerWindow extends EditorWindow {
 			if (index != kind) replaceWith(new QuickActionPickerWindow(index));
 		});
 
+		if (kind == 1 && EditorSwitches.character()) {
+			addRowButton("Apply a chosen status", StatIcons.buff(StatIcons.BUFF_BARKSKIN), () -> StatusPickerWindow.openToChoose(
+				(entry, turns, infinite) -> QuickTagsWindow.openTag(QuickTags.LIST.add(QuickActions.statusId(entry, turns, infinite))),
+				() -> show(new QuickActionPickerWindow(1))));
+		}
 		List<QuickActions.Action> choices = choices(kind == 0);
 		if (choices.isEmpty()) addHint("Nothing here. The patches or editors these need aren't included or are switched off.");
 		addPagedList(choices.size(), perPage(8, 4), page, index -> {

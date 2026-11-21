@@ -6,6 +6,7 @@ public class DepthPickerWindow extends EditorWindow {
 
 	private static final String INFO = "Teleport to...\n\n"
 		+ "Pick any floor to go there straight away. The current floor is highlighted.\n\n"
+		+ "_A tile on this floor:_ tap any tile on this floor to appear there, or on the closest tile you can stand on.\n"
 		+ "_Arrive:_ at its entrance or its exit, your choice.\n_New floors:_ floors you haven't reached are created when you arrive, as if you took the stairs. Skipping floors also skips what's on them.";
 	private static final String[] REGIONS = { "Sewers", "Prison", "Caves", "Dwarven City", "Demon Halls", "Amulet" };
 	private static final int PER_ROW = 5;
@@ -20,6 +21,10 @@ public class DepthPickerWindow extends EditorWindow {
 	public DepthPickerWindow() {
 		super();
 		addTitle("Teleport to...", INFO);
+		addRowButton("A tile on this floor", StatIcons.item(StatIcons.SCROLL_PASSAGE), () -> {
+			hide();
+			Teleport.pickTile();
+		});
 		for (int region = 0; region < REGIONS.length; region++) {
 			int first = region * PER_ROW + 1;
 			if (first > Teleport.MAX_DEPTH) break;

@@ -2,6 +2,7 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.util.Log;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -324,7 +325,25 @@ final class StatusEditor {
 		return "";
 	}
 
-	private static int iconOf(Buff buff) {
+	/**
+	 * The status of class [className] in the catalog, or null when there is none.
+	 */
+	static Entry entry(String className) {
+		for (Entry entry : catalog()) {
+			if (entry.type.getName().equals(className)) return entry;
+		}
+		return null;
+	}
+
+	/**
+	 * Gives [ch] the status [type] for [duration] turns. For the hero, [infinite] keeps it from ever running out.
+	 */
+	static void apply(Char ch, Class<? extends Buff> type, int duration, boolean infinite) {
+		add(ch, type, duration);
+		if (infinite && ch == Dungeon.hero) InfiniteStatuses.pin(type, duration);
+	}
+
+	static int iconOf(Buff buff) {
 		try {
 			return buff.icon();
 		} catch (Throwable e) {
