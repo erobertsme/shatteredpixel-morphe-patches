@@ -91,9 +91,9 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += GAP;
 		if (tab == 0) addPlacementSettings(placement);
 		if (tab == 1) addSizes();
-		if (tab == 2) addColorChooser(placement.color(), placement::color, placement::resetColor, false);
+		if (tab == 2) addColorChooser(placement.color(), TagPlacement.TAG_COLOR, placement::color, placement::resetColor, false);
 		if (tab == 3) addIconChooser();
-		if (tab == 4) addColorChooser(placement.iconColor(), placement::iconColor, placement::resetIconColor, true);
+		if (tab == 4) addColorChooser(placement.iconColor(), TagPlacement.ICON_COLOR, placement::iconColor, placement::resetIconColor, true);
 		if (tab == 5) addOpacity();
 
 		pos += GAP;
@@ -187,7 +187,7 @@ public class TagSettingsWindow extends EditorWindow {
 		pos += height + 2 * GAP;
 	}
 
-	private void addColorChooser(int current, IntAction setter, Runnable reset, boolean original) {
+	private void addColorChooser(int current, String which, IntAction setter, Runnable reset, boolean original) {
 		float width = (WIDTH - (PER_ROW - 1) * GAP) / (float) PER_ROW;
 		int count = SWATCHES.length + (original ? 1 : 0);
 		for (int i = 0; i < count; i++) {
@@ -232,14 +232,13 @@ public class TagSettingsWindow extends EditorWindow {
 		}
 		pos += SWATCH_HEIGHT + 2 * GAP;
 
-		int base = current < 0 ? 0xFFFFFF : current;
-		float[] hsl = Colors.toHsl(base);
-		int hue = Math.round(hsl[0]);
-		int saturation = Math.round(hsl[1] * 100);
-		int lightness = Math.round(hsl[2] * 100);
-		addStepper("Hue", String.valueOf(hue), hue, 10, 0, 359, value -> setter.run(Colors.fromHsl(((value % 360) + 360) % 360, saturation / 100f, lightness / 100f)), true, reset);
-		addStepper("Saturation", saturation + "%", saturation, 5, 0, 100, value -> setter.run(Colors.fromHsl(hue, clamp(value) / 100f, lightness / 100f)), true, reset);
-		addStepper("Lightness", lightness + "%", lightness, 5, 0, 100, value -> setter.run(Colors.fromHsl(hue, saturation / 100f, clamp(value) / 100f)), true, reset);
+		int[] hsl = placement.hsl(which, current < 0 ? 0xFFFFFF : current);
+		int hue = hsl[0];
+		int saturation = hsl[1];
+		int lightness = hsl[2];
+		addStepper("Hue", String.valueOf(hue), hue, 10, 0, 359, value -> placement.hsl(which, value, saturation, lightness), true, reset);
+		addStepper("Saturation", saturation + "%", saturation, 5, 0, 100, value -> placement.hsl(which, hue, value, lightness), true, reset);
+		addStepper("Lightness", lightness + "%", lightness, 5, 0, 100, value -> placement.hsl(which, hue, saturation, value), true, reset);
 	}
 
 	/**
@@ -352,10 +351,6 @@ public class TagSettingsWindow extends EditorWindow {
 		int iconOpacity = placement.iconOpacity();
 		addStepper("Tag", tagOpacity + "%", tagOpacity, 5, 0, 100, placement::tagOpacity, true, placement::resetOpacity);
 		addStepper("Icon", iconOpacity + "%", iconOpacity, 5, 0, 100, placement::iconOpacity, true, placement::resetOpacity);
-	}
-
-	private static int clamp(int value) {
-		return Math.max(0, Math.min(100, value));
 	}
 
 	@Override

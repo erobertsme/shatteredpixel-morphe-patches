@@ -36,6 +36,7 @@ final class TagPlacement {
 	private static final String POSITION = "_position";
 	private static final String POSITION_SET = "_position_set";
 	private static final String OLD_OFFSET = "_offset";
+	private static final String HSL = "_hsl";
 	private final String defaultIcon;
 	private final int defaultRotation;
 	private final int defaultColor;
@@ -255,6 +256,43 @@ final class TagPlacement {
 
 	void resetColor() {
 		storeInt(key + "_color", 0);
+	}
+
+	static final String TAG_COLOR = "_color";
+	static final String ICON_COLOR = "_icon_color";
+
+	/**
+	 * The hue (0 to 359), saturation and lightness (0 to 100) last chosen for the colour [which], TAG_COLOR or ICON_COLOR, while they still
+	 * give [rgb]. Otherwise they are worked out from [rgb]. This keeps the hue and saturation when lightness alone would hide them, such as
+	 * at full lightness, where every hue is white.
+	 */
+	int[] hsl(String which, int rgb) {
+		String[] parts = String.valueOf(CloverlordSettings.getString(key + which + HSL)).split(",");
+		if (parts.length == 3) {
+			try {
+				int[] chosen = { Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]) };
+				if (Colors.fromHsl(chosen[0], chosen[1] / 100f, chosen[2] / 100f) == rgb) return chosen;
+			} catch (NumberFormatException ignored) {
+			}
+		}
+		float[] worked = Colors.toHsl(rgb);
+		return new int[] { Math.round(worked[0]) % 360, Math.round(worked[1] * 100), Math.round(worked[2] * 100) };
+	}
+
+	/**
+	 * Sets the colour [which], TAG_COLOR or ICON_COLOR, from [hue], [saturation] and [lightness], keeping them as chosen.
+	 */
+	void hsl(String which, int hue, int saturation, int lightness) {
+		int h = ((hue % 360) + 360) % 360;
+		int s = Math.max(0, Math.min(100, saturation));
+		int l = Math.max(0, Math.min(100, lightness));
+		CloverlordSettings.setString(key + which + HSL, h + "," + s + "," + l);
+		int rgb = Colors.fromHsl(h, s / 100f, l / 100f);
+		if (which.equals(ICON_COLOR)) {
+			iconColor(rgb);
+			return;
+		}
+		color(rgb);
 	}
 
 	String icon() {
