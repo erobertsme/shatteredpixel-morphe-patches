@@ -9,22 +9,29 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Scene;
 
 /**
- * Continues the game in progress from its save files without the game's loading screen. The files are read while the screen is blank
- * between the two scenes, the same way the loading screen reads them, then the game scene opens with its usual fade. If reading fails,
- * the game's own loading screen tries again and reports the problem.
+ * Continues the game in progress from its save files without the game's loading screen. The screen fades quickly to black, the files are
+ * read the same way the loading screen reads them, then the game scene fades quickly in. If reading fails, the game's own loading screen
+ * tries again and reports the problem.
  */
 public class ContinueScene extends Scene {
 
 	private static final String TAG = "ContinueScene";
+	private static final float FADE_SECONDS = 0.2f;
 
 	static void start() {
 		InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
-		Game.switchScene(ContinueScene.class);
+		Scene current = Game.scene();
+		if (current == null) {
+			Game.switchScene(ContinueScene.class);
+			return;
+		}
+		ScreenFade.out(current, FADE_SECONDS, () -> Game.switchScene(ContinueScene.class));
 	}
 
 	@Override
@@ -42,7 +49,17 @@ public class ContinueScene extends Scene {
 			} else {
 				Dungeon.switchLevel(Dungeon.loadLevel(slot), Dungeon.hero.pos);
 			}
-			Game.switchScene(GameScene.class);
+			PixelScene.noFade = true;
+			Game.switchScene(GameScene.class, new Game.SceneChangeCallback() {
+				@Override
+				public void beforeCreate() {
+				}
+
+				@Override
+				public void afterCreate() {
+					ScreenFade.in(Game.scene(), FADE_SECONDS);
+				}
+			});
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not continue the game, so the loading screen tries", e);
 			Game.switchScene(InterlevelScene.class);
