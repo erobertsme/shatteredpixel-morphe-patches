@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-21T18:36:14",
-  "description": "## [1.3.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0-dev.1) (2026-11-21)\n\n### ✨ New Features\n\n* Status and teleport quick tags, tag positions from the UI edge ([063f9d0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/063f9d072a5e1f515d9f432f663443bad44ca00e))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.3.0-dev.1/patches-1.3.0-dev.1.mpp",
+  "created_at": "2026-11-21T21:05:28",
+  "description": "## [1.3.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.1...v1.3.0-dev.2) (2026-11-21)\n\n### 🐛 Bug Fixes\n\n* Keep the chosen hue and saturation of tag colours at high lightness ([73dec0c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/73dec0c00b45c94921031cc0e65b2d59f1ae3aff))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.3.0-dev.2/patches-1.3.0-dev.2.mpp",
   "signature_download_url": "",
-  "version": "1.3.0-dev.1"
+  "version": "1.3.0-dev.2"
 }

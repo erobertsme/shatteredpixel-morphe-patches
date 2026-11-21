@@ -1,3 +1,9 @@
+## [1.3.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.1...v1.3.0-dev.2) (2026-11-21)
+
+### 🐛 Bug Fixes
+
+* Keep the chosen hue and saturation of tag colours at high lightness ([73dec0c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/73dec0c00b45c94921031cc0e65b2d59f1ae3aff))
+
 ## [1.3.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0-dev.1) (2026-11-21)
 
 ### ✨ New Features
