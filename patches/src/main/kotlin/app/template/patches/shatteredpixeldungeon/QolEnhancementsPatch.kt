@@ -74,6 +74,7 @@ val qolEnhancementsPatch = bytecodePatch(
 
 		HeroReadyFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onHeroReady()V")
 		HeroBusyFingerprint.method.addInstruction(0, "invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onHeroBusy()V")
+		HeroActFingerprint.method.addInstruction(0, "invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/WaitCancel;->onHeroAct(Ljava/lang/Object;)V")
 		QuickSlotButtonRefreshFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onItemsChanged()V")
 		GameSceneGameOverFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameEvents;->onGameOver()V")
 

@@ -53,6 +53,7 @@ public final class PathPreview {
 	private final int target;
 	private final int heroPos;
 	private final List<Gizmo> overlay = new ArrayList<>();
+	private Integer tapped;
 
 	private PathPreview(int target, int heroPos) {
 		this.scene = Game.scene();
@@ -72,14 +73,26 @@ public final class PathPreview {
 	}
 
 	/**
-	 * Called at the start of the game's default tap handler. Returns true when the tap was used for a preview.
+	 * Called at the start of the game's default tap handler. Returns true when the tap was used for a preview. A tap on an unexplored area
+	 * previews the walk to the closest explored tile; tapping the same spot again walks there, while a tap elsewhere in the dark only moves
+	 * the spot.
 	 */
 	public static boolean interceptTap(Integer cell) {
 		Integer target = UnexploredTaps.redirect(cell);
 		if (target == null) return handleTap(cell);
-		if (active != null && target.equals(active.target) && active.isCurrent()) return true;
-		if (handleTap(target)) return true;
-		UnexploredTaps.walk(target);
+		if (active != null && target.equals(active.target) && active.isCurrent()) {
+			if (cell.equals(active.tapped)) {
+				go();
+				return true;
+			}
+			active.tapped = cell;
+			return true;
+		}
+		if (!handleTap(target)) {
+			UnexploredTaps.walk(target);
+			return true;
+		}
+		if (active != null) active.tapped = cell;
 		return true;
 	}
 

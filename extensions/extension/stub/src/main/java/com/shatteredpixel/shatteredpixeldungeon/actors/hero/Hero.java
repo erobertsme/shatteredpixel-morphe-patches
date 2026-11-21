@@ -20,6 +20,7 @@ public class Hero extends Char {
 	public LinkedHashMap<Talent, Talent> metamorphedTalents;
 
 	public boolean ready;
+	public boolean resting;
 	public HeroAction lastAction;
 	public HeroAction curAction;
 	public float attackDelay() { throw new RuntimeException("Stub"); }

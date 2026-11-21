@@ -46,7 +46,10 @@ public final class GameEvents {
 	 * Called at the end of Hero.ready, when the hero waits for your next move.
 	 */
 	public static void onHeroReady() {
-		Game.runOnRenderThread(() -> safely(ResumePath::refresh));
+		Game.runOnRenderThread(() -> {
+			safely(ResumePath::refresh);
+			safely(WaitCancel::onHeroReady);
+		});
 	}
 
 	/**
