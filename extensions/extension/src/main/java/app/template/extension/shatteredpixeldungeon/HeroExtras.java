@@ -274,9 +274,10 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called at the start of the Hero constructor.
+	 * Called at the start of the Hero constructor. A stand-in hero made to show a save or undo step leaves the game's values alone.
 	 */
 	public static void reset() {
+		if (SnapshotHero.restoring) return;
 		for (int i = 0; i < bonusTalentPoints.length; i++) bonusTalentPoints[i] = 0;
 		resetMods();
 		InfiniteStatuses.reset();
