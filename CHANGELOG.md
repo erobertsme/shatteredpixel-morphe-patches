@@ -1,3 +1,12 @@
+## [1.2.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.1.0...v1.2.0) (2026-11-21)
+
+### ✨ New Features
+
+* Identify speed mod, and dim instead of black when loading ([8f80fad](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8f80fadaf8f2f3a72da7eead1accec41b6bd5f80))
+* Keep undo steps as Game Saves ([b17d1a5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b17d1a56115dd4fa0101b11082ce38e0d350583e))
+* Load saves and undo steps without the loading screen ([9c1c41e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9c1c41e6cff8788a6085d88546e860cc67ab1179))
+* Quick fades when loading saves and undo steps ([c703da7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c703da7671388756a88b7350ebfee0a4c48d0175))
+
 ## [1.2.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0-dev.3...v1.2.0-dev.4) (2026-11-21)
 
 ### ✨ New Features
