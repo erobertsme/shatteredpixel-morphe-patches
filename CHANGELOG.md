@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.4...v1.1.0) (2026-11-21)
+
+### ✨ New Features
+
+* Game saves keep a picture of the dungeon from the game's own drawing ([c275a77](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c275a7799afdce341119c39c6891ed330acdc3c2))
+
 ## [1.0.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.0.3...v1.0.4) (2026-11-21)
 
 ### 🐛 Bug Fixes
