@@ -1,3 +1,9 @@
+## [1.3.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.2.0...v1.3.0-dev.1) (2026-11-21)
+
+### ✨ New Features
+
+* Status and teleport quick tags, tag positions from the UI edge ([063f9d0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/063f9d072a5e1f515d9f432f663443bad44ca00e))
+
 ## [1.2.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.1.0...v1.2.0) (2026-11-21)
 
 ### ✨ New Features
