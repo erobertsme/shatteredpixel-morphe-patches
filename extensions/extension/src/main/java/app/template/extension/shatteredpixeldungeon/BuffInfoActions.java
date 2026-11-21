@@ -10,8 +10,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 /**
- * A Remove button in the header of a status's info window, for your hero with the Character editor and for
- * creatures with the Enemy editor.
+ * Edit and Remove buttons in the header of a status's info window, for your hero with the Character editor and for creatures with the
+ * Enemy editor.
  */
 @SuppressWarnings("unused")
 public final class BuffInfoActions {
@@ -41,23 +41,34 @@ public final class BuffInfoActions {
 		if (hero && !EditorSwitches.character()) return;
 		if (creature && !(EnemyWindow.isAvailable() && EditorSwitches.enemy())) return;
 		if (!hero && !creature) return;
-		Window info = window;
+		Runnable back = after != null ? after : () -> { };
 		try {
-			WindowHeader.add(info, WindowHeader.smallButton("Remove", Icons.CLOSE, () -> {
-				info.hide();
-				if (hero) {
-					InfiniteStatuses.removeForever(buff);
-				} else {
-					StatusEditor.remove(buff);
-				}
-				try {
-					BuffIndicator.refreshHero();
-				} catch (Throwable ignored) {
-				}
-				if (after != null) after.run();
+			WindowHeader.add(window, WindowHeader.smallButton("Remove", Icons.CLOSE, () -> {
+				window.hide();
+				remove(buff);
+				back.run();
 			}), REMOVE_WIDTH, WindowHeader.SMALL_HEIGHT, WindowHeader.PRIORITY_ACTION);
+			WindowHeader.addEdit(window, () -> {
+				window.hide();
+				EditorWindow.show(new StatusWindow(buff, back));
+			});
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not add the Remove button", e);
+			Log.e(TAG, "Could not add the status buttons", e);
+		}
+	}
+
+	/**
+	 * Removes [buff] from its character. For your hero it also stops being infinite.
+	 */
+	static void remove(Buff buff) {
+		if (buff.target == Dungeon.hero) {
+			InfiniteStatuses.removeForever(buff);
+		} else {
+			StatusEditor.remove(buff);
+		}
+		try {
+			BuffIndicator.refreshHero();
+		} catch (Throwable ignored) {
 		}
 	}
 }

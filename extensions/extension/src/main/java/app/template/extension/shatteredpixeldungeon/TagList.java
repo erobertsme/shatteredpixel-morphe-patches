@@ -26,6 +26,8 @@ final class TagList {
 	private final TagPlacement.Side side;
 	private final Kind kind;
 	private final Map<Integer, ScreenTag> tags = new HashMap<>();
+	private String changeLabel;
+	private IntAction changer;
 
 	/**
 	 * [prefix] names the saved settings: its list, each tag's target under [targetSuffix], and its placement. New tags start on [side].
@@ -35,6 +37,25 @@ final class TagList {
 		this.targetSuffix = targetSuffix;
 		this.side = side;
 		this.kind = kind;
+	}
+
+	/**
+	 * Lets each tag's target be changed with [chooser], given the tag's id, from a button labeled [label].
+	 */
+	TagList changeable(String label, IntAction chooser) {
+		changeLabel = label;
+		changer = chooser;
+		return this;
+	}
+
+	/**
+	 * Makes the tag [id] stand for [target] instead, keeping its place and look.
+	 */
+	void setTarget(int id, String target) {
+		CloverlordSettings.setString(targetKey(id), target);
+		ScreenTag old = tags.remove(id);
+		if (old != null) old.remove();
+		ScreenTags.rebuild();
 	}
 
 	List<Integer> ids() {
@@ -109,6 +130,7 @@ final class TagList {
 		TagPlacement placement = new TagPlacement(prefix + "_" + id, side, share, 1, kind.icon(target(id)), 0);
 		tag = new ScreenTag(() -> name(id), placement, () -> kind.shows(target(id)), view -> kind.use(target(id), view))
 			.removable("Remove this tag?", () -> delete(id));
+		if (changer != null) tag.changeable(changeLabel, () -> changer.run(id));
 		tags.put(id, tag);
 		return tag;
 	}

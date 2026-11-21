@@ -266,14 +266,22 @@ final class StatusEditor {
 		}
 	}
 
+	/**
+	 * Whether a status's turns can be changed. A status whose only number is its amount, like Barkskin's armor, has its amount edited
+	 * instead.
+	 */
 	static boolean isTurnsEditable(Buff buff) {
-		return buff instanceof FlavourBuff || durationField(buff) != null;
+		if (buff instanceof FlavourBuff) return true;
+		Field duration = durationField(buff);
+		return duration != null && !duration.equals(amountField(buff));
 	}
 
 	static int turnsValue(Buff buff) {
-		try {
-			return Math.round(Float.parseFloat(buff.iconTextDisplay().trim()));
-		} catch (Throwable ignored) {
+		if (amountField(buff) == null) {
+			try {
+				return Math.round(Float.parseFloat(buff.iconTextDisplay().trim()));
+			} catch (Throwable ignored) {
+			}
 		}
 		Field field = durationField(buff);
 		if (field == null) return 0;
@@ -316,6 +324,96 @@ final class StatusEditor {
 		return null;
 	}
 
+	private static final String GAME_PACKAGE = "com.shatteredpixel.shatteredpixeldungeon.";
+
+	/**
+	 * Statuses that keep a number besides how long they last: the class, the field and what the number is called. A class also covers the
+	 * statuses based on it, so ShieldBuff covers Barrier and the other shields.
+	 */
+	private static final String[][] AMOUNTS = {
+		{ "actors.buffs.Healing", "healingLeft", "Healing left" },
+		{ "actors.buffs.Combo", "count", "Combo" },
+		{ "actors.buffs.ShieldBuff", "shielding", "Shield" },
+		{ "actors.buffs.Momentum", "momentumStacks", "Momentum" },
+		{ "actors.buffs.MonkEnergy", "energy", "Energy" },
+		{ "actors.buffs.AdrenalineSurge", "boost", "Strength" },
+		{ "actors.buffs.ArcaneArmor", "level", "Armor" },
+		{ "actors.buffs.Barkskin", "level", "Armor" },
+		{ "actors.buffs.Bleeding", "level", "Damage" },
+		{ "actors.buffs.Corrosion", "damage", "Damage" },
+		{ "actors.buffs.PhysicalEmpower", "dmgBoost", "Damage boost" },
+		{ "actors.buffs.WandEmpower", "dmgBoost", "Damage boost" },
+		{ "actors.buffs.PrismaticGuard", "HP", "Health" },
+		{ "items.wands.WandOfLivingEarth$RockArmor", "armor", "Armor" },
+		{ "plants.Earthroot$Armor", "level", "Armor" },
+		{ "plants.Sungrass$Health", "level", "Healing" },
+		{ "items.weapon.enchantments.Kinetic$ConservedDamage", "preservedDamage", "Stored damage" },
+		{ "items.weapon.melee.Sai$ComboStrikeTracker", "hits", "Hits" },
+		{ "items.armor.glyphs.Viscosity$DeferedDamage", "damage", "Damage" },
+	};
+
+	private static String[] amountOf(Class<?> type) {
+		for (String[] amount : AMOUNTS) {
+			try {
+				if (Class.forName(GAME_PACKAGE + amount[0]).isAssignableFrom(type)) return amount;
+			} catch (ClassNotFoundException ignored) {
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * What the extra number of statuses of [type] is called, or null for a status without one.
+	 */
+	static String amountLabel(Class<?> type) {
+		String[] amount = amountOf(type);
+		return amount == null ? null : amount[2];
+	}
+
+	/**
+	 * Whether statuses of [type] keep an extra number apart from their duration, so adding one asks for both.
+	 */
+	static boolean hasSeparateAmount(Class<?> type) {
+		String[] amount = amountOf(type);
+		return amount != null && !java.util.Arrays.asList(DURATION_FIELDS).contains(amount[1]);
+	}
+
+	private static Field amountField(Buff buff) {
+		String[] amount = amountOf(buff.getClass());
+		if (amount == null) return null;
+		try {
+			return Reflect.field(buff.getClass(), amount[1]);
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+	}
+
+	static int amountValue(Buff buff) {
+		Field field = amountField(buff);
+		if (field == null) return 0;
+		try {
+			return Math.round(field.getType() == int.class ? field.getInt(buff) : field.getFloat(buff));
+		} catch (Throwable e) {
+			return 0;
+		}
+	}
+
+	static void setAmount(Buff buff, int amount) {
+		Field field = amountField(buff);
+		if (field == null) return;
+		int value = Math.max(0, amount);
+		try {
+			if (field.getType() == int.class) {
+				field.setInt(buff, value);
+			} else {
+				field.setFloat(buff, value);
+			}
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not set the amount of " + buff.getClass().getName(), e);
+		}
+		refreshIndicator();
+	}
+
 	static String turnsOf(Buff buff) {
 		try {
 			String text = buff.iconTextDisplay();
@@ -339,8 +437,18 @@ final class StatusEditor {
 	 * Gives [ch] the status [type] for [duration] turns. For the hero, [infinite] keeps it from ever running out.
 	 */
 	static void apply(Char ch, Class<? extends Buff> type, int duration, boolean infinite) {
+		apply(ch, type, duration, infinite, -1);
+	}
+
+	/**
+	 * Like the other apply, and sets the status's extra number, such as healing left or combo, to [amount] when it is 0 or more.
+	 */
+	static void apply(Char ch, Class<? extends Buff> type, int duration, boolean infinite, int amount) {
 		add(ch, type, duration);
 		if (infinite && ch == Dungeon.hero) InfiniteStatuses.pin(type, duration);
+		if (amount < 0) return;
+		Buff buff = ch.buff(type);
+		if (buff != null) setAmount(buff, amount);
 	}
 
 	static int iconOf(Buff buff) {

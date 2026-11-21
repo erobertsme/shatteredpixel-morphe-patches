@@ -25,6 +25,19 @@ final class ScreenTag {
 	}
 
 	/**
+	 * How what a tag does is changed, and the button's label.
+	 */
+	static final class Change {
+		final String label;
+		final Runnable change;
+
+		Change(String label, Runnable change) {
+			this.label = label;
+			this.change = change;
+		}
+	}
+
+	/**
 	 * How a tag is removed, and the question asked first.
 	 */
 	static final class Removal {
@@ -43,6 +56,7 @@ final class ScreenTag {
 	private final Tap tap;
 	private Check enabled = () -> true;
 	private Removal removal;
+	private Change change;
 	private IconTag view;
 
 	ScreenTag(Name name, TagPlacement placement, Check shows, Tap tap) {
@@ -78,6 +92,21 @@ final class ScreenTag {
 	ScreenTag removable(String question, Runnable remove) {
 		removal = new Removal(question, remove);
 		return this;
+	}
+
+	/**
+	 * Lets what the tag does be changed with [change], from a button labeled [label].
+	 */
+	ScreenTag changeable(String label, Runnable change) {
+		this.change = new Change(label, change);
+		return this;
+	}
+
+	/**
+	 * How what the tag does is changed, or null when it can't be.
+	 */
+	Change change() {
+		return change;
 	}
 
 	/**

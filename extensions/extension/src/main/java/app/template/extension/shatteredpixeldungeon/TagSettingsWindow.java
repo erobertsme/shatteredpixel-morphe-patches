@@ -49,27 +49,29 @@ public class TagSettingsWindow extends EditorWindow {
 	private final String title;
 	private final Runnable back;
 	private final ScreenTag.Removal removal;
+	private final ScreenTag.Change change;
 
 	public TagSettingsWindow(TagPlacement placement, String title, Runnable back) {
-		this(placement, title, back, null);
+		this(placement, title, back, null, null);
 	}
 
 	/**
 	 * The settings of one of the patches' tags, with a Remove Tag button when it can be removed.
 	 */
 	public TagSettingsWindow(ScreenTag tag, String title, Runnable back) {
-		this(tag.placement, title, back, tag.removal());
+		this(tag.placement, title, back, tag.removal(), tag.change());
 	}
 
 	/**
 	 * With [removal], the page also has a Remove Tag button that asks first.
 	 */
-	private TagSettingsWindow(TagPlacement placement, String title, Runnable back, ScreenTag.Removal removal) {
+	private TagSettingsWindow(TagPlacement placement, String title, Runnable back, ScreenTag.Removal removal, ScreenTag.Change change) {
 		super();
 		this.placement = placement;
 		this.title = title;
 		this.back = back;
 		this.removal = removal;
+		this.change = change;
 		addTitle(title, INFO);
 		if (placement.styled()) addPreview();
 		if (placement.styled()) {
@@ -97,6 +99,12 @@ public class TagSettingsWindow extends EditorWindow {
 		if (tab == 5) addOpacity();
 
 		pos += GAP;
+		if (change != null) {
+			addRowButton(change.label, null, () -> {
+				hide();
+				change.change.run();
+			});
+		}
 		if (removal != null) {
 			addRowButton("Remove Tag", Icons.get(Icons.CLOSE), () -> ConfirmPrompt.ask("Remove Tag", removal.question, "Remove", () -> {
 				hide();
@@ -355,6 +363,6 @@ public class TagSettingsWindow extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new TagSettingsWindow(placement, title, back, removal));
+		show(new TagSettingsWindow(placement, title, back, removal, change));
 	}
 }

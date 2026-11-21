@@ -32,7 +32,7 @@ public final class QuickTags {
 			QuickActions.Action action = QuickActions.find(target);
 			if (action != null) action.run();
 		}
-	});
+	}).changeable("Change Action", QuickActionPickerWindow::openToChange);
 
 	private QuickTags() {
 	}

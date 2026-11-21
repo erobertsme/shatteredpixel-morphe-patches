@@ -21,7 +21,7 @@ public class StatusPickerWindow extends EditorWindow {
 	private static Chooser chooser;
 
 	interface Chooser {
-		void chosen(StatusEditor.Entry entry, int duration, boolean infinite);
+		void chosen(StatusEditor.Entry entry, int duration, boolean infinite, int amount);
 	}
 
 	/**
@@ -83,17 +83,29 @@ public class StatusPickerWindow extends EditorWindow {
 		finishWithBack(this::back);
 	}
 
+	/**
+	 * Adds or passes on [entry], first asking for its extra number, such as healing left or combo, when it keeps one.
+	 */
 	private void choose(Char hero, StatusEditor.Entry entry) {
 		boolean forever = infinite && hero == Dungeon.hero;
+		String amountLabel = StatusEditor.amountLabel(entry.type);
+		if (!StatusEditor.hasSeparateAmount(entry.type)) {
+			finishChoice(hero, entry, forever, -1);
+			return;
+		}
+		NumberPrompt.show(amountLabel, duration, 0, 9999, amount -> finishChoice(hero, entry, forever, amount), () -> { });
+	}
+
+	private void finishChoice(Char hero, StatusEditor.Entry entry, boolean forever, int amount) {
 		Chooser onChosen = chooser;
 		if (onChosen == null) {
-			StatusEditor.apply(hero, entry.type, duration, forever);
+			StatusEditor.apply(hero, entry.type, duration, forever, amount);
 			goBack();
 			return;
 		}
 		chooser = null;
 		hide();
-		onChosen.chosen(entry, duration, forever);
+		onChosen.chosen(entry, duration, forever, amount);
 	}
 
 	private static BuffIcon statusIcon(StatusEditor.Entry entry) {

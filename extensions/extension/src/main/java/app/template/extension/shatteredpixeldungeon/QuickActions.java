@@ -138,12 +138,21 @@ final class QuickActions {
 
 	private static final String STATUS_PREFIX = "status:";
 	private static final String INFINITE = "infinite";
+	private static final String AMOUNT = "amount";
 
 	/**
 	 * The id of an action that gives the hero the status [entry] for [turns] turns, or for good when [infinite].
 	 */
-	static String statusId(StatusEditor.Entry entry, int turns, boolean infinite) {
-		return STATUS_PREFIX + entry.type.getName() + ":" + turns + (infinite ? ":" + INFINITE : "");
+	static String statusId(StatusEditor.Entry entry, int turns, boolean infinite, int amount) {
+		return STATUS_PREFIX + entry.type.getName() + ":" + turns + (infinite ? ":" + INFINITE : "") + (amount >= 0 ? ":" + AMOUNT + amount : "");
+	}
+
+	private static int parseAmount(String text) {
+		try {
+			return Math.max(0, Integer.parseInt(text));
+		} catch (NumberFormatException e) {
+			return -1;
+		}
 	}
 
 	/**
@@ -159,10 +168,18 @@ final class QuickActions {
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		boolean infinite = parts.length > 2 && parts[2].equals(INFINITE);
-		String name = entry.name + " (" + (infinite ? "infinite" : turns + " turns") + ")";
+		boolean infinite = false;
+		int amount = -1;
+		for (int i = 2; i < parts.length; i++) {
+			if (parts[i].equals(INFINITE)) infinite = true;
+			if (parts[i].startsWith(AMOUNT)) amount = parseAmount(parts[i].substring(AMOUNT.length()));
+		}
+		String amountText = amount < 0 ? "" : ", " + StatusEditor.amountLabel(entry.type).toLowerCase() + " " + amount;
+		String name = entry.name + " (" + (infinite ? "infinite" : turns + " turns") + amountText + ")";
+		boolean forever = infinite;
+		int chosenAmount = amount;
 		return new Action(id, name, "BUFF:" + StatusEditor.iconOf(entry.sample), false, EditorSwitches::character, () -> {
-			StatusEditor.apply(Dungeon.hero, entry.type, turns, infinite);
+			StatusEditor.apply(Dungeon.hero, entry.type, turns, forever, chosenAmount);
 			GLog.i(entry.name + " applied.");
 		});
 	}
