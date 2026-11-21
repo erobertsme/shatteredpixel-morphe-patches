@@ -1,3 +1,9 @@
+## [1.3.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.3...v1.3.0-dev.4) (2026-11-21)
+
+### 🐛 Bug Fixes
+
+* Spell grey as grey ([91ef62c](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/91ef62ce55244d9d2f644965dc34e25d45dc4928))
+
 ## [1.3.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0-dev.2...v1.3.0-dev.3) (2026-11-21)
 
 ### 🐛 Bug Fixes
