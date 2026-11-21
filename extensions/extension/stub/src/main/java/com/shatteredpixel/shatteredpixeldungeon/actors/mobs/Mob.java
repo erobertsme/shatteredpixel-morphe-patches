@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 
 public class Mob extends Char {
+	public static void clearHeldAllies() { throw new RuntimeException("Stub"); }
 	public Class<? extends com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite> spriteClass;
 	public interface AiState {
 	}

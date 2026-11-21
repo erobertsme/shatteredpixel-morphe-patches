@@ -26,8 +26,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Keeps a picture of the dungeon around the hero, taken from the game's own drawing as it happens. A marker sits in the game scene just
- * before its interface, so when it is drawn only the dungeon is on the game's drawing surface: no status pane, toolbar, windows or margins,
- * and nothing outside the game. The pixels are read back from the game's own surface, scaled back to one pixel per game pixel, and saved.
+ * after the fog and spell effects, before the floating text, health bars and emote icons, so when it is drawn only the dungeon is on the
+ * game's drawing surface: no damage numbers, status pane, toolbar, windows or margins, and nothing outside the game. The pixels are read back from the game's own surface, scaled back to one pixel per game pixel, and saved.
  */
 public final class GameCapture {
 
@@ -49,16 +49,16 @@ public final class GameCapture {
 	}
 
 	/**
-	 * Called at the end of GameScene.create. Puts the marker just before the game's interface.
+	 * Called at the end of GameScene.create. Puts the marker just before the floating text.
 	 */
 	@SuppressWarnings("unchecked")
 	public static void onSceneCreated(Object scene) {
 		if (!(scene instanceof Group)) return;
 		try {
-			Object firstInterfacePart = Reflect.gameScenePart("menu");
+			Object floatingText = Reflect.gameScenePart("statuses");
 			Group group = (Group) scene;
 			List<Gizmo> members = Reflect.members(group);
-			int index = members.indexOf(firstInterfacePart);
+			int index = members.indexOf(floatingText);
 			if (index < 0) return;
 			Gizmo marker = new Gizmo() {
 				@Override

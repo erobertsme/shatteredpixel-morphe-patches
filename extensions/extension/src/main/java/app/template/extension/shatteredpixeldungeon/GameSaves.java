@@ -667,8 +667,7 @@ public final class GameSaves {
 			if (target == null || !save.folder.isDirectory()) return "That save could not be found.";
 			putInSlot(save, target);
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
-			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
-			Game.switchScene(InterlevelScene.class);
+			ContinueScene.start();
 			return null;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not load", e);
@@ -694,26 +693,13 @@ public final class GameSaves {
 	}
 
 	/**
-	 * Replaces the game in progress with the copy in [folder] and continues from it.
+	 * Replaces the game in progress with the copy in [folder], loading it like a save, then deletes the copy.
 	 */
 	static boolean restoreSnapshot(File folder) {
-		try {
-			File target = gameFolder();
-			if (target == null || !folder.isDirectory()) return false;
-			File[] current = target.listFiles();
-			if (current != null) {
-				for (File file : current) FileHelpers.delete(file);
-			}
-			FileHelpers.copy(folder, target);
-			FileHelpers.delete(folder);
-			GamesInProgress.setUnknown(GamesInProgress.curSlot);
-			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
-			Game.switchScene(InterlevelScene.class);
-			return true;
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not restore the snapshot", e);
-			return false;
-		}
+		String error = load(new Save(folder, new Properties()));
+		if (error != null) return false;
+		FileHelpers.delete(folder);
+		return true;
 	}
 
 	static void discardSnapshot(File folder) {
