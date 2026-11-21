@@ -50,12 +50,14 @@ public final class ForceAttack {
 	private static final String LIGHTNING_SOUND = "sounds/lightning.mp3";
 	private static final Random random = new Random();
 
-	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(UndoTags.UNDO_TOP + com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
+	static final TagPlacement PLACEMENT = new TagPlacement("qol_attack_tag", TagPlacement.Side.LEFT, 0.5f, 1, IconCatalog.WEAPON, 0, TagPlacement.DEFAULT_COLOR, true).defaultOffset(com.shatteredpixel.shatteredpixeldungeon.ui.Tag.SIZE).defaultOpacity(70);
 
 	/**
 	 * The Attack Tile tag. Tapping it chooses a tile to attack.
 	 */
-	static final ScreenTag TAG = new ScreenTag("Attack Tile", PLACEMENT, ForceAttack::isOn, tag -> choose());
+	static final ScreenTag TAG = new ScreenTag("Attack Tile", PLACEMENT, () -> true, tag -> choose())
+		.enabledWhen(ForceAttack::isOn)
+		.removable("Remove the Attack Tile tag? This switches Attack Tile off. Switch it back on in Extras, under Toolbar.", () -> ForceAttack.setOn(false));
 
 	private static final List<Gizmo> markers = new ArrayList<>();
 
@@ -169,21 +171,15 @@ public final class ForceAttack {
 			return;
 		}
 		showMarkers(cells, level.width());
-		activeListener = new CellSelector.Listener() {
-			@Override
-			public void onSelect(Integer cell) {
-				if (activeListener == this) activeListener = null;
-				clearMarkers();
-				if (cell == null) return;
-				attack(cell);
-			}
+		activeListener = CellPicker.pick("Choose a tile to attack", cell -> {
+			endChoosing();
+			attack(cell);
+		}, ForceAttack::endChoosing);
+	}
 
-			@Override
-			public String prompt() {
-				return "Choose a tile to attack";
-			}
-		};
-		GameScene.selectCell(activeListener);
+	private static void endChoosing() {
+		activeListener = null;
+		clearMarkers();
 	}
 
 	private static void attack(int cell) {

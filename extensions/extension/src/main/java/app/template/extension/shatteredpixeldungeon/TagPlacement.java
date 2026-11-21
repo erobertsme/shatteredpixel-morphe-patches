@@ -33,6 +33,9 @@ final class TagPlacement {
 	private int defaultOffset = -1;
 	private int defaultOpacity = 100;
 	private static final int AUTO_SIDE = 99;
+	private static final String POSITION = "_position";
+	private static final String POSITION_SET = "_position_set";
+	private static final String OLD_OFFSET = "_offset";
 	private final String defaultIcon;
 	private final int defaultRotation;
 	private final int defaultColor;
@@ -118,14 +121,7 @@ final class TagPlacement {
 	 * [defaultIcon] turned by [defaultRotation] degrees until changed.
 	 */
 	TagPlacement(String key, Side defaultSide, float defaultShare, int tagCount, String defaultIcon, int defaultRotation) {
-		this.defaultIcon = defaultIcon;
-		this.defaultRotation = defaultRotation;
-		this.defaultColor = DEFAULT_COLOR;
-		this.autoPlacement = false;
-		this.key = key;
-		this.defaultSide = defaultSide;
-		this.defaultShare = defaultShare;
-		this.tagCount = tagCount;
+		this(key, defaultSide, defaultShare, tagCount, defaultIcon, defaultRotation, DEFAULT_COLOR, false);
 	}
 
 	Side side() {
@@ -135,7 +131,7 @@ final class TagPlacement {
 	}
 
 	/**
-	 * Starts the tags [pixels] along their edge until moved, instead of a share of the edge.
+	 * Starts the tags [pixels] past position 0 on their edge until moved, instead of a share of the edge.
 	 */
 	TagPlacement defaultOffset(int pixels) {
 		defaultOffset = pixels;
@@ -164,13 +160,13 @@ final class TagPlacement {
 	 * Puts the tags back on their default edge, at their default distance along it.
 	 */
 	void resetPosition() {
+		clearOffset();
 		storeInt(key + "_side", 0);
-		storeInt(key + "_offset", 0);
 	}
 
 	void setAuto() {
+		clearOffset();
 		storeInt(key + "_side", AUTO_SIDE);
-		storeInt(key + "_offset", 0);
 	}
 
 	int defaultColor() {
@@ -181,19 +177,42 @@ final class TagPlacement {
 		storeInt(key + "_side", side.ordinal() + 1);
 	}
 
+	/**
+	 * How far along its edge the first tag starts, from position 0 just past the game's interface there. Below 0 the tag reaches over the
+	 * interface, down to the screen edge.
+	 */
 	int offset() {
-		int max = maxOffset();
-		int stored = CloverlordSettings.getInt(key + "_offset") - 1;
-		int value = stored < 0 ? (defaultOffset >= 0 ? defaultOffset : Math.round(max * defaultShare)) : stored;
-		return Math.max(0, Math.min(max, value));
+		int value;
+		if (CloverlordSettings.get(key + POSITION_SET)) {
+			value = CloverlordSettings.getInt(key + POSITION);
+		} else {
+			int old = CloverlordSettings.getInt(key + OLD_OFFSET) - 1;
+			value = old >= 0 ? Math.round(old + edgeStart() - origin()) : defaultOffset >= 0 ? defaultOffset : Math.round(maxOffset() * defaultShare);
+		}
+		return Math.max(minOffset(), Math.min(maxOffset(), value));
 	}
 
 	void offset(int value) {
-		storeInt(key + "_offset", Math.max(0, Math.min(maxOffset(), value)) + 1);
+		CloverlordSettings.set(key + POSITION_SET, true);
+		storeInt(key + POSITION, Math.max(minOffset(), Math.min(maxOffset(), value)));
 	}
 
 	void resetOffset() {
-		storeInt(key + "_offset", 0);
+		clearOffset();
+		changed();
+	}
+
+	private void clearOffset() {
+		CloverlordSettings.set(key + POSITION_SET, false);
+		CloverlordSettings.setInt(key + POSITION, 0);
+		CloverlordSettings.setInt(key + OLD_OFFSET, 0);
+	}
+
+	/**
+	 * The smallest offset, which puts the tags at the start of the edge's usable space.
+	 */
+	int minOffset() {
+		return Math.round(edgeStart() - origin());
 	}
 
 	/**
@@ -203,9 +222,26 @@ final class TagPlacement {
 		Camera ui = PixelScene.uiCamera;
 		Side side = side();
 		float[] insets = ScreenLayout.insets();
-		float span = side == Side.TOP ? ui.width - insets[0] - insets[2] : ui.height - insets[1] - insets[3];
+		float end = side == Side.TOP ? ui.width - insets[2] : ui.height - insets[3];
 		float length = tagCount * (side == Side.TOP ? tagWidth() : tagHeight());
-		return Math.max(0, (int) (span - length));
+		return Math.max(minOffset(), (int) (end - length - origin()));
+	}
+
+	/**
+	 * Where on the UI camera position 0 is along the chosen edge.
+	 */
+	private float origin() {
+		float[] origins = ScreenLayout.tagOrigins();
+		Side side = side();
+		return side == Side.LEFT ? origins[0] : side == Side.TOP ? origins[1] : origins[2];
+	}
+
+	/**
+	 * Where the usable space along the chosen edge starts on the UI camera, past the phone's cutouts and display margins.
+	 */
+	private float edgeStart() {
+		float[] insets = ScreenLayout.insets();
+		return side() == Side.TOP ? insets[0] : insets[1];
 	}
 
 	int color() {
@@ -365,20 +401,19 @@ final class TagPlacement {
 		Camera ui = PixelScene.uiCamera;
 		float[] insets = ScreenLayout.insets();
 		Side side = side();
-		float start = offset();
+		float start = origin() + offset();
 		int width = tagWidth();
 		int height = tagHeight();
-		if (side == Side.TOP) return new float[] { insets[0] + start + index * width, insets[1], width, height };
+		if (side == Side.TOP) return new float[] { start + index * width, insets[1], width, height };
 		float x = side == Side.LEFT ? insets[0] : ui.width - insets[2] - width;
-		return new float[] { x, insets[1] + start + index * height, width, height };
+		return new float[] { x, start + index * height, width, height };
 	}
 
 	/**
 	 * Where along the chosen edge a point on the UI camera falls, as an offset, measured the way [offset] is.
 	 */
 	float offsetAt(float x, float y) {
-		float[] insets = ScreenLayout.insets();
-		return side() == Side.TOP ? x - insets[0] : y - insets[1];
+		return (side() == Side.TOP ? x : y) - origin();
 	}
 
 	int tagCount() {

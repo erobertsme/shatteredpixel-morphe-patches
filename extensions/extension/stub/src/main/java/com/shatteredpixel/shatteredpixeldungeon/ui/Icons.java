@@ -32,7 +32,8 @@ public enum Icons {
 	SCROLL_COLOR,
 	BACKPACK_LRG,
 	LEFTARROW,
-	RIGHTARROW;
+	RIGHTARROW,
+	SKULL;
 
 	public static Image get(Icons type) { throw new RuntimeException("Stub"); }
 }

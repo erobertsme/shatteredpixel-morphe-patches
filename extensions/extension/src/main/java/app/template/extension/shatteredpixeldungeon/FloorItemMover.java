@@ -7,8 +7,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
@@ -45,22 +43,13 @@ final class FloorItemMover {
 	}
 
 	private static void choose(int from, String name, Mover mover) {
-		GameScene.selectCell(new CellSelector.Listener() {
-			@Override
-			public void onSelect(Integer cell) {
-				if (cell == null) return;
-				if (cell == from) return;
-				if (!canReceive(cell)) {
-					GLog.w("Items can't be moved there.");
-					return;
-				}
-				confirm(cell, name, mover);
+		CellPicker.pick("Choose where to move " + name, cell -> {
+			if (cell == from) return;
+			if (!canReceive(cell)) {
+				GLog.w("Items can't be moved there.");
+				return;
 			}
-
-			@Override
-			public String prompt() {
-				return "Choose where to move " + name;
-			}
+			confirm(cell, name, mover);
 		});
 	}
 

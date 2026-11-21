@@ -50,8 +50,7 @@ public class CustomTagsWindow extends EditorWindow {
 	}
 
 	static void openTag(int id) {
-		show(new TagSettingsWindow(CustomItemTags.LIST.placement(id), CustomItemTags.LIST.name(id) + " Tag",
-			() -> show(new CustomTagsWindow()), () -> CustomItemTags.LIST.delete(id)));
+		show(new TagSettingsWindow(CustomItemTags.LIST.tag(id), CustomItemTags.LIST.name(id) + " Tag", () -> show(new CustomTagsWindow())));
 	}
 
 	private void addTag() {

@@ -24,10 +24,25 @@ final class ScreenTag {
 		void tapped(IconTag tag);
 	}
 
+	/**
+	 * How a tag is removed, and the question asked first.
+	 */
+	static final class Removal {
+		final String question;
+		final Runnable remove;
+
+		Removal(String question, Runnable remove) {
+			this.question = question;
+			this.remove = remove;
+		}
+	}
+
 	final TagPlacement placement;
 	private final Name name;
 	private final Check shows;
 	private final Tap tap;
+	private Check enabled = () -> true;
+	private Removal removal;
 	private IconTag view;
 
 	ScreenTag(Name name, TagPlacement placement, Check shows, Tap tap) {
@@ -43,6 +58,33 @@ final class ScreenTag {
 
 	String name() {
 		return name.get();
+	}
+
+	/**
+	 * Ties the tag to a feature that can be switched off: while [check] fails the tag is hidden, and the tags editor leaves it out.
+	 */
+	ScreenTag enabledWhen(Check check) {
+		enabled = check;
+		return this;
+	}
+
+	boolean isEnabled() {
+		return passes(enabled);
+	}
+
+	/**
+	 * Lets the tag be removed with [remove], asking [question] first.
+	 */
+	ScreenTag removable(String question, Runnable remove) {
+		removal = new Removal(question, remove);
+		return this;
+	}
+
+	/**
+	 * How the tag is removed, or null when it can't be.
+	 */
+	Removal removal() {
+		return removal;
 	}
 
 	/**
@@ -84,7 +126,7 @@ final class ScreenTag {
 		IconTag tag = view();
 		if (tag == null) return;
 		Hero hero = Dungeon.hero;
-		boolean visible = hero != null && hero.isAlive() && passes(shows);
+		boolean visible = hero != null && hero.isAlive() && passes(enabled) && passes(shows);
 		boolean changed = visible != tag.visible;
 		tag.visible = visible;
 		if (placement.isAuto()) {

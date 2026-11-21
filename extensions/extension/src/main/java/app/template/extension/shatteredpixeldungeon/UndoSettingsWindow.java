@@ -30,7 +30,7 @@ public class UndoSettingsWindow extends EditorWindow {
 		addCheckBox("Allow during boss fights", UndoHistory.duringBosses(), () -> UndoHistory.duringBosses(!UndoHistory.duringBosses()), on);
 
 		addSection("Tags");
-		addRowButton("Tag Style", null, () -> replaceWith(new TagSettingsWindow(UndoTags.PLACEMENT, "Undo / Redo Tag", () -> show(new UndoSettingsWindow()))));
+		addRowButton("Tag Style", null, () -> replaceWith(new TagSettingsWindow(UndoTags.TAG, "Undo / Redo Tag", () -> show(new UndoSettingsWindow()))));
 
 		addSection("Performance");
 		addIconRow(null, "Last copy", UndoHistory.lastTiming());

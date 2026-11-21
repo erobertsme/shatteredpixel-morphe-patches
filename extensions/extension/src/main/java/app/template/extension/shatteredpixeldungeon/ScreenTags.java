@@ -30,6 +30,17 @@ final class ScreenTags {
 	}
 
 	/**
+	 * The tags whose feature is switched on, for the tags editor and the main menu's stand-in game screen.
+	 */
+	static List<ScreenTag> enabled() {
+		List<ScreenTag> enabled = new ArrayList<>();
+		for (ScreenTag tag : all()) {
+			if (tag.isEnabled()) enabled.add(tag);
+		}
+		return enabled;
+	}
+
+	/**
 	 * Called at the end of GameScene.create, from each patch with tags. Puts every tag on [scene] once.
 	 */
 	static void onSceneCreated(Object scene) {

@@ -37,6 +37,7 @@ final class StatIcons {
 	static final int BUFF_FIRE = 2;
 	static final int BUFF_PARALYSIS = 4;
 	static final int BUFF_TIME = 7;
+	static final int BUFF_COMBO = 17;
 	static final int BUFF_OOZE = 8;
 	static final int BUFF_TERROR = 10;
 	static final int BUFF_ROOTS = 11;
