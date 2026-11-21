@@ -49,7 +49,7 @@ public class CharacterWindow extends EditorWindow {
 			+ "## Combat\n_Accuracy, Evasion, Damage, Armor:_ flat amounts added.\n_Attack speed, Move speed:_ percentages.\n_Damage dealt:_ all damage your attacks do.\n_Surprise hits:_ extra damage on enemies that didn't see you coming, like sleeping or distracted ones.\n_Enchant power:_ extra Ring of Arcana levels, so enchantments and glyphs are stronger and trigger more.\n\n"
 			+ "## Survival\n_HP regen:_ natural regeneration speed. No effect while a boss floor is locked.\n_Healing:_ all healing you receive. Added at the start of your next turn.\n_Shielding:_ shields and barriers you gain.\n_Damage taken:_ all damage you take.\n_Trap & fall:_ damage from traps and falling, on top of Damage taken.\n_Debuff time / Buff time:_ how long timed negative / positive effects last on you.\n\n"
 			+ "## Senses\n_Vision:_ extra tiles you can see.\n_Search range:_ extra tiles searched around you.\n_Search chance:_ how likely you spot hidden doors and traps while walking. Searching on purpose always finds what's in range.\n_Stealth:_ each point counts as one more tile of distance when enemies try to notice you.\n\n"
-			+ "## Rewards\n_Luck:_ extra Ring of Wealth levels, for more and better drops.\n_XP gain:_ experience earned.\n_Gold found:_ gold picked up.\n_Shop deals:_ buying costs less, selling pays more.\n_Energize:_ energy from energizing items.\n_Thrown life:_ how long thrown weapons last.\n\n"
+			+ "## Rewards\n_Luck:_ extra Ring of Wealth levels, for more and better drops.\n_XP gain:_ experience earned.\n_Gold found:_ gold picked up.\n_Shop deals:_ buying costs less, selling pays more.\n_Energize:_ energy from energizing items.\n_Thrown life:_ how long thrown weapons last.\n_Identify speed:_ how fast weapons, armor, rings and wands become identified as you use them or gain experience.\n\n"
 			+ "## Rings\nEach counts as that many extra levels of the ring, on top of any you wear.\n\n"
 			+ "## Resistances\n_Fire, cold, lightning, poison, corrosion, ooze, paralysis, magic:_ how much less each affects you. 100% makes you immune.",
 		"Talents\n\n"
@@ -654,6 +654,7 @@ public class CharacterWindow extends EditorWindow {
 			case SHOP_DEALS: return StatIcons.icon(Icons.COIN_SML);
 			case ENERGY: return StatIcons.icon(Icons.ENERGY_SML);
 			case THROWN_DURABILITY: return StatIcons.item(StatIcons.RING_SHARPSHOOTING);
+			case IDENTIFY_SPEED: return StatIcons.item(StatIcons.SCROLL_IDENTIFY);
 			case RING_ACCURACY: return StatIcons.item(StatIcons.RING_ACCURACY);
 			case RING_ELEMENTS: return StatIcons.item(StatIcons.RING_ELEMENTS);
 			case RING_ENERGY: return StatIcons.item(StatIcons.RING_ENERGY);

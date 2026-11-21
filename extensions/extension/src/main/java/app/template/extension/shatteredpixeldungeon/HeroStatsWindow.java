@@ -21,7 +21,7 @@ public class HeroStatsWindow extends EditorWindow {
 	private static final HeroExtras.Mod[] OTHER_MODS = {
 		HeroExtras.Mod.DAMAGE_DEALT, HeroExtras.Mod.SURPRISE_DAMAGE, HeroExtras.Mod.REGEN, HeroExtras.Mod.HEALING, HeroExtras.Mod.SHIELDING,
 		HeroExtras.Mod.DAMAGE_TAKEN, HeroExtras.Mod.TRAP_FALL, HeroExtras.Mod.DEBUFF_TIME, HeroExtras.Mod.BUFF_TIME, HeroExtras.Mod.EXPERIENCE,
-		HeroExtras.Mod.GOLD, HeroExtras.Mod.SHOP_DEALS, HeroExtras.Mod.ENERGY, HeroExtras.Mod.THROWN_DURABILITY,
+		HeroExtras.Mod.GOLD, HeroExtras.Mod.SHOP_DEALS, HeroExtras.Mod.ENERGY, HeroExtras.Mod.THROWN_DURABILITY, HeroExtras.Mod.IDENTIFY_SPEED,
 	};
 
 	static boolean isOn() {

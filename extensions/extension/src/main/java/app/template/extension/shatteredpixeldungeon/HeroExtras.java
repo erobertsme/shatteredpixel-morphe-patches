@@ -62,6 +62,7 @@ public final class HeroExtras {
 		SHOP_DEALS("Shop deals", Group.REWARDS, true),
 		ENERGY("Energize", Group.REWARDS, true),
 		THROWN_DURABILITY("Thrown life", Group.REWARDS, true),
+		IDENTIFY_SPEED("Identify speed", Group.REWARDS, true),
 		RING_ACCURACY("Accuracy", Group.RINGS, "RingOfAccuracy$Accuracy"),
 		RING_ELEMENTS("Elements", Group.RINGS, "RingOfElements$Resistance"),
 		RING_ENERGY("Energy", Group.RINGS, "RingOfEnergy$Energy"),
@@ -606,5 +607,13 @@ public final class HeroExtras {
 	 */
 	public static float adjustThrownWear(float wear) {
 		return wear / multiplier(Mod.THROWN_DURABILITY);
+	}
+
+	/**
+	 * Called at the end of Talent.itemIDSpeedFactor, which sets how fast weapons, armor, rings and wands become identified as you use
+	 * them or gain experience. Applies the Identify speed modifier.
+	 */
+	public static float adjustIdentifySpeed(float factor) {
+		return factor * multiplier(Mod.IDENTIFY_SPEED);
 	}
 }

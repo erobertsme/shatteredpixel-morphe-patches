@@ -88,6 +88,7 @@ val characterEditorPatch = bytecodePatch(
 			WndTradeSellFingerprint(name).adjustCallResults("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;->value()I", "$EXTRAS_CLASS->sellValue(I)I")
 		}
 		MissileDurabilityFingerprint.adjustReturns("$EXTRAS_CLASS->adjustThrownWear(F)F")
+		TalentItemIdSpeedFingerprint.adjustReturns("$EXTRAS_CLASS->adjustIdentifySpeed(F)F")
 		WndEnergizeFingerprint.adjustCallResults("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;->energyVal()I", "$EXTRAS_CLASS->adjustEnergy(I)I")
 
 		listOf("getBonus", "getBuffedBonus").forEach { name ->

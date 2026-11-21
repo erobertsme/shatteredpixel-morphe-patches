@@ -7,7 +7,7 @@ import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.Scene;
 
 /**
- * A quick fade of the whole screen to or from black, over everything in the scene.
+ * A quick fade of the whole screen towards or back from black, over everything in the scene.
  */
 final class ScreenFade extends ColorBlock {
 
@@ -30,21 +30,22 @@ final class ScreenFade extends ColorBlock {
 	}
 
 	/**
-	 * Fades [scene] to black over [seconds], ignoring taps meanwhile, then runs [whenDone]. The screen stays black afterwards.
+	 * Darkens [scene] over [seconds] until black covers it at [darkness], from 0 to 1, ignoring taps meanwhile, then runs [whenDone]. The
+	 * screen stays that dark afterwards.
 	 */
-	static void out(Scene scene, float seconds, Runnable whenDone) {
+	static void out(Scene scene, float seconds, float darkness, Runnable whenDone) {
 		PointerArea blocker = new PointerArea(0, 0, PixelScene.uiCamera.width, PixelScene.uiCamera.height);
 		blocker.blockLevel = PointerArea.ALWAYS_BLOCK;
 		blocker.camera = PixelScene.uiCamera;
 		scene.addToFront(blocker);
-		scene.addToFront(new ScreenFade(0, 1, seconds, whenDone));
+		scene.addToFront(new ScreenFade(0, darkness, seconds, whenDone));
 	}
 
 	/**
-	 * Fades [scene] in from black over [seconds].
+	 * Brightens [scene] over [seconds], from black covering it at [darkness] to none.
 	 */
-	static void in(Scene scene, float seconds) {
-		scene.addToFront(new ScreenFade(1, 0, seconds, null));
+	static void in(Scene scene, float seconds, float darkness) {
+		scene.addToFront(new ScreenFade(darkness, 0, seconds, null));
 	}
 
 	@Override

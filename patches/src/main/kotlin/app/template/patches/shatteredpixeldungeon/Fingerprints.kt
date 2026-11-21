@@ -264,6 +264,13 @@ object MissileDurabilityFingerprint : Fingerprint(
 	parameters = listOf("I"),
 )
 
+object TalentItemIdSpeedFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent;",
+	name = "itemIDSpeedFactor",
+	returnType = "F",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;", "Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)
+
 object WndEnergizeFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndEnergizeItem;",
 	name = "energize",

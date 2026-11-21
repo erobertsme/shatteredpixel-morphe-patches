@@ -667,7 +667,7 @@ public final class GameSaves {
 			if (target == null || !save.folder.isDirectory()) return "That save could not be found.";
 			putInSlot(save, target);
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
-			ContinueScene.start();
+			QuickContinue.start();
 			return null;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not load", e);
