@@ -13,12 +13,16 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.utils.Point;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Keeps a picture of the dungeon around the hero, taken from the game's own drawing as it happens. A marker sits in the game scene just
@@ -33,7 +37,13 @@ public final class GameCapture {
 	private static final int SIZE = AREA_TILES * TILE;
 	private static final int OPAQUE_BLACK = 0xFF000000;
 
-	private static volatile File pending;
+	private static final List<File> pending = new ArrayList<>();
+	private static final ExecutorService writer = Executors.newSingleThreadExecutor(task -> {
+		Thread thread = new Thread(task, "dungeon-picture");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MIN_PRIORITY);
+		return thread;
+	});
 
 	private GameCapture() {
 	}
@@ -53,10 +63,10 @@ public final class GameCapture {
 			Gizmo marker = new Gizmo() {
 				@Override
 				public void draw() {
-					File target = pending;
-					if (target == null) return;
-					pending = null;
-					capture(target);
+					if (pending.isEmpty()) return;
+					List<File> targets = new ArrayList<>(pending);
+					pending.clear();
+					capture(targets);
 				}
 			};
 			group.add(marker);
@@ -68,17 +78,17 @@ public final class GameCapture {
 	}
 
 	/**
-	 * Saves a picture of the dungeon around the hero to [target] the next time the game draws.
+	 * Saves a picture of the dungeon around the hero to [target] the next time the game draws. Called on the render thread.
 	 */
 	static void request(File target) {
-		pending = target;
+		pending.add(target);
 	}
 
-	private static void capture(File target) {
+	private static void capture(List<File> targets) {
 		try {
 			int[] pixels = read();
 			if (pixels == null) return;
-			new Thread(() -> write(pixels, target), "dungeon-picture").start();
+			writer.execute(() -> write(pixels, targets));
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not take the dungeon picture", e);
 		}
@@ -124,13 +134,21 @@ public final class GameCapture {
 		return pixels;
 	}
 
-	private static void write(int[] pixels, File target) {
+	private static void write(int[] pixels, List<File> targets) {
 		Bitmap bitmap = Bitmap.createBitmap(pixels, SIZE, SIZE, Bitmap.Config.ARGB_8888);
-		try (OutputStream out = new FileOutputStream(target)) {
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+		try {
+			ByteArrayOutputStream png = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, png);
+			byte[] data = png.toByteArray();
+			for (File target : targets) {
+				File folder = target.getParentFile();
+				if (folder == null || !folder.isDirectory()) continue;
+				try (OutputStream out = new FileOutputStream(target)) {
+					out.write(data);
+				}
+			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not save the dungeon picture", e);
-			target.delete();
 		} finally {
 			bitmap.recycle();
 		}

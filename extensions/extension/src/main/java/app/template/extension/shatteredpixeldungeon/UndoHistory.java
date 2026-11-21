@@ -3,11 +3,8 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Statistics;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
 
 import java.io.BufferedInputStream;
@@ -17,17 +14,18 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.Set;
 
 /**
- * Undo and Redo. Each time your hero is ready for a new action the game is saved and copies of the game file and
- * the current floor's file are kept in memory. Undo and Redo write a copy back and reload the game from it.
+ * Undo and Redo. Each time your hero is ready for a new action the game is saved and an undo step is kept: a partial Game Save of the game
+ * file and the current floor, with the same details, preview, hero and picture, kept in the app's own storage apart from Game Saves. Undo
+ * and Redo load a step the way a Game Save is loaded.
  */
 @SuppressWarnings("unused")
 public final class UndoHistory {
@@ -48,64 +46,33 @@ public final class UndoHistory {
 	private static final String KEY_FLOOR_ONLY = "qol_undo_floor_only";
 	private static final String KEY_NO_BOSS = "qol_undo_no_boss";
 
-	private static final class Snapshot {
-		private byte[] game;
-		final String levelFile;
-		private byte[] level;
-		private File source;
-		final int depth;
-		final int branch;
-		final int turn;
-		final int hp;
-		final int ht;
-		UndoScene scene;
-		long id;
+	/**
+	 * One undo step: a partial save, with its picture kept in memory once read. Its folder is written on the writer thread after it is taken.
+	 */
+	private static final class Step {
+		final GameSaves.Save save;
+		final long id;
+		private UndoScene scene;
+		private boolean sceneRead;
+		volatile boolean written;
 
-		Snapshot(byte[] game, String levelFile, byte[] level, int depth, int branch, int turn, int hp, int ht) {
-			this.game = game;
-			this.levelFile = levelFile;
-			this.level = level;
-			this.depth = depth;
-			this.branch = branch;
-			this.turn = turn;
-			this.hp = hp;
-			this.ht = ht;
+		Step(long id, GameSaves.Save save, UndoScene scene, boolean written) {
+			this.id = id;
+			this.save = save;
+			this.scene = scene;
+			this.sceneRead = scene != null;
+			this.written = written;
 		}
 
-		/**
-		 * A step read back from the app's storage keeps only its summary and picture in memory. Its saved game is read from [file] the
-		 * first time it is needed.
-		 */
-		static Snapshot onDisk(File file, int depth, int branch, int turn, int hp, int ht, String levelFile) {
-			Snapshot snapshot = new Snapshot(null, levelFile, null, depth, branch, turn, hp, ht);
-			snapshot.source = file;
-			return snapshot;
-		}
-
-		synchronized byte[] game() {
-			load();
-			return game;
-		}
-
-		synchronized byte[] level() {
-			load();
-			return level;
-		}
-
-		private void load() {
-			if (game != null || source == null) return;
-			Snapshot full = readSnapshot(source);
-			if (full == null) return;
-			game = full.game;
-			level = full.level;
-		}
-
-		synchronized int size() {
-			return game == null ? 0 : game.length + level.length;
+		UndoScene scene() {
+			if (sceneRead) return scene;
+			sceneRead = true;
+			scene = save.preview();
+			return scene;
 		}
 	}
 
-	private static final List<Snapshot> history = new ArrayList<>();
+	private static final List<Step> history = new ArrayList<>();
 	private static int index = -1;
 	private static int selected = -1;
 	private static Runnable listener;
@@ -214,32 +181,48 @@ public final class UndoHistory {
 			return;
 		}
 		try {
+			File folder = storeFolder(gameId);
+			File root = SaveLocation.currentRoot();
+			if (folder == null || root == null) return;
 			long start = System.nanoTime();
 			Dungeon.saveAll();
 			long saved = System.nanoTime();
-			File root = SaveLocation.currentRoot();
-			if (root == null) return;
-			String levelFile = GamesInProgress.depthFile(GamesInProgress.curSlot, Dungeon.depth, Dungeon.branch);
-			byte[] game = FileHelpers.read(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)));
-			byte[] level = FileHelpers.read(new File(root, levelFile));
+			File gameFile = new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot));
+			File levelFile = new File(root, GamesInProgress.depthFile(GamesInProgress.curSlot, Dungeon.depth, Dungeon.branch));
+			byte[] game = FileHelpers.read(gameFile);
+			byte[] level = FileHelpers.read(levelFile);
 			long copied = System.nanoTime();
-			Snapshot snapshot = new Snapshot(game, levelFile, level, Dungeon.depth, Dungeon.branch, (int) (Statistics.duration + Actor.now()), hero.HP, hero.HT);
-			snapshot.scene = UndoScene.capture();
-			push(snapshot);
+			long stepId = nextId++;
+			File target = new File(folder, String.valueOf(stepId));
+			if (!target.isDirectory() && !target.mkdirs()) return;
+			Properties info = GameSaves.details("", true);
+			UndoScene scene = UndoScene.capture();
+			Step step = new Step(stepId, GameSaves.Save.of(target, info), scene, false);
+			GameSaves.requestPicture(target);
+			push(step);
+			writer.execute(() -> {
+				try {
+					FileHelpers.write(new File(target, gameFile.getName()), game);
+					FileHelpers.write(new File(target, levelFile.getName()), level);
+					GameSaves.writeExtras(target, info, scene);
+					step.written = true;
+				} catch (Throwable e) {
+					Log.e(TAG, "Could not keep the undo step", e);
+				}
+			});
 			storeAsync();
 			recordTiming(saved - start, copied - saved);
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not take a snapshot", e);
+			Log.e(TAG, "Could not take an undo step", e);
 		}
 	}
 
-	private static void push(Snapshot snapshot) {
-		snapshot.id = nextId++;
+	private static void push(Step step) {
 		while (history.size() > index + 1) history.remove(history.size() - 1);
-		Snapshot last = index >= 0 ? history.get(index) : null;
-		boolean newFloor = last != null && (last.depth != snapshot.depth || last.branch != snapshot.branch);
+		GameSaves.Save last = index >= 0 ? history.get(index).save : null;
+		boolean newFloor = last != null && (last.depth != step.save.depth || last.branch != step.save.branch);
 		if (newFloor && (mode() == MODE_FLOOR || !acrossFloors())) history.clear();
-		history.add(snapshot);
+		history.add(step);
 		index = history.size() - 1;
 		trim();
 		selected = index;
@@ -263,24 +246,32 @@ public final class UndoHistory {
 	}
 
 	private static void restore(int target) {
-		Snapshot snapshot = history.get(target);
-		try {
-			File root = SaveLocation.currentRoot();
-			if (root == null) return;
-			byte[] game = snapshot.game();
-			byte[] level = snapshot.level();
-			if (game == null || level == null) return;
-			FileHelpers.write(new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot)), game);
-			FileHelpers.write(new File(root, snapshot.levelFile), level);
-			index = target;
-			selected = target;
-			skipNext = true;
+		Step step = history.get(target);
+		if (!step.written) flush();
+		if (!step.written) return;
+		int was = index;
+		index = target;
+		selected = target;
+		skipNext = true;
+		String error = GameSaves.load(step.save);
+		if (error == null) {
 			storeAsync();
-			GamesInProgress.setUnknown(GamesInProgress.curSlot);
-			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
-			Game.switchScene(InterlevelScene.class);
+			return;
+		}
+		Log.e(TAG, error);
+		index = was;
+		selected = was;
+		skipNext = false;
+	}
+
+	/**
+	 * Waits for the steps still being written.
+	 */
+	private static void flush() {
+		try {
+			writer.submit(() -> { }).get();
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not restore a snapshot", e);
+			Log.e(TAG, "Could not wait for the undo history", e);
 		}
 	}
 
@@ -290,11 +281,6 @@ public final class UndoHistory {
 
 	static int current() {
 		return index;
-	}
-
-	static String describe(int position) {
-		Snapshot snapshot = history.get(position);
-		return "Depth " + snapshot.depth + ", turn " + snapshot.turn + ", HP " + snapshot.hp + "/" + snapshot.ht;
 	}
 
 	static int selected() {
@@ -353,33 +339,43 @@ public final class UndoHistory {
 	 * A short label for the History list: the step's number, depth, turn and first log line.
 	 */
 	static String listLabel(int position) {
-		Snapshot snapshot = history.get(position);
-		String label = (position + 1) + ". D" + snapshot.depth + " T" + snapshot.turn;
-		String line = snapshot.scene == null ? null : snapshot.scene.firstLine();
-		if (line == null) return label + " HP " + snapshot.hp + "/" + snapshot.ht;
+		Step step = history.get(position);
+		GameSaves.Save save = step.save;
+		String label = (position + 1) + ". D" + save.depth + " T" + save.turn;
+		UndoScene scene = step.scene();
+		String line = scene == null ? null : scene.firstLine();
+		if (line == null) return label + " HP " + save.hp + "/" + save.ht;
 		if (line.length() > LIST_LINE_LENGTH) line = line.substring(0, LIST_LINE_LENGTH - 1) + "..";
 		return label + " - " + line;
 	}
 
-	private static Snapshot cachedFor;
+	private static Step cachedFor;
 	private static Hero cachedHero;
 
 	/**
-	 * The hero as they were at a step, read from that step's saved game. The last one read is kept.
+	 * The hero as they were at a step, read from that step's save. The last one read is kept.
 	 */
 	static Hero hero(int position) {
 		if (position < 0 || position >= history.size()) return null;
-		Snapshot snapshot = history.get(position);
-		if (snapshot != cachedFor) {
-			cachedHero = SnapshotHero.read(snapshot.game());
-			cachedFor = snapshot;
-		}
+		Step step = history.get(position);
+		if (step == cachedFor) return cachedHero;
+		if (!step.written) flush();
+		cachedHero = step.save.hero();
+		cachedFor = step;
 		return cachedHero;
 	}
 
 	static UndoScene scene(int position) {
 		if (position < 0 || position >= history.size()) return null;
-		return history.get(position).scene;
+		return history.get(position).scene();
+	}
+
+	/**
+	 * The picture of the dungeon taken from the game's drawing at a step, or null when there is none yet.
+	 */
+	static File picture(int position) {
+		if (position < 0 || position >= history.size()) return null;
+		return history.get(position).save.picture();
 	}
 
 	/**
@@ -387,8 +383,8 @@ public final class UndoHistory {
 	 */
 	static int[] stats(int position) {
 		if (position < 0 || position >= history.size()) return null;
-		Snapshot snapshot = history.get(position);
-		return new int[] { snapshot.depth, snapshot.turn, snapshot.hp, snapshot.ht };
+		GameSaves.Save save = history.get(position).save;
+		return new int[] { save.depth, save.turn, save.hp, save.ht };
 	}
 
 	private static final String DEATH_BACKUP = "undo-death-backup";
@@ -464,11 +460,10 @@ public final class UndoHistory {
 
 	private static final String STORE_FOLDER = "morphe_undo";
 	private static final String INDEX_FILE = "index";
-	private static final String SNAPSHOT_SUFFIX = ".snap";
-	private static final int STORE_FORMAT = 1;
+	private static final String INDEX_TEMP = "index.tmp";
+	private static final int STORE_FORMAT = 2;
 	private static long nextId;
 
-	private static final String INDEX_TEMP = "index.tmp";
 	private static final ExecutorService writer = Executors.newSingleThreadExecutor(task -> {
 		Thread thread = new Thread(task, "undo-history-writer");
 		thread.setDaemon(true);
@@ -477,174 +472,124 @@ public final class UndoHistory {
 	});
 
 	/**
-	 * Writes the history to the app's private storage on a background thread, so the game is never held up. Each step is written once, after
-	 * it is taken, and the list of steps is replaced in one move so a half-written list is never read.
+	 * Writes the list of steps on the writer thread, after the steps queued before it, and removes the folders of steps no longer in it. The
+	 * list is replaced in one move, so a half-written list is never read.
 	 */
 	private static void storeAsync() {
 		if (!isOn() || gameId == null) return;
 		String id = gameId;
-		int storedIndex = index;
-		List<Snapshot> steps = new ArrayList<>(history);
-		writer.execute(() -> store(id, storedIndex, steps));
+		long currentId = index >= 0 ? history.get(index).id : -1;
+		List<Long> ids = new ArrayList<>();
+		for (Step step : history) ids.add(step.id);
+		writer.execute(() -> store(id, currentId, ids));
 	}
 
-	private static void store(String id, int storedIndex, List<Snapshot> steps) {
+	private static void store(String id, long currentId, List<Long> ids) {
 		try {
 			File folder = storeFolder(id);
 			if (folder == null) return;
-			if (steps.isEmpty()) {
+			if (ids.isEmpty()) {
 				FileHelpers.delete(folder);
 				return;
 			}
 			if (!folder.isDirectory() && !folder.mkdirs()) return;
-			Set<String> keep = new HashSet<>();
-			for (Snapshot snapshot : steps) {
-				String name = snapshot.id + SNAPSHOT_SUFFIX;
-				keep.add(name);
-				File file = new File(folder, name);
-				if (!file.isFile()) writeSnapshot(file, snapshot);
-			}
 			File temp = new File(folder, INDEX_TEMP);
 			try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(temp)))) {
 				out.writeInt(STORE_FORMAT);
 				out.writeUTF(id);
-				out.writeInt(storedIndex);
-				out.writeInt(steps.size());
-				for (Snapshot snapshot : steps) out.writeLong(snapshot.id);
+				out.writeLong(currentId);
+				out.writeInt(ids.size());
+				for (long stepId : ids) out.writeLong(stepId);
 			}
 			if (!temp.renameTo(new File(folder, INDEX_FILE))) return;
+			Set<Long> keep = new HashSet<>(ids);
+			long newest = ids.get(ids.size() - 1);
 			File[] files = folder.listFiles();
 			if (files == null) return;
 			for (File file : files) {
-				if (file.getName().endsWith(SNAPSHOT_SUFFIX) && !keep.contains(file.getName())) file.delete();
+				if (file.getName().equals(INDEX_FILE)) continue;
+				long stepId = parseId(file.getName());
+				if (!keep.contains(stepId) && stepId <= newest) FileHelpers.delete(file);
 			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not keep the undo history", e);
 		}
 	}
 
-	private static void loadStored() {
-		File folder = storeFolder(gameId);
+	/**
+	 * The id a step's folder is named after, or -1 for anything else, such as a file left by an older version.
+	 */
+	private static long parseId(String name) {
+		try {
+			return Long.parseLong(name);
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+
+	/**
+	 * The ids of the kept steps of game [id] in order, then the current step's id last, or null when there are none.
+	 */
+	private static long[] readIndex(String id) {
+		File folder = storeFolder(id);
 		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
-		if (indexFile == null || !indexFile.isFile()) return;
+		if (indexFile == null || !indexFile.isFile()) return null;
 		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
-			if (in.readInt() != STORE_FORMAT || !gameId.equals(in.readUTF())) return;
-			int storedIndex = in.readInt();
+			if (in.readInt() != STORE_FORMAT || !id.equals(in.readUTF())) return null;
+			long currentId = in.readLong();
 			int count = in.readInt();
-			List<Snapshot> loaded = new ArrayList<>();
-			for (int i = 0; i < count; i++) {
-				long id = in.readLong();
-				Snapshot snapshot = readSummary(new File(folder, id + SNAPSHOT_SUFFIX));
-				if (snapshot == null) return;
-				snapshot.id = id;
-				loaded.add(snapshot);
-				nextId = Math.max(nextId, id + 1);
-			}
-			history.clear();
-			history.addAll(loaded);
-			index = Math.min(storedIndex, history.size() - 1);
-			selected = index;
-			changed();
+			long[] ids = new long[count + 1];
+			for (int i = 0; i < count; i++) ids[i] = in.readLong();
+			ids[count] = currentId;
+			return ids;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not read the kept undo history", e);
-		}
-	}
-
-	/**
-	 * A kept step's summary and picture, skipping its saved game, which stays on disk until needed.
-	 */
-	private static Snapshot readSummary(File file) {
-		if (!file.isFile()) return null;
-		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-			int depth = in.readInt();
-			int branch = in.readInt();
-			int turn = in.readInt();
-			int hp = in.readInt();
-			int ht = in.readInt();
-			String levelFile = in.readUTF();
-			skip(in, in.readInt());
-			skip(in, in.readInt());
-			Snapshot snapshot = Snapshot.onDisk(file, depth, branch, turn, hp, ht, levelFile);
-			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
-			return snapshot;
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not read " + file, e);
 			return null;
 		}
 	}
 
-	private static void skip(DataInputStream in, int count) throws IOException {
-		int left = count;
-		while (left > 0) {
-			int skipped = in.skipBytes(left);
-			if (skipped <= 0) throw new IOException("File ends early");
-			left -= skipped;
+	private static void loadStored() {
+		long[] ids = readIndex(gameId);
+		File folder = storeFolder(gameId);
+		if (ids == null) return;
+		long currentId = ids[ids.length - 1];
+		List<Step> loaded = new ArrayList<>();
+		int current = -1;
+		for (int i = 0; i < ids.length - 1; i++) {
+			GameSaves.Save save = GameSaves.Save.read(new File(folder, String.valueOf(ids[i])));
+			nextId = Math.max(nextId, ids[i] + 1);
+			if (save == null) continue;
+			if (ids[i] == currentId) current = loaded.size();
+			loaded.add(new Step(ids[i], save, null, true));
 		}
-	}
-
-	private static void writeSnapshot(File file, Snapshot snapshot) throws IOException {
-		byte[] game = snapshot.game();
-		byte[] level = snapshot.level();
-		if (game == null || level == null) return;
-		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
-			out.writeInt(snapshot.depth);
-			out.writeInt(snapshot.branch);
-			out.writeInt(snapshot.turn);
-			out.writeInt(snapshot.hp);
-			out.writeInt(snapshot.ht);
-			out.writeUTF(snapshot.levelFile);
-			out.writeInt(game.length);
-			out.write(game);
-			out.writeInt(level.length);
-			out.write(level);
-			out.writeBoolean(snapshot.scene != null);
-			if (snapshot.scene != null) snapshot.scene.write(out);
-		}
-	}
-
-	private static Snapshot readSnapshot(File file) {
-		if (!file.isFile()) return null;
-		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-			int depth = in.readInt();
-			int branch = in.readInt();
-			int turn = in.readInt();
-			int hp = in.readInt();
-			int ht = in.readInt();
-			String levelFile = in.readUTF();
-			byte[] game = new byte[in.readInt()];
-			in.readFully(game);
-			byte[] level = new byte[in.readInt()];
-			in.readFully(level);
-			Snapshot snapshot = new Snapshot(game, levelFile, level, depth, branch, turn, hp, ht);
-			if (in.readBoolean()) snapshot.scene = UndoScene.read(in);
-			return snapshot;
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not read " + file, e);
-			return null;
-		}
+		history.clear();
+		history.addAll(loaded);
+		index = current >= 0 ? current : history.size() - 1;
+		selected = index;
+		changed();
 	}
 
 	/**
-	 * A kept undo step of a game that isn't being played, described without loading its saved game.
+	 * The kept undo steps of the game in [slot] with [seed], newest first, read the way Game Saves are.
 	 */
-	static final class StoredStep {
-		final long id;
-		final int depth;
-		final int turn;
-		final int hp;
-		final int ht;
-
-		StoredStep(long id, int depth, int turn, int hp, int ht) {
-			this.id = id;
-			this.depth = depth;
-			this.turn = turn;
-			this.hp = hp;
-			this.ht = ht;
+	static List<GameSaves.Save> storedSteps(int slot, long seed) {
+		List<GameSaves.Save> steps = new ArrayList<>();
+		String id = slot + ":" + seed;
+		long[] ids = readIndex(id);
+		File folder = storeFolder(id);
+		if (ids == null) return steps;
+		for (int i = 0; i < ids.length - 1; i++) {
+			GameSaves.Save save = GameSaves.Save.read(new File(folder, String.valueOf(ids[i])));
+			if (save != null) steps.add(0, save);
 		}
+		return steps;
+	}
 
-		String title() {
-			return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
-		}
+	/**
+	 * The folder holding the kept undo steps of the game in [slot] with [seed].
+	 */
+	static File storedFolder(int slot, long seed) {
+		return storeFolder(slot + ":" + seed);
 	}
 
 	/**
@@ -665,79 +610,6 @@ public final class UndoHistory {
 			}
 		}
 		return games;
-	}
-
-	/**
-	 * The kept undo steps of the game in [slot] with [seed], newest first.
-	 */
-	static List<StoredStep> storedSteps(int slot, long seed) {
-		List<StoredStep> steps = new ArrayList<>();
-		String id = slot + ":" + seed;
-		File folder = storeFolder(id);
-		File indexFile = folder == null ? null : new File(folder, INDEX_FILE);
-		if (indexFile == null || !indexFile.isFile()) return steps;
-		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)))) {
-			if (in.readInt() != STORE_FORMAT || !id.equals(in.readUTF())) return steps;
-			in.readInt();
-			int count = in.readInt();
-			for (int i = 0; i < count; i++) {
-				long stepId = in.readLong();
-				StoredStep step = readHeader(new File(folder, stepId + SNAPSHOT_SUFFIX), stepId);
-				if (step != null) steps.add(0, step);
-			}
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not list the kept undo steps", e);
-		}
-		return steps;
-	}
-
-	private static StoredStep readHeader(File file, long id) {
-		if (!file.isFile()) return null;
-		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-			int depth = in.readInt();
-			in.readInt();
-			int turn = in.readInt();
-			int hp = in.readInt();
-			int ht = in.readInt();
-			return new StoredStep(id, depth, turn, hp, ht);
-		} catch (Throwable e) {
-			return null;
-		}
-	}
-
-	/**
-	 * The picture and hero of a kept undo step, or nulls when they can't be read.
-	 */
-	static Object[] storedPreview(int slot, long seed, long stepId) {
-		File folder = storeFolder(slot + ":" + seed);
-		Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
-		if (snapshot == null) return new Object[] { null, null };
-		return new Object[] { snapshot.scene, SnapshotHero.read(snapshot.game()) };
-	}
-
-	/**
-	 * Puts a kept undo step back into [slot] as its game in progress. Whatever is in the slot is copied to the app's cache first. Returns an
-	 * error message, or null when it worked.
-	 */
-	static String restoreStored(int slot, long seed, long stepId) {
-		try {
-			File folder = storeFolder(slot + ":" + seed);
-			Snapshot snapshot = folder == null ? null : readSnapshot(new File(folder, stepId + SNAPSHOT_SUFFIX));
-			File root = SaveLocation.currentRoot();
-			if (snapshot == null || root == null) return "That undo step could not be read.";
-			File gameFolder = new File(root, GamesInProgress.gameFolder(slot));
-			File cache = SaveLocation.cacheDir();
-			if (cache != null && gameFolder.isDirectory()) FileHelpers.copy(gameFolder, new File(cache, "replaced_" + gameFolder.getName() + "_" + System.currentTimeMillis()));
-			if (!gameFolder.isDirectory() && !gameFolder.mkdirs()) return "The game's folder could not be made.";
-			FileHelpers.write(new File(root, GamesInProgress.gameFile(slot)), snapshot.game());
-			FileHelpers.write(new File(root, snapshot.levelFile), snapshot.level());
-			GamesInProgress.setUnknown(slot);
-			Game.resetScene();
-			return null;
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not restore the undo step", e);
-			return "Restoring failed: " + e.getMessage();
-		}
 	}
 
 	private static File storeFolder(String id) {
@@ -787,8 +659,16 @@ public final class UndoHistory {
 
 	static String memoryText() {
 		long bytes = 0;
-		for (Snapshot snapshot : history) bytes += snapshot.size();
+		for (Step step : history) bytes += sizeOf(step.save.folder);
 		return history.size() + " kept, " + Math.round(bytes / 1024f) + " KB";
+	}
+
+	private static long sizeOf(File file) {
+		File[] children = file.listFiles();
+		if (children == null) return file.length();
+		long total = 0;
+		for (File child : children) total += sizeOf(child);
+		return total;
 	}
 
 	private static String ms(long nanos) {

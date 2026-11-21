@@ -116,14 +116,7 @@ final class PreviewParts {
 
 	/**
 	 * The area view or the map of [scene], whichever was last chosen, with a tap on it switching between the two and then running
-	 * [onToggle].
-	 */
-	static void picture(List<Gizmo> out, UndoScene scene, Camera camera, float x, float y, float size, Runnable onToggle) {
-		picture(out, scene, null, camera, x, y, size, onToggle);
-	}
-
-	/**
-	 * Like picture, using [areaPicture], a picture saved from the game's own drawing, for the area view when there is one.
+	 * [onToggle]. The area view uses [areaPicture], a picture saved from the game's own drawing, when there is one.
 	 */
 	static void picture(List<Gizmo> out, UndoScene scene, File areaPicture, Camera camera, float x, float y, float size, Runnable onToggle) {
 		Image saved = PreviewImage.load(areaPicture);

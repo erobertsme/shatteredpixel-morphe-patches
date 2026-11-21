@@ -1,26 +1,20 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-
 /**
  * A save or undo step about to be put back into its slot, shown in full first, with Restore and Back buttons.
  */
 public class RestorePreviewWindow extends PreviewWindow {
 
-	private final String title;
-	private final UndoScene scene;
-	private final Hero hero;
+	private final GameSaves.Save save;
 	private final Runnable onRestore;
 	private final Runnable onBack;
 
-	RestorePreviewWindow(String title, UndoScene scene, Hero hero, Runnable onRestore, Runnable onBack) {
+	RestorePreviewWindow(GameSaves.Save save, Runnable onRestore, Runnable onBack) {
 		super();
-		this.title = title;
-		this.scene = scene;
-		this.hero = hero;
+		this.save = save;
 		this.onRestore = onRestore;
 		this.onBack = onBack;
-		layout(title, scene, hero);
+		layout(save);
 	}
 
 	@Override
@@ -30,7 +24,7 @@ public class RestorePreviewWindow extends PreviewWindow {
 	}
 
 	private void restore() {
-		ConfirmPrompt.ask("Restore", "Restore this to its slot and continue the game from it?\n\n" + title, "Restore", () -> {
+		ConfirmPrompt.ask("Restore", "Restore this to its slot and continue the game from it?\n\n" + save.title(), "Restore", () -> {
 			hide();
 			onRestore.run();
 		});
@@ -48,6 +42,6 @@ public class RestorePreviewWindow extends PreviewWindow {
 
 	@Override
 	protected void reopen() {
-		show(new RestorePreviewWindow(title, scene, hero, onRestore, onBack));
+		show(new RestorePreviewWindow(save, onRestore, onBack));
 	}
 }

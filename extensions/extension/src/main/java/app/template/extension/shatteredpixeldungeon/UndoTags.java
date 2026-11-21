@@ -327,7 +327,7 @@ public final class UndoTags {
 				statusText.setPos((ui.width - statusText.width()) / 2f, statusTop);
 				PixelScene.align(statusText);
 				PreviewParts.logLines(parts, step == null ? new ArrayList<>() : step.lines, innerLeft, logTop, innerWidth, "No messages for this step");
-				if (hasPicture && step != null) PreviewParts.picture(parts, step, ui, pictureLeft, pictureTop, pictureSize, () -> { });
+				if (hasPicture && step != null) PreviewParts.picture(parts, step, UndoHistory.picture(selected), ui, pictureLeft, pictureTop, pictureSize, () -> { });
 				for (Gizmo part : parts) addDetail(scene, part);
 			}
 

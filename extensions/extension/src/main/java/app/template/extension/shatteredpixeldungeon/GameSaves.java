@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
@@ -48,19 +50,57 @@ public final class GameSaves {
 	static final int MAX_SAVES = 10;
 	static final int MAX_AUTO_SAVES = 5;
 
+	/**
+	 * A saved moment of a game: a Game Save, or an undo step. Both are a folder with a copy of the game's files and the same files about the
+	 * moment. An undo step is partial: it only holds the game file and the floor the hero was on, and the slot keeps its other floors.
+	 */
 	static final class Save {
 		final File folder;
 		final String label;
 		final long time;
 		final boolean locked;
 		final boolean auto;
+		final boolean partial;
+		final int depth;
+		final int branch;
+		final int turn;
+		final int hp;
+		final int ht;
 
-		Save(File folder, String label, long time, boolean locked, boolean auto) {
+		private Save(File folder, Properties info) {
 			this.folder = folder;
-			this.label = label;
-			this.time = time;
-			this.auto = auto;
-			this.locked = locked;
+			label = info.getProperty("label", folder.getName());
+			time = parseLong(info.getProperty("time"), folder.lastModified());
+			locked = Boolean.parseBoolean(info.getProperty("locked"));
+			auto = Boolean.parseBoolean(info.getProperty("auto"));
+			partial = Boolean.parseBoolean(info.getProperty("partial"));
+			depth = (int) parseLong(info.getProperty("depth"), -1);
+			branch = (int) parseLong(info.getProperty("branch"), 0);
+			turn = (int) parseLong(info.getProperty("turn"), -1);
+			hp = (int) parseLong(info.getProperty("hp"), -1);
+			ht = (int) parseLong(info.getProperty("ht"), -1);
+		}
+
+		/**
+		 * The save in [folder] described by [info], for one still being written.
+		 */
+		static Save of(File folder, Properties info) {
+			return new Save(folder, info);
+		}
+
+		/**
+		 * The save in [folder], read from its details, or null when it has none yet.
+		 */
+		static Save read(File folder) {
+			File infoFile = new File(folder, INFO_FILE);
+			if (!infoFile.isFile()) return null;
+			Properties info = new Properties();
+			try (InputStream in = new FileInputStream(infoFile)) {
+				info.load(in);
+			} catch (IOException e) {
+				return null;
+			}
+			return new Save(folder, info);
 		}
 
 		/**
@@ -100,6 +140,7 @@ public final class GameSaves {
 		}
 
 		String title() {
+			if (partial) return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
 			return label + " - " + new SimpleDateFormat("MMM d, HH:mm", Locale.US).format(new Date(time));
 		}
 	}
@@ -192,10 +233,10 @@ public final class GameSaves {
 		String title = damaged ? "Damaged Game" : "Finished Game";
 		long seed = matcher.matches() ? new java.math.BigInteger(matcher.group(2), 16).longValue() : 0;
 		boolean hasUndo = damaged && !UndoHistory.storedSteps(slot, seed).isEmpty();
-		Runnable restoreUndo = () -> EditorWindow.show(new RestoreUndoWindow(slot, seed, 0));
+		Runnable restoreUndo = () -> EditorWindow.show(RestoreSaveWindow.undoSteps(slot, seed, () -> askAgain(folder)));
 		if (!canRestore && hasUndo) return new ConfirmPrompt(title, message, new String[] { "Restore an Undo Step", "Keep Saves", "Delete Saves" }, new Runnable[] { restoreUndo, keep, delete });
 		if (!canRestore) return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves" }, new Runnable[] { delete, keep });
-		Runnable restore = () -> EditorWindow.show(new RestoreSaveWindow(folder, slot, 0));
+		Runnable restore = () -> EditorWindow.show(RestoreSaveWindow.saves(folder, slot));
 		if (hasUndo) return new ConfirmPrompt(title, message, new String[] { "Restore a Save", "Restore an Undo Step", "Keep Saves", "Delete Saves" }, new Runnable[] { restore, restoreUndo, keep, delete });
 		if (damaged) return new ConfirmPrompt(title, message, new String[] { "Restore a Save", "Keep Saves", "Delete Saves" }, new Runnable[] { restore, keep, delete });
 		return new ConfirmPrompt(title, message, new String[] { "Delete Saves", "Keep Saves", "Restore a Save" }, new Runnable[] { delete, keep, restore });
@@ -209,13 +250,13 @@ public final class GameSaves {
 			int slot = (int) game[0];
 			long seed = game[1];
 			if (!isDamaged(slot) || CloverlordSettings.get(KEPT_PREFIX + "undo_" + slot + "_" + seed)) continue;
-			List<UndoHistory.StoredStep> steps = UndoHistory.storedSteps(slot, seed);
+			List<Save> steps = UndoHistory.storedSteps(slot, seed);
 			if (steps.isEmpty()) continue;
 			String message = "Your game in slot " + slot + " can't be read. Its save file may have been damaged, for example if the phone shut down while the game was saving. It has "
 				+ steps.size() + (steps.size() == 1 ? " undo step" : " undo steps") + " kept. The latest: " + steps.get(0).title() + "."
 				+ "\n\nRestore an undo step to keep playing from it.";
 			return new ConfirmPrompt("Damaged Game", message, new String[] { "Restore an Undo Step", "Not Now" }, new Runnable[] {
-				() -> EditorWindow.show(new RestoreUndoWindow(slot, seed, 0)),
+				() -> EditorWindow.show(RestoreSaveWindow.undoSteps(slot, seed, null)),
 				() -> CloverlordSettings.set(KEPT_PREFIX + "undo_" + slot + "_" + seed, true),
 			});
 		}
@@ -258,13 +299,9 @@ public final class GameSaves {
 			if (!slotFree(slot)) return "Slot " + slot + " already has a game in it.";
 			File target = new File(root, GamesInProgress.gameFolder(slot));
 			File[] current = target.listFiles();
-			if (current != null && current.length > 0) {
-				File cache = SaveLocation.cacheDir();
-				if (cache != null) FileHelpers.copy(target, new File(cache, "replaced_" + target.getName() + "_" + System.currentTimeMillis()));
-				for (File file : current) FileHelpers.delete(file);
-			}
-			FileHelpers.copy(save.folder, target);
-			stripSaveOnlyFiles(target);
+			File cache = SaveLocation.cacheDir();
+			if (current != null && current.length > 0 && cache != null) FileHelpers.copy(target, new File(cache, "replaced_" + target.getName() + "_" + System.currentTimeMillis()));
+			putInSlot(save, target);
 			GamesInProgress.setUnknown(slot);
 			CloverlordSettings.set(KEPT_PREFIX + folder.getName(), false);
 			Game.resetScene();
@@ -383,16 +420,8 @@ public final class GameSaves {
 		if (children == null) return saves;
 		for (File child : children) {
 			if (!child.isDirectory()) continue;
-			Properties info = new Properties();
-			File infoFile = new File(child, INFO_FILE);
-			if (infoFile.isFile()) {
-				try (InputStream in = new FileInputStream(infoFile)) {
-					info.load(in);
-				} catch (IOException ignored) {
-				}
-			}
-			long time = parseLong(info.getProperty("time"), child.lastModified());
-			saves.add(new Save(child, info.getProperty("label", child.getName()), time, Boolean.parseBoolean(info.getProperty("locked")), Boolean.parseBoolean(info.getProperty("auto"))));
+			Save save = Save.read(child);
+			saves.add(save != null ? save : new Save(child, new Properties()));
 		}
 		saves.sort((a, b) -> Long.compare(b.time, a.time));
 		return saves;
@@ -477,21 +506,12 @@ public final class GameSaves {
 			File source = gameFolder();
 			File folder = savesFolder();
 			if (source == null || folder == null || !source.isDirectory()) return "The game's save folder could not be found.";
-			long time = System.currentTimeMillis();
-			File target = new File(folder, String.valueOf(time));
-			FileHelpers.copy(source, target);
-
-			Hero hero = Dungeon.hero;
-			Properties info = new Properties();
-			info.setProperty("time", String.valueOf(time));
-			info.setProperty("label", (auto ? "Auto: " : "") + "Depth " + Dungeon.depth + place() + ", " + InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl);
+			Properties info = details(auto ? "Auto: " : "", false);
 			if (auto) info.setProperty("auto", "true");
-			try (OutputStream out = new FileOutputStream(new File(target, INFO_FILE))) {
-				info.store(out, null);
-			}
-			writePreview(new File(target, PREVIEW_FILE));
-			writeHero(new File(target, GAME_FILE), new File(target, HERO_FILE));
-			GameCapture.request(new File(target, PICTURE_FILE));
+			File target = new File(folder, info.getProperty("time"));
+			FileHelpers.copy(source, target);
+			requestPicture(target);
+			writeExtras(target, info, UndoScene.capture(false));
 			return null;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not save", e);
@@ -548,6 +568,47 @@ public final class GameSaves {
 	}
 
 	/**
+	 * What a save says about the game as it is now, labelled with [prefix] before the depth and the hero. Read on the render thread, just
+	 * after the game was saved, so it matches the saved game.
+	 */
+	static Properties details(String prefix, boolean partial) {
+		Hero hero = Dungeon.hero;
+		long time = System.currentTimeMillis();
+		Properties info = new Properties();
+		info.setProperty("time", String.valueOf(time));
+		info.setProperty("label", prefix + "Depth " + Dungeon.depth + place() + ", " + InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl);
+		info.setProperty("depth", String.valueOf(Dungeon.depth));
+		info.setProperty("branch", String.valueOf(Dungeon.branch));
+		info.setProperty("turn", String.valueOf((int) (Statistics.duration + Actor.now())));
+		info.setProperty("hp", String.valueOf(hero.HP));
+		info.setProperty("ht", String.valueOf(hero.HT));
+		if (partial) info.setProperty("partial", "true");
+		return info;
+	}
+
+	/**
+	 * Saves the picture of the dungeon around the hero into the save in [target] the next time the game draws. Called on the render thread
+	 * when the save is made.
+	 */
+	static void requestPicture(File target) {
+		GameCapture.request(new File(target, PICTURE_FILE));
+	}
+
+	/**
+	 * Writes the files only a save has into [target], which already holds its copy of the game: the preview [scene], a copy of just the hero
+	 * and, last, its details [info], so a save with details is always whole. Safe to call off the render thread.
+	 */
+	static void writeExtras(File target, Properties info, UndoScene scene) throws IOException {
+		writePreview(new File(target, PREVIEW_FILE), scene);
+		writeHero(new File(target, GAME_FILE), new File(target, HERO_FILE));
+		File temp = new File(target, INFO_FILE + ".tmp");
+		try (OutputStream out = new FileOutputStream(temp)) {
+			info.store(out, null);
+		}
+		if (!temp.renameTo(new File(target, INFO_FILE))) throw new IOException("Could not write the save's details");
+	}
+
+	/**
 	 * Keeps a copy of just the hero from the saved game [game] in [file], so showing the save doesn't read the whole game.
 	 */
 	private static void writeHero(File game, File file) {
@@ -567,15 +628,29 @@ public final class GameSaves {
 	}
 
 	/**
+	 * Copies [save] into a game's [slot] folder. A whole save replaces what is there; a partial one, an undo step, goes over it, so the
+	 * floors it doesn't hold stay.
+	 */
+	private static void putInSlot(Save save, File slot) throws IOException {
+		File[] current = save.partial ? null : slot.listFiles();
+		if (current != null) {
+			for (File file : current) FileHelpers.delete(file);
+		}
+		FileHelpers.copy(save.folder, slot);
+		stripSaveOnlyFiles(slot);
+	}
+
+	/**
 	 * Removes the files only a save has from [folder], a game's own slot that a save was just copied into.
 	 */
 	private static void stripSaveOnlyFiles(File folder) {
 		for (String name : SAVE_ONLY_FILES) new File(folder, name).delete();
 	}
 
-	private static void writePreview(File file) {
+	private static void writePreview(File file, UndoScene scene) {
+		if (scene == null) return;
 		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
-			UndoScene.capture(false).write(out);
+			scene.write(out);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not keep a preview of the save", e);
 			file.delete();
@@ -590,12 +665,7 @@ public final class GameSaves {
 		try {
 			File target = gameFolder();
 			if (target == null || !save.folder.isDirectory()) return "That save could not be found.";
-			File[] current = target.listFiles();
-			if (current != null) {
-				for (File file : current) FileHelpers.delete(file);
-			}
-			FileHelpers.copy(save.folder, target);
-			stripSaveOnlyFiles(target);
+			putInSlot(save, target);
 			GamesInProgress.setUnknown(GamesInProgress.curSlot);
 			InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
 			Game.switchScene(InterlevelScene.class);

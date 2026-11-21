@@ -27,6 +27,16 @@ abstract class PreviewWindow extends EditorWindow {
 	static final int TOP_BUTTON_WIDTH = 50;
 	static final int TOP_BUTTON_HEIGHT = 20;
 
+	private File picture;
+
+	/**
+	 * Lays out the preview of a Game Save or undo step, with its picture of the dungeon when it has one.
+	 */
+	protected void layout(GameSaves.Save save) {
+		picture = save.picture();
+		layout(save.title(), save.preview(), save.hero());
+	}
+
 	/**
 	 * Lays out the preview of [scene] and [hero] under [title], then the buttons from [addActions], and sizes the window.
 	 */
@@ -46,13 +56,6 @@ abstract class PreviewWindow extends EditorWindow {
 		if (wide) pictureBottom = addPicture(scene, WIDTH + 2 * GAP, columnTop);
 		addActions();
 		resize(wide ? 2 * WIDTH + 2 * GAP : WIDTH, (int) Math.max(pos, pictureBottom));
-	}
-
-	/**
-	 * A picture of the dungeon saved from the game's own drawing, used for the area view instead of drawing it again, or null.
-	 */
-	protected File areaPicture() {
-		return null;
 	}
 
 	/**
@@ -110,7 +113,7 @@ abstract class PreviewWindow extends EditorWindow {
 		float size = WIDTH - 2 * PreviewParts.BORDER;
 		List<Gizmo> parts = new ArrayList<>();
 		PreviewParts.frame(parts, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size);
-		PreviewParts.picture(parts, scene, areaPicture(), null, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size, this::refresh);
+		PreviewParts.picture(parts, scene, picture, null, x + PreviewParts.BORDER, y + PreviewParts.BORDER, size, this::refresh);
 		addAll(parts);
 		float bottom = y + size + 2 * PreviewParts.BORDER + 2 * GAP;
 		if (x == 0) pos = bottom;
