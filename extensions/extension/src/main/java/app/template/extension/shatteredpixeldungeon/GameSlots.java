@@ -4,9 +4,11 @@ import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -142,22 +144,16 @@ public final class GameSlots {
 	}
 
 	/**
-	 * Starts a new game as [heroClass] from [seed] in the first empty slot, leaving every other game as it is. Returns false when every slot
-	 * is taken.
+	 * Opens the hero choice for a new game in the first empty slot, with [seed] as its custom seed, as if it had been typed in. Every other
+	 * game stays as it is. Returns false when every slot is taken.
 	 */
-	static boolean startFromSeed(long seed, HeroClass heroClass) {
+	static boolean newGameFromSeed(String seed) {
 		int slot = GamesInProgress.firstEmpty();
 		if (slot < 0) return false;
+		SPDSettings.customSeed(seed);
+		GamesInProgress.selectedClass = null;
 		GamesInProgress.curSlot = slot;
-		GamesInProgress.selectedClass = heroClass;
-		Dungeon.hero = null;
-		Dungeon.daily = false;
-		Dungeon.dailyReplay = false;
-		Dungeon.seed = seed;
-		Dungeon.customSeedText = DungeonSeed.convertToCode(seed);
-		ActionIndicator.clearAction();
-		InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
-		Game.switchScene(InterlevelScene.class);
+		Game.switchScene(HeroSelectScene.class);
 		return true;
 	}
 }

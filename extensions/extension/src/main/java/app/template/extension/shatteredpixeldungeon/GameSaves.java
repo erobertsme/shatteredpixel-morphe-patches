@@ -141,7 +141,11 @@ public final class GameSaves {
 
 		String title() {
 			if (partial) return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
-			return label + " - " + new SimpleDateFormat("MMM d, HH:mm", Locale.US).format(new Date(time));
+			return label + " - " + date();
+		}
+
+		String date() {
+			return new SimpleDateFormat("MMM d, HH:mm", Locale.US).format(new Date(time));
 		}
 	}
 

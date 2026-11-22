@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.Game;
 
 /**
@@ -23,24 +24,38 @@ public class GameSlotWindow extends PreviewWindow {
 		this.slot = slot;
 		this.info = info;
 		this.save = save;
-		layout(save);
+		layout(InventoryEditor.capitalize(info.heroClass.title()) + " Lv " + info.level + "\n" + save.date(), save);
+	}
+
+	@Override
+	protected boolean showsLog() {
+		return false;
 	}
 
 	@Override
 	protected void addActions() {
 		addIconRow(Icons.get(Icons.DEPTH), "Deepest floor", String.valueOf(info.maxDepth));
+		addSection("Seed");
 		String seed = GameSlots.seedCode(info);
 		if (seed == null) {
-			addIconRow(StatIcons.item(StatIcons.SCROLL_IDENTIFY), "Seed", "Daily");
+			addHint("Daily games use the day's seed.");
 		} else {
-			addRowButton("Seed " + seed, StatIcons.item(StatIcons.SCROLL_IDENTIFY), () -> {
-				hide();
-				show(new SeedGameWindow(info.seed, this::reopen));
-			});
+			addRowButton(seed, null, () -> seedChoices(seed));
 		}
 		pos += GAP;
 		addButtonPair("Continue", this::continueGame, "Erase", this::erase);
 		pos -= GAP;
+	}
+
+	private void seedChoices(String seed) {
+		ConfirmPrompt.ask("Seed", seed, new String[] { "Copy", "Start New" }, new Runnable[] {
+			() -> show(new WndMessage(SaveLocation.copyText("Seed", seed) ? "Copied " + seed + "." : "The seed couldn't be copied.")),
+			() -> ConfirmPrompt.ask("Start New", "Start a new game on seed " + seed + "? You'll pick your hero next. This game is kept.", "Start New", () -> newGame(seed)),
+		}, "Back");
+	}
+
+	private void newGame(String seed) {
+		if (!GameSlots.newGameFromSeed(seed)) show(new WndMessage("Every game slot is in use. Erase a game to make room for a new one."));
 	}
 
 	private void continueGame() {

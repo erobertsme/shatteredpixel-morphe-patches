@@ -33,8 +33,22 @@ abstract class PreviewWindow extends EditorWindow {
 	 * Lays out the preview of a Game Save or undo step, with its picture of the dungeon when it has one.
 	 */
 	protected void layout(GameSaves.Save save) {
+		layout(save.title(), save);
+	}
+
+	/**
+	 * Like the other, under [title] instead of the save's own.
+	 */
+	protected void layout(String title, GameSaves.Save save) {
 		picture = save.picture();
-		layout(save.title(), save.preview(), save.hero());
+		layout(title, save.preview(), save.hero());
+	}
+
+	/**
+	 * Whether the preview shows the last game messages.
+	 */
+	protected boolean showsLog() {
+		return true;
 	}
 
 	/**
@@ -47,7 +61,7 @@ abstract class PreviewWindow extends EditorWindow {
 		boolean wide = PixelScene.landscape() && hasPicture;
 		addHero(hero, scene);
 		if (hasPicture) {
-			addLog(scene.lines);
+			if (showsLog()) addLog(scene.lines);
 		} else {
 			addHint("No picture for this one. Ones made from now on keep one.");
 		}

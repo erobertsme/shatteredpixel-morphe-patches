@@ -15,6 +15,7 @@ public class ConfirmPrompt extends EditorWindow {
 	private final String message;
 	private final String[] labels;
 	private final Runnable[] actions;
+	private final String closeLabel;
 	private Runnable onClose;
 
 	public ConfirmPrompt(String title, String message, String confirmLabel, Runnable onConfirm) {
@@ -22,11 +23,19 @@ public class ConfirmPrompt extends EditorWindow {
 	}
 
 	public ConfirmPrompt(String title, String message, String[] labels, Runnable[] actions) {
+		this(title, message, labels, actions, "Cancel");
+	}
+
+	/**
+	 * A choice between [labels], with a last button labeled [closeLabel] that just closes the prompt.
+	 */
+	public ConfirmPrompt(String title, String message, String[] labels, Runnable[] actions, String closeLabel) {
 		super();
 		this.title = title;
 		this.message = message;
 		this.labels = labels;
 		this.actions = actions;
+		this.closeLabel = closeLabel;
 
 		addTitle(title);
 		RenderedTextBlock text = PixelScene.renderTextBlock(message, 6);
@@ -47,7 +56,7 @@ public class ConfirmPrompt extends EditorWindow {
 			int index = i;
 			addRowButton(labels[i], null, () -> choose(index));
 		}
-		addButton("Cancel", 0, WIDTH, this::hide);
+		addButton(closeLabel, 0, WIDTH, this::hide);
 		pos += ROW_HEIGHT;
 		finish();
 	}
@@ -63,6 +72,13 @@ public class ConfirmPrompt extends EditorWindow {
 
 	static void ask(String title, String message, String[] labels, Runnable[] actions) {
 		show(new ConfirmPrompt(title, message, labels, actions));
+	}
+
+	/**
+	 * Offers [labels], with a last button labeled [closeLabel] that just closes the prompt.
+	 */
+	static void ask(String title, String message, String[] labels, Runnable[] actions, String closeLabel) {
+		show(new ConfirmPrompt(title, message, labels, actions, closeLabel));
 	}
 
 	/**
@@ -105,6 +121,6 @@ public class ConfirmPrompt extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new ConfirmPrompt(title, message, labels, actions));
+		show(new ConfirmPrompt(title, message, labels, actions, closeLabel));
 	}
 }
