@@ -1,3 +1,9 @@
+## [1.4.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.10...v1.4.0-dev.11) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* taller hero window with scrolling stats, row icons, and the bottom Edit buttons on Talents and Statuses ([7f90441](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/7f904413e5dd9eb6113fdf52a0af5415c5edbd26))
+
 ## [1.4.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.9...v1.4.0-dev.10) (2026-11-22)
 
 ### ✨ New Features
