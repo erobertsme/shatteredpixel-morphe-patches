@@ -1,3 +1,9 @@
+## [1.4.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.5...v1.4.0-dev.6) (2026-11-22)
+
+### ✨ New Features
+
+* Hero stats on the hero info window, examining your own tile, simpler change type ([134d373](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/134d373825944421e26db52c8bc4d8b4333fcce5))
+
 ## [1.4.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.4...v1.4.0-dev.5) (2026-11-22)
 
 ### ✨ New Features
