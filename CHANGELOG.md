@@ -1,3 +1,9 @@
+## [1.4.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.9...v1.4.0-dev.10) (2026-11-22)
+
+### ✨ New Features
+
+* Hero window Edit button in the top right corner ([b4df3e1](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b4df3e191054255b29018bd6653be4cb57de0ed4))
+
 ## [1.4.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.8...v1.4.0-dev.9) (2026-11-22)
 
 ### 🐛 Bug Fixes
