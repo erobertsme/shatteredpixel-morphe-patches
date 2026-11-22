@@ -1,3 +1,9 @@
+## [1.5.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.2...v1.5.0-dev.3) (2026-11-22)
+
+### ✨ New Features
+
+* tags editor shows the game tags' colors, a Show tag titles switch with an info button, titles that don't overlap and a lighter dim ([ed020b6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/ed020b682d5c858b9795b1314859f774cabe3908))
+
 ## [1.5.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.1...v1.5.0-dev.2) (2026-11-22)
 
 ### ✨ New Features
