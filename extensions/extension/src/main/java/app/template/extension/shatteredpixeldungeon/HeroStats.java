@@ -15,11 +15,16 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
+import com.watabou.noosa.Image;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.watabou.noosa.ui.Component;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * All of the hero's stats on the hero info window, in place of its strength, health and experience rows: tabs for the hero's stats,
@@ -35,8 +40,10 @@ public final class HeroStats {
 	private static final int MODS = 2;
 	private static final int RESIST = 3;
 	private static final int RUN = 4;
-	private static final int CONTENT_HEIGHT = 150;
-	private static final float MAX_SCREEN_SHARE = 0.45f;
+	private static final int WINDOW_HEIGHT = 170;
+	private static final float MAX_SCREEN_SHARE = 0.7f;
+	private static final int ICON_SPACE = 12;
+	private static final Set<Window> sized = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final int TEXT_SIZE = 8;
 	private static final int TAB_TEXT_SIZE = 6;
 	private static final int TAB_HEIGHT = 14;
@@ -87,10 +94,10 @@ public final class HeroStats {
 			float contentTop = addTabs(group, width, top);
 			Component content = new Component();
 			float contentHeight = new Layout(content, width, valueX, rowHeight(labelTops)).build(selected, 0);
-			float areaHeight = Math.min(CONTENT_HEIGHT, PixelScene.uiCamera.height * MAX_SCREEN_SHARE);
+			float areaHeight = windowHeight() - contentTop;
 			ScrollPane pane = ScrollArea.place(group, content, contentTop, width, contentHeight, areaHeight);
 			if (pane != null) ScrollHints.add(group, pane);
-			Reflect.set(group.getClass(), group, "pos", contentTop + areaHeight + GAP);
+			Reflect.set(group.getClass(), group, "pos", (float) windowHeight());
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not show the hero's stats", e);
 		}
@@ -157,6 +164,45 @@ public final class HeroStats {
 	static final int HEADER_BUTTON = 16;
 
 	/**
+	 * How tall the hero window is with all the stats on it: taller than the game's, but kept to a share of the screen.
+	 */
+	static int windowHeight() {
+		return (int) Math.min(WINDOW_HEIGHT, PixelScene.uiCamera.height * MAX_SCREEN_SHARE);
+	}
+
+	/**
+	 * Called at the end of the WndHero constructor, and first thing by the Character editor's hook there. Makes the hero window taller, with
+	 * the talents and statuses tabs filling it, once.
+	 */
+	public static void layoutHeroWindow(Object window) {
+		if (!isOn() || !(window instanceof Window) || !sized.add((Window) window)) return;
+		try {
+			Window hero = (Window) window;
+			int width = Reflect.width(hero);
+			hero.resize(width, windowHeight());
+			fitTabs(hero, windowHeight());
+			hero.offset(0, 0);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not make the hero window taller", e);
+		}
+	}
+
+	/**
+	 * Makes the hero window's talents and statuses tabs end at [bottom], with the talents scrolled to the end the way the game opens them.
+	 */
+	static void fitTabs(Window window, float bottom) throws ReflectiveOperationException {
+		int width = Reflect.width(window);
+		for (String name : new String[] { "talents", "buffs" }) {
+			Component tab = (Component) Reflect.get(window.getClass(), window, name);
+			tab.setRect(tab.left(), tab.top(), width, bottom - tab.top());
+		}
+		Component talents = (Component) Reflect.get(window.getClass(), window, "talents");
+		ScrollPane pane = (ScrollPane) Reflect.get(talents, "pane");
+		pane.scrollTo(0, Math.max(0, pane.content().height() - pane.height()));
+		Reflect.call(talents, "layout", new Class<?>[0]);
+	}
+
+	/**
 	 * Where the buttons along the top of the hero window's stats tab [statsTab] start, or [width] when there are none.
 	 */
 	@SuppressWarnings("unchecked")
@@ -215,7 +261,7 @@ public final class HeroStats {
 		float build(int tab, float top) {
 			float pos = top;
 			for (CharacterWindow.HeroStat row : rows(Dungeon.hero, tab)) {
-				addRow(group, row.label, row.value, pos, valueX, width, rowHeight);
+				addRow(group, row.icon, row.label, row.value, pos, valueX, width, rowHeight);
 				pos += rowHeight;
 			}
 			if (tab == STATS) return HungerWindow.addCurrentBar(group, 0, pos + GAP, width);
@@ -245,11 +291,17 @@ public final class HeroStats {
 	}
 
 	/**
-	 * A label and its value, sized down until each fits its column, like the game's own rows.
+	 * An icon, a label and its value, sized down until each fits its column, like the game's own rows.
 	 */
-	private static void addRow(Group tab, String label, String value, float top, float valueX, int width, float rowHeight) {
-		RenderedTextBlock left = fitted(label, valueX - GAP);
-		left.setPos(0, top + (rowHeight - left.height()) / 2f);
+	private static void addRow(Group tab, Image icon, String label, String value, float top, float valueX, int width, float rowHeight) {
+		if (icon != null) {
+			icon.x = (ICON_SPACE - icon.width()) / 2f;
+			icon.y = top + (rowHeight - icon.height()) / 2f;
+			PixelScene.align(icon);
+			tab.add(icon);
+		}
+		RenderedTextBlock left = fitted(label, valueX - GAP - ICON_SPACE);
+		left.setPos(ICON_SPACE, top + (rowHeight - left.height()) / 2f);
 		PixelScene.align(left);
 		tab.add(left);
 		RenderedTextBlock right = fitted(value, width - valueX);
@@ -270,46 +322,46 @@ public final class HeroStats {
 	static List<CharacterWindow.HeroStat> rows(Hero hero, int tab) {
 		List<CharacterWindow.HeroStat> rows = new ArrayList<>();
 		if (tab == STATS) {
-			rows.add(row("Health", hero.HP + " / " + hero.HT));
-			rows.add(row("Experience", hero.exp + " / " + hero.maxExp()));
+			rows.add(row(StatIcons.item(StatIcons.POTION_HEALING), "Health", hero.HP + " / " + hero.HT));
+			rows.add(row(StatIcons.item(StatIcons.POTION_EXP), "Experience", hero.exp + " / " + hero.maxExp()));
 			rows.addAll(CharacterWindow.heroStats(hero));
 			return rows;
 		}
 		if (tab == SENSES) {
-			rows.add(row("Vision", ExtraStats.vision(hero) + " tiles"));
-			rows.add(row("Search range", ExtraStats.searchRange(hero) + " tiles"));
+			rows.add(row(StatIcons.buff(StatIcons.BUFF_LIGHT), "Vision", ExtraStats.vision(hero) + " tiles"));
+			rows.add(row(StatIcons.buff(StatIcons.BUFF_MIND_VISION), "Search range", ExtraStats.searchRange(hero) + " tiles"));
 			int searchChance = HeroExtras.mod(HeroExtras.Mod.SEARCH_CHANCE);
-			rows.add(row("Search chance", searchChance == 0 ? "Normal" : signed(searchChance) + "%"));
-			rows.add(row("Stealth", StatsWindow.number(ExtraStats.stealth(hero))));
-			rows.add(row("Luck", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.LUCK))));
-			rows.add(row("Enchant power", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.ENCHANT_POWER))));
+			rows.add(row(StatIcons.buff(StatIcons.BUFF_FORESIGHT), "Search chance", searchChance == 0 ? "Normal" : signed(searchChance) + "%"));
+			rows.add(row(StatIcons.buff(StatIcons.BUFF_INVISIBLE), "Stealth", StatsWindow.number(ExtraStats.stealth(hero))));
+			rows.add(row(StatIcons.item(StatIcons.RING_WEALTH), "Luck", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.LUCK))));
+			rows.add(row(StatIcons.item(StatIcons.RING_ARCANA), "Enchant power", signed(ExtraStats.ringLevel(hero, HeroExtras.Mod.ENCHANT_POWER))));
 			return rows;
 		}
 		if (tab == MODS) {
 			for (HeroExtras.Mod mod : HeroExtras.Mod.in(HeroExtras.Group.RINGS)) {
 				int level = ExtraStats.ringLevel(hero, mod);
-				if (level != 0) rows.add(row("Ring of " + mod.label, signed(level)));
+				if (level != 0) rows.add(row(CharacterWindow.modIcon(mod), "Ring of " + mod.label, signed(level)));
 			}
 			for (HeroExtras.Mod mod : OTHER_MODS) {
 				int value = HeroExtras.mod(mod);
-				if (value != 0) rows.add(row(mod.label, signed(value) + "%"));
+				if (value != 0) rows.add(row(CharacterWindow.modIcon(mod), mod.label, signed(value) + "%"));
 			}
-			if (rows.isEmpty()) rows.add(row("No modifiers", ""));
+			if (rows.isEmpty()) rows.add(row(null, "No modifiers", ""));
 			return rows;
 		}
 		if (tab == RESIST) {
 			rows.addAll(ExtraStats.resistances(hero));
-			if (rows.isEmpty()) rows.add(row("None", ""));
+			if (rows.isEmpty()) rows.add(row(null, "None", ""));
 			return rows;
 		}
-		rows.add(row("Gold collected", String.valueOf(Statistics.goldCollected)));
-		rows.add(row("Maximum depth", String.valueOf(Statistics.deepestFloor)));
-		rows.add(row("Seed", DungeonSeed.convertToCode(Dungeon.seed)));
+		rows.add(row(StatIcons.icon(Icons.COIN_SML), "Gold collected", String.valueOf(Statistics.goldCollected)));
+		rows.add(row(StatIcons.icon(Icons.STAIRS), "Maximum depth", String.valueOf(Statistics.deepestFloor)));
+		rows.add(row(StatIcons.item(StatIcons.SCROLL_IDENTIFY), "Seed", DungeonSeed.convertToCode(Dungeon.seed)));
 		return rows;
 	}
 
-	private static CharacterWindow.HeroStat row(String label, String value) {
-		return new CharacterWindow.HeroStat(null, label, value);
+	private static CharacterWindow.HeroStat row(Image icon, String label, String value) {
+		return new CharacterWindow.HeroStat(icon, label, value);
 	}
 
 	private static String signed(int value) {

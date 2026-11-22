@@ -183,8 +183,10 @@ public final class CloverlordMenu {
 	 */
 	public static void onHeroWindowCreated(Window window) {
 		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
+		HeroStats.layoutHeroWindow(window);
+		boolean stats = HeroStats.isOn();
 		boolean character = EditorSwitches.character();
-		boolean hunger = EditorSwitches.hunger() && !HeroStats.isOn();
+		boolean hunger = EditorSwitches.hunger() && !stats;
 		if (!character && !hunger) return;
 		try {
 			int width = Reflect.width(window);
@@ -206,14 +208,22 @@ public final class CloverlordMenu {
 				y += 2 * GAP;
 			}
 
-			y -= 2 * GAP;
-			if (character) addHeroEdit(window);
-
+			float listBottom = y - 2 * GAP;
+			if (stats) {
+				y = Reflect.height(window) - EDIT_HEIGHT;
+				listBottom = y - GAP;
+			}
+			editButton = character ? addEditButton(window, width, y) : null;
+			smallEdit = character && stats ? addHeroEdit(window) : null;
 			heroWindow = new WeakReference<>(window);
 			heroSummary = summary;
 			showHeroTab();
-			if (!hunger) return;
-			fillTalentList(window, width, y);
+			if (stats) {
+				if (character) HeroStats.fitTabs(window, listBottom);
+				return;
+			}
+			if (hunger) HeroStats.fitTabs(window, listBottom);
+			y += character ? EDIT_HEIGHT : -2 * GAP;
 			window.resize(width, (int) y + 1);
 			window.offset(0, 0);
 		} catch (Exception e) {
@@ -221,11 +231,14 @@ public final class CloverlordMenu {
 		}
 	}
 
+	private static final int EDIT_HEIGHT = 16;
 	private static WeakReference<Window> heroWindow = new WeakReference<>(null);
 	private static List<Gizmo> heroSummary = new ArrayList<>();
+	private static RedButton editButton;
+	private static RedButton smallEdit;
 
 	/**
-	 * Called at the end of WndTabbed.select. When the hero window changes tab, matches the summary and the edit button to it.
+	 * Called at the end of WndTabbed.select. When the hero window changes tab, matches the summary and the edit buttons to it.
 	 */
 	public static void afterTabSelected(Object window) {
 		if (window != null && window == heroWindow.get()) showHeroTab();
@@ -233,58 +246,65 @@ public final class CloverlordMenu {
 
 	private static void showHeroTab() {
 		int tab = WndHero.lastIdx;
-		for (Gizmo gizmo : heroSummary) {
-			gizmo.visible = tab == 0;
-			gizmo.active = tab == 0;
-		}
+		for (Gizmo gizmo : heroSummary) show(gizmo, tab == 0);
+		if (smallEdit != null) show(smallEdit, tab == 0);
+		RedButton edit = editButton;
+		if (edit == null) return;
+		show(edit, smallEdit == null || tab != 0);
+		edit.icon(Icons.get(tabIcon(tab)));
+		edit.text(editLabel(tab));
+	}
+
+	private static void show(Gizmo gizmo, boolean shown) {
+		gizmo.visible = shown;
+		gizmo.active = shown;
 	}
 
 	/**
-	 * An Edit button in the hero window's top right corner, left of the [i] and rename buttons, like other windows' Edit buttons. It opens
-	 * the Character editor on the tab matching the hero window's.
+	 * The wide Edit button across the hero window at [y], named and iconed for the open tab. It opens the Character editor on the
+	 * matching tab.
 	 */
-	private static void addHeroEdit(Window window) throws ReflectiveOperationException {
+	private static RedButton addEditButton(Window window, int width, float y) {
+		RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
+			@Override
+			public void onClick() {
+				openEditor(window);
+			}
+		};
+		edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
+		edit.setRect(0, y, width, EDIT_HEIGHT);
+		window.add(edit);
+		return edit;
+	}
+
+	/**
+	 * A small Edit button in the hero window's top right corner, left of the [i] and rename buttons, like other windows' Edit buttons.
+	 */
+	private static RedButton addHeroEdit(Window window) throws ReflectiveOperationException {
 		Object stats = Reflect.get(window.getClass(), window, "stats");
 		float right = HeroStats.headerButtonsLeft(stats, Reflect.width(window));
-		RedButton edit = WindowHeader.smallButton("Edit", null, () -> {
-			window.hide();
-			CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
-		});
+		RedButton edit = WindowHeader.smallButton("Edit", null, () -> openEditor(window));
 		edit.setRect(right - WindowHeader.EDIT_WIDTH, (HeroStats.HEADER_BUTTON - WindowHeader.SMALL_HEIGHT) / 2f, WindowHeader.EDIT_WIDTH, WindowHeader.SMALL_HEIGHT);
 		window.add(edit);
 		HeroStats.fitTitle(stats, edit.left() - GAP);
+		return edit;
 	}
 
-	/**
-	 * Lets the talents tab use the height the hunger summary adds to the window, instead of leaving it blank.
-	 */
-	private static void fillTalentList(Window window, int width, float bottom) {
-		try {
-			Field field = Reflect.field(window.getClass(), "talents");
-			Object talents = field.get(window);
-			if (!(talents instanceof com.watabou.noosa.ui.Component)) return;
-			com.watabou.noosa.ui.Component tab = (com.watabou.noosa.ui.Component) talents;
-			if (bottom <= tab.height()) return;
-			tab.setRect(tab.left(), tab.top(), width, bottom - tab.top());
-			scrollToBottom(tab);
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not resize the talents tab", e);
-		}
+	private static void openEditor(Window window) {
+		window.hide();
+		CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
 	}
 
-	/**
-	 * Scrolls the talents list to the bottom for its new height, as the game does when the window opens.
-	 */
-	private static void scrollToBottom(com.watabou.noosa.ui.Component tab) throws ReflectiveOperationException {
-		Field paneField = Reflect.field(tab.getClass(), "pane");
-		Object pane = paneField.get(tab);
-		if (!(pane instanceof com.watabou.noosa.ui.Component)) return;
-		com.watabou.noosa.ui.Component scroll = (com.watabou.noosa.ui.Component) pane;
-		Object content = Reflect.method(pane.getClass(), "content").invoke(pane);
-		float contentHeight = content instanceof com.watabou.noosa.ui.Component ? ((com.watabou.noosa.ui.Component) content).height() : 0;
-		float target = Math.max(0, contentHeight - scroll.height());
-		Reflect.method(pane.getClass(), "scrollTo", float.class, float.class).invoke(pane, 0f, target);
-		Reflect.method(tab.getClass(), "layout").invoke(tab);
+	private static String editLabel(int heroTab) {
+		if (heroTab == 1) return "Edit Talents";
+		if (heroTab == 2) return "Edit Statuses";
+		return "Edit Stats";
+	}
+
+	private static Icons tabIcon(int heroTab) {
+		if (heroTab == 1) return Icons.TALENT;
+		if (heroTab == 2) return Icons.BUFFS;
+		return Icons.RANKINGS;
 	}
 
 	@SuppressWarnings("unchecked")
