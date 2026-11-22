@@ -1,3 +1,9 @@
+## [1.5.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.1...v1.5.0-dev.2) (2026-11-22)
+
+### ✨ New Features
+
+* simpler game preview on the main menu, with Copy and Start New for its seed ([6190869](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/61908696658124227320a24e8fe1e6f996d9ab2b))
+
 ## [1.5.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0...v1.5.0-dev.1) (2026-11-22)
 
 ### ✨ New Features
