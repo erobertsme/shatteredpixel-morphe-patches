@@ -1,3 +1,9 @@
+## [1.4.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.2...v1.4.0-dev.3) (2026-11-22)
+
+### ✨ New Features
+
+* Change an item's type, and weapon and armor tier, in the item editor ([788c971](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/788c971d44ce50e8a0faad0050e720171fbe1acb))
+
 ## [1.4.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.1...v1.4.0-dev.2) (2026-11-22)
 
 ### ✨ New Features
