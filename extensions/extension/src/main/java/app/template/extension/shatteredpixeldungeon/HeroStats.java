@@ -119,6 +119,7 @@ public final class HeroStats {
 			left -= button.width() + GAP;
 			button.setPos(left, info.top());
 		}
+		if (EditorSwitches.character()) left -= WindowHeader.EDIT_WIDTH + GAP;
 		if (title != null) title.setRect(title.left(), title.top(), left - GAP - title.left(), 0);
 		bottom = info.bottom();
 		return title == null ? bottom : Math.max(bottom, title.bottom());
@@ -151,6 +152,34 @@ public final class HeroStats {
 			tab.add(button);
 		}
 		return top + TAB_HEIGHT + GAP;
+	}
+
+	static final int HEADER_BUTTON = 16;
+
+	/**
+	 * Where the buttons along the top of the hero window's stats tab [statsTab] start, or [width] when there are none.
+	 */
+	@SuppressWarnings("unchecked")
+	static float headerButtonsLeft(Object statsTab, float width) throws ReflectiveOperationException {
+		float left = width;
+		for (Gizmo member : Reflect.members(statsTab)) {
+			if (member instanceof IconButton && ((Component) member).top() < HEADER_BUTTON / 2f) left = Math.min(left, ((Component) member).left());
+		}
+		return left - GAP;
+	}
+
+	/**
+	 * Narrows the hero's title on the stats tab [statsTab] to end at [right].
+	 */
+	@SuppressWarnings("unchecked")
+	static void fitTitle(Object statsTab, float right) throws ReflectiveOperationException {
+		for (Gizmo member : Reflect.members(statsTab)) {
+			if (!(member instanceof Component) || member instanceof IconButton || member instanceof RenderedTextBlock) continue;
+			Component title = (Component) member;
+			if (title.top() > 1) continue;
+			title.setRect(title.left(), title.top(), Math.max(10, right - title.left()), 0);
+			return;
+		}
 	}
 
 	/**

@@ -206,29 +206,14 @@ public final class CloverlordMenu {
 				y += 2 * GAP;
 			}
 
-			float listBottom = y - 2 * GAP;
-			if (character) {
-				RedButton edit = new RedButton(editLabel(WndHero.lastIdx), 7) {
-					@Override
-					public void onClick() {
-						window.hide();
-						CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
-					}
-				};
-				edit.icon(Icons.get(tabIcon(WndHero.lastIdx)));
-				edit.setRect(0, y, width, 16);
-				window.add(edit);
-				editButton = edit;
-				y += 16;
-			} else {
-				y -= 2 * GAP;
-				editButton = null;
-			}
+			y -= 2 * GAP;
+			if (character) addHeroEdit(window);
 
 			heroWindow = new WeakReference<>(window);
 			heroSummary = summary;
 			showHeroTab();
-			fillTalentList(window, width, listBottom);
+			if (!hunger) return;
+			fillTalentList(window, width, y);
 			window.resize(width, (int) y + 1);
 			window.offset(0, 0);
 		} catch (Exception e) {
@@ -238,7 +223,6 @@ public final class CloverlordMenu {
 
 	private static WeakReference<Window> heroWindow = new WeakReference<>(null);
 	private static List<Gizmo> heroSummary = new ArrayList<>();
-	private static RedButton editButton;
 
 	/**
 	 * Called at the end of WndTabbed.select. When the hero window changes tab, matches the summary and the edit button to it.
@@ -253,10 +237,22 @@ public final class CloverlordMenu {
 			gizmo.visible = tab == 0;
 			gizmo.active = tab == 0;
 		}
-		RedButton edit = editButton;
-		if (edit == null) return;
-		edit.icon(Icons.get(tabIcon(tab)));
-		edit.text(editLabel(tab));
+	}
+
+	/**
+	 * An Edit button in the hero window's top right corner, left of the [i] and rename buttons, like other windows' Edit buttons. It opens
+	 * the Character editor on the tab matching the hero window's.
+	 */
+	private static void addHeroEdit(Window window) throws ReflectiveOperationException {
+		Object stats = Reflect.get(window.getClass(), window, "stats");
+		float right = HeroStats.headerButtonsLeft(stats, Reflect.width(window));
+		RedButton edit = WindowHeader.smallButton("Edit", null, () -> {
+			window.hide();
+			CharacterWindow.openFrom(CloverlordMenu::showHeroWindow, editorTabFor(WndHero.lastIdx), 1);
+		});
+		edit.setRect(right - WindowHeader.EDIT_WIDTH, (HeroStats.HEADER_BUTTON - WindowHeader.SMALL_HEIGHT) / 2f, WindowHeader.EDIT_WIDTH, WindowHeader.SMALL_HEIGHT);
+		window.add(edit);
+		HeroStats.fitTitle(stats, edit.left() - GAP);
 	}
 
 	/**
@@ -299,18 +295,6 @@ public final class CloverlordMenu {
 		float bottom = HungerWindow.addSummary(window, 0, y, width);
 		added.addAll(members.subList(before, members.size()));
 		return bottom;
-	}
-
-	private static String editLabel(int heroTab) {
-		if (heroTab == 1) return "Edit Talents";
-		if (heroTab == 2) return "Edit Statuses";
-		return "Edit Stats";
-	}
-
-	private static Icons tabIcon(int heroTab) {
-		if (heroTab == 1) return Icons.TALENT;
-		if (heroTab == 2) return Icons.BUFFS;
-		return Icons.RANKINGS;
 	}
 
 	static void showGameMenu() {
