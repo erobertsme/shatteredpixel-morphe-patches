@@ -2,6 +2,8 @@ package app.template.extension.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Tag;
 import com.watabou.input.PointerEvent;
@@ -22,18 +24,22 @@ import java.util.List;
  */
 final class TagLayoutEditor {
 
-	private static final int DIM_COLOR = 0xAA000000;
+	private static final int DIM_COLOR = 0x77000000;
 	private static final int LABEL_COLOR = 0xFFFF44;
 	private static final int BUTTON_WIDTH = 50;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int MARGIN = 4;
-	private static final int HINT_TOP = 40;
-	private static final int HINT_SIDE_SPACE = 40;
+	private static final String KEY_TITLES_OFF = "tag_editor_titles_off";
+	private static final String INFO = "Tags editor\n\n"
+		+ "Every tag on the screen, the game's own included.\n\n"
+		+ "_Tap_ a tag for all of its settings.\n_Press and hold_ a tag briefly, then drag it along its edge or onto another edge.\n\n"
+		+ "_Show tag titles_ writes each tag's name under it.\n_Reset_ puts every tag back in its default place.";
 	private static final long HOLD_MS = 250;
 	private static final int HOLD_VIBRATION_MS = 20;
 	private static final float TAP_SLOP = 6;
 
 	private static final List<Gizmo> parts = new ArrayList<>();
+	private static final List<RenderedTextBlock> labels = new ArrayList<>();
 	private static Runnable onClose;
 
 	/**
@@ -96,19 +102,25 @@ final class TagLayoutEditor {
 		add(scene, blocker);
 		if (inGame) add(scene, new ColorBlock(ui.width, ui.height, DIM_COLOR));
 
-		float[] insets = ScreenLayout.insets();
-		RenderedTextBlock hint = PixelScene.renderTextBlock("Tap a tag for all of its settings. Press and hold a tag briefly, then drag it along its edge or onto another edge.", 6);
-		hint.maxWidth((int) (ui.width - insets[0] - insets[2] - 2 * MARGIN - HINT_SIDE_SPACE));
-		hint.setPos((ui.width - hint.width()) / 2f, insets[1] + HINT_TOP);
-		PixelScene.align(hint);
-		add(scene, hint);
-
 		if (QolSettings.isAvailable()) add(scene, GameTagGhosts.danger());
 		for (Entry entry : entries()) addTag(scene, entry);
 
 		float buttons = ScreenLayout.aboveToolbar() - BUTTON_HEIGHT;
-		add(scene, button("Reset", (ui.width - MARGIN) / 2f - BUTTON_WIDTH, buttons, TagLayoutEditor::reset));
+		float left = (ui.width - MARGIN) / 2f - BUTTON_WIDTH;
+		add(scene, button("Reset", left, buttons, TagLayoutEditor::reset));
 		add(scene, button("Done", (ui.width + MARGIN) / 2f, buttons, TagLayoutEditor::close));
+
+		float toggles = buttons - MARGIN - BUTTON_HEIGHT;
+		float toggleWidth = 2 * BUTTON_WIDTH + MARGIN - InfoButton.SIZE - MARGIN;
+		TintedButton titles = new TintedButton("Show tag titles", showsTitles() ? Icons.CHECKED : Icons.UNCHECKED, 1f, 1f, 1f, () -> {
+			CloverlordSettings.set(KEY_TITLES_OFF, showsTitles());
+			build();
+		});
+		titles.setRect(left, toggles, toggleWidth, BUTTON_HEIGHT);
+		add(scene, titles);
+		IconButton info = InfoButton.create(INFO);
+		info.setRect(left + toggleWidth + MARGIN, toggles + (BUTTON_HEIGHT - InfoButton.SIZE) / 2f, InfoButton.SIZE, InfoButton.SIZE);
+		add(scene, info);
 	}
 
 	private static TintedButton button(String label, float x, float y, Runnable action) {
@@ -133,10 +145,13 @@ final class TagLayoutEditor {
 			RenderedTextBlock name = PixelScene.renderTextBlock(entry.name, 6);
 			name.hardlight(LABEL_COLOR);
 			label = name;
-			placeLabel(name, rect);
 		}
 		add(scene, visual);
-		add(scene, label);
+		if (showsTitles()) {
+			labels.add((RenderedTextBlock) label);
+			placeLabel((RenderedTextBlock) label, rect);
+			add(scene, label);
+		}
 
 		add(scene, new PointerArea(rect[0], rect[1], rect[2], rect[3]) {
 			private long downAt;
@@ -195,14 +210,34 @@ final class TagLayoutEditor {
 		});
 	}
 
+	private static boolean showsTitles() {
+		return !CloverlordSettings.get(KEY_TITLES_OFF);
+	}
+
 	/**
-	 * Puts a tag's name under it.
+	 * Puts a tag's name under it, moved further down past any other name it would cover, so names of tags side by side on the top edge
+	 * don't overlap.
 	 */
 	private static void placeLabel(RenderedTextBlock label, float[] rect) {
-		float x = rect[0] + (rect[2] - label.width()) / 2f;
+		if (!labels.contains(label)) return;
+		float x = Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), rect[0] + (rect[2] - label.width()) / 2f));
 		float y = rect[1] + rect[3] + 1;
-		label.setPos(Math.max(0, Math.min(PixelScene.uiCamera.width - label.width(), x)), y);
+		for (RenderedTextBlock other = covered(label, x, y); other != null; other = covered(label, x, y)) y = other.bottom() + 1;
+		label.setPos(x, y);
 		PixelScene.align(label);
+	}
+
+	/**
+	 * Another placed name that [label] would cover at [x], [y], or null when there is none.
+	 */
+	private static RenderedTextBlock covered(RenderedTextBlock label, float x, float y) {
+		for (RenderedTextBlock other : labels) {
+			if (other == label || other.parent == null) continue;
+			boolean across = x < other.right() && other.left() < x + label.width();
+			boolean down = y < other.bottom() && other.top() < y + label.height();
+			if (across && down) return other;
+		}
+		return null;
 	}
 
 	/**
@@ -264,6 +299,7 @@ final class TagLayoutEditor {
 			gizmo.destroy();
 		}
 		parts.clear();
+		labels.clear();
 	}
 
 	private static void add(Scene scene, Gizmo gizmo) {

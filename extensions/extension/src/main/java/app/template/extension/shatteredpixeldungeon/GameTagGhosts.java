@@ -45,6 +45,7 @@ final class GameTagGhosts {
 
 		Ghost(int color) {
 			super(color);
+			setColor(color);
 		}
 
 		void show(Image icon, RenderedTextBlock count) {
