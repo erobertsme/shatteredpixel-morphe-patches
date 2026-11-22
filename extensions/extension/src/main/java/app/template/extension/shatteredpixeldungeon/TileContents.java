@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoCell;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,8 +44,17 @@ public final class TileContents {
 			if (level == null || cell < 0 || cell >= level.length()) return false;
 			if (!level.visited[cell] && !level.mapped[cell]) return false;
 			if (FloorEditSession.isActive()) return false;
-			if (countThings(objectsAt(cell)) < 2) return false;
-			EditorWindow.show(new TileContentsWindow(cell));
+			List<Object> objects = objectsAt(cell);
+			if (countThings(objects) >= 2) {
+				EditorWindow.show(new TileContentsWindow(cell));
+				return true;
+			}
+			if (Dungeon.hero == null || Dungeon.hero.pos != cell) return false;
+			if (objects.isEmpty()) {
+				GameScene.show(new WndInfoCell(cell));
+				return true;
+			}
+			GameScene.examineObject(objects.get(0));
 			return true;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not list the tile", e);
@@ -82,12 +92,18 @@ public final class TileContents {
 		return result;
 	}
 
+	/**
+	 * What is on [cell] besides your hero, who has their own window.
+	 */
 	@SuppressWarnings("unchecked")
 	static List<Object> objectsAt(int cell) {
 		try {
 			Method method = Reflect.method(GameScene.class, "getObjectsAtCell", int.class);
 			List<Object> objects = (List<Object>) method.invoke(null, cell);
-			return objects == null ? new ArrayList<>() : objects;
+			if (objects == null) return new ArrayList<>();
+			List<Object> others = new ArrayList<>(objects);
+			others.remove(Dungeon.hero);
+			return others;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not read the tile", e);
 			return new ArrayList<>();

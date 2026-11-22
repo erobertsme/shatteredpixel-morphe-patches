@@ -60,10 +60,24 @@ public class ItemPickerWindow extends EditorWindow {
 		pos += GAP;
 		List<InventoryEditor.Entry> entries = InventoryEditor.catalog(category);
 		if (entries.isEmpty()) addHint("No favorites yet. Tap the heart next to an item to add it here.");
-		addPagedList(entries.size(), perPage(6, 3), page, index -> addEntryRow(entries.get(index), entry -> {
-			InventoryEditor.add(hero, entry.type, level, quantity, dropCell);
-			refresh();
-		}), newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+		addPagedList(entries.size(), perPage(6, 3), page, index -> {
+			InventoryEditor.Entry entry = entries.get(index);
+			Item sample = sample(entry);
+			addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> {
+				InventoryEditor.add(hero, entry.type, level, quantity, dropCell);
+				refresh();
+			}, sample == null ? null : () -> InventoryWindow.showInfo(sample), new Favorite() {
+				@Override
+				public boolean isFavorite() {
+					return Favorites.isItem(entry.type);
+				}
+
+				@Override
+				public void toggle() {
+					Favorites.toggleItem(entry.type);
+				}
+			});
+		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 
 		finishWithBack(this::back);
 	}
@@ -77,39 +91,21 @@ public class ItemPickerWindow extends EditorWindow {
 		pos += GAP;
 		List<InventoryEditor.Entry> entries = InventoryEditor.typeChoices(item);
 		if (entries.isEmpty()) addHint("Nothing else of this kind.");
-		addPagedList(entries.size(), perPage(6, 3), page, index -> addEntryRow(entries.get(index), entry -> {
-			changing = null;
-			Item changed = InventoryEditor.changeType(hero, item, entry.type);
-			hide();
-			show(new ItemEditWindow(changed != null ? changed : item));
-		}), newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+		addPagedList(entries.size(), perPage(5, 3), page, index -> {
+			InventoryEditor.Entry entry = entries.get(index);
+			Item sample = sample(entry);
+			listRowHeight(2 * ROW_HEIGHT);
+			addListRow(entry.name, sample == null ? null : new ItemSprite(sample), false, true, () -> {
+				changing = null;
+				Item changed = InventoryEditor.changeType(hero, item, entry.type);
+				hide();
+				show(new ItemEditWindow(changed != null ? changed : item));
+			}, sample == null ? null : () -> InventoryWindow.showInfo(sample));
+		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
 		finishWithBack(() -> {
 			changing = null;
 			show(new ItemEditWindow(item));
 		});
-	}
-
-	interface EntryAction {
-		void run(InventoryEditor.Entry entry);
-	}
-
-	/**
-	 * A row for [entry] with its sprite, an info button and a Favorites heart. Tapping it runs [onTap].
-	 */
-	private void addEntryRow(InventoryEditor.Entry entry, EntryAction onTap) {
-		Item sample = sample(entry);
-		addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> onTap.run(entry),
-			sample == null ? null : () -> InventoryWindow.showInfo(sample), new Favorite() {
-				@Override
-				public boolean isFavorite() {
-					return Favorites.isItem(entry.type);
-				}
-
-				@Override
-				public void toggle() {
-					Favorites.toggleItem(entry.type);
-				}
-			});
 	}
 
 	/**

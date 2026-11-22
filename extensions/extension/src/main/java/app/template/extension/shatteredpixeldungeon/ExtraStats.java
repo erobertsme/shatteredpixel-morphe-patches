@@ -1,5 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import java.util.List;
+import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -112,14 +114,22 @@ final class ExtraStats {
 	 */
 	static void addResistances(EditorWindow window, Char character) {
 		window.addSection("Resistances");
-		boolean any = false;
+		List<CharacterWindow.HeroStat> rows = resistances(character);
+		for (CharacterWindow.HeroStat row : rows) window.addIconRow(row.icon, row.label, row.value);
+		if (rows.isEmpty()) window.addHint("None");
+	}
+
+	/**
+	 * Each element [character] is immune to, resists or is weak to.
+	 */
+	static List<CharacterWindow.HeroStat> resistances(Char character) {
+		List<CharacterWindow.HeroStat> rows = new ArrayList<>();
 		for (HeroExtras.Element element : HeroExtras.Element.values()) {
 			Integer percent = resistancePercent(character, element);
 			if (percent != null && percent == 0) continue;
-			any = true;
 			String value = percent == null ? "Immune" : percent > 0 ? percent + "% less" : -percent + "% more";
-			window.addIconRow(StatIcons.buff(element.icon), element.label, value);
+			rows.add(new CharacterWindow.HeroStat(StatIcons.buff(element.icon), element.label, value));
 		}
-		if (!any) window.addHint("None");
+		return rows;
 	}
 }

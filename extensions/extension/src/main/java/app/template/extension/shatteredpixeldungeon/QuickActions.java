@@ -80,7 +80,7 @@ final class QuickActions {
 		if (actions != null) return actions;
 		List<Action> list = new ArrayList<>();
 		list.add(window("extras", "Extras menu", "PREFS", () -> true, CloverlordMenu::show));
-		list.add(window("hero_stats", "Hero stats", "STATS", QolSettings::isAvailable, () -> EditorWindow.show(new HeroStatsWindow())));
+		list.add(window("hero_stats", "Hero stats", "STATS", QolSettings::isAvailable, () -> EditorWindow.show(new com.shatteredpixel.shatteredpixeldungeon.windows.WndHero())));
 		list.add(window("char_stats", "Character: Stats", "ITEM:" + StatIcons.POTION_STRENGTH, EditorSwitches::character, () -> CharacterWindow.openFrom(null, CharacterWindow.TAB_STATS, 1)));
 		list.add(window("char_mods", "Character: Mods", "ITEM:" + StatIcons.RING_ACCURACY, EditorSwitches::character, () -> CharacterWindow.openFrom(null, CharacterWindow.TAB_MODIFIERS, 1)));
 		list.add(window("char_talents", "Character: Talents", "TALENT", EditorSwitches::character, () -> CharacterWindow.openFrom(null, CharacterWindow.TAB_TALENTS, 1)));

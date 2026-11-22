@@ -145,6 +145,15 @@ abstract class EditorWindow extends Window {
 		addStepper("Distance " + from + " (" + placement.minOffset() + " to " + placement.maxOffset() + ")", offset + " px", offset, 1, placement.minOffset(), placement.maxOffset(), placement::offset, true, placement::resetOffset);
 	}
 
+	private float nextRowHeight;
+
+	/**
+	 * Makes the next list row [height] tall instead of a normal row.
+	 */
+	protected void listRowHeight(float height) {
+		nextRowHeight = height;
+	}
+
 	private Image nextStepperIcon;
 	private int nextStepperDecimals;
 
@@ -448,6 +457,8 @@ abstract class EditorWindow extends Window {
 			x = FAVORITE_SIZE + GAP;
 		}
 
+		float rowHeight = nextRowHeight > 0 ? nextRowHeight : ROW_HEIGHT;
+		nextRowHeight = 0;
 		float width = (onInfo == null ? WIDTH : WIDTH - INFO_SIZE - GAP) - x;
 		RedButton button = new RedButton("") {
 			@Override
@@ -462,14 +473,14 @@ abstract class EditorWindow extends Window {
 				return true;
 			}
 		};
-		button.setRect(x, pos, width, ROW_HEIGHT);
+		button.setRect(x, pos, width, rowHeight);
 		button.enable(enabled);
 		add(button);
 
 		float textLeft = x + ROW_PADDING;
 		if (icon != null) {
 			icon.x = x + ROW_PADDING;
-			icon.y = pos + (ROW_HEIGHT - icon.height()) / 2f;
+			icon.y = pos + (rowHeight - icon.height()) / 2f;
 			if (!enabled) icon.alpha(0.3f);
 			add(icon);
 			textLeft = icon.x + icon.width() + ROW_PADDING;
@@ -479,7 +490,7 @@ abstract class EditorWindow extends Window {
 		text.maxWidth((int) (x + width - textLeft - ROW_PADDING));
 		if (highlighted) text.hardlight(TITLE_COLOR);
 		if (!enabled) text.alpha(0.3f);
-		text.setPos(textLeft, pos + (ROW_HEIGHT - text.height()) / 2f);
+		text.setPos(textLeft, pos + (rowHeight - text.height()) / 2f);
 		add(text);
 
 		if (onInfo != null) {
@@ -489,10 +500,10 @@ abstract class EditorWindow extends Window {
 					onInfo.run();
 				}
 			};
-			info.setRect(WIDTH - INFO_SIZE, pos, INFO_SIZE, ROW_HEIGHT);
+			info.setRect(WIDTH - INFO_SIZE, pos, INFO_SIZE, rowHeight);
 			add(info);
 		}
-		pos += ROW_HEIGHT + GAP;
+		pos += rowHeight + GAP;
 	}
 
 	/**

@@ -27,7 +27,7 @@ public class CloverlordWindow extends EditorWindow {
 		+ "## QoL: inventory & shops\n_Backpack:_ bag sizes and the Weapons, Armor and Rings tabs.\n_Shopkeeper:_ keep enemies out, stop him running off, and set how many sold items can be bought back.\n_Quantum Chest:_ after each boss, a chest beside the exit. Every chest shares one storage of 25, 50 or 75 items.\n\n"
 		+ "## QoL: rules\n_Confirm actions:_ choose which taps ask first, like attacking, long walks, stairs or stepping into danger.\n_Experience / Loot:_ change the level limit past which creatures stop giving experience or drops.\n\n"
 		+ "## QoL: movement\n_Show interrupted path:_ draws the rest of an interrupted walk.\n_Tap unexplored areas:_ walk to the closest explored tile you can reach.\n_Walk through allies:_ swap past an ally when that's the shorter way, walking over wards without triggering them.\n\n"
-		+ "## QoL: information\n_Enhanced Bestiary:_ a Stats button and an i button with abilities, traits, immunities and resistances when you examine a creature.\n_List everything on a tile:_ examining a tile with several things lists each one. Pick one item from a pile to take it. Items inside a grave or chest are listed too.\n_Hero stats button:_ all your hero's numbers, beside the i button on the hero info window.\n\n"
+		+ "## QoL: information\n_Enhanced Bestiary:_ a Stats button and an i button with abilities, traits, immunities and resistances when you examine a creature.\n_List everything on a tile:_ examining a tile with several things lists each one. Pick one item from a pile to take it. Items inside a grave or chest are listed too.\n_All stats on hero info:_ the hero info window shows all your hero's numbers in tabs, with the run's gold, deepest floor and seed.\n\n"
 		+ "## QoL: alchemy & plants\n_Energize more items:_ energize items the game normally won't, like the Arcane Stylus for 5 energy.\n_Reroll Catalyst:_ a Reroll 5 button for trinket choices, for 5 energy.\n_Mageroyal cures everything:_ stepping on one removes every harmful status, for any creature.\n\n"
 		+ "## Elsewhere\n_Inventory editor_ (Inventory in the in-game menu): unlimited inventory space and backpack tabs.\n_Floor editor_ (Floor in the in-game menu): Edit Floor mode, and an Edit button when you examine a tile, trap or item. Examining an item also lets you move it or its pile.\n_Supporter options:_ keep your supporter rewards and hide the Support button.";
 
@@ -171,7 +171,7 @@ public class CloverlordWindow extends EditorWindow {
 		addSection("Information");
 		addSwitch("Enhanced Bestiary", QolSettings.enhancedBestiary(), QolSettings::enhancedBestiary);
 		addSwitch("List everything on a tile", TileContents.isOn(), TileContents::setOn);
-		addSwitch("Hero stats button", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
+		addSwitch("All stats on hero info", QolSettings.heroStatsButton(), QolSettings::heroStatsButton);
 
 		addSection("Alchemy & plants");
 		addSwitch("Energize more items", EnergizeMore.isOn(), EnergizeMore::setOn);

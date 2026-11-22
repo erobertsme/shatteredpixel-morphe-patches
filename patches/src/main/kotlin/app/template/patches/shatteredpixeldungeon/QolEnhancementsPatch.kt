@@ -84,7 +84,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		hookEquipTime()
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
 		WndJournalItemConstructorFingerprint.callWithThisBeforeReturns("$BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
-		WndHeroStatsTabInitializeFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")
+		WndHeroStatsTabInitializeFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/HeroStats;->afterStatsTab($ITEM_TYPE)V")
 		MobDestroyFingerprint.method.addInstruction(0, "invoke-static { p0 }, $REWARDS_CLASS->beforeDestroy($ITEM_TYPE)V")
 		MobDestroyFingerprint.callBeforeEveryReturn("invoke-static { }, $REWARDS_CLASS->afterDestroy()V")
 		HeroEarnExpFingerprint.method.addInstructions(

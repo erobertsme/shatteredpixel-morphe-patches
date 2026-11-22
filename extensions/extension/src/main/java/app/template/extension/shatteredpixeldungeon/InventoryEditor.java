@@ -210,14 +210,17 @@ final class InventoryEditor {
 	}
 
 	/**
-	 * The items [item] can change into: every other item of its kind, or none for an item whose type can't change.
+	 * The items [item] can change into: every other item of its kind, or none for an item whose type can't change. Weapons only change
+	 * into weapons of their current tier, since the tier can be set on its own.
 	 */
 	static List<Entry> typeChoices(Item item) {
 		List<Entry> choices = new ArrayList<>();
 		Class<?> family = typeFamily(item);
 		if (family == null) return choices;
+		int tier = item instanceof MeleeWeapon || item instanceof MissileWeapon ? ItemTier.of(item) : 0;
 		for (Entry entry : catalog()) {
-			if (family.isAssignableFrom(entry.type) && entry.type != item.getClass()) choices.add(entry);
+			if (!family.isAssignableFrom(entry.type) || entry.type == item.getClass()) continue;
+			if (tier == 0 || entry.tier == tier) choices.add(entry);
 		}
 		return choices;
 	}
