@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-22T00:43:42",
-  "description": "## [1.4.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.2...v1.4.0-dev.3) (2026-11-22)\n\n### ✨ New Features\n\n* Change an item's type, and weapon and armor tier, in the item editor ([788c971](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/788c971d44ce50e8a0faad0050e720171fbe1acb))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.4.0-dev.3/patches-1.4.0-dev.3.mpp",
+  "created_at": "2026-11-22T00:51:03",
+  "description": "## [1.4.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.3...v1.4.0-dev.4) (2026-11-22)\n\n### ✨ New Features\n\n* Deleting or changing an equipped item in the editor doesn't use a turn ([4025644](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4025644ae72eb2e714f5b267f72687f57817b8b1))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.4.0-dev.4/patches-1.4.0-dev.4.mpp",
   "signature_download_url": "",
-  "version": "1.4.0-dev.3"
+  "version": "1.4.0-dev.4"
 }

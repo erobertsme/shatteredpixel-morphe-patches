@@ -1,3 +1,9 @@
+## [1.4.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.3...v1.4.0-dev.4) (2026-11-22)
+
+### ✨ New Features
+
+* Deleting or changing an equipped item in the editor doesn't use a turn ([4025644](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4025644ae72eb2e714f5b267f72687f57817b8b1))
+
 ## [1.4.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.2...v1.4.0-dev.3) (2026-11-22)
 
 ### ✨ New Features
