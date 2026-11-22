@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-public final class InventoryEditor {
+final class InventoryEditor {
 
 	private static final String TAG = "InventoryEditor";
 
@@ -272,27 +272,15 @@ public final class InventoryEditor {
 		return false;
 	}
 
-	private static boolean instant;
-
-	/**
-	 * Called at the end of EquipableItem.timeToEquip. While the editors take off an equipped item to delete or replace it, equipping takes
-	 * no time, the way the Duelist swaps weapons instantly, so the change doesn't use a turn.
-	 */
-	public static float adjustEquipTime(float time) {
-		return instant ? 0 : time;
-	}
-
 	/**
 	 * Takes [item] off without using a turn, even when it is cursed, and without putting it in the backpack.
 	 */
 	private static void unequipInstantly(Hero hero, EquipableItem item) {
 		boolean cursed = item.cursed;
 		item.cursed = false;
-		instant = true;
 		try {
-			item.doUnequip(hero, false, false);
+			InstantEquip.whileEditing(() -> item.doUnequip(hero, false, false));
 		} finally {
-			instant = false;
 			item.cursed = cursed;
 		}
 	}

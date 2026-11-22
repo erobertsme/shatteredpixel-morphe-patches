@@ -201,3 +201,11 @@ internal fun hookInfoWindows() {
 	WndInfoCellConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $INFO_WINDOWS_CLASS->beforeCell(I)V")
 	WndInfoCellConstructorFingerprint.callWithThisBeforeReturns("$INFO_WINDOWS_CLASS->after(Ljava/lang/Object;)V")
 }
+
+/**
+ * Lets InstantEquip make equipping take no time. Each patch that needs it calls this; doing so twice changes nothing more.
+ */
+context(_: BytecodePatchContext)
+internal fun hookEquipTime() {
+	EquipableItemTimeToEquipFingerprint.adjustReturns("$EXTENSION_PACKAGE/InstantEquip;->adjustEquipTime(F)F")
+}

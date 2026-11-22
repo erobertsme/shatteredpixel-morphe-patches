@@ -81,6 +81,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		GameSceneCreateFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/GameEvents;->onSceneCreated(Ljava/lang/Object;)V")
 		CellSelectorClickFingerprint.skipWhen("invoke-static { p0, p1 }, $EXTENSION_PACKAGE/ToolbarTaps;->ignoreTap(Ljava/lang/Object;Ljava/lang/Object;)Z")
 		hookInfoWindows()
+		hookEquipTime()
 		WndJournalItemConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p2 .. p2 }, $BESTIARY_CLASS->beforeJournalItem(Ljava/lang/String;)V")
 		WndJournalItemConstructorFingerprint.callWithThisBeforeReturns("$BESTIARY_CLASS->afterJournalItem($ITEM_TYPE)V")
 		WndHeroStatsTabInitializeFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/HeroStatsWindow;->afterStatsTab($ITEM_TYPE)V")

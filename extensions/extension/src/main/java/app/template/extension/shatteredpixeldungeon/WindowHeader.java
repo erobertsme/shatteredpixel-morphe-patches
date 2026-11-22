@@ -16,7 +16,8 @@ import java.util.WeakHashMap;
 /**
  * Small buttons in the top right corner of a game window, beside its title. Buttons added by different patches
  * line up, the [i] button always furthest right. The title narrows to make room, and if it needs another line the
- * rest of the window moves down.
+ * rest of the window moves down. A title that still doesn't fit, such as one long word, keeps the full width and the buttons go on a row
+ * of their own just below it.
  */
 final class WindowHeader {
 
@@ -96,16 +97,35 @@ final class WindowHeader {
 
 		Component title = state.title;
 		title.setRect(title.left(), title.top(), Math.max(10, x - title.left()), 0);
-		float shift = title.bottom() - state.lastBottom;
-		if (shift <= 0) return;
+		float bottom = title.bottom();
+		if (textRight(title) > x + GAP) {
+			title.setRect(title.left(), title.top(), windowWidth - title.left(), 0);
+			float rowTop = title.bottom() + GAP;
+			for (Entry entry : state.entries) entry.button.setPos(entry.button.left(), rowTop + (ROW - entry.height) / 2f);
+			bottom = rowTop + ROW;
+		}
+		float shift = bottom - state.lastBottom;
+		if (shift == 0) return;
 		for (Gizmo member : new ArrayList<>(Reflect.members(window))) {
 			if (member == title || !(member instanceof Component) || isHeaderButton(state, member)) continue;
 			Component component = (Component) member;
 			if (component.top() < state.lastBottom - 1) continue;
 			component.setPos(component.left(), component.top() + shift);
 		}
-		state.lastBottom = title.bottom();
+		state.lastBottom = bottom;
 		window.resize(windowWidth, (int) (windowHeight + shift));
+	}
+
+	/**
+	 * Where the title's text ends. A single word too long to wrap reaches past the width the title was given.
+	 */
+	@SuppressWarnings("unchecked")
+	private static float textRight(Component title) throws ReflectiveOperationException {
+		float right = title.left();
+		for (Gizmo member : Reflect.members(title)) {
+			if (member instanceof RenderedTextBlock) right = Math.max(right, ((RenderedTextBlock) member).right());
+		}
+		return right;
 	}
 
 	private static boolean isHeaderButton(State state, Gizmo member) {
