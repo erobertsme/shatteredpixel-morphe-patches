@@ -1,3 +1,9 @@
+## [1.4.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.8...v1.4.0-dev.9) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* Hero stats rows start under the tabs ([0aa54c5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0aa54c562486044649f52604c877c75e2adcbbb3))
+
 ## [1.4.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.7...v1.4.0-dev.8) (2026-11-22)
 
 ### 🐛 Bug Fixes
