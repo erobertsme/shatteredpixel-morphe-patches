@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
@@ -17,6 +18,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+
+import com.watabou.utils.Bundle;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -182,6 +185,121 @@ final class InventoryEditor {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not add " + type.getName(), e);
 		}
+	}
+
+	private static final String GAME_ITEMS = "com.shatteredpixel.shatteredpixeldungeon.";
+
+	/**
+	 * The kinds an item's type can change between: an item only changes into another item of the same kind.
+	 */
+	private static final String[] TYPE_FAMILIES = {
+		"items.weapon.melee.MeleeWeapon", "items.weapon.missiles.MissileWeapon", "items.armor.Armor", "items.wands.Wand",
+		"items.potions.Potion", "items.scrolls.Scroll", "items.rings.Ring", "items.artifacts.Artifact", "items.trinkets.Trinket",
+		"plants.Plant$Seed", "items.stones.Runestone",
+	};
+
+	private static Class<?> typeFamily(Item item) {
+		for (String name : TYPE_FAMILIES) {
+			try {
+				Class<?> family = Class.forName(GAME_ITEMS + name);
+				if (family.isInstance(item)) return family;
+			} catch (ClassNotFoundException ignored) {
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The items [item] can change into: every other item of its kind, or none for an item whose type can't change.
+	 */
+	static List<Entry> typeChoices(Item item) {
+		List<Entry> choices = new ArrayList<>();
+		Class<?> family = typeFamily(item);
+		if (family == null) return choices;
+		for (Entry entry : catalog()) {
+			if (family.isAssignableFrom(entry.type) && entry.type != item.getClass()) choices.add(entry);
+		}
+		return choices;
+	}
+
+	/**
+	 * Replaces [item] with an item of [type] that keeps what it can of [item]: its level, curse, identification, enchantment or glyph,
+	 * augment, charges and quantity. The new item takes the old one's place, equipped, in its bag, in its quickslot or on the floor.
+	 */
+	static Item changeType(Hero hero, Item item, Class<? extends Item> type) {
+		try {
+			Item changed = type.getConstructor().newInstance();
+			Bundle state = new Bundle();
+			item.storeInBundle(state);
+			changed.restoreFromBundle(state);
+			if (ItemTier.supports(changed)) ItemTier.reset(changed);
+			replace(hero, item, changed);
+			return changed;
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not change " + item.getClass().getName() + " into " + type.getName(), e);
+			return null;
+		}
+	}
+
+	private static final String[] EQUIP_SLOTS = { "weapon", "armor", "artifact", "misc", "ring" };
+
+	/**
+	 * Puts [replacement] where [item] is: in the same equipment slot, the same place in its bag or floor pile, and its quickslot.
+	 */
+	static void replace(Hero hero, Item item, Item replacement) {
+		try {
+			int quickslot = Dungeon.quickslot.getSlot(item);
+			if (!replaceEquipped(hero, item, replacement) && !replaceInList(hero.belongings.backpack, item, replacement) && !replaceOnFloor(item, replacement)) {
+				give(hero, replacement);
+			}
+			if (quickslot >= 0) Dungeon.quickslot.setSlot(quickslot, replacement);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not replace " + item.getClass().getName(), e);
+		}
+		Item.updateQuickslot();
+	}
+
+	private static boolean replaceEquipped(Hero hero, Item item, Item replacement) throws ReflectiveOperationException {
+		if (!isEquipped(hero, item) || !(item instanceof EquipableItem)) return false;
+		for (String name : EQUIP_SLOTS) {
+			Field slot = Reflect.field(Belongings.class, name);
+			if (slot.get(hero.belongings) != item) continue;
+			boolean cursed = item.cursed;
+			item.cursed = false;
+			((EquipableItem) item).doUnequip(hero, false, false);
+			item.cursed = cursed;
+			slot.set(hero.belongings, replacement);
+			if (replacement instanceof EquipableItem) ((EquipableItem) replacement).activate(hero);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Swaps [item] for [replacement] at the same place in [bag] or a bag inside it.
+	 */
+	private static boolean replaceInList(Bag bag, Item item, Item replacement) {
+		int index = bag.items.indexOf(item);
+		if (index >= 0) {
+			bag.items.set(index, replacement);
+			return true;
+		}
+		for (Item inner : bag.items) {
+			if (inner instanceof Bag && replaceInList((Bag) inner, item, replacement)) return true;
+		}
+		return false;
+	}
+
+	private static boolean replaceOnFloor(Item item, Item replacement) {
+		if (Dungeon.level == null) return false;
+		for (Heap heap : Dungeon.level.heaps.valueList()) {
+			int index = heap.items.indexOf(item);
+			if (index < 0) continue;
+			heap.items.set(index, replacement);
+			if (heap.sprite != null) heap.sprite.view(heap);
+			return true;
+		}
+		return false;
 	}
 
 	static void duplicate(Hero hero, Item item) {

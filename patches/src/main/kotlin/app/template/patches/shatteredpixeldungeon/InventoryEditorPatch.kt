@@ -48,11 +48,11 @@ val inventoryEditorPatch = bytecodePatch(
 
 		ItemStoreInBundleFingerprint.method.addInstruction(
 			0,
-			"invoke-static { p0, p1 }, $INFINITE_CHARGES_CLASS->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
+			"invoke-static { p0, p1 }, $EXTENSION_PACKAGE/ItemData;->onStore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
 		ItemRestoreFromBundleFingerprint.method.addInstruction(
 			0,
-			"invoke-static { p0, p1 }, $INFINITE_CHARGES_CLASS->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
+			"invoke-static { p0, p1 }, $EXTENSION_PACKAGE/ItemData;->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
 		HeroActFingerprint.method.addInstruction(
 			0,

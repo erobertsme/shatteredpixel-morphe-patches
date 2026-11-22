@@ -62,11 +62,7 @@ final class ItemAlchemy {
 			Item result = target.getConstructor().newInstance();
 			if (result.stackable) result.quantity(item.quantity());
 			result.identify();
-			item.detachAll(hero.belongings.backpack);
-			if (!result.collect(hero.belongings.backpack)) {
-				com.shatteredpixel.shatteredpixeldungeon.Dungeon.level.drop(result, hero.pos);
-			}
-			Item.updateQuickslot();
+			InventoryEditor.replace(hero, item, result);
 			return result;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not convert " + item.getClass().getName(), e);

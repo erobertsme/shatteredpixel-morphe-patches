@@ -44,19 +44,13 @@ public final class InfiniteCharges {
 		marked.remove(item);
 	}
 
-	/**
-	 * Called at the start of Item.storeInBundle.
-	 */
-	public static synchronized void onStore(Object item, Bundle bundle) {
-		if (bundle != null && marked.contains(item)) bundle.put(KEY, true);
+	static synchronized void onStore(Object item, Bundle bundle) {
+		if (marked.contains(item)) bundle.put(KEY, true);
 	}
 
-	/**
-	 * Called at the start of Item.restoreFromBundle.
-	 */
-	public static synchronized void onRestore(Object item, Bundle bundle) {
+	static synchronized void onRestore(Object item, Bundle bundle) {
 		try {
-			if (bundle != null && item instanceof Item && bundle.getBoolean(KEY)) marked.add((Item) item);
+			if (item instanceof Item && bundle.getBoolean(KEY)) marked.add((Item) item);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not read the infinite charges mark", e);
 		}

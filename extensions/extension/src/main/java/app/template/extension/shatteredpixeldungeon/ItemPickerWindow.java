@@ -15,14 +15,28 @@ public class ItemPickerWindow extends EditorWindow {
 	private static int dropCell = -1;
 	private static boolean keepTrapActive = true;
 
+	private static Item changing;
+
 	private final InventoryEditor.Category category;
 	private final int page;
+
+	/**
+	 * Opens the picker to change the type of [item] to another item of its kind.
+	 */
+	static void openToChangeType(Item item) {
+		changing = item;
+		show(new ItemPickerWindow(InventoryEditor.Category.FAVORITES, 0));
+	}
 
 	public ItemPickerWindow(InventoryEditor.Category category, int page) {
 		super();
 		this.category = category;
 		this.page = page;
 		Hero hero = Dungeon.hero;
+		if (changing != null) {
+			addTypeChoices(hero, changing);
+			return;
+		}
 
 		addTitle(dropCell >= 0 ? "Place item" : "Add item", (dropCell >= 0 ? "Items are placed on the chosen tile. " : "") + "Tap an item to add it to your backpack, identified. If your backpack is full it drops at your feet.\n\n_Level:_ for upgradable items and trinkets.\n_Quantity:_ for stackable items.\n\n{HEART}The heart adds an item to Favorites.\n\n{INFO}Tap i or long-press to read one.");
 
@@ -46,13 +60,46 @@ public class ItemPickerWindow extends EditorWindow {
 		pos += GAP;
 		List<InventoryEditor.Entry> entries = InventoryEditor.catalog(category);
 		if (entries.isEmpty()) addHint("No favorites yet. Tap the heart next to an item to add it here.");
-		addPagedList(entries.size(), perPage(6, 3), page, index -> {
-			InventoryEditor.Entry entry = entries.get(index);
-			Item sample = sample(entry);
-			addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> {
-				InventoryEditor.add(hero, entry.type, level, quantity, dropCell);
-				refresh();
-			}, sample == null ? null : () -> InventoryWindow.showInfo(sample), new Favorite() {
+		addPagedList(entries.size(), perPage(6, 3), page, index -> addEntryRow(entries.get(index), entry -> {
+			InventoryEditor.add(hero, entry.type, level, quantity, dropCell);
+			refresh();
+		}), newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+
+		finishWithBack(this::back);
+	}
+
+	/**
+	 * The items [item] can change into. Tapping one changes it, keeping what it can of the item, and goes back to editing it.
+	 */
+	private void addTypeChoices(Hero hero, Item item) {
+		addTitle("Change type", "Change type\n\nTap an item of the same kind to turn this one into it. It keeps its level, curse, identification, enchantment or glyph, augment, charges and quantity where the new item has them, and stays where it was: equipped, in its bag or quickslot, or on the floor.\n\n{INFO}Tap i or long-press to read one.");
+		addListRow(InventoryEditor.titleOf(item), new ItemSprite(item), true, true, () -> InventoryWindow.showInfo(item), null);
+		pos += GAP;
+		List<InventoryEditor.Entry> entries = InventoryEditor.typeChoices(item);
+		if (entries.isEmpty()) addHint("Nothing else of this kind.");
+		addPagedList(entries.size(), perPage(6, 3), page, index -> addEntryRow(entries.get(index), entry -> {
+			changing = null;
+			Item changed = InventoryEditor.changeType(hero, item, entry.type);
+			hide();
+			show(new ItemEditWindow(changed != null ? changed : item));
+		}), newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
+		finishWithBack(() -> {
+			changing = null;
+			show(new ItemEditWindow(item));
+		});
+	}
+
+	interface EntryAction {
+		void run(InventoryEditor.Entry entry);
+	}
+
+	/**
+	 * A row for [entry] with its sprite, an info button and a Favorites heart. Tapping it runs [onTap].
+	 */
+	private void addEntryRow(InventoryEditor.Entry entry, EntryAction onTap) {
+		Item sample = sample(entry);
+		addListRow(entry.label(), sample == null ? null : new ItemSprite(sample), false, true, () -> onTap.run(entry),
+			sample == null ? null : () -> InventoryWindow.showInfo(sample), new Favorite() {
 				@Override
 				public boolean isFavorite() {
 					return Favorites.isItem(entry.type);
@@ -63,9 +110,6 @@ public class ItemPickerWindow extends EditorWindow {
 					Favorites.toggleItem(entry.type);
 				}
 			});
-		}, newPage -> replaceWith(new ItemPickerWindow(category, newPage)));
-
-		finishWithBack(this::back);
 	}
 
 	/**

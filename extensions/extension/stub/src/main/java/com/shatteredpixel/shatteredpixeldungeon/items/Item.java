@@ -3,6 +3,8 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 
 public class Item {
+	public void storeInBundle(com.watabou.utils.Bundle bundle) { throw new RuntimeException("Stub"); }
+	public void restoreFromBundle(com.watabou.utils.Bundle bundle) { throw new RuntimeException("Stub"); }
 	public boolean cursed;
 	public boolean cursedKnown;
 	public boolean levelKnown;
