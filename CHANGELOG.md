@@ -1,3 +1,9 @@
+## [1.4.0-dev.13](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.12...v1.4.0-dev.13) (2026-11-22)
+
+### ✨ New Features
+
+* one status setup for Add Status and quick tags with every setting, and Edit Action on quick tags ([45a5a08](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/45a5a0854b645d6332802ba0aafe75a8f37fab1e))
+
 ## [1.4.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.11...v1.4.0-dev.12) (2026-11-22)
 
 ### 🐛 Bug Fixes
