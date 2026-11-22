@@ -4,6 +4,12 @@
 
 * Instant equipment swaps option, and header buttons below long titles ([964eeb9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/964eeb94bcb910f7db89b3d16bdea98fa419cd29))
 
+## [1.4.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.4...v1.4.0-dev.5) (2026-11-22)
+
+### ✨ New Features
+
+* Instant equipment swaps option, and header buttons below long titles ([964eeb9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/964eeb94bcb910f7db89b3d16bdea98fa419cd29))
+
 ## [1.4.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.3...v1.4.0-dev.4) (2026-11-22)
 
 ### ✨ New Features
