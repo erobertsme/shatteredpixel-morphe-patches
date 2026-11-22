@@ -1,3 +1,9 @@
+## [1.4.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.11...v1.4.0-dev.12) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* Back works the same from every editor window, smaller depth icon, and the hero marks the tile you stand on ([c80190e](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/c80190e8fff47fa5b2d73f9806695699853aea40))
+
 ## [1.4.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.10...v1.4.0-dev.11) (2026-11-22)
 
 ### 🐛 Bug Fixes
