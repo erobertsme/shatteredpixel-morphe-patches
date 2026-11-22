@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-22T02:28:16",
-  "description": "## [1.4.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.6...v1.4.0-dev.7) (2026-11-22)\n\n### ✨ New Features\n\n* Fixed-size hero stats tabs, hunger bar on Stats and Run, rename beside info ([9fb1d44](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9fb1d4460f6e67286d557eabf07c3f5d3c90fe4c))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.4.0-dev.7/patches-1.4.0-dev.7.mpp",
+  "created_at": "2026-11-22T04:23:13",
+  "description": "## [1.4.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.7...v1.4.0-dev.8) (2026-11-22)\n\n### 🐛 Bug Fixes\n\n* Clean hero stats tabs with a taller scrolling area, readable hunger bar, examining your own tile ([aa5928f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/aa5928fbac1065b25d0e7ed2e54be2857995f017))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.4.0-dev.8/patches-1.4.0-dev.8.mpp",
   "signature_download_url": "",
-  "version": "1.4.0-dev.7"
+  "version": "1.4.0-dev.8"
 }

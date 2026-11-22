@@ -1,3 +1,9 @@
+## [1.4.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.7...v1.4.0-dev.8) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* Clean hero stats tabs with a taller scrolling area, readable hunger bar, examining your own tile ([aa5928f](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/aa5928fbac1065b25d0e7ed2e54be2857995f017))
+
 ## [1.4.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.6...v1.4.0-dev.7) (2026-11-22)
 
 ### ✨ New Features
