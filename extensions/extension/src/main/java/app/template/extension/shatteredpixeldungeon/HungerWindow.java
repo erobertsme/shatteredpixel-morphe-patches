@@ -12,11 +12,11 @@ public class HungerWindow extends EditorWindow {
 	static final int NOT_HUNGRY_COLOR = 0xFF7AD35C;
 	static final int HUNGRY_COLOR = 0xFFE8C547;
 	static final int STARVING_COLOR = 0xFFE06A5A;
-	private static final int BAR_HEIGHT = 10;
+	private static final int BAR_HEIGHT = 12;
 	private static final int MARKER_WIDTH = 2;
 	private static final int MARKER_OVERHANG = 2;
 	private static final int MARKER_COLOR = 0xFFFFFFFF;
-	private static final int TURNS_COLOR = 0x202020;
+	private static final int TURNS_COLOR = 0xFFFFFF;
 	private static final String[] TABS = { "Stages", "Starving" };
 	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 

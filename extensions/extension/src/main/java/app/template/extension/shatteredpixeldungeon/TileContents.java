@@ -35,21 +35,23 @@ public final class TileContents {
 	}
 
 	/**
-	 * Called at the start of GameScene.examineCell. Returns true when the list was shown instead.
+	 * Called at the start of GameScene.examineCell. Returns true when the list was shown instead. Examining your hero's own tile shows the
+	 * tile, or what else is on it, instead of the hero, whether or not the list is switched on.
 	 */
 	public static boolean examine(Integer cell) {
 		try {
-			if (cell == null || !isOn()) return false;
+			if (cell == null || !QolSettings.isAvailable()) return false;
 			Level level = Dungeon.level;
 			if (level == null || cell < 0 || cell >= level.length()) return false;
 			if (!level.visited[cell] && !level.mapped[cell]) return false;
 			if (FloorEditSession.isActive()) return false;
 			List<Object> objects = objectsAt(cell);
-			if (countThings(objects) >= 2) {
+			boolean heroHere = Dungeon.hero != null && Dungeon.hero.pos == cell;
+			if (countThings(objects) >= 2 && (isOn() || heroHere)) {
 				EditorWindow.show(new TileContentsWindow(cell));
 				return true;
 			}
-			if (Dungeon.hero == null || Dungeon.hero.pos != cell) return false;
+			if (!heroHere) return false;
 			if (objects.isEmpty()) {
 				GameScene.show(new WndInfoCell(cell));
 				return true;

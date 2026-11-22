@@ -46,12 +46,7 @@ final class ScrollArea {
 		try {
 			List<Gizmo> members = Reflect.members(window);
 			List<Gizmo> parts = new ArrayList<>(members.subList(firstPart, members.size()));
-			ScrollPane pane = new ScrollPane(new Component()) {
-				@Override
-				public void onClick(float x, float y) {
-					tapInside(content(), x, y);
-				}
-			};
+			ScrollPane pane = pane(new Component());
 			Component content = pane.content();
 			for (Gizmo part : parts) {
 				window.remove(part);
@@ -71,6 +66,32 @@ final class ScrollArea {
 			Log.e(TAG, "Could not make the window scroll", e);
 			return null;
 		}
+	}
+
+	/**
+	 * A scrolling area showing [content]. Taps in it reach the buttons in it, and it lays itself out again when the window it is in moves,
+	 * as a window does when it is resized.
+	 */
+	static ScrollPane pane(Component content) {
+		return new ScrollPane(content) {
+			private int placedX = Integer.MIN_VALUE;
+			private int placedY = Integer.MIN_VALUE;
+
+			@Override
+			public void onClick(float x, float y) {
+				tapInside(content(), x, y);
+			}
+
+			@Override
+			public void update() {
+				super.update();
+				com.watabou.noosa.Camera owner = camera();
+				if (owner == null || owner.x == placedX && owner.y == placedY) return;
+				placedX = owner.x;
+				placedY = owner.y;
+				layout();
+			}
+		};
 	}
 
 	/**

@@ -5,6 +5,7 @@ public class Gizmo {
 	public boolean active;
 	public Group parent;
 	public Camera camera;
+	public Camera camera() { throw new RuntimeException("Stub"); }
 
 	public void update() { throw new RuntimeException("Stub"); }
 	public void draw() { throw new RuntimeException("Stub"); }

@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -14,8 +16,6 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.ui.Component;
-import com.watabou.noosa.PointerArea;
-import com.watabou.input.PointerEvent;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 
 import java.util.ArrayList;
@@ -35,7 +35,8 @@ public final class HeroStats {
 	private static final int MODS = 2;
 	private static final int RESIST = 3;
 	private static final int RUN = 4;
-	private static final int EXTRA_HEIGHT = 8;
+	private static final int CONTENT_HEIGHT = 150;
+	private static final float MAX_SCREEN_SHARE = 0.45f;
 	private static final int TEXT_SIZE = 8;
 	private static final int TAB_TEXT_SIZE = 6;
 	private static final int TAB_HEIGHT = 14;
@@ -58,8 +59,8 @@ public final class HeroStats {
 
 	/**
 	 * Called at the end of WndHero.StatsTab.initialize. Moves the rename button beside the [i] button, then replaces the game's stat rows
-	 * with tabs and the chosen tab's rows, at the same place, column and text size. The rows get the height of the tallest tab, so the
-	 * window keeps its size whichever tab is shown.
+	 * with tabs and the chosen tab's rows, at the game's column and text size. The rows sit in an area of fixed height that scrolls when
+	 * a tab has more, so the window keeps its size whichever tab is shown.
 	 */
 	public static void afterStatsTab(Object tab) {
 		if (!isOn() || !(tab instanceof Group) || Dungeon.hero == null) return;
@@ -77,23 +78,27 @@ public final class HeroStats {
 			for (RenderedTextBlock row : gameRows) {
 				if (row.left() > 1) valueX = Math.min(valueX, row.left());
 				if (row.left() <= 1) labelTops.add(row.top());
-				row.killAndErase();
+				group.remove(row);
 				row.destroy();
 			}
 			int width = (Integer) Reflect.getStatic(WndHero.class, "WIDTH");
 			if (valueX == Float.MAX_VALUE) valueX = width * 0.6f;
-			Layout layout = new Layout(group, width, valueX, rowHeight(labelTops));
 			float top = moveRenameButton(headerParts) + GAP;
-			float tabsBottom = addTabs(group, width, top);
-			float contentHeight = 0;
-			for (int i = 0; i < TABS.length; i++) {
-				if (i == selected) continue;
-				int index = i;
-				contentHeight = Math.max(contentHeight, measure(group, () -> layout.build(index, tabsBottom)) - tabsBottom);
+			float contentTop = addTabs(group, width, top);
+			Component content = new Component();
+			float contentHeight = new Layout(content, width, valueX, rowHeight(labelTops)).build(selected, 0);
+			content.setSize(width, contentHeight);
+			float areaHeight = Math.min(CONTENT_HEIGHT, PixelScene.uiCamera.height * MAX_SCREEN_SHARE);
+			if (contentHeight <= areaHeight) {
+				content.setPos(0, contentTop);
+				group.add(content);
+			} else {
+				ScrollPane pane = ScrollArea.pane(content);
+				group.add(pane);
+				pane.setRect(0, contentTop, width, areaHeight);
+				ScrollHints.add(group, pane);
 			}
-			float bottom = layout.build(selected, tabsBottom);
-			contentHeight = Math.max(contentHeight, bottom - tabsBottom);
-			Reflect.set(group.getClass(), group, "pos", tabsBottom + contentHeight + EXTRA_HEIGHT);
+			Reflect.set(group.getClass(), group, "pos", contentTop + areaHeight + GAP);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not show the hero's stats", e);
 		}
@@ -125,20 +130,6 @@ public final class HeroStats {
 		if (title != null) title.setRect(title.left(), title.top(), left - GAP - title.left(), 0);
 		bottom = info.bottom();
 		return title == null ? bottom : Math.max(bottom, title.bottom());
-	}
-
-	/**
-	 * Builds content with [build] only to measure where it ends, then removes it again.
-	 */
-	private static float measure(Group group, java.util.concurrent.Callable<Float> build) throws Exception {
-		List<Gizmo> members = Reflect.members(group);
-		int before = members.size();
-		float bottom = build.call();
-		for (Gizmo gizmo : new ArrayList<>(members.subList(before, members.size()))) {
-			group.remove(gizmo);
-			gizmo.destroy();
-		}
-		return bottom;
 	}
 
 	private static float rowHeight(List<Float> tops) {
@@ -217,15 +208,16 @@ public final class HeroStats {
 		private float addHunger(float top) {
 			if (!EditorSwitches.hunger()) return HungerWindow.addCurrentBar(group, 0, top, width);
 			float bottom = HungerWindow.addSummary(group, 0, top, width);
-			PointerArea area = new PointerArea(0, top, width, bottom - top) {
+			Button area = new Button() {
 				@Override
-				public void onClick(PointerEvent event) {
+				public void onClick() {
 					for (Group parent = group.parent; parent != null; parent = parent.parent) {
 						if (parent instanceof Window) ((Window) parent).hide();
 					}
 					HungerWindow.open(CloverlordMenu::showHeroWindow);
 				}
 			};
+			area.setRect(0, top, width, bottom - top);
 			group.add(area);
 			return bottom;
 		}
