@@ -6,12 +6,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoCell;
 
 /**
  * A Tile button in the header of the info window of anything on a tile, which shows that tile's own info, and a Back button there that
- * returns to what was being examined.
+ * returns to what was being examined. A small hero in the header marks the tile you are standing on.
  */
 final class TileInspect {
 
@@ -25,12 +26,13 @@ final class TileInspect {
 
 	static void decorateInfo(Window window, Object subject) throws ReflectiveOperationException {
 		if (!QolSettings.isAvailable() || Dungeon.level == null) return;
+		int cell = subject instanceof Integer ? (Integer) subject : cellOf(subject);
+		if (cell < 0) return;
+		if (Dungeon.hero != null && Dungeon.hero.pos == cell) WindowHeader.addMarker(window, HeroSprite.avatar(Dungeon.hero));
 		if (subject instanceof Integer) {
-			addBack(window, (Integer) subject);
+			addBack(window, cell);
 			return;
 		}
-		int cell = cellOf(subject);
-		if (cell < 0) return;
 		WindowHeader.add(window, WindowHeader.smallButton("Tile", null, () -> {
 			window.hide();
 			returnTo = subject;

@@ -17,7 +17,7 @@ public class StatusPickerWindow extends EditorWindow {
 	private static int duration = 20;
 	private static boolean infinite;
 	private static Char target;
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 	private static Chooser chooser;
 
 	interface Chooser {
@@ -29,7 +29,7 @@ public class StatusPickerWindow extends EditorWindow {
 	 */
 	static void openFor(Char character, Runnable back) {
 		target = character;
-		backAction = back;
+		backAction.set(back);
 		chooser = null;
 		show(new StatusPickerWindow(FAVORITES, 0));
 	}
@@ -40,7 +40,7 @@ public class StatusPickerWindow extends EditorWindow {
 	 */
 	static void openToChoose(Chooser onChosen, Runnable back) {
 		target = null;
-		backAction = back;
+		backAction.set(back);
 		chooser = onChosen;
 		show(new StatusPickerWindow(FAVORITES, 0));
 	}
@@ -80,7 +80,7 @@ public class StatusPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new StatusPickerWindow(kind, newPage)));
 
-		finishWithBack(this::back);
+		finishWithBack(() -> backAction.run(() -> CharacterWindow.open(CharacterWindow.TAB_STATUS, 1)));
 	}
 
 	/**
@@ -113,15 +113,6 @@ public class StatusPickerWindow extends EditorWindow {
 			return new BuffIcon(entry.sample, true);
 		} catch (Throwable e) {
 			return null;
-		}
-	}
-
-	private void back() {
-		Runnable action = backAction;
-		if (action != null) {
-			action.run();
-		} else {
-			CharacterWindow.open(CharacterWindow.TAB_STATUS, 1);
 		}
 	}
 

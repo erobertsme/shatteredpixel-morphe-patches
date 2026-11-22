@@ -29,12 +29,12 @@ public class TileWindow extends EditorWindow {
 			+ "## Delete tile\nRemoves everything here, including effects, traps, plants and items, and leaves an empty pit. Can't be used while a creature stands here.",
 	};
 
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 	private static int tab;
 	private final int cell;
 
 	static void open(int cell, Runnable back) {
-		backAction = back;
+		backAction.set(back);
 		tab = 0;
 		show(new TileWindow(cell));
 	}
@@ -60,7 +60,7 @@ public class TileWindow extends EditorWindow {
 			hide();
 			FloorWindow.open(() -> open(cell));
 		});
-		backTo(this::back);
+		backTo(backAction::run);
 		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT;
 		finish();
@@ -250,12 +250,6 @@ public class TileWindow extends EditorWindow {
 			show(new WndMessage(FloorEditor.trapName(trap) + "\n\n" + trap.desc()));
 		} catch (Throwable ignored) {
 		}
-	}
-
-	private void back() {
-		Runnable action = backAction;
-		backAction = null;
-		if (action != null) action.run();
 	}
 
 	@Override

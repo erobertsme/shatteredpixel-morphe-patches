@@ -1,10 +1,13 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Component;
 
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ final class WindowHeader {
 	static final int PRIORITY_INFO = 0;
 	static final int PRIORITY_ACTION = 1;
 	static final int PRIORITY_NAVIGATION = 2;
+	static final int PRIORITY_MARKER = 3;
 	static final int SMALL_HEIGHT = 12;
 	static final int EDIT_WIDTH = 24;
 	private static final int ROW = 16;
@@ -63,6 +67,24 @@ final class WindowHeader {
 		};
 		if (icon != null) button.icon(Icons.get(icon));
 		return button;
+	}
+
+	/**
+	 * A small picture beside the title, such as the hero on the tile you are standing on, sized to the header's buttons.
+	 */
+	static void addMarker(Window window, Image image) throws ReflectiveOperationException {
+		float scale = Math.min(1, SMALL_HEIGHT / image.height());
+		image.scale.set(scale, scale);
+		Component marker = new Component() {
+			@Override
+			public void layout() {
+				image.x = left() + (width() - image.width()) / 2f;
+				image.y = top() + (height() - image.height()) / 2f;
+				PixelScene.align(image);
+			}
+		};
+		marker.add(image);
+		add(window, marker, image.width(), SMALL_HEIGHT, PRIORITY_MARKER);
 	}
 
 	static void addEdit(Window window, Runnable action) throws ReflectiveOperationException {

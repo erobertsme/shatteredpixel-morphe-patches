@@ -29,11 +29,11 @@ public class HungerWindow extends EditorWindow {
 		+ "## Damage\n_Damage:_ how much each hit takes.\n_Now:_ the result for your current max health.\n\n"
 		+ GENERAL_INFO;
 
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 	private static int tab;
 
 	public static void open(Runnable back) {
-		backAction = back;
+		backAction.set(back);
 		Game.scene().addToFront(new HungerWindow());
 	}
 
@@ -54,7 +54,7 @@ public class HungerWindow extends EditorWindow {
 			HungerEditor.resetDefaults();
 			refresh();
 		});
-		backTo(this::back);
+		backTo(backAction::run);
 		addBackButton(half + GAP, half);
 		pos += ROW_HEIGHT + GAP;
 		finish();
@@ -234,12 +234,6 @@ public class HungerWindow extends EditorWindow {
 		label.setPos(x + (width - label.width()) / 2f, y + (BAR_HEIGHT - label.height()) / 2f);
 		PixelScene.align(label);
 		group.add(label);
-	}
-
-	private void back() {
-		Runnable action = backAction;
-		backAction = null;
-		if (action != null) action.run();
 	}
 
 	@Override

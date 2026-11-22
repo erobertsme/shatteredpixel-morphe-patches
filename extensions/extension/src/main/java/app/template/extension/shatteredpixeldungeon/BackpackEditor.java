@@ -42,7 +42,7 @@ public final class BackpackEditor {
 	private static boolean pendingEditWindow;
 	private static boolean openingEditWindow;
 	private static boolean switchingEditTab;
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 	private static Bag editBag;
 
 	private BackpackEditor() {
@@ -52,12 +52,12 @@ public final class BackpackEditor {
 	 * Opens the backpack editor and remembers where its Back button returns to.
 	 */
 	public static void open(Runnable back) {
-		backAction = back;
+		backAction.set(back);
 		open();
 	}
 
 	static void open(Runnable back, Bag bag) {
-		backAction = back;
+		backAction.set(back);
 		editBag = bag;
 		open();
 	}
@@ -237,13 +237,7 @@ public final class BackpackEditor {
 			@Override
 			public void onClick() {
 				window.hide();
-				Runnable action = backAction;
-				backAction = null;
-				if (action != null) {
-					action.run();
-				} else {
-					InventoryWindow.open();
-				}
+				backAction.run(InventoryWindow::open);
 			}
 		};
 		back.setRect(0, height + 2, width, BACK_HEIGHT);

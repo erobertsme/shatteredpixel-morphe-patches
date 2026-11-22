@@ -43,6 +43,7 @@ public final class HeroStats {
 	private static final int WINDOW_HEIGHT = 170;
 	private static final float MAX_SCREEN_SHARE = 0.7f;
 	private static final int ICON_SPACE = 12;
+	private static final float ICON_SIZE = 10;
 	private static final Set<Window> sized = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final int TEXT_SIZE = 8;
 	private static final int TAB_TEXT_SIZE = 6;
@@ -295,6 +296,8 @@ public final class HeroStats {
 	 */
 	private static void addRow(Group tab, Image icon, String label, String value, float top, float valueX, int width, float rowHeight) {
 		if (icon != null) {
+			float scale = Math.min(1, ICON_SIZE / Math.max(icon.width(), icon.height()));
+			icon.scale.set(scale, scale);
 			icon.x = (ICON_SPACE - icon.width()) / 2f;
 			icon.y = top + (rowHeight - icon.height()) / 2f;
 			PixelScene.align(icon);
@@ -355,7 +358,7 @@ public final class HeroStats {
 			return rows;
 		}
 		rows.add(row(StatIcons.icon(Icons.COIN_SML), "Gold collected", String.valueOf(Statistics.goldCollected)));
-		rows.add(row(StatIcons.icon(Icons.STAIRS), "Maximum depth", String.valueOf(Statistics.deepestFloor)));
+		rows.add(row(StatIcons.icon(Icons.DEPTH), "Maximum depth", String.valueOf(Statistics.deepestFloor)));
 		rows.add(row(StatIcons.item(StatIcons.SCROLL_IDENTIFY), "Seed", DungeonSeed.convertToCode(Dungeon.seed)));
 		return rows;
 	}

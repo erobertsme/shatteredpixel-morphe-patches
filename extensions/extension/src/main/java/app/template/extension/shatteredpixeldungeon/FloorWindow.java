@@ -35,7 +35,7 @@ public class FloorWindow extends EditorWindow {
 			+ "## Edit Floor\nThe button above the tabs. The game is saved, then every tile you tap shows its info with an Edit button and a button for each creature, item, plant or trap on it. Drag to look around.\n_Save_ keeps your changes. _Cancel_ asks first, then puts the whole game back as it was.",
 	};
 
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 	private static int tab;
 
 	/**
@@ -53,7 +53,7 @@ public class FloorWindow extends EditorWindow {
 	 * Opens the floor editor on [startTab]. [back] runs when it is closed with Back.
 	 */
 	static void open(Runnable back, int startTab) {
-		backAction = back;
+		backAction.set(back);
 		tab = Math.max(0, Math.min(TABS.length - 1, startTab));
 		show(new FloorWindow());
 	}
@@ -72,7 +72,7 @@ public class FloorWindow extends EditorWindow {
 		}, this::buildTab);
 
 		pos += GAP;
-		finishWithBack(this::back);
+		finishWithBack(backAction::run);
 	}
 
 	private void buildTab(int index) {
@@ -202,12 +202,6 @@ public class FloorWindow extends EditorWindow {
 	private void run(Runnable action) {
 		action.run();
 		refresh();
-	}
-
-	private void back() {
-		Runnable action = backAction;
-		backAction = null;
-		if (action != null) action.run();
 	}
 
 	@Override

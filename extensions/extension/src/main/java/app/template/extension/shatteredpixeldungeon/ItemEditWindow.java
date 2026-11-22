@@ -132,7 +132,7 @@ public class ItemEditWindow extends EditorWindow {
 			InventoryEditor.delete(hero, item);
 			goBack();
 		}).icon(Icons.get(Icons.CLOSE));
-		backTo(this::back);
+		backTo(() -> backAction.run(BackpackEditor::open));
 		addBackButton(2 * (third + GAP), third);
 		pos += ROW_HEIGHT + GAP;
 
@@ -152,28 +152,16 @@ public class ItemEditWindow extends EditorWindow {
 		return -1;
 	}
 
-	private static Runnable backAction;
-	private static boolean customBack;
+	private static final BackAction backAction = new BackAction();
 
 	/**
 	 * Opens the edit window for [item] from outside the backpack editor. Back runs [back], or just closes when it
 	 * is null.
 	 */
 	static void openFrom(Item item, Runnable back) {
-		backAction = back;
-		customBack = true;
+		backAction.set(back != null ? back : () -> {
+		});
 		Game.scene().addToFront(new ItemEditWindow(item));
-	}
-
-	private void back() {
-		if (!customBack) {
-			BackpackEditor.open();
-			return;
-		}
-		Runnable action = backAction;
-		backAction = null;
-		customBack = false;
-		if (action != null) action.run();
 	}
 
 	@Override

@@ -90,37 +90,17 @@ public class CharacterWindow extends EditorWindow {
 			if (tab == TAB_MODIFIERS) buildModifiers(hero);
 			if (tab == TAB_STATUS) buildStatus(hero);
 		}
-		addBackButton();
-		finish();
-	}
-
-	private void addBackButton() {
 		pos += GAP;
-		RedButton back = new RedButton("Back", 7) {
-			@Override
-			public void onClick() {
-				hide();
-				Runnable action = backAction;
-				backAction = null;
-				if (action != null) {
-					action.run();
-				} else {
-					Game.scene().addToFront(new WndGame());
-				}
-			}
-		};
-		back.setRect(0, pos, WIDTH, ROW_HEIGHT);
-		add(back);
-		pos += ROW_HEIGHT;
+		finishWithBack(() -> backAction.run(CloverlordMenu::showGameMenu));
 	}
 
-	private static Runnable backAction;
+	private static final BackAction backAction = new BackAction();
 
 	/**
 	 * Opens the editor and remembers where its Back button returns to.
 	 */
 	public static void openFrom(Runnable back, int tab, int tier) {
-		backAction = back;
+		backAction.set(back);
 		open(tab, tier);
 	}
 
