@@ -191,6 +191,16 @@ public final class HungerEditor {
 	/**
 	 * Called before SaltCube.hungerGainMultiplier returns. Scales how fast hunger rises in the current stage.
 	 */
+	/**
+	 * How many of the stage turns the hero has used up so far: into Not hungry, then into Hungry, then past both while starving.
+	 */
+	static float elapsedTurns(Hero hero) {
+		float level = StatusEditor.hungerLevel(hero);
+		if (level < HUNGRY_LEVEL) return level / HUNGRY_LEVEL * notHungryTurns();
+		float hungry = Math.min(level, STARVING_LEVEL) - HUNGRY_LEVEL;
+		return notHungryTurns() + hungry / (STARVING_LEVEL - HUNGRY_LEVEL) * hungryTurns() + (level >= STARVING_LEVEL ? 1 : 0);
+	}
+
 	public static float adjustHungerGain(float value) {
 		if (!EditorSwitches.hunger()) return value;
 		if (isDisabled()) return 0f;

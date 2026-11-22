@@ -13,6 +13,10 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
+import com.watabou.noosa.ui.Component;
+import com.watabou.noosa.PointerArea;
+import com.watabou.input.PointerEvent;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,8 @@ public final class HeroStats {
 	private static final int SENSES = 1;
 	private static final int MODS = 2;
 	private static final int RESIST = 3;
+	private static final int RUN = 4;
+	private static final int EXTRA_HEIGHT = 8;
 	private static final int TEXT_SIZE = 8;
 	private static final int TAB_TEXT_SIZE = 6;
 	private static final int TAB_HEIGHT = 14;
@@ -51,41 +57,88 @@ public final class HeroStats {
 	}
 
 	/**
-	 * Called at the end of WndHero.StatsTab.initialize. Replaces the game's stat rows with tabs and the chosen tab's rows, at the same
-	 * place, column and text size.
+	 * Called at the end of WndHero.StatsTab.initialize. Moves the rename button beside the [i] button, then replaces the game's stat rows
+	 * with tabs and the chosen tab's rows, at the same place, column and text size. The rows get the height of the tallest tab, so the
+	 * window keeps its size whichever tab is shown.
 	 */
 	public static void afterStatsTab(Object tab) {
 		if (!isOn() || !(tab instanceof Group) || Dungeon.hero == null) return;
 		try {
 			Group group = (Group) tab;
 			List<RenderedTextBlock> gameRows = new ArrayList<>();
+			List<Component> headerParts = new ArrayList<>();
 			for (Gizmo member : Reflect.members(group)) {
 				if (member instanceof RenderedTextBlock) gameRows.add((RenderedTextBlock) member);
+				if (member instanceof Component && !(member instanceof RenderedTextBlock)) headerParts.add((Component) member);
 			}
 			if (gameRows.isEmpty()) return;
-			float top = Float.MAX_VALUE;
 			float valueX = Float.MAX_VALUE;
 			List<Float> labelTops = new ArrayList<>();
 			for (RenderedTextBlock row : gameRows) {
-				top = Math.min(top, row.top());
 				if (row.left() > 1) valueX = Math.min(valueX, row.left());
 				if (row.left() <= 1) labelTops.add(row.top());
 				row.killAndErase();
 				row.destroy();
 			}
-			float rowHeight = rowHeight(labelTops);
 			int width = (Integer) Reflect.getStatic(WndHero.class, "WIDTH");
 			if (valueX == Float.MAX_VALUE) valueX = width * 0.6f;
-			float pos = top - GAP;
-			pos = addTabs(group, width, pos);
-			for (CharacterWindow.HeroStat row : rows(Dungeon.hero, selected)) {
-				addRow(group, row.label, row.value, pos, valueX, width, rowHeight);
-				pos += rowHeight;
+			Layout layout = new Layout(group, width, valueX, rowHeight(labelTops));
+			float top = moveRenameButton(headerParts) + GAP;
+			float tabsBottom = addTabs(group, width, top);
+			float contentHeight = 0;
+			for (int i = 0; i < TABS.length; i++) {
+				if (i == selected) continue;
+				int index = i;
+				contentHeight = Math.max(contentHeight, measure(group, () -> layout.build(index, tabsBottom)) - tabsBottom);
 			}
-			Reflect.set(group.getClass(), group, "pos", pos);
+			float bottom = layout.build(selected, tabsBottom);
+			contentHeight = Math.max(contentHeight, bottom - tabsBottom);
+			Reflect.set(group.getClass(), group, "pos", tabsBottom + contentHeight + EXTRA_HEIGHT);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not show the hero's stats", e);
 		}
+	}
+
+	/**
+	 * Puts the rename button just left of the [i] button, narrows the title to make room, and returns the bottom of the header.
+	 */
+	private static float moveRenameButton(List<Component> parts) {
+		Component title = null;
+		List<Component> buttons = new ArrayList<>();
+		for (Component part : parts) {
+			if (part instanceof IconButton) {
+				buttons.add(part);
+			} else if (title == null) {
+				title = part;
+			}
+		}
+		buttons.sort((a, b) -> Float.compare(a.top(), b.top()));
+		float bottom = title == null ? 0 : title.bottom();
+		if (buttons.isEmpty()) return bottom;
+		Component info = buttons.get(0);
+		float left = info.left();
+		for (int i = 1; i < buttons.size(); i++) {
+			Component button = buttons.get(i);
+			left -= button.width() + GAP;
+			button.setPos(left, info.top());
+		}
+		if (title != null) title.setRect(title.left(), title.top(), left - GAP - title.left(), 0);
+		bottom = info.bottom();
+		return title == null ? bottom : Math.max(bottom, title.bottom());
+	}
+
+	/**
+	 * Builds content with [build] only to measure where it ends, then removes it again.
+	 */
+	private static float measure(Group group, java.util.concurrent.Callable<Float> build) throws Exception {
+		List<Gizmo> members = Reflect.members(group);
+		int before = members.size();
+		float bottom = build.call();
+		for (Gizmo gizmo : new ArrayList<>(members.subList(before, members.size()))) {
+			group.remove(gizmo);
+			gizmo.destroy();
+		}
+		return bottom;
 	}
 
 	private static float rowHeight(List<Float> tops) {
@@ -118,19 +171,63 @@ public final class HeroStats {
 	}
 
 	/**
-	 * Builds the stats tab again for the chosen tab, and fits the window to it.
+	 * Builds the stats tab again for the chosen tab. Every tab has the same height, so the window stays as it is.
 	 */
 	private static void reload(Group tab) {
 		try {
 			Reflect.call(tab, "initialize", new Class<?>[0]);
-			float height = (Float) Reflect.get(tab.getClass(), tab, "pos");
-			for (Group parent = tab.parent; parent != null; parent = parent.parent) {
-				if (!(parent instanceof Window)) continue;
-				((Window) parent).resize(Reflect.width(parent), (int) height);
-				return;
-			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not switch tabs", e);
+		}
+	}
+
+	/**
+	 * Where and how big the rows go, the way the game lays out its own.
+	 */
+	private static final class Layout {
+		final Group group;
+		final int width;
+		final float valueX;
+		final float rowHeight;
+
+		Layout(Group group, int width, float valueX, float rowHeight) {
+			this.group = group;
+			this.width = width;
+			this.valueX = valueX;
+			this.rowHeight = rowHeight;
+		}
+
+		/**
+		 * Adds tab [tab] from [top] and returns where it ends.
+		 */
+		float build(int tab, float top) {
+			float pos = top;
+			for (CharacterWindow.HeroStat row : rows(Dungeon.hero, tab)) {
+				addRow(group, row.label, row.value, pos, valueX, width, rowHeight);
+				pos += rowHeight;
+			}
+			if (tab == STATS) return HungerWindow.addCurrentBar(group, 0, pos + GAP, width);
+			if (tab == RUN) return addHunger(pos + GAP);
+			return pos;
+		}
+
+		/**
+		 * The hunger section: tapping it opens the hunger settings when the Hunger editor is on, or just the bar without it.
+		 */
+		private float addHunger(float top) {
+			if (!EditorSwitches.hunger()) return HungerWindow.addCurrentBar(group, 0, top, width);
+			float bottom = HungerWindow.addSummary(group, 0, top, width);
+			PointerArea area = new PointerArea(0, top, width, bottom - top) {
+				@Override
+				public void onClick(PointerEvent event) {
+					for (Group parent = group.parent; parent != null; parent = parent.parent) {
+						if (parent instanceof Window) ((Window) parent).hide();
+					}
+					HungerWindow.open(CloverlordMenu::showHeroWindow);
+				}
+			};
+			group.add(area);
+			return bottom;
 		}
 	}
 

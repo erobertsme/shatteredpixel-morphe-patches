@@ -1,5 +1,6 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.ColorBlock;
@@ -11,7 +12,11 @@ public class HungerWindow extends EditorWindow {
 	static final int NOT_HUNGRY_COLOR = 0xFF7AD35C;
 	static final int HUNGRY_COLOR = 0xFFE8C547;
 	static final int STARVING_COLOR = 0xFFE06A5A;
-	private static final int BAR_HEIGHT = 8;
+	private static final int BAR_HEIGHT = 10;
+	private static final int MARKER_WIDTH = 2;
+	private static final int MARKER_OVERHANG = 2;
+	private static final int MARKER_COLOR = 0xFFFFFFFF;
+	private static final int TURNS_COLOR = 0x202020;
 	private static final String[] TABS = { "Stages", "Starving" };
 	private static final String[] PRESET_LABELS = { "Default", "75%", "50%", "30%" };
 
@@ -100,7 +105,7 @@ public class HungerWindow extends EditorWindow {
 			HungerEditor::setHungryTurns, !disabled, () -> HungerEditor.setHungryTurns(HungerEditor.DEFAULT_HUNGRY));
 
 		pos += GAP;
-		pos = addHungerBar(this, 0, pos, WIDTH, notHungry, hungry, disabled) + GAP;
+		pos = addCurrentBar(this, 0, pos, WIDTH) + GAP;
 	}
 
 	private void buildStarving(boolean disabled) {
@@ -174,8 +179,7 @@ public class HungerWindow extends EditorWindow {
 		group.add(hint);
 		y = title.bottom() + 2;
 
-		boolean disabled = HungerEditor.isDisabled();
-		y = addHungerBar(group, x, y, width, HungerEditor.notHungryTurns(), HungerEditor.hungryTurns(), disabled) + 2;
+		y = addCurrentBar(group, x, y, width) + 2;
 
 		RenderedTextBlock starving = PixelScene.renderTextBlock("Starving: " + HungerEditor.describeStarving(HungerEditor.maxHealth()), 6);
 		starving.maxWidth((int) width);
@@ -184,28 +188,52 @@ public class HungerWindow extends EditorWindow {
 		return starving.bottom();
 	}
 
-	static float addHungerBar(Group group, float x, float y, float width, int notHungry, int hungry, boolean disabled) {
-		float starvingShare = (notHungry + hungry) * 0.15f;
-		float total = notHungry + hungry + starvingShare;
-		float left = x;
-		left = addSegment(group, left, y, width * notHungry / total, NOT_HUNGRY_COLOR, disabled);
-		left = addSegment(group, left, y, width * hungry / total, HUNGRY_COLOR, disabled);
-		addSegment(group, left, y, x + width - left, STARVING_COLOR, disabled);
-
-		RenderedTextBlock legend = PixelScene.renderTextBlock("Not hungry " + notHungry + " - Hungry " + hungry + " - Starving", 6);
-		legend.hardlight(EditorWindow.DIM_COLOR);
-		legend.setPos(x + (width - legend.width()) / 2f, y + BAR_HEIGHT + 2);
-		group.add(legend);
-		return legend.bottom();
+	/**
+	 * The hunger bar for the current settings, with a line where the hero is now. Returns the bottom of the bar.
+	 */
+	static float addCurrentBar(Group group, float x, float y, float width) {
+		float elapsed = Dungeon.hero == null ? -1 : HungerEditor.elapsedTurns(Dungeon.hero);
+		return addHungerBar(group, x, y, width, HungerEditor.notHungryTurns(), HungerEditor.hungryTurns(), HungerEditor.isDisabled(), elapsed);
 	}
 
-	private static float addSegment(Group group, float x, float y, float width, int color, boolean disabled) {
+	/**
+	 * The hunger stages as a bar that runs down from right to left, like the hero's food: Not hungry on the right, then Hungry, then
+	 * Starving on the left, each stage's turns written on it. A line marks [elapsed] turns used up, when it isn't below 0. Returns the
+	 * bottom of the bar.
+	 */
+	static float addHungerBar(Group group, float x, float y, float width, int notHungry, int hungry, boolean disabled, float elapsed) {
+		float starvingShare = (notHungry + hungry) * 0.15f;
+		float total = notHungry + hungry + starvingShare;
+		float scale = width / total;
+		float right = x + width;
+		float notHungryLeft = right - notHungry * scale;
+		float hungryLeft = notHungryLeft - hungry * scale;
+		addSegment(group, notHungryLeft, y, right - notHungryLeft, NOT_HUNGRY_COLOR, disabled, String.valueOf(notHungry));
+		addSegment(group, hungryLeft, y, notHungryLeft - hungryLeft, HUNGRY_COLOR, disabled, String.valueOf(hungry));
+		addSegment(group, x, y, hungryLeft - x, STARVING_COLOR, disabled, null);
+		if (elapsed >= 0) {
+			float at = Math.max(x + 1, right - Math.min(elapsed, notHungry + hungry + 1) * scale);
+			ColorBlock marker = new ColorBlock(MARKER_WIDTH, BAR_HEIGHT + 2 * MARKER_OVERHANG, MARKER_COLOR);
+			marker.x = at - MARKER_WIDTH / 2f;
+			marker.y = y - MARKER_OVERHANG;
+			group.add(marker);
+		}
+		return y + BAR_HEIGHT + MARKER_OVERHANG;
+	}
+
+	private static void addSegment(Group group, float x, float y, float width, int color, boolean disabled, String turns) {
 		ColorBlock block = new ColorBlock(Math.max(1, width), BAR_HEIGHT, color);
 		block.x = x;
 		block.y = y;
 		if (disabled) block.alpha(0.3f);
 		group.add(block);
-		return x + width;
+		if (turns == null) return;
+		RenderedTextBlock label = PixelScene.renderTextBlock(turns, 6);
+		if (label.width() > width - 2) return;
+		label.hardlight(TURNS_COLOR);
+		label.setPos(x + (width - label.width()) / 2f, y + (BAR_HEIGHT - label.height()) / 2f);
+		PixelScene.align(label);
+		group.add(label);
 	}
 
 	private void back() {

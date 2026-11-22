@@ -184,7 +184,7 @@ public final class CloverlordMenu {
 	public static void onHeroWindowCreated(Window window) {
 		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
 		boolean character = EditorSwitches.character();
-		boolean hunger = EditorSwitches.hunger();
+		boolean hunger = EditorSwitches.hunger() && !HeroStats.isOn();
 		if (!character && !hunger) return;
 		try {
 			int width = Reflect.width(window);
