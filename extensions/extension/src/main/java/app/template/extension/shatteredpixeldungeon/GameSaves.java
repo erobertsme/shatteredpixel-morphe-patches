@@ -157,9 +157,34 @@ public final class GameSaves {
 	}
 
 	private static File gameFolder() {
+		return slotFolder(GamesInProgress.curSlot);
+	}
+
+	/**
+	 * The folder the game keeps the game in [slot] in, or null when the save folder can't be found.
+	 */
+	static File slotFolder(int slot) {
 		File root = saveRoot();
 		if (root == null) return null;
-		return new File(root, GamesInProgress.gameFolder(GamesInProgress.curSlot));
+		return new File(root, GamesInProgress.gameFolder(slot));
+	}
+
+	private static volatile boolean copying;
+
+	/**
+	 * Saves the game to copy it, for a Game Save or an undo step. The game in progress's own preview is only kept when the game saves itself.
+	 */
+	static void saveForCopy() throws IOException {
+		copying = true;
+		try {
+			Dungeon.saveAll();
+		} finally {
+			copying = false;
+		}
+	}
+
+	static boolean isCopying() {
+		return copying;
 	}
 
 	private static File savesFolder() {
@@ -502,7 +527,7 @@ public final class GameSaves {
 				if (oldest == null) break;
 				delete(oldest);
 			}
-			Dungeon.saveAll();
+			saveForCopy();
 			File source = gameFolder();
 			File folder = savesFolder();
 			if (source == null || folder == null || !source.isDirectory()) return "The game's save folder could not be found.";
@@ -643,7 +668,7 @@ public final class GameSaves {
 	/**
 	 * Removes the files only a save has from [folder], a game's own slot that a save was just copied into.
 	 */
-	private static void stripSaveOnlyFiles(File folder) {
+	static void stripSaveOnlyFiles(File folder) {
 		for (String name : SAVE_ONLY_FILES) new File(folder, name).delete();
 	}
 
@@ -680,7 +705,7 @@ public final class GameSaves {
 	 */
 	static boolean snapshot(File folder) {
 		try {
-			Dungeon.saveAll();
+			saveForCopy();
 			File source = gameFolder();
 			if (source == null || !source.isDirectory()) return false;
 			FileHelpers.delete(folder);

@@ -177,6 +177,15 @@ public class CloverlordWindow extends EditorWindow {
 		addSwitch("Energize more items", EnergizeMore.isOn(), EnergizeMore::setOn);
 		addSwitch("Reroll Catalyst", RerollCatalyst.isOn(), RerollCatalyst::setOn);
 		addSwitch("Mageroyal cures everything", MageroyalCure.isOn(), MageroyalCure::setOn);
+
+		addSection("Gardens");
+		addSwitch("Enemies don't trample plants", Garden.noTrampling(), Garden::noTrampling);
+		addSwitch("Plants don't catch fire", Garden.noFire(), Garden::noFire);
+		addSwitch("No enemies in gardens", Garden.noEnemies(), Garden::noEnemies);
+
+		addSection("Games in progress");
+		addSwitch("Preview games on the main menu", GameSlots.previews(), GameSlots::previews);
+		addSwitch("Reuse seeds of unfinished games", GameSlots.reuseSeeds(), GameSlots::reuseSeeds);
 	}
 
 	private void open(Window window) {

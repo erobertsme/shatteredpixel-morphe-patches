@@ -998,3 +998,66 @@ object WndTabbedSelectFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndTabbed\$Tab;"),
 )
+
+object PlantTriggerFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/plants/Plant;",
+	name = "trigger",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object FireEvolveFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/blobs/Fire;",
+	name = "evolve",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object FireBurnFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/blobs/Fire;",
+	name = "burn",
+	returnType = "V",
+	parameters = listOf("I"),
+)
+
+object MobGetCloserFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
+	name = "getCloser",
+	returnType = "Z",
+	parameters = listOf("I"),
+)
+
+object RegularLevelRespawnCellFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel;",
+	name = "randomRespawnCell",
+	returnType = "I",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
+)
+
+object GolemActFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem;",
+	name = "act",
+	returnType = "Z",
+	parameters = listOf(),
+)
+
+object CustomSeedChosenFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/HeroSelectScene\$GameOptions\$1\$1;",
+	name = "onSelect",
+	returnType = "V",
+	parameters = listOf("Z", "Ljava/lang/String;"),
+)
+
+object SaveSlotButtonClickFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/StartScene\$SaveSlotButton;",
+	name = "onClick",
+	returnType = "V",
+	parameters = listOf(),
+)
+
+object DungeonSaveAllFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/Dungeon;",
+	name = "saveAll",
+	returnType = "V",
+	parameters = listOf(),
+)

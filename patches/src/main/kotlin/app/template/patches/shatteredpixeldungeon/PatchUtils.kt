@@ -12,6 +12,7 @@ import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
 
 internal const val EXTENSION_PACKAGE = "Lapp/template/extension/shatteredpixeldungeon"
 
@@ -177,6 +178,47 @@ internal fun Fingerprint.adjustCallResults(called: String, adjust: String) {
 				$move v$register
 			""",
 		)
+	}
+}
+
+/**
+ * Passes the value of every read of [field] in the method through [adjust], a static method that takes the value and returns the one to
+ * use. Works for object fields read with iget-object or sget-object.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.adjustFieldReads(field: String, adjust: String) {
+	val instructions = method.implementation!!.instructions.toList()
+	val indices = instructions.withIndex()
+		.filter { (it.value.opcode == Opcode.IGET_OBJECT || it.value.opcode == Opcode.SGET_OBJECT) && (it.value as ReferenceInstruction).reference.toString() == field }
+		.map { it.index }
+	if (indices.isEmpty()) throw PatchException("${method.name} never reads $field")
+	indices.reversed().forEach { index ->
+		val register = (instructions[index] as OneRegisterInstruction).registerA
+		method.addInstructions(
+			index + 1,
+			"""
+				invoke-static/range { v$register .. v$register }, $adjust
+				move-result-object v$register
+			""",
+		)
+	}
+}
+
+/**
+ * Calls [replacement], a static method taking the same values, in place of every call to [called] in the method. For a call to an
+ * instance method, the object comes first.
+ */
+context(_: BytecodePatchContext)
+internal fun Fingerprint.replaceCalls(called: String, replacement: String) {
+	val instructions = method.implementation!!.instructions.toList()
+	val indices = instructions.withIndex()
+		.filter { (it.value as? ReferenceInstruction)?.reference?.toString() == called }
+		.map { it.index }
+	if (indices.isEmpty()) throw PatchException("${method.name} never calls $called")
+	indices.forEach { index ->
+		val call = instructions[index] as? Instruction35c ?: throw PatchException("${method.name} calls $called with a range of registers")
+		val registers = listOf(call.registerC, call.registerD, call.registerE, call.registerF, call.registerG).take(call.registerCount)
+		method.replaceInstruction(index, "invoke-static { ${registers.joinToString { "v$it" }} }, $replacement")
 	}
 }
 

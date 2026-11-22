@@ -18,11 +18,12 @@ private const val REWARDS_CLASS = "$EXTENSION_PACKAGE/KillRewards;"
 private const val TILE_CONTENTS_CLASS = "$EXTENSION_PACKAGE/TileContents;"
 private const val ABSORBED_CLASS = "$EXTENSION_PACKAGE/AbsorbedItems;"
 private const val ITEM_TYPE = "Ljava/lang/Object;"
+private const val GARDEN_CLASS = "$EXTENSION_PACKAGE/Garden;"
 
 @Suppress("unused")
 val qolEnhancementsPatch = bytecodePatch(
 	name = "QoL enhancements",
-	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags, display margins and a stronger Mageroyal.",
+	description = "Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags, display margins, a stronger Mageroyal, safe gardens, a preview of each game in progress and new games from any game's seed.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)
@@ -108,6 +109,22 @@ val qolEnhancementsPatch = bytecodePatch(
 		)
 		AndroidSafeInsetsFingerprint.adjustObjectReturns("$EXTENSION_PACKAGE/DisplayMargins;->adjustInsets(Lcom/watabou/utils/RectF;)Lcom/watabou/utils/RectF;")
 		PixelSceneDrawFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/DisplayMargins;->afterDraw(Ljava/lang/Object;)V")
+		PlantTriggerFingerprint.skipWhen("invoke-static/range { p0 .. p0 }, $GARDEN_CLASS->keepsPlant($ITEM_TYPE)Z")
+		FireEvolveFingerprint.adjustFieldReads("Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;->flamable:[Z", "$GARDEN_CLASS->flammable([Z)[Z")
+		FireBurnFingerprint.replaceCalls("Lcom/shatteredpixel/shatteredpixeldungeon/plants/Plant;->wither()V", "$GARDEN_CLASS->burnPlant(Lcom/shatteredpixel/shatteredpixeldungeon/plants/Plant;)V")
+		MobGetCloserFingerprint.skipWhen("invoke-static/range { p0 .. p1 }, $GARDEN_CLASS->staysOut(${ITEM_TYPE}I)Z", result = false)
+		RegularLevelRespawnCellFingerprint.adjustReturns("$GARDEN_CLASS->respawnCell(I)I")
+		GolemActFingerprint.replaceCalls(
+			"Lcom/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation;->appear(Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;I)V",
+			"$GARDEN_CLASS->golemAppears(Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;I)V",
+		)
+		CustomSeedChosenFingerprint.adjustCallResults(
+			"Lcom/shatteredpixel/shatteredpixeldungeon/GamesInProgress;->checkAll()Ljava/util/ArrayList;",
+			"$EXTENSION_PACKAGE/GameSlots;->seedCheckGames(Ljava/util/ArrayList;)Ljava/util/ArrayList;",
+		)
+		DungeonSaveAllFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameSlots;->afterSaveAll()V")
+		DungeonDeleteGameFingerprint.method.addInstruction(0, "invoke-static { p0 }, $EXTENSION_PACKAGE/GameSlots;->onDeleteGame(I)V")
+		SaveSlotButtonClickFingerprint.skipWhen("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/GameSlots;->open($ITEM_TYPE)Z")
 		MageroyalActivateFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/MageroyalCure;->beforeActivate(Ljava/lang/Object;)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")

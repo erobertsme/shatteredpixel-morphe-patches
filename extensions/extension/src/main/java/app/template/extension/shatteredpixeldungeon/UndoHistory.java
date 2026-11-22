@@ -185,7 +185,7 @@ public final class UndoHistory {
 			File root = SaveLocation.currentRoot();
 			if (folder == null || root == null) return;
 			long start = System.nanoTime();
-			Dungeon.saveAll();
+			GameSaves.saveForCopy();
 			long saved = System.nanoTime();
 			File gameFile = new File(root, GamesInProgress.gameFile(GamesInProgress.curSlot));
 			File levelFile = new File(root, GamesInProgress.depthFile(GamesInProgress.curSlot, Dungeon.depth, Dungeon.branch));

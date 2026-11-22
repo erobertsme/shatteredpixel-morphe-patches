@@ -10,6 +10,10 @@ public class Dungeon {
 	public static int depth;
 	public static int branch;
 	public static long seed;
+	public static String customSeedText;
+	public static boolean daily;
+	public static boolean dailyReplay;
+	public static void deleteGame(int save, boolean deleteLevels) { throw new RuntimeException("Stub"); }
 	public static QuickSlot quickslot;
 
 	public static void saveAll() throws java.io.IOException { throw new RuntimeException("Stub"); }
