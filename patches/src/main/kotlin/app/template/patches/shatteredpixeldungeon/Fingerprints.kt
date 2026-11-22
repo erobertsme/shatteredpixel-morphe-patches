@@ -685,6 +685,13 @@ object WndBagIconFingerprint : Fingerprint(
 	parameters = listOf(BAG_CLASS),
 )
 
+object EquipableItemTimeToEquipFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/items/EquipableItem;",
+	name = "timeToEquip",
+	returnType = "F",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;"),
+)
+
 object ItemStoreInBundleFingerprint : Fingerprint(
 	definingClass = ITEM_CLASS,
 	name = "storeInBundle",

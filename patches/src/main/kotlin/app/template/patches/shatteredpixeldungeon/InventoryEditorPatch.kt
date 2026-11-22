@@ -54,6 +54,7 @@ val inventoryEditorPatch = bytecodePatch(
 			0,
 			"invoke-static { p0, p1 }, $EXTENSION_PACKAGE/ItemData;->onRestore(Ljava/lang/Object;Lcom/watabou/utils/Bundle;)V",
 		)
+		EquipableItemTimeToEquipFingerprint.adjustReturns("$EXTENSION_PACKAGE/InventoryEditor;->adjustEquipTime(F)F")
 		HeroActFingerprint.method.addInstruction(
 			0,
 			"invoke-static/range { p0 .. p0 }, $INFINITE_CHARGES_CLASS->onHeroAct(Ljava/lang/Object;)V",

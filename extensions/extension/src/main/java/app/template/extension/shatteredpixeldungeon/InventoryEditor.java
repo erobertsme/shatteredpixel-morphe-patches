@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-final class InventoryEditor {
+public final class InventoryEditor {
 
 	private static final String TAG = "InventoryEditor";
 
@@ -264,15 +264,37 @@ final class InventoryEditor {
 		for (String name : EQUIP_SLOTS) {
 			Field slot = Reflect.field(Belongings.class, name);
 			if (slot.get(hero.belongings) != item) continue;
-			boolean cursed = item.cursed;
-			item.cursed = false;
-			((EquipableItem) item).doUnequip(hero, false, false);
-			item.cursed = cursed;
+			unequipInstantly(hero, (EquipableItem) item);
 			slot.set(hero.belongings, replacement);
 			if (replacement instanceof EquipableItem) ((EquipableItem) replacement).activate(hero);
 			return true;
 		}
 		return false;
+	}
+
+	private static boolean instant;
+
+	/**
+	 * Called at the end of EquipableItem.timeToEquip. While the editors take off an equipped item to delete or replace it, equipping takes
+	 * no time, the way the Duelist swaps weapons instantly, so the change doesn't use a turn.
+	 */
+	public static float adjustEquipTime(float time) {
+		return instant ? 0 : time;
+	}
+
+	/**
+	 * Takes [item] off without using a turn, even when it is cursed, and without putting it in the backpack.
+	 */
+	private static void unequipInstantly(Hero hero, EquipableItem item) {
+		boolean cursed = item.cursed;
+		item.cursed = false;
+		instant = true;
+		try {
+			item.doUnequip(hero, false, false);
+		} finally {
+			instant = false;
+			item.cursed = cursed;
+		}
 	}
 
 	/**
@@ -321,10 +343,7 @@ final class InventoryEditor {
 	static void delete(Hero hero, Item item) {
 		try {
 			if (isEquipped(hero, item) && item instanceof EquipableItem) {
-				boolean cursed = item.cursed;
-				item.cursed = false;
-				((EquipableItem) item).doUnequip(hero, false, false);
-				item.cursed = cursed;
+				unequipInstantly(hero, (EquipableItem) item);
 			} else {
 				item.detachAll(hero.belongings.backpack);
 			}
