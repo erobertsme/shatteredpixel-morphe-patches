@@ -6,6 +6,9 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Scene;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A tag the patches add to the game screen. Every tag works the same way: it has a placement and look the player chooses, shows while the
  * hero is alive and its own check passes, and does its own thing when tapped. Only the name, the check and the tap differ.
@@ -25,15 +28,17 @@ final class ScreenTag {
 	}
 
 	/**
-	 * How what a tag does is changed, and the button's label.
+	 * A way to change what a tag does: the button's label, what it opens, and whether it shows for the tag as it is now.
 	 */
 	static final class Change {
 		final String label;
 		final Runnable change;
+		final Check shows;
 
-		Change(String label, Runnable change) {
+		Change(String label, Runnable change, Check shows) {
 			this.label = label;
 			this.change = change;
+			this.shows = shows;
 		}
 	}
 
@@ -56,7 +61,7 @@ final class ScreenTag {
 	private final Tap tap;
 	private Check enabled = () -> true;
 	private Removal removal;
-	private Change change;
+	private final List<Change> changes = new ArrayList<>();
 	private IconTag view;
 
 	ScreenTag(Name name, TagPlacement placement, Check shows, Tap tap) {
@@ -95,18 +100,18 @@ final class ScreenTag {
 	}
 
 	/**
-	 * Lets what the tag does be changed with [change], from a button labeled [label].
+	 * Lets what the tag does be changed with [change], from a button labeled [label] that shows while [shows] passes.
 	 */
-	ScreenTag changeable(String label, Runnable change) {
-		this.change = new Change(label, change);
+	ScreenTag changeable(String label, Runnable change, Check shows) {
+		changes.add(new Change(label, change, shows));
 		return this;
 	}
 
 	/**
-	 * How what the tag does is changed, or null when it can't be.
+	 * The ways what the tag does can be changed, in the order they were added.
 	 */
-	Change change() {
-		return change;
+	List<Change> changes() {
+		return changes;
 	}
 
 	/**

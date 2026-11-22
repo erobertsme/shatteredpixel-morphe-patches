@@ -115,7 +115,7 @@ final class QuickActions {
 	 */
 	static Action find(String id) {
 		if (id == null) return null;
-		if (id.startsWith(STATUS_PREFIX)) return statusAction(id);
+		if (StatusRecipe.isId(id)) return statusAction(id);
 		for (Action action : all()) {
 			if (action.id.equals(id)) return action;
 		}
@@ -136,51 +136,15 @@ final class QuickActions {
 		});
 	}
 
-	private static final String STATUS_PREFIX = "status:";
-	private static final String INFINITE = "infinite";
-	private static final String AMOUNT = "amount";
-
 	/**
-	 * The id of an action that gives the hero the status [entry] for [turns] turns, or for good when [infinite].
-	 */
-	static String statusId(StatusEditor.Entry entry, int turns, boolean infinite, int amount) {
-		return STATUS_PREFIX + entry.type.getName() + ":" + turns + (infinite ? ":" + INFINITE : "") + (amount >= 0 ? ":" + AMOUNT + amount : "");
-	}
-
-	private static int parseAmount(String text) {
-		try {
-			return Math.max(0, Integer.parseInt(text));
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-
-	/**
-	 * The action a status id from [statusId] stands for, or null when it is broken or its status no longer exists.
+	 * The action that applies the status written in [id] to the hero, or null when the id is broken.
 	 */
 	private static Action statusAction(String id) {
-		String[] parts = id.substring(STATUS_PREFIX.length()).split(":");
-		StatusEditor.Entry entry = parts.length < 2 ? null : StatusEditor.entry(parts[0]);
-		if (entry == null) return null;
-		int turns;
-		try {
-			turns = Math.max(1, Integer.parseInt(parts[1]));
-		} catch (NumberFormatException e) {
-			return null;
-		}
-		boolean infinite = false;
-		int amount = -1;
-		for (int i = 2; i < parts.length; i++) {
-			if (parts[i].equals(INFINITE)) infinite = true;
-			if (parts[i].startsWith(AMOUNT)) amount = parseAmount(parts[i].substring(AMOUNT.length()));
-		}
-		String amountText = amount < 0 ? "" : ", " + StatusEditor.amountLabel(entry.type).toLowerCase() + " " + amount;
-		String name = entry.name + " (" + (infinite ? "infinite" : turns + " turns") + amountText + ")";
-		boolean forever = infinite;
-		int chosenAmount = amount;
-		return new Action(id, name, "BUFF:" + StatusEditor.iconOf(entry.sample), false, EditorSwitches::character, () -> {
-			StatusEditor.apply(Dungeon.hero, entry.type, turns, forever, chosenAmount);
-			GLog.i(entry.name + " applied.");
+		StatusRecipe recipe = StatusRecipe.parse(id);
+		if (recipe == null) return null;
+		return new Action(id, recipe.describe(), "BUFF:" + StatusEditor.iconOf(recipe.entry.sample), false, EditorSwitches::character, () -> {
+			recipe.apply(Dungeon.hero);
+			GLog.i(recipe.entry.name + " applied.");
 		});
 	}
 

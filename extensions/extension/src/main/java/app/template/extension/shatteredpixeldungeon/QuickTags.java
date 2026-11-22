@@ -32,9 +32,26 @@ public final class QuickTags {
 			QuickActions.Action action = QuickActions.find(target);
 			if (action != null) action.run();
 		}
-	}).changeable("Change Action", QuickActionPickerWindow::openToChange);
+	}).changeable("Edit Action", QuickTags::editAction, StatusRecipe::isId)
+		.changeable("Change Action", QuickActionPickerWindow::openToChange, target -> true);
 
 	private QuickTags() {
+	}
+
+	/**
+	 * Opens the settings of what the quick tag [id] does, as it is now, and keeps the changes when saved.
+	 */
+	private static void editAction(int id) {
+		Runnable back = () -> QuickTagsWindow.openTag(id);
+		StatusRecipe recipe = StatusRecipe.parse(LIST.target(id));
+		if (recipe == null) {
+			back.run();
+			return;
+		}
+		EditorWindow.show(new StatusWindow(recipe, true, "Save", edited -> {
+			LIST.setTarget(id, edited.id());
+			back.run();
+		}, back));
 	}
 
 	/**

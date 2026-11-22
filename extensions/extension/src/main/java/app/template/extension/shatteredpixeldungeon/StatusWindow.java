@@ -6,13 +6,13 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 
 /**
- * Edits one status a character has: its turns left, its extra number such as healing left or combo, whether it lasts forever for your
- * hero, or removes it.
+ * Edits every setting of one status: its turns, its extra numbers such as healing left or combo, and whether it lasts forever for your
+ * hero. Edits either a status a character has, which can also be removed here, or a status about to be added or kept on a quick tag.
  */
 public class StatusWindow extends EditorWindow {
 
 	private static final String INFO = "Edit status\n\n"
-		+ "_Turns left:_ how long the status lasts.\n_Everything else:_ every number and on/off setting the status keeps, like Healing's healing left and heal per turn, or Combo's count. Long-press - or + to change a number by 10 steps, or tap it to type one.\n\n"
+		+ "_Turns:_ how long the status lasts.\n_Everything else:_ every number and on/off setting the status keeps, like Healing's healing left and heal per turn, or Combo's count. Long-press - or + to change a number by 10 steps, or tap it to type one.\n\n"
 		+ "{STAR}_Infinite:_ for your hero, the status never runs out and comes straight back if something removes it.";
 
 	private static final int MIN_NUMBER = -9999;
@@ -22,30 +22,77 @@ public class StatusWindow extends EditorWindow {
 	private static final int DECIMAL_STEP = 10;
 	private static final int SHORT_LABEL = 12;
 
+	interface Done {
+		void done(StatusRecipe recipe);
+	}
+
 	private final Buff buff;
+	private final StatusRecipe recipe;
+	private final boolean forHero;
+	private final String doneLabel;
+	private final Done done;
 	private final Runnable back;
 
+	/**
+	 * Edits [buff], a status a character has. Back returns to its info window, and Remove runs [back] once it is gone.
+	 */
 	public StatusWindow(Buff buff, Runnable back) {
+		this(buff, null, buff.target == Dungeon.hero, null, null, back);
+	}
+
+	/**
+	 * Edits [recipe] before it is used. [doneLabel] names the button that passes it to [done]; Back runs [back].
+	 */
+	StatusWindow(StatusRecipe recipe, boolean forHero, String doneLabel, Done done, Runnable back) {
+		this(recipe.sample, recipe, forHero, doneLabel, done, back);
+	}
+
+	private StatusWindow(Buff buff, StatusRecipe recipe, boolean forHero, String doneLabel, Done done, Runnable back) {
 		super();
 		this.buff = buff;
+		this.recipe = recipe;
+		this.forHero = forHero;
+		this.doneLabel = doneLabel;
+		this.done = done;
 		this.back = back;
-		addTitle(StatusEditor.nameOf(buff), INFO);
-		boolean hero = buff.target == Dungeon.hero;
-		boolean infinite = hero && InfiniteStatuses.isInfinite(buff.getClass());
-		if (StatusEditor.isTurnsEditable(buff) && !infinite) {
-			stepperIcon(new BuffIcon(buff, true));
-			int turns = StatusEditor.turnsValue(buff);
-			addStepper("Turns left", String.valueOf(turns), turns, 1, 1, 9999, value -> StatusEditor.setTurns(buff, value));
-		}
+		addTitle(recipe == null ? StatusEditor.nameOf(buff) : recipe.entry.name, INFO);
+		boolean infinite = forHero && (recipe == null ? InfiniteStatuses.isInfinite(buff.getClass()) : recipe.infinite());
+		if (StatusEditor.isTurnsEditable(buff) && !infinite) addTurns();
 		for (StatusEditor.Setting setting : StatusEditor.settings(buff)) addSetting(setting);
-		if (hero) addCheckBox("Infinite", infinite, () -> InfiniteStatuses.setInfinite(buff, !infinite));
+		if (forHero) addCheckBox("Infinite", infinite, () -> setInfinite(!infinite));
 		pos += GAP;
+		if (recipe != null) {
+			addRowButton(doneLabel, null, () -> {
+				hide();
+				done.done(recipe);
+			});
+			finishWithBack(back);
+			return;
+		}
 		addRowButton("Remove", Icons.get(Icons.CLOSE), () -> {
 			hide();
 			BuffInfoActions.remove(buff);
 			back.run();
 		});
 		finishWithBack(this::backToStatus);
+	}
+
+	private void addTurns() {
+		stepperIcon(new BuffIcon(buff, true));
+		if (recipe != null) {
+			addStepper("Turns", recipe.turns() + " turns", recipe.turns(), 5, 1, 9999, recipe::turns);
+			return;
+		}
+		int turns = StatusEditor.turnsValue(buff);
+		addStepper("Turns left", String.valueOf(turns), turns, 1, 1, 9999, value -> StatusEditor.setTurns(buff, value));
+	}
+
+	private void setInfinite(boolean infinite) {
+		if (recipe != null) {
+			recipe.infinite(infinite);
+			return;
+		}
+		InfiniteStatuses.setInfinite(buff, infinite);
 	}
 
 	/**
@@ -83,6 +130,6 @@ public class StatusWindow extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new StatusWindow(buff, back));
+		show(new StatusWindow(buff, recipe, forHero, doneLabel, done, back));
 	}
 }

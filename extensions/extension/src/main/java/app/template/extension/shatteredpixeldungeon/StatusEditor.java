@@ -163,6 +163,20 @@ final class StatusEditor {
 		refreshIndicator();
 	}
 
+	/**
+	 * A status of [type] given to no one, set up the way adding it for [turns] turns sets it up, so it can hold settings until it is given.
+	 */
+	static Buff prepared(Class<? extends Buff> type, int turns) {
+		try {
+			Buff buff = type.getConstructor().newInstance();
+			if (!(buff instanceof FlavourBuff) && !(buff instanceof Burning)) applyDuration(buff, turns);
+			if (hasSeparateAmount(type)) setAmount(buff, turns);
+			return buff;
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Could not make " + type.getName(), e);
+		}
+	}
+
 	private static void applyDuration(Buff buff, int duration) {
 		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
 			if (invoke(buff, type, "set", float.class, (float) duration)) return;
@@ -388,6 +402,14 @@ final class StatusEditor {
 		}
 	}
 
+	/**
+	 * The extra number [buff] keeps, such as healing left, or 0 for a status without one.
+	 */
+	static float amount(Buff buff) {
+		Field field = amountField(buff);
+		return field == null ? 0 : number(buff, field);
+	}
+
 	static void setAmount(Buff buff, int amount) {
 		Field field = amountField(buff);
 		if (field != null) setNumber(buff, field, Math.max(0, amount));
@@ -502,24 +524,6 @@ final class StatusEditor {
 			if (entry.type.getName().equals(className)) return entry;
 		}
 		return null;
-	}
-
-	/**
-	 * Gives [ch] the status [type] for [duration] turns. For the hero, [infinite] keeps it from ever running out.
-	 */
-	static void apply(Char ch, Class<? extends Buff> type, int duration, boolean infinite) {
-		apply(ch, type, duration, infinite, -1);
-	}
-
-	/**
-	 * Like the other apply, and sets the status's extra number, such as healing left or combo, to [amount] when it is 0 or more.
-	 */
-	static void apply(Char ch, Class<? extends Buff> type, int duration, boolean infinite, int amount) {
-		add(ch, type, duration);
-		if (infinite && ch == Dungeon.hero) InfiniteStatuses.pin(type, duration);
-		if (amount < 0) return;
-		Buff buff = ch.buff(type);
-		if (buff != null) setAmount(buff, amount);
 	}
 
 	static int iconOf(Buff buff) {

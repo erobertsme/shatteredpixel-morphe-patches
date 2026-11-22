@@ -21,13 +21,28 @@ final class TagList {
 		void use(String target, IconTag tag);
 	}
 
+	interface TargetCheck {
+		boolean isTrue(String target);
+	}
+
+	private static final class Changer {
+		final String label;
+		final IntAction change;
+		final TargetCheck shows;
+
+		Changer(String label, IntAction change, TargetCheck shows) {
+			this.label = label;
+			this.change = change;
+			this.shows = shows;
+		}
+	}
+
 	private final String prefix;
 	private final String targetSuffix;
 	private final TagPlacement.Side side;
 	private final Kind kind;
 	private final Map<Integer, ScreenTag> tags = new HashMap<>();
-	private String changeLabel;
-	private IntAction changer;
+	private final List<Changer> changers = new ArrayList<>();
 
 	/**
 	 * [prefix] names the saved settings: its list, each tag's target under [targetSuffix], and its placement. New tags start on [side].
@@ -40,11 +55,11 @@ final class TagList {
 	}
 
 	/**
-	 * Lets each tag's target be changed with [chooser], given the tag's id, from a button labeled [label].
+	 * Lets each tag's target be changed with [change], given the tag's id, from a button labeled [label] that shows while [shows] passes
+	 * for the tag's target.
 	 */
-	TagList changeable(String label, IntAction chooser) {
-		changeLabel = label;
-		changer = chooser;
+	TagList changeable(String label, IntAction change, TargetCheck shows) {
+		changers.add(new Changer(label, change, shows));
 		return this;
 	}
 
@@ -130,7 +145,7 @@ final class TagList {
 		TagPlacement placement = new TagPlacement(prefix + "_" + id, side, share, 1, kind.icon(target(id)), 0);
 		tag = new ScreenTag(() -> name(id), placement, () -> kind.shows(target(id)), view -> kind.use(target(id), view))
 			.removable("Remove this tag?", () -> delete(id));
-		if (changer != null) tag.changeable(changeLabel, () -> changer.run(id));
+		for (Changer changer : changers) tag.changeable(changer.label, () -> changer.change.run(id), () -> changer.shows.isTrue(target(id)));
 		tags.put(id, tag);
 		return tag;
 	}

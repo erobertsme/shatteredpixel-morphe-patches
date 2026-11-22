@@ -47,7 +47,7 @@ public class QuickActionPickerWindow extends EditorWindow {
 		if (kind == 1 && EditorSwitches.character()) {
 			addRowButton("Apply a chosen status", StatIcons.buff(StatIcons.BUFF_BARKSKIN), () -> {
 				hide();
-				StatusPickerWindow.openToChoose((entry, turns, infinite, amount) -> picked(QuickActions.statusId(entry, turns, infinite, amount)),
+				StatusPickerWindow.openToChoose(recipe -> picked(recipe.id()),
 					() -> show(new QuickActionPickerWindow(1)));
 			});
 		}

@@ -14,14 +14,12 @@ public class StatusPickerWindow extends EditorWindow {
 	static final int OTHER = 3;
 	private static final String[] KIND_NAMES = { "Favs", "Positive", "Negative", "Other" };
 
-	private static int duration = 20;
-	private static boolean infinite;
 	private static Char target;
 	private static final BackAction backAction = new BackAction();
 	private static Chooser chooser;
 
 	interface Chooser {
-		void chosen(StatusEditor.Entry entry, int duration, boolean infinite, int amount);
+		void chosen(StatusRecipe recipe);
 	}
 
 	/**
@@ -35,8 +33,8 @@ public class StatusPickerWindow extends EditorWindow {
 	}
 
 	/**
-	 * Opens the picker to choose a status and duration for later, for the hero, and passes them to [onChosen] instead of adding the
-	 * status. [back] reopens the window the picker was opened from.
+	 * Opens the picker to set up a status for later, for the hero, and passes it to [onChosen] instead of adding it. [back] reopens the
+	 * window the picker was opened from.
 	 */
 	static void openToChoose(Chooser onChosen, Runnable back) {
 		target = null;
@@ -53,15 +51,12 @@ public class StatusPickerWindow extends EditorWindow {
 		this.kind = kind;
 		this.page = page;
 		Char hero = target != null ? target : Dungeon.hero;
-		boolean isHero = hero == Dungeon.hero;
 
-		addTitle(chooser == null ? "Add status" : "Choose status", "Add status\n\nTap a status to add it for the chosen duration.\n\n_Infinite:_ never runs out.\n_Yellow statuses_ are already active; adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
+		addTitle(chooser == null ? "Add status" : "Choose status", "Add status\n\nTap a status to choose how long it lasts and every other setting it keeps, then add it.\n\n_Yellow statuses_ are already active; adding them again extends them.\n\n{HEART}The heart adds a status to Favorites.\n\n{INFO}Tap i or long-press to read one.");
 		addButtonRow(KIND_NAMES, kind, index -> {
 			if (index != kind) replaceWith(new StatusPickerWindow(index, 0));
 		});
-		addStepper("Duration", duration + " turns", duration, 5, 1, 9999, value -> duration = Math.max(1, Math.min(9999, value)));
-		if (isHero) addCheckBox("Infinite", infinite, () -> infinite = !infinite);
-		pos += 2 * GAP;
+		pos += GAP;
 
 		List<StatusEditor.Entry> entries = StatusEditor.catalog(kind);
 		if (entries.isEmpty()) addHint("No favorites yet. Tap the heart next to a status to add it here.");
@@ -80,32 +75,27 @@ public class StatusPickerWindow extends EditorWindow {
 			});
 		}, newPage -> replaceWith(new StatusPickerWindow(kind, newPage)));
 
-		finishWithBack(() -> backAction.run(() -> CharacterWindow.open(CharacterWindow.TAB_STATUS, 1)));
+		finishWithBack(() -> backAction.run(StatusPickerWindow::backToEditor));
 	}
 
 	/**
-	 * Adds or passes on [entry], first asking for its extra number, such as healing left or combo, when it keeps one.
+	 * Sets up [entry] with every setting it keeps, then adds it to [hero], or passes it on when choosing one for later.
 	 */
 	private void choose(Char hero, StatusEditor.Entry entry) {
-		boolean forever = infinite && hero == Dungeon.hero;
-		String amountLabel = StatusEditor.amountLabel(entry.type);
-		if (!StatusEditor.hasSeparateAmount(entry.type)) {
-			finishChoice(hero, entry, forever, -1);
-			return;
-		}
-		NumberPrompt.show(amountLabel, duration, 0, 9999, amount -> finishChoice(hero, entry, forever, amount), () -> { });
+		Chooser onChosen = chooser;
+		hide();
+		StatusWindow.Done done = onChosen != null ? recipe -> {
+			chooser = null;
+			onChosen.chosen(recipe);
+		} : recipe -> {
+			recipe.apply(hero);
+			backAction.run(StatusPickerWindow::backToEditor);
+		};
+		show(new StatusWindow(new StatusRecipe(entry), hero == Dungeon.hero, onChosen != null ? "Choose" : "Add Status", done, this::reopen));
 	}
 
-	private void finishChoice(Char hero, StatusEditor.Entry entry, boolean forever, int amount) {
-		Chooser onChosen = chooser;
-		if (onChosen == null) {
-			StatusEditor.apply(hero, entry.type, duration, forever, amount);
-			goBack();
-			return;
-		}
-		chooser = null;
-		hide();
-		onChosen.chosen(entry, duration, forever, amount);
+	private static void backToEditor() {
+		CharacterWindow.open(CharacterWindow.TAB_STATUS, 1);
 	}
 
 	private static BuffIcon statusIcon(StatusEditor.Entry entry) {

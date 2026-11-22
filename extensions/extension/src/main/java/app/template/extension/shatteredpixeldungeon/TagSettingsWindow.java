@@ -12,6 +12,7 @@ import com.watabou.input.PointerEvent;
 import com.watabou.utils.PointF;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,29 +50,29 @@ public class TagSettingsWindow extends EditorWindow {
 	private final String title;
 	private final Runnable back;
 	private final ScreenTag.Removal removal;
-	private final ScreenTag.Change change;
+	private final List<ScreenTag.Change> changes;
 
 	public TagSettingsWindow(TagPlacement placement, String title, Runnable back) {
-		this(placement, title, back, null, null);
+		this(placement, title, back, null, Collections.emptyList());
 	}
 
 	/**
 	 * The settings of one of the patches' tags, with a Remove Tag button when it can be removed.
 	 */
 	public TagSettingsWindow(ScreenTag tag, String title, Runnable back) {
-		this(tag.placement, title, back, tag.removal(), tag.change());
+		this(tag.placement, title, back, tag.removal(), tag.changes());
 	}
 
 	/**
 	 * With [removal], the page also has a Remove Tag button that asks first.
 	 */
-	private TagSettingsWindow(TagPlacement placement, String title, Runnable back, ScreenTag.Removal removal, ScreenTag.Change change) {
+	private TagSettingsWindow(TagPlacement placement, String title, Runnable back, ScreenTag.Removal removal, List<ScreenTag.Change> changes) {
 		super();
 		this.placement = placement;
 		this.title = title;
 		this.back = back;
 		this.removal = removal;
-		this.change = change;
+		this.changes = changes;
 		addTitle(title, INFO);
 		if (placement.styled()) addPreview();
 		if (placement.styled()) {
@@ -99,7 +100,8 @@ public class TagSettingsWindow extends EditorWindow {
 		if (tab == 5) addOpacity();
 
 		pos += GAP;
-		if (change != null) {
+		for (ScreenTag.Change change : changes) {
+			if (!change.shows.isTrue()) continue;
 			addRowButton(change.label, null, () -> {
 				hide();
 				change.change.run();
@@ -363,6 +365,6 @@ public class TagSettingsWindow extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new TagSettingsWindow(placement, title, back, removal, change));
+		show(new TagSettingsWindow(placement, title, back, removal, changes));
 	}
 }
