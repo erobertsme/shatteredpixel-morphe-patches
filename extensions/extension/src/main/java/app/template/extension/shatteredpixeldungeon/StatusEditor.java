@@ -388,28 +388,99 @@ final class StatusEditor {
 		}
 	}
 
-	static int amountValue(Buff buff) {
+	static void setAmount(Buff buff, int amount) {
 		Field field = amountField(buff);
-		if (field == null) return 0;
+		if (field != null) setNumber(buff, field, Math.max(0, amount));
+	}
+
+	/**
+	 * One setting a status keeps, such as Healing's healing left or heal per turn: a number or an on/off field of the status itself.
+	 */
+	static final class Setting {
+		final Field field;
+		final String label;
+
+		Setting(Field field, String label) {
+			this.field = field;
+			this.label = label;
+		}
+
+		boolean isSwitch() {
+			return field.getType() == boolean.class;
+		}
+
+		boolean isDecimal() {
+			return field.getType() == float.class;
+		}
+	}
+
+	/**
+	 * Every setting [buff] keeps, its amount first, leaving out its turns when those are edited on their own.
+	 */
+	static List<Setting> settings(Buff buff) {
+		Field duration = isTurnsEditable(buff) ? durationField(buff) : null;
+		Field amount = amountField(buff);
+		List<Setting> settings = new ArrayList<>();
+		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
+			for (Field field : type.getDeclaredFields()) {
+				int modifiers = field.getModifiers();
+				Class<?> kind = field.getType();
+				if (java.lang.reflect.Modifier.isStatic(modifiers) || java.lang.reflect.Modifier.isFinal(modifiers) || field.isSynthetic()) continue;
+				if (kind != int.class && kind != float.class && kind != boolean.class || field.equals(duration)) continue;
+				field.setAccessible(true);
+				Setting setting = new Setting(field, field.equals(amount) ? amountLabel(buff.getClass()) : words(field.getName()));
+				if (field.equals(amount)) {
+					settings.add(0, setting);
+				} else {
+					settings.add(setting);
+				}
+			}
+		}
+		return settings;
+	}
+
+	/**
+	 * A field name written as words: percentHealPerTick becomes "Percent heal per tick".
+	 */
+	private static String words(String name) {
+		String spaced = name.replaceAll("([a-z0-9])([A-Z])", "$1 $2").replace('_', ' ').toLowerCase(Locale.ENGLISH);
+		return capitalize(spaced);
+	}
+
+	static float number(Buff buff, Field field) {
 		try {
-			return Math.round(field.getType() == int.class ? field.getInt(buff) : field.getFloat(buff));
+			return field.getType() == int.class ? field.getInt(buff) : field.getFloat(buff);
 		} catch (Throwable e) {
 			return 0;
 		}
 	}
 
-	static void setAmount(Buff buff, int amount) {
-		Field field = amountField(buff);
-		if (field == null) return;
-		int value = Math.max(0, amount);
+	static void setNumber(Buff buff, Field field, float value) {
 		try {
 			if (field.getType() == int.class) {
-				field.setInt(buff, value);
+				field.setInt(buff, Math.round(value));
 			} else {
 				field.setFloat(buff, value);
 			}
 		} catch (Throwable e) {
-			Log.e(TAG, "Could not set the amount of " + buff.getClass().getName(), e);
+			Log.e(TAG, "Could not set " + field.getName() + " of " + buff.getClass().getName(), e);
+		}
+		refreshIndicator();
+	}
+
+	static boolean isOn(Buff buff, Field field) {
+		try {
+			return field.getBoolean(buff);
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	static void setOn(Buff buff, Field field, boolean on) {
+		try {
+			field.setBoolean(buff, on);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not set " + field.getName() + " of " + buff.getClass().getName(), e);
 		}
 		refreshIndicator();
 	}

@@ -146,6 +146,15 @@ abstract class EditorWindow extends Window {
 	}
 
 	private Image nextStepperIcon;
+	private int nextStepperDecimals;
+
+	/**
+	 * Makes the next stepper hold a number with [decimals] decimal places, scaled up to whole numbers in its values, so typing one in
+	 * takes decimals.
+	 */
+	protected void stepperDecimals(int decimals) {
+		nextStepperDecimals = decimals;
+	}
 	private boolean labelAbove;
 
 	/**
@@ -174,6 +183,8 @@ abstract class EditorWindow extends Window {
 	 * A stepper row. When [onReset] is given, a small reset button at the end of the row restores that one value.
 	 */
 	protected void addStepper(String label, String display, int current, int step, int min, int max, IntAction setter, boolean enabled, Runnable onReset) {
+		int decimals = nextStepperDecimals;
+		nextStepperDecimals = 0;
 		float textLeft = 0;
 		Image icon = nextStepperIcon;
 		nextStepperIcon = null;
@@ -215,7 +226,7 @@ abstract class EditorWindow extends Window {
 		RedButton value = new RedButton(display, 6) {
 			@Override
 			public void onClick() {
-				NumberPrompt.show(label, current, min, max, setter, () -> {
+				NumberPrompt.show(label, current, min, max, decimals, setter, () -> {
 					EditorWindow.this.hide();
 					reopen();
 				});
