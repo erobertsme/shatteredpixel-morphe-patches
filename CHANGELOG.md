@@ -1,3 +1,9 @@
+## [1.4.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.6...v1.4.0-dev.7) (2026-11-22)
+
+### ✨ New Features
+
+* Fixed-size hero stats tabs, hunger bar on Stats and Run, rename beside info ([9fb1d44](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9fb1d4460f6e67286d557eabf07c3f5d3c90fe4c))
+
 ## [1.4.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0-dev.5...v1.4.0-dev.6) (2026-11-22)
 
 ### ✨ New Features
