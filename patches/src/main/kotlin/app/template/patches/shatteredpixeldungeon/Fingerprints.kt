@@ -1020,13 +1020,6 @@ object FireBurnFingerprint : Fingerprint(
 	parameters = listOf("I"),
 )
 
-object MobGetCloserFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob;",
-	name = "getCloser",
-	returnType = "Z",
-	parameters = listOf("I"),
-)
-
 object RegularLevelRespawnCellFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel;",
 	name = "randomRespawnCell",
