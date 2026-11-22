@@ -1,3 +1,13 @@
+## [1.5.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.4.0...v1.5.0-dev.1) (2026-11-22)
+
+### ✨ New Features
+
+* game previews on the main menu with new games from a seed, reusable seeds, and safe gardens ([b52e71b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b52e71be56e286e35972c02b335e9f18fd787c13))
+
+### 🐛 Bug Fixes
+
+* remove a duplicate fingerprint ([0d87efb](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/0d87efbc874fa39f4273837f45398257466d866f))
+
 ## [1.4.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.3.0...v1.4.0) (2026-11-22)
 
 ### ✨ New Features
