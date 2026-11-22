@@ -50,12 +50,7 @@ final class ScrollArea {
 			Component content = pane.content();
 			for (Gizmo part : parts) {
 				window.remove(part);
-				if (part instanceof Component) {
-					Component component = (Component) part;
-					component.setPos(component.left(), component.top() - top);
-				} else if (part instanceof Visual) {
-					((Visual) part).y -= top;
-				}
+				shift(part, -top);
 				content.add(part);
 			}
 			content.setSize(width, height);
@@ -65,6 +60,39 @@ final class ScrollArea {
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not make the window scroll", e);
 			return null;
+		}
+	}
+
+	/**
+	 * Shows [content], built from y 0 and [height] tall, in [owner] from [top]: as it is when it fits in [maxHeight], or in a scrolling
+	 * area that tall when it doesn't. Returns the area, or null when the content fits.
+	 */
+	@SuppressWarnings("unchecked")
+	static ScrollPane place(Group owner, Component content, float top, float width, float height, float maxHeight) throws ReflectiveOperationException {
+		if (height <= maxHeight) {
+			for (Gizmo part : new ArrayList<>(Reflect.members(content))) {
+				content.remove(part);
+				shift(part, top);
+				owner.add(part);
+			}
+			return null;
+		}
+		content.setSize(width, height);
+		ScrollPane pane = pane(content);
+		owner.add(pane);
+		pane.setRect(0, top, width, maxHeight);
+		return pane;
+	}
+
+	/**
+	 * Moves [part] down by [distance]. Parts keep their own place on screen, not one relative to the group they are in.
+	 */
+	private static void shift(Gizmo part, float distance) {
+		if (part instanceof Component) {
+			Component component = (Component) part;
+			component.setPos(component.left(), component.top() + distance);
+		} else if (part instanceof Visual) {
+			((Visual) part).y += distance;
 		}
 	}
 

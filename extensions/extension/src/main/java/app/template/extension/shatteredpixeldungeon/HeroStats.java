@@ -87,17 +87,9 @@ public final class HeroStats {
 			float contentTop = addTabs(group, width, top);
 			Component content = new Component();
 			float contentHeight = new Layout(content, width, valueX, rowHeight(labelTops)).build(selected, 0);
-			content.setSize(width, contentHeight);
 			float areaHeight = Math.min(CONTENT_HEIGHT, PixelScene.uiCamera.height * MAX_SCREEN_SHARE);
-			if (contentHeight <= areaHeight) {
-				content.setPos(0, contentTop);
-				group.add(content);
-			} else {
-				ScrollPane pane = ScrollArea.pane(content);
-				group.add(pane);
-				pane.setRect(0, contentTop, width, areaHeight);
-				ScrollHints.add(group, pane);
-			}
+			ScrollPane pane = ScrollArea.place(group, content, contentTop, width, contentHeight, areaHeight);
+			if (pane != null) ScrollHints.add(group, pane);
 			Reflect.set(group.getClass(), group, "pos", contentTop + areaHeight + GAP);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not show the hero's stats", e);
