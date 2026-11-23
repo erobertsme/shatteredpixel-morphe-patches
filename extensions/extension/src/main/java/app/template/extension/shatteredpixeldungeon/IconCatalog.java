@@ -152,6 +152,10 @@ final class IconCatalog {
 				Image emoji = EmojiIcon.image(token.substring(EmojiIcon.PREFIX.length()));
 				if (emoji != null) return emoji;
 			}
+			if (token.startsWith(CustomIcons.PREFIX)) {
+				Image custom = CustomIcons.image(token.substring(CustomIcons.PREFIX.length()));
+				if (custom != null) return custom;
+			}
 			if (token.startsWith("SPRITE:")) return new ItemSprite(Integer.parseInt(token.substring(7)));
 			if (token.startsWith("TALENT:")) return new TalentIcon(Talent.valueOf(token.substring(7)));
 			Image stat = StatIcons.fromToken(token);

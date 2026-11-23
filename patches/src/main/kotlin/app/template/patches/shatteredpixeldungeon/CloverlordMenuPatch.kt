@@ -16,6 +16,7 @@ internal val cloverlordMenuPatch = bytecodePatch(
 	description = "Adds the Extras menu to the title screen and the in-game menu.",
 ) {
 	extendWith("extensions/extension.mpe")
+	dependsOn(customIconsPatch)
 
 	execute {
 		KeyboardConnectionFingerprint.method.let { connection ->

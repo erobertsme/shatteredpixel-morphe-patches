@@ -161,6 +161,7 @@ Show all heroes, guide books, intros and lore, catalog items and bestiary entrie
 - Number prompts open the phone's number keyboard, with a minus key where the value can be negative.
 - Unlock toggles, editor switches and other patch settings are stored separately from the game's own settings.
 - The patches never add their own item or bag types to your save, so a save still loads if a patch is removed.
+- Custom icons, such as the Equipment tab's, are PNG files in `patches/src/main/resources/cloverlord/icons`, added to the game with the patches and listed in that folder's `index.txt`. Tags and other icon choices can use one as `CUSTOM:name`.
 
 ### 🛠️ Building locally
 
@@ -170,6 +171,14 @@ Show all heroes, guide books, intros and lore, catalog items and bestiary entrie
   like any other patch bundle.
 
 See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for more information.
+
+
+#### Making a custom icon
+`tools/merge_icons.py` layers pictures into a new icon and saves it with the others. A layer is a PNG, a part of one (`file.png@x,y,width,height`) or a cell of one of the game's sprite sheets (`items:column,row`, `icons:column,row`, read from the game's APK), fitted into a square of the icon. For example, the Equipment tab icon:
+
+```bash
+python3 tools/merge_icons.py equipment --apk spd.apk --layer items:1,11 0 4 12 --layer items:0,7 4 0 12
+```
 
 ## 📜 License
 

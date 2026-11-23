@@ -1082,9 +1082,3 @@ object ReforgeClickFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
-
-object WndBagTabConstructorFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBag\$BagTab;",
-	name = "<init>",
-	returnType = "V",
-)
