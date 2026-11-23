@@ -16,6 +16,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 
@@ -217,12 +218,34 @@ public final class InventorySpace {
 	}
 
 	/**
+	 * Called at the end of the WndBag.BagTab constructor. The game's tab copies only one picture from its icon, so the Equipment tab's
+	 * icon, made of two, takes the copy's place.
+	 */
+	@SuppressWarnings("unchecked")
+	public static void afterBagTab(Object tab) {
+		try {
+			Object bag = Reflect.get(tab, "bag");
+			if (!(bag instanceof FilterBag) || ((FilterBag) bag).kind() != FilterBag.EQUIPMENT) return;
+			Image old = (Image) Reflect.get(tab, "icon");
+			Group group = (Group) tab;
+			EquipmentIcon icon = new EquipmentIcon();
+			if (old != null) {
+				group.remove(old);
+				old.destroy();
+			}
+			group.add(icon);
+			Reflect.set(tab, "icon", icon);
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not show the Equipment tab's icon", e);
+		}
+	}
+
+	/**
 	 * Called at the start of WndBag.icon. Returns the tab icon for the Equipment and Rings tabs, or null.
 	 */
 	public static Image tabIcon(Bag bag) {
 		if (!(bag instanceof FilterBag)) return null;
 		try {
-			if (((FilterBag) bag).kind() == FilterBag.EQUIPMENT) return new EquipmentIcon();
 			return new ItemSprite(bag);
 		} catch (Throwable e) {
 			return null;

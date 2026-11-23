@@ -84,6 +84,7 @@ internal val bagLayoutPatch = bytecodePatch(
 
 		BagCollectFingerprint.skipWhen("invoke-static { p0, p1 }, $INVENTORY_SPACE_CLASS->refuseBag(${BAG_CLASS}$BAG_CLASS)Z", result = false)
 
+		WndBagTabConstructorFingerprint.callWithThisBeforeReturns("$INVENTORY_SPACE_CLASS->afterBagTab(Ljava/lang/Object;)V")
 		WndBagIconFingerprint.skipWhen("invoke-static { p1 }, $INVENTORY_SPACE_CLASS->tabIcon($BAG_CLASS)Lcom/watabou/noosa/Image;")
 	}
 }

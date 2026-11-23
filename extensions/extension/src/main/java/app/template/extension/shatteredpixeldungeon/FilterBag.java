@@ -26,6 +26,8 @@ final class FilterBag extends Bag {
 	private static final String[] KEYS = { "inv_tab_weapons_off", "inv_tab_rings_off" };
 	private static final FilterBag[] TABS = new FilterBag[NAMES.length];
 
+	private static final String PICKAXE = "com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe";
+
 	private final int kind;
 
 	private FilterBag(int kind) {
@@ -143,7 +145,7 @@ final class FilterBag extends Bag {
 	}
 
 	private static boolean accepts(int kind, Item item) {
-		if (kind == EQUIPMENT) return item instanceof Armor || item instanceof MeleeWeapon;
+		if (kind == EQUIPMENT) return item instanceof Armor || item instanceof MeleeWeapon && !PICKAXE.equals(item.getClass().getName());
 		return item instanceof Ring;
 	}
 

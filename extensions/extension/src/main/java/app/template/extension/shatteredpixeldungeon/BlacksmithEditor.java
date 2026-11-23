@@ -14,6 +14,7 @@ public final class BlacksmithEditor {
 	private static final String TAG = "BlacksmithEditor";
 	private static final String QUEST = "com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith$Quest";
 	private static final String WINDOW = "com.shatteredpixel.shatteredpixeldungeon.windows.WndBlacksmith";
+	private static final int FAVOR_STEP = 500;
 	private static final String KEY_MINE_OPEN = "blacksmith_mine_open";
 
 	private static Object pendingTroll;
@@ -63,9 +64,13 @@ public final class BlacksmithEditor {
 		}
 	}
 
+	/**
+	 * Sets the favor, rounded up to a whole step of 500.
+	 */
 	static void favor(int value) {
+		int rounded = (Math.max(0, value) + FAVOR_STEP - 1) / FAVOR_STEP * FAVOR_STEP;
 		try {
-			Reflect.field(Class.forName(QUEST), "favor").setInt(null, Math.max(0, value));
+			Reflect.field(Class.forName(QUEST), "favor").setInt(null, rounded);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set the favor", e);
 		}
@@ -101,8 +106,8 @@ public final class BlacksmithEditor {
 	static final class BlacksmithWindow extends EditorWindow {
 
 		private static final String INFO = "Blacksmith\n\n"
-			+ "_Favor:_ what the blacksmith's services cost you. Long-press - or + to change it by 10 steps, or tap it to type it.\n"
-			+ "_Let me into the mine:_ he lets you down into the mine below, even once his quest is done. Leaving the mine doesn't end the quest again.";
+			+ "_Favor:_ what the blacksmith's services cost you. It changes in steps of 500. Long-press - or + to change it by 10 steps, or tap it to type it; a typed amount rounds up to the next 500.\n"
+			+ "_Allow mine access:_ he lets you down into the mine below, even once his quest is done. Leaving the mine doesn't end the quest again.";
 
 		private final Runnable back;
 
@@ -111,8 +116,8 @@ public final class BlacksmithEditor {
 			this.back = back;
 			addTitle("Blacksmith", INFO);
 			int favor = favor();
-			addStepper("Favor", String.valueOf(favor), favor, 50, 0, 99999, BlacksmithEditor::favor);
-			addCheckBox("Let me into the mine", mineOpen(), () -> mineOpen(!mineOpen()));
+			addStepper("Favor", String.valueOf(favor), favor, FAVOR_STEP, 0, 99999, BlacksmithEditor::favor);
+			addCheckBox("Allow mine access", mineOpen(), () -> mineOpen(!mineOpen()));
 			pos += GAP;
 			finishWithBack(back);
 		}
