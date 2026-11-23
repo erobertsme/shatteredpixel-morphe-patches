@@ -11,7 +11,7 @@ private const val POUCHES_CLASS = "$EXTENSION_PACKAGE/TabPouches;"
 @Suppress("unused")
 val inventoryEditorPatch = bytecodePatch(
 	name = "Inventory editor",
-	description = "Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs.",
+	description = "Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Equipment and Rings backpack tabs.",
 	default = true,
 ) {
 	compatibleWith(COMPATIBILITY_SHATTERED_PIXEL_DUNGEON)

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Pouches for the Weapons, Armor and Rings tabs, sold in every shop for 1000 gold when the tab's shop toggle is
+ * Pouches for the Equipment and Rings tabs, sold in every shop for 1000 gold when the tab's shop toggle is
  * on. Until bought, that tab stays locked. Pouches are taken out of a floor's save and put back when it loads, so
  * saves never hold them, and a pouch that has been bought is not put back in any other shop.
  */
@@ -25,8 +25,9 @@ import java.util.Map;
 public final class TabPouches {
 
 	static final int PRICE = 1000;
-	private static final String[] SHOP_KEYS = { "inv_tab_weapons_shop", "inv_tab_armor_shop", "inv_tab_rings_shop" };
-	private static final String[] OWNED_KEYS = { "inv_tab_weapons_owned", "inv_tab_armor_owned", "inv_tab_rings_owned" };
+	private static final String[] SHOP_KEYS = { "inv_tab_weapons_shop", "inv_tab_rings_shop" };
+	private static final String[] OWNED_KEYS = { "inv_tab_weapons_owned", "inv_tab_rings_owned" };
+	private static final String OLD_ARMOR_OWNED = "inv_tab_armor_owned";
 	private static final String BUNDLE_KEY = "morphe_tab_pouches";
 	private static final float BADGE_SCALE = 0.5f;
 
@@ -49,6 +50,7 @@ public final class TabPouches {
 	}
 
 	static boolean owned(int kind) {
+		if (kind == FilterBag.EQUIPMENT && CloverlordSettings.get(OLD_ARMOR_OWNED)) return true;
 		return CloverlordSettings.get(OWNED_KEYS[kind]);
 	}
 

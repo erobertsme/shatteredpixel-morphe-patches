@@ -6,7 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 
 /**
- * A pouch sold in shops that unlocks one of the Weapons, Armor or Rings backpack tabs for the rest of the game.
+ * A pouch sold in shops that unlocks the Equipment or Rings backpack tab for the rest of the game.
  * Buying it unlocks the tab straight away instead of going into your backpack, and it is never saved: shops get
  * it back from TabPouches when their floor loads.
  */

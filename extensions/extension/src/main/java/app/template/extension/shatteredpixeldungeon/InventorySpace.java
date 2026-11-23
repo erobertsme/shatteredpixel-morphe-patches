@@ -129,7 +129,7 @@ public final class InventorySpace {
 	}
 
 	/**
-	 * Called with the bag list in the WndBag constructor. Adds the Weapons, Armor and Rings tabs that are switched on.
+	 * Called with the bag list in the WndBag constructor. Adds the Equipment and Rings tabs that are switched on.
 	 */
 	public static ArrayList<Bag> bagTabs(ArrayList<Bag> bags) {
 		if (bags == null || !InventoryWindow.isAvailable()) return bags;
@@ -138,8 +138,7 @@ public final class InventorySpace {
 		for (Bag bag : real) {
 			if (bag instanceof Belongings.Backpack) result.add(bag);
 		}
-		if (FilterBag.isOn(FilterBag.WEAPONS)) result.add(FilterBag.get(FilterBag.WEAPONS));
-		if (FilterBag.isOn(FilterBag.ARMOR)) result.add(FilterBag.get(FilterBag.ARMOR));
+		if (FilterBag.isOn(FilterBag.EQUIPMENT)) result.add(FilterBag.get(FilterBag.EQUIPMENT));
 		for (String name : BAG_ORDER) {
 			for (Bag bag : real) {
 				if (bag.getClass().getSimpleName().equals(name)) result.add(bag);
@@ -218,11 +217,12 @@ public final class InventorySpace {
 	}
 
 	/**
-	 * Called at the start of WndBag.icon. Returns the tab icon for the Weapons, Armor and Rings tabs, or null.
+	 * Called at the start of WndBag.icon. Returns the tab icon for the Equipment and Rings tabs, or null.
 	 */
 	public static Image tabIcon(Bag bag) {
 		if (!(bag instanceof FilterBag)) return null;
 		try {
+			if (((FilterBag) bag).kind() == FilterBag.EQUIPMENT) return new EquipmentIcon();
 			return new ItemSprite(bag);
 		} catch (Throwable e) {
 			return null;

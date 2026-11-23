@@ -5,25 +5,25 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A backpack tab that holds items of one kind, like the potion bandolier holds potions. The items it holds stay in
+ * A backpack tab that holds items of one kind, like the potion bandolier holds potions: equipment, which is armor and melee weapons
+ * (not thrown weapons, bombs or the spirit bow), or rings. The items it holds stay in
  * the backpack's own list, so saves never contain this tab, but they are shown here instead of in the backpack and
  * don't use backpack space. It holds 19 items, or any number with unlimited inventory space.
  */
 final class FilterBag extends Bag {
 
-	static final int WEAPONS = 0;
-	static final int ARMOR = 1;
-	static final int RINGS = 2;
+	static final int EQUIPMENT = 0;
+	static final int RINGS = 1;
 
-	private static final String[] NAMES = { "Weapons", "Armor", "Rings" };
-	private static final String[] KEYS = { "inv_tab_weapons_off", "inv_tab_armor_off", "inv_tab_rings_off" };
+	private static final String[] NAMES = { "Equipment", "Rings" };
+	private static final String[] KEYS = { "inv_tab_weapons_off", "inv_tab_rings_off" };
 	private static final FilterBag[] TABS = new FilterBag[NAMES.length];
 
 	private final int kind;
@@ -71,8 +71,7 @@ final class FilterBag extends Bag {
 
 	private static int icon(int kind) {
 		try {
-			if (kind == WEAPONS) return ItemSpriteSheet.SWORD;
-			if (kind == ARMOR) return ItemSpriteSheet.ARMOR_LEATHER;
+			if (kind == EQUIPMENT) return ItemSpriteSheet.SWORD;
 			return ItemSpriteSheet.RING_GARNET;
 		} catch (Throwable e) {
 			return 0;
@@ -144,8 +143,7 @@ final class FilterBag extends Bag {
 	}
 
 	private static boolean accepts(int kind, Item item) {
-		if (kind == WEAPONS) return item instanceof Weapon;
-		if (kind == ARMOR) return item instanceof Armor;
+		if (kind == EQUIPMENT) return item instanceof Armor || item instanceof MeleeWeapon;
 		return item instanceof Ring;
 	}
 
@@ -156,7 +154,8 @@ final class FilterBag extends Bag {
 
 	@Override
 	public String desc() {
-		return "Holds the " + NAMES[kind].toLowerCase() + " you carry, so they don't take up space in your backpack.";
+		String held = kind == EQUIPMENT ? "melee weapons and armor" : "rings";
+		return "Holds the " + held + " you carry, so they don't take up space in your backpack.";
 	}
 
 	@Override
