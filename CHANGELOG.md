@@ -1,3 +1,9 @@
+## [1.5.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.7...v1.5.0-dev.8) (2026-11-23)
+
+### ✨ New Features
+
+* custom icons from PNG files added with the patches, a merge and export tool, and the Equipment tab icon made with it ([f639b82](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f639b8238bee66831d06dca5647f80857ec1126e))
+
 ## [1.5.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.6...v1.5.0-dev.7) (2026-11-23)
 
 ### 🐛 Bug Fixes
