@@ -157,6 +157,7 @@ public class CloverlordWindow extends EditorWindow {
 		addButton("Shopkeeper", Icons.GOLD, () -> open(new ShopkeeperWindow()));
 		addSwitch("Quantum Chest", QuantumChest.isOn(), QuantumChest::setOn);
 		addChestPageButtons();
+		addSwitch("Reforge hero armor", HeroArmorReforge.isOn(), HeroArmorReforge::setOn);
 
 		addSection("Rules");
 		addButton("Confirm actions", Icons.WARNING, () -> open(new ConfirmWindow()));

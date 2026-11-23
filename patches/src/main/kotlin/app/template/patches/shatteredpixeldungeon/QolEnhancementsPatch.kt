@@ -124,6 +124,7 @@ val qolEnhancementsPatch = bytecodePatch(
 		)
 		DungeonSaveAllFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/GameSlots;->afterSaveAll()V")
 		DungeonDeleteGameFingerprint.method.addInstruction(0, "invoke-static { p0 }, $EXTENSION_PACKAGE/GameSlots;->onDeleteGame(I)V")
+		ReforgeItemSelectedFingerprint.replaceCalls("Ljava/lang/Object;->getClass()Ljava/lang/Class;", "$EXTENSION_PACKAGE/HeroArmorReforge;->kind(Ljava/lang/Object;)Ljava/lang/Class;")
 		SaveSlotButtonClickFingerprint.skipWhen("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/GameSlots;->open($ITEM_TYPE)Z")
 		MageroyalActivateFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/MageroyalCure;->beforeActivate(Ljava/lang/Object;)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")

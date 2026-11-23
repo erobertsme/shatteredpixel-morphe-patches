@@ -1054,3 +1054,24 @@ object DungeonSaveAllFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object WndBlacksmithConstructorFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith;",
+	name = "<init>",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith;", "Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;"),
+)
+
+object CavesLevelActivateTransitionFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel;",
+	name = "activateTransition",
+	returnType = "Z",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero;", "Lcom/shatteredpixel/shatteredpixeldungeon/levels/features/LevelTransition;"),
+)
+
+object ReforgeItemSelectedFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith\$WndReforge\$4;",
+	name = "onSelect",
+	returnType = "V",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
+)

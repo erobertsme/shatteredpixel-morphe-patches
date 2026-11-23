@@ -1,5 +1,6 @@
 package app.template.patches.shatteredpixeldungeon
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import app.template.patches.shared.Constants.COMPATIBILITY_SHATTERED_PIXEL_DUNGEON
 
@@ -17,5 +18,13 @@ val floorEditorPatch = bytecodePatch(
 		FloorEditorAvailableFingerprint.returnTrue()
 
 		hookInfoWindows()
+
+		val blacksmith = "$EXTENSION_PACKAGE/BlacksmithEditor;"
+		val quest = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith\$Quest;"
+		WndBlacksmithConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $blacksmith->beforeWindow(Ljava/lang/Object;)V")
+		WndBlacksmithConstructorFingerprint.callWithThisBeforeReturns("$blacksmith->afterWindow(Ljava/lang/Object;)V")
+		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->given()Z", "$blacksmith->questGiven(Z)Z")
+		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->started()Z", "$blacksmith->questStarted(Z)Z")
+		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->completed()Z", "$blacksmith->questCompleted(Z)Z")
 	}
 }
