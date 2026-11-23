@@ -1,3 +1,9 @@
+## [1.5.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.3...v1.5.0-dev.4) (2026-11-23)
+
+### ✨ New Features
+
+* Edit button for the blacksmith's favor and mine access, and reforging hero armor ([b936f06](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b936f0634bb7b668b355627f5178efd4ba577510))
+
 ## [1.5.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.2...v1.5.0-dev.3) (2026-11-22)
 
 ### ✨ New Features
