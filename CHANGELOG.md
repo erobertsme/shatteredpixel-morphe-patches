@@ -1,3 +1,9 @@
+## [1.5.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.6...v1.5.0-dev.7) (2026-11-23)
+
+### 🐛 Bug Fixes
+
+* Equipment tab shows its combined icon and leaves out the pickaxe; Allow mine access; favor in steps of 500 ([4a2c5b6](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/4a2c5b6e0fa544a93e089657b502620b3fc8f8e1))
+
 ## [1.5.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.5...v1.5.0-dev.6) (2026-11-23)
 
 ### ✨ New Features
