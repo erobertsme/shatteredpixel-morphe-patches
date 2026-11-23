@@ -1,3 +1,9 @@
+## [1.5.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.4...v1.5.0-dev.5) (2026-11-23)
+
+### 🐛 Bug Fixes
+
+* reforging always keeps the hero armor, with the better armor's upgrades ([aef5bc7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/aef5bc76319f507970e3a7f155ec0f5b9142c693))
+
 ## [1.5.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.3...v1.5.0-dev.4) (2026-11-23)
 
 ### ✨ New Features
