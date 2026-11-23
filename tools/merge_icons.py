@@ -1,11 +1,13 @@
 """Merge and export: layers pictures into one custom icon and saves it with the patches' other custom icons.
 
-Each layer is a picture fitted into a square of the icon, drawn over the layers before it. A layer's picture is a PNG file, a part of
-one (file.png@x,y,width,height), or a cell of one of the game's sprite sheets (items:column,row, icons:column,row) read from the game's
-APK. Transparent edges are trimmed before fitting, and pixels are scaled without blurring.
+Each layer is a picture fitted into a box of the icon, drawn over the layers before it: --layer PICTURE X Y SIZE [ANGLE], where SIZE is
+one number for a square or WIDTHxHEIGHT, and ANGLE, when given, turns the picture that many degrees counterclockwise first. A layer's
+picture is a PNG file, a part of one (file.png@x,y,width,height), or a cell of one of the game's sprite sheets (items:column,row,
+icons:column,row) read from the game's APK. Transparent edges are trimmed before fitting, and pixels are scaled and turned without
+blurring.
 
-Example, the Equipment tab icon: a leather armor in the lower left with a sword over it in the upper right.
-	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:1,11 0 4 12 --layer items:0,7 4 0 12
+Example, the Equipment tab icon: the round shield on the left and the shortsword, turned upright, on the right.
+	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 0 2 12 --layer items:0,6 10 0 6x16 45
 """
 
 import argparse
@@ -17,6 +19,7 @@ from PIL import Image
 
 ICONS = os.path.join(os.path.dirname(__file__), "..", "patches", "src", "main", "resources", "cloverlord", "icons")
 INDEX = "index.txt"
+TURN_DETAIL = 8
 SHEETS = {"items": ("assets/sprites/items.png", 16), "icons": ("assets/interfaces/icons.png", 16)}
 
 
@@ -38,11 +41,19 @@ def source(spec, apk):
 	return picture.crop((x, y, x + width, y + height))
 
 
-def fit(picture, size):
+def trim(picture):
 	box = picture.getbbox()
-	if box:
-		picture = picture.crop(box)
-	scale = min(size / picture.width, size / picture.height)
+	return picture.crop(box) if box else picture
+
+
+def turn(picture, angle):
+	big = picture.resize((picture.width * TURN_DETAIL, picture.height * TURN_DETAIL), Image.NEAREST)
+	return trim(big.rotate(angle, Image.NEAREST, expand=True))
+
+
+def fit(picture, box_width, box_height):
+	picture = trim(picture)
+	scale = min(box_width / picture.width, box_height / picture.height)
 	width = max(1, round(picture.width * scale))
 	height = max(1, round(picture.height * scale))
 	return picture.resize((width, height), Image.NEAREST)
@@ -53,16 +64,25 @@ def main():
 	parser.add_argument("name", help="the icon's name: letters, digits and underscores")
 	parser.add_argument("--size", type=int, default=16, help="the icon's width and height in pixels (default 16, an item's size)")
 	parser.add_argument("--apk", help="the game's APK, for layers from its sprite sheets")
-	parser.add_argument("--layer", nargs=4, action="append", required=True, metavar=("PICTURE", "X", "Y", "SIZE"),
-		help="a picture fitted into the SIZE square at X, Y; repeat for each layer, bottom first")
+	parser.add_argument("--layer", nargs="+", action="append", required=True, metavar="PICTURE X Y SIZE [ANGLE]",
+		help="a picture fitted into the SIZE box at X, Y, turned ANGLE degrees first; repeat for each layer, bottom first")
 	options = parser.parse_args()
 
 	icon = Image.new("RGBA", (options.size, options.size), (0, 0, 0, 0))
-	for spec, x, y, size in options.layer:
-		x, y, size = int(x), int(y), int(size)
-		picture = fit(source(spec, options.apk), size)
+	for values in options.layer:
+		if len(values) not in (4, 5):
+			parser.error("each --layer needs PICTURE X Y SIZE and an optional ANGLE")
+		spec, x, y, size = values[:4]
+		x, y = int(x), int(y)
+		box_width, _, box_height = size.partition("x")
+		box_width = int(box_width)
+		box_height = int(box_height) if box_height else box_width
+		picture = source(spec, options.apk)
+		if len(values) == 5:
+			picture = turn(picture, float(values[4]))
+		picture = fit(picture, box_width, box_height)
 		layer = Image.new("RGBA", icon.size, (0, 0, 0, 0))
-		layer.paste(picture, (x + (size - picture.width) // 2, y + (size - picture.height) // 2))
+		layer.paste(picture, (x + (box_width - picture.width) // 2, y + (box_height - picture.height) // 2))
 		icon = Image.alpha_composite(icon, layer)
 
 	os.makedirs(ICONS, exist_ok=True)

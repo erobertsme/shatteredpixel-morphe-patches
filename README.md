@@ -174,10 +174,10 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 
 #### Making a custom icon
-`tools/merge_icons.py` layers pictures into a new icon and saves it with the others. A layer is a PNG, a part of one (`file.png@x,y,width,height`) or a cell of one of the game's sprite sheets (`items:column,row`, `icons:column,row`, read from the game's APK), fitted into a square of the icon. For example, the Equipment tab icon:
+`tools/merge_icons.py` layers pictures into a new icon and saves it with the others. A layer is a PNG, a part of one (`file.png@x,y,width,height`) or a cell of one of the game's sprite sheets (`items:column,row`, `icons:column,row`, read from the game's APK), fitted into a box of the icon (`SIZE` or `WIDTHxHEIGHT`) and optionally turned by an angle first. For example, the Equipment tab icon, the round shield beside an upright sword:
 
 ```bash
-python3 tools/merge_icons.py equipment --apk spd.apk --layer items:1,11 0 4 12 --layer items:0,7 4 0 12
+python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 0 2 12 --layer items:0,6 10 0 6x16 45
 ```
 
 ## 📜 License
