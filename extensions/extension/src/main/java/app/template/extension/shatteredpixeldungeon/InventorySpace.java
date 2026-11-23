@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Unlimited inventory space, the Weapons, Armor and Rings backpack tabs, and pages for bags that hold more than
+ * Unlimited inventory space, the Equipment and Rings backpack tabs, and pages for bags that hold more than
  * fit on screen.
  */
 @SuppressWarnings("unused")
@@ -98,7 +98,7 @@ public final class InventorySpace {
 	}
 
 	/**
-	 * Called at the start of Bag.canHold. Returns true when [item] goes in a Weapons, Armor or Rings tab that still
+	 * Called at the start of Bag.canHold. Returns true when [item] goes in a Equipment or Rings tab that still
 	 * has room, even if the rest of the backpack is full.
 	 */
 	public static boolean tabHolds(Bag bag, Item item) {
@@ -325,11 +325,11 @@ public final class InventorySpace {
 
 	/**
 	 * Called at the start of WndBag.placeItem. Returns true to leave out an item that is on another page, or the
-	 * Weapons, Armor or Rings tab itself.
+	 * Equipment or Rings tab itself.
 	 */
 	/**
 	 * Called at the start of WndBag.lastBag. The game only reopens the last bag when it is inside the backpack, so after selling or
-	 * choosing an item from a Weapons, Armor or Rings tab it would go back to the backpack. Returns that tab's window instead, or null to
+	 * choosing an item from a Equipment or Rings tab it would go back to the backpack. Returns that tab's window instead, or null to
 	 * let the game decide.
 	 */
 	public static WndBag reopenTab(WndBag.ItemSelector selector) {

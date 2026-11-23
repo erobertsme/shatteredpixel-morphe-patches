@@ -15,7 +15,7 @@ private const val WND_BAG_CLASS = "Lcom/shatteredpixel/shatteredpixeldungeon/win
 
 /**
  * The backpack window and bag capacity hooks shared by the Inventory editor and QoL enhancements patches:
- * unlimited inventory space, rows and pages, the Weapons, Armor and Rings tabs and one bag of each kind.
+ * unlimited inventory space, rows and pages, the Equipment and Rings tabs and one bag of each kind.
  */
 internal val bagLayoutPatch = bytecodePatch(
 	description = "Lays out the backpack and bags with extra rows, pages and tabs.",
