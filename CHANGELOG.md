@@ -1,3 +1,9 @@
+## [1.5.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.8...v1.5.0-dev.9) (2026-11-23)
+
+### 🐛 Bug Fixes
+
+* Equipment tab icon is a round shield beside an upright sword; the icon tool can turn layers and fit them into any box ([bf98777](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/bf98777b3d376b55c107b731a398ef2b59e5c096))
+
 ## [1.5.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.7...v1.5.0-dev.8) (2026-11-23)
 
 ### ✨ New Features
