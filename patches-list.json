@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.5.0-dev.5",
+  "version": "1.5.0-dev.6",
   "patches": [
     {
       "name": "Character editor",
@@ -174,7 +174,7 @@
     },
     {
       "name": "Inventory editor",
-      "description": "Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Weapons, Armor and Rings backpack tabs.",
+      "description": "Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Equipment and Rings backpack tabs.",
       "default": true,
       "category": null,
       "compatiblePackages": [

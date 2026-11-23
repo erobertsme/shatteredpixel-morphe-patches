@@ -1,3 +1,9 @@
+## [1.5.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.5...v1.5.0-dev.6) (2026-11-23)
+
+### ✨ New Features
+
+* one Equipment backpack tab for melee weapons and armor ([b386486](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b386486ccec7b853e3c71b3c5fc47111f2121a31))
+
 ## [1.5.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.4...v1.5.0-dev.5) (2026-11-23)
 
 ### 🐛 Bug Fixes
