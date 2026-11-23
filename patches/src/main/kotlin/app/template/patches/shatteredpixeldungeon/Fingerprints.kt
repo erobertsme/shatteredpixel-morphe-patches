@@ -1075,3 +1075,10 @@ object ReforgeItemSelectedFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/items/Item;"),
 )
+
+object ReforgeClickFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith\$WndReforge\$3;",
+	name = "onClick",
+	returnType = "V",
+	parameters = listOf(),
+)
