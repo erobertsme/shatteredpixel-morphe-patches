@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0...v1.6.0) (2026-11-24)
+
+### ✨ New Features
+
+* the blacksmith's window and its Edit button stay available after your favor is used up ([598c3e3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/598c3e3ac97dffa8b7d6ceea25ba8d52f8d0e8ce))
+
 ## [1.6.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0...v1.6.0-dev.1) (2026-11-24)
 
 ### ✨ New Features
