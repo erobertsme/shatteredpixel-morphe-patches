@@ -1,3 +1,9 @@
+## [1.5.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.10...v1.5.0-dev.11) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* Equipment tab icon with the sword in front of the shield's right side ([b3737bd](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b3737bdc3ba0e8b30909f78005e45e04f22f2e48))
+
 ## [1.5.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.9...v1.5.0-dev.10) (2026-11-24)
 
 ### 🐛 Bug Fixes
