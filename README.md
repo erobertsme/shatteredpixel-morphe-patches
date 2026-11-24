@@ -177,7 +177,7 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 `tools/merge_icons.py` layers pictures into a new icon and saves it with the others. A layer is a PNG, a part of one (`file.png@x,y,width,height`) or a cell of one of the game's sprite sheets (`items:column,row`, `icons:column,row`, read from the game's APK), fitted into a box of the icon (`SIZE` or `WIDTHxHEIGHT`), with options: `turn=DEGREES` turns it first, `solid` leaves out the game's see-through shadow outline, and `edge=RRGGBB` paints an even rim around it. For example, the Equipment tab icon, the round shield with a silver rim beside an upright sword:
 
 ```bash
-python3 tools/merge_icons.py equipment --apk spd.apk --layer items:0,6 11 0 5x16 turn=45 solid --layer items:3,7 0 1 13 solid edge=cccccc
+python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 0 1 13 solid edge=cccccc --layer items:0,6 10 0 5x16 turn=45 solid
 ```
 
 ## 📜 License

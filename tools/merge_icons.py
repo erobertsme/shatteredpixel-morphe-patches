@@ -9,9 +9,9 @@ picture is a PNG file, a part of one (file.png@x,y,width,height), or a cell of o
 icons:column,row) read from the game's APK. Transparent edges are trimmed before fitting, and pixels are scaled and turned without
 blurring.
 
-Example, the Equipment tab icon: the shortsword, turned upright, behind the right edge of the round shield, both without the shadow outline
+Example, the Equipment tab icon: the shortsword, turned upright, in front of the right side of the round shield, both without the shadow outline
 and the shield with an even silver rim.
-	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:0,6 11 0 5x16 turn=45 solid --layer items:3,7 0 1 13 solid edge=cccccc
+	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 0 1 13 solid edge=cccccc --layer items:0,6 10 0 5x16 turn=45 solid
 """
 
 import argparse
