@@ -1,3 +1,9 @@
+## [1.5.0-dev.10](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.9...v1.5.0-dev.10) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* Equipment tab icon without the dark outline, with a full silver rim on the shield; icon tool options solid and edge ([a11d6aa](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a11d6aa8d30df53de7c158aeaa32c23a2270c091))
+
 ## [1.5.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.8...v1.5.0-dev.9) (2026-11-23)
 
 ### 🐛 Bug Fixes
