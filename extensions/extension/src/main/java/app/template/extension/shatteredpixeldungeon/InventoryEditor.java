@@ -211,18 +211,26 @@ final class InventoryEditor {
 
 	/**
 	 * The items [item] can change into: every other item of its kind, or none for an item whose type can't change. Weapons only change
-	 * into weapons of their current tier, since the tier can be set on its own.
+	 * into weapons of their current tier, since the tier buttons change between tiers.
 	 */
 	static List<Entry> typeChoices(Item item) {
 		List<Entry> choices = new ArrayList<>();
 		Class<?> family = typeFamily(item);
 		if (family == null) return choices;
-		int tier = item instanceof MeleeWeapon || item instanceof MissileWeapon ? ItemTier.of(item) : 0;
+		int tier = item instanceof MeleeWeapon || item instanceof MissileWeapon ? gameTier(item) : 0;
 		for (Entry entry : catalog()) {
 			if (!family.isAssignableFrom(entry.type) || entry.type == item.getClass()) continue;
 			if (tier == 0 || entry.tier == tier) choices.add(entry);
 		}
 		return choices;
+	}
+
+	private static int gameTier(Item item) {
+		try {
+			return Reflect.field(item.getClass(), "tier").getInt(item);
+		} catch (Throwable e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -235,7 +243,6 @@ final class InventoryEditor {
 			Bundle state = new Bundle();
 			item.storeInBundle(state);
 			changed.restoreFromBundle(state);
-			if (ItemTier.supports(changed)) ItemTier.reset(changed);
 			replace(hero, item, changed);
 			return changed;
 		} catch (Throwable e) {

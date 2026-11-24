@@ -17,7 +17,6 @@ public final class ItemData {
 	public static void onStore(Object item, Bundle bundle) {
 		if (bundle == null) return;
 		InfiniteCharges.onStore(item, bundle);
-		ItemTier.onStore(item, bundle);
 	}
 
 	/**
@@ -26,6 +25,5 @@ public final class ItemData {
 	public static void onRestore(Object item, Bundle bundle) {
 		if (bundle == null) return;
 		InfiniteCharges.onRestore(item, bundle);
-		ItemTier.onRestore(item, bundle);
 	}
 }

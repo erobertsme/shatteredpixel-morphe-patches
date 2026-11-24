@@ -1,86 +1,77 @@
 package app.template.extension.shatteredpixeldungeon;
 
-import android.util.Log;
-
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
-import com.watabou.utils.Bundle;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * The tier of a weapon or armor, which sets its damage or defense and the strength it needs. A changed tier is saved with the item, since
- * the game sets the tier from the item's kind when it is made.
+ * Weapons and armor that are the same kind of item at each tier, like the hand axe, mace, battle axe and war hammer. Changing an item's
+ * tier changes it into its kind's item of that tier. A kind with no item at a tier leaves that tier out.
  */
 final class ItemTier {
 
-	private static final String TAG = "ItemTier";
-	private static final String KEY = "morphe_tier";
 	static final int MIN = 1;
 	static final int MAX = 5;
-	private static final Map<Class<?>, Integer> defaults = new HashMap<>();
+
+	private static final String MELEE = "com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.";
+	private static final String ARMOR = "com.shatteredpixel.shatteredpixeldungeon.items.armor.";
+
+	/**
+	 * Each kind's items from tier 1 to 5, with null where the kind has none.
+	 */
+	private static final String[][] KINDS = {
+		{ MELEE + "WornShortsword", MELEE + "Shortsword", MELEE + "Sword", MELEE + "Longsword", MELEE + "Greatsword" },
+		{ MELEE + "Cudgel", MELEE + "HandAxe", MELEE + "Mace", MELEE + "BattleAxe", MELEE + "WarHammer" },
+		{ MELEE + "Dagger", MELEE + "Dirk", null, MELEE + "AssassinsBlade", null },
+		{ MELEE + "Gloves", null, MELEE + "Sai", null, MELEE + "Gauntlet" },
+		{ null, MELEE + "Quarterstaff", MELEE + "RoundShield", null, MELEE + "Greatshield" },
+		{ null, MELEE + "Spear", null, null, MELEE + "Glaive" },
+		{ null, MELEE + "Sickle", null, null, MELEE + "WarScythe" },
+		{ ARMOR + "ClothArmor", ARMOR + "LeatherArmor", ARMOR + "MailArmor", ARMOR + "ScaleArmor", ARMOR + "PlateArmor" },
+	};
 
 	private ItemTier() {
 	}
 
-	static boolean supports(Item item) {
-		return item instanceof MeleeWeapon || item instanceof MissileWeapon || item instanceof Armor;
-	}
-
-	static int of(Item item) {
-		try {
-			return field(item).getInt(item);
-		} catch (Throwable e) {
-			return 0;
+	private static String[] kindOf(Item item) {
+		String name = item.getClass().getName();
+		for (String[] kind : KINDS) {
+			for (String member : kind) {
+				if (name.equals(member)) return kind;
+			}
 		}
-	}
-
-	static void set(Item item, int tier) {
-		try {
-			field(item).setInt(item, Math.max(MIN, Math.min(MAX, tier)));
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not set the tier of " + item.getClass().getName(), e);
-		}
-		Item.updateQuickslot();
+		return null;
 	}
 
 	/**
-	 * Puts [item] back to the tier its kind has.
+	 * Whether [item] has items of its kind at other tiers.
 	 */
-	static void reset(Item item) {
-		int tier = defaultOf(item.getClass());
-		if (tier > 0) set(item, tier);
+	static boolean supports(Item item) {
+		return kindOf(item) != null;
 	}
 
-	private static Field field(Item item) throws NoSuchFieldException {
-		return Reflect.field(item.getClass(), "tier");
-	}
-
-	private static synchronized int defaultOf(Class<?> type) {
-		Integer known = defaults.get(type);
-		if (known != null) return known;
-		int tier;
-		try {
-			tier = of((Item) type.getDeclaredConstructor().newInstance());
-		} catch (Throwable e) {
-			tier = 0;
+	/**
+	 * The tier of [item] within its kind, or 0 for an item without a kind.
+	 */
+	static int of(Item item) {
+		String[] kind = kindOf(item);
+		if (kind == null) return 0;
+		String name = item.getClass().getName();
+		for (int i = 0; i < kind.length; i++) {
+			if (name.equals(kind[i])) return MIN + i;
 		}
-		defaults.put(type, tier);
-		return tier;
+		return 0;
 	}
 
-	static void onStore(Object item, Bundle bundle) {
-		if (!(item instanceof Item) || !supports((Item) item)) return;
-		int tier = of((Item) item);
-		if (tier != defaultOf(item.getClass())) bundle.put(KEY, tier);
-	}
-
-	static void onRestore(Object item, Bundle bundle) {
-		if (!(item instanceof Item) || !supports((Item) item) || !bundle.contains(KEY)) return;
-		set((Item) item, bundle.getInt(KEY));
+	/**
+	 * The class of [item]'s kind at [tier], or null when the kind has none there.
+	 */
+	@SuppressWarnings("unchecked")
+	static Class<? extends Item> at(Item item, int tier) {
+		String[] kind = kindOf(item);
+		if (kind == null || tier < MIN || tier > MAX || kind[tier - MIN] == null) return null;
+		try {
+			return (Class<? extends Item>) Class.forName(kind[tier - MIN]);
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
 	}
 }

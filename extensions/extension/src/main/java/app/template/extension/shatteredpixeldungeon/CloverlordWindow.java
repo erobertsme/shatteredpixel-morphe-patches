@@ -21,8 +21,8 @@ public class CloverlordWindow extends EditorWindow {
 	private static final int UPGRADE_ICON = 50;
 	private static final String INFO = "Extras\n\n"
 		+ "Options added by Cloverlord Patches. Tabs and sections only appear when their patch is included. Settings changed during a game stay with that game; the main menu settings are the defaults for new games.\n\n"
-		+ "## Tabs\n_General:_ hunger, instant equipment swaps, saves, undo and Fun.\n_QoL:_ quality of life options.\n_Unlocks:_ unlocks and supporter options.\n_Editors:_ switch each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal.\n\n"
-		+ "## General\n{FOOD}_Hunger:_ change how hunger and starvation work.\n_Instant equipment swaps:_ equipping and taking off weapons, armor, rings and artifacts doesn't use a turn, like the Duelist's weapon swap.\n_Saves:_ on the main menu, export every save to one zip or import one, and set whether new games auto save on new floors. Importing replaces your saves, keeps a copy in the app's cache, and closes the game. In a game, _Game Saves_ keeps up to 10 saves to load later. When a game ends, the title screen asks whether to keep its saves; _Clean Up Saves_ deletes kept ones.\n_Undo / Redo:_ a tag that opens undo mode to step back and forward through recent actions, with a History list. Off until you switch it on.\n_Fun:_ Hero Sprite makes your hero look like another hero, an enemy or an NPC.\n\n"
+		+ "## Tabs\n_General:_ hunger, saves, undo and Fun.\n_QoL:_ quality of life options.\n_Unlocks:_ unlocks and supporter options.\n_Editors:_ switch each editor on or off. A switched-off editor hides its buttons. Switching off the Hunger editor also puts hunger back to normal.\n\n"
+		+ "## General\n{FOOD}_Hunger:_ change how hunger and starvation work.\n_Saves:_ on the main menu, export every save to one zip or import one, and set whether new games auto save on new floors. Importing replaces your saves, keeps a copy in the app's cache, and closes the game. In a game, _Game Saves_ keeps up to 10 saves to load later. When a game ends, the title screen asks whether to keep its saves; _Clean Up Saves_ deletes kept ones.\n_Undo / Redo:_ a tag that opens undo mode to step back and forward through recent actions, with a History list. Off until you switch it on.\n_Fun:_ Hero Sprite makes your hero look like another hero, an enemy or an NPC.\n\n"
 		+ "## QoL: screen & tags\n_Display:_ shrink the game in from each screen edge. Applies to every game.\n_Tags editor:_ every tag on screen at once, the game's own included. Tap a tag for its settings, or press and hold briefly, then drag to move it.\n_Item Tags:_ screen-edge tags that use an item, like a quickslot.\n_Quick Tags:_ screen-edge tags that open an editor window or run an action.\n_Toolbar:_ extra item slots and the Attack Tile button.\n\n"
 		+ "## QoL: inventory & shops\n_Backpack:_ bag sizes and the Equipment and Rings tabs.\n_Shopkeeper:_ keep enemies out, stop him running off, and set how many sold items can be bought back.\n_Quantum Chest:_ after each boss, a chest beside the exit. Every chest shares one storage of 25, 50 or 75 items.\n\n"
 		+ "## QoL: rules\n_Confirm actions:_ choose which taps ask first, like attacking, long walks, stairs or stepping into danger.\n_Experience / Loot:_ change the level limit past which creatures stop giving experience or drops.\n\n"
@@ -97,7 +97,6 @@ public class CloverlordWindow extends EditorWindow {
 				HungerWindow.open(CloverlordMenu::show);
 			});
 		}
-		if (QolSettings.isAvailable()) addSwitch("Instant equipment swaps", InstantEquip.isOn(), InstantEquip::setOn);
 
 		if (SaveBackupActivity.isAvailable() && GameSettings.inGame()) {
 			addSection("Saves");
