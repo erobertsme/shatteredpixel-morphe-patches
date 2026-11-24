@@ -1,3 +1,9 @@
+## [1.5.0-dev.12](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.11...v1.5.0-dev.12) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* smaller, centered Equipment tab icon with a softer rim, gold guard and slate grip; icon tool recolor option ([880c506](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/880c5069a1a1308e07fcb5dcd0b34081b77b9ff7))
+
 ## [1.5.0-dev.11](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.5.0-dev.10...v1.5.0-dev.11) (2026-11-24)
 
 ### 🐛 Bug Fixes
