@@ -4,14 +4,15 @@ Each layer is a picture fitted into a box of the icon, drawn over the layers bef
 is one number for a square or WIDTHxHEIGHT. Options:
 	turn=DEGREES   turns the picture that many degrees counterclockwise first
 	solid          leaves out the see-through shadow outline the game draws around its sprites
-	edge=RRGGBB    paints the outermost pixels of the fitted picture in that color, an even rim all the way around A layer's
+	edge=RRGGBB    paints the outermost pixels of the fitted picture in that color, an even rim all the way around
+	recolor=RRGGBB:RRGGBB[,RRGGBB:RRGGBB...]   swaps each color of the picture for another, such as a brighter hilt A layer's
 picture is a PNG file, a part of one (file.png@x,y,width,height), or a cell of one of the game's sprite sheets (items:column,row,
 icons:column,row) read from the game's APK. Transparent edges are trimmed before fitting, and pixels are scaled and turned without
 blurring.
 
-Example, the Equipment tab icon: the shortsword, turned upright, in front of the right side of the round shield, both without the shadow outline
-and the shield with an even silver rim.
-	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 0 1 13 solid edge=cccccc --layer items:0,6 10 0 5x16 turn=45 solid
+Example, the Equipment tab icon: the round shield with a soft grey rim, and the shortsword turned upright in front of its right side, with
+a brighter gold guard and a slate grip.
+	python3 tools/merge_icons.py equipment --apk spd.apk --layer items:3,7 1 2 11 solid edge=9a9a9a --layer items:0,6 10 1 4x14 turn=45 solid recolor=827b00:e0c040,59551b:a08a28,8e8e8e:8890a0,737373:8890a0,616161:5a6070
 """
 
 import argparse
@@ -80,6 +81,20 @@ def edge(picture, color):
 	return picture
 
 
+def recolor(picture, swaps):
+	table = {}
+	for swap in swaps.split(","):
+		old, new = swap.split(":")
+		table[tuple(int(old[i:i + 2], 16) for i in (0, 2, 4))] = tuple(int(new[i:i + 2], 16) for i in (0, 2, 4))
+	pixels = picture.load()
+	for y in range(picture.height):
+		for x in range(picture.width):
+			red, green, blue, alpha = pixels[x, y]
+			if (red, green, blue) in table:
+				pixels[x, y] = table[(red, green, blue)] + (alpha,)
+	return picture
+
+
 def fit(picture, box_width, box_height):
 	picture = trim(picture)
 	scale = min(box_width / picture.width, box_height / picture.height)
@@ -110,6 +125,8 @@ def main():
 		picture = source(spec, options.apk)
 		if "solid" in extras:
 			picture = solid(picture)
+		if "recolor" in extras:
+			picture = recolor(picture, extras["recolor"])
 		if "turn" in extras:
 			picture = turn(picture, float(extras["turn"]))
 		picture = fit(picture, box_width, box_height)
