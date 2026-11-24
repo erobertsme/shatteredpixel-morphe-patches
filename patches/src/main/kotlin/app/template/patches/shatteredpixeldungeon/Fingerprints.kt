@@ -1082,3 +1082,10 @@ object ReforgeClickFingerprint : Fingerprint(
 	returnType = "V",
 	parameters = listOf(),
 )
+
+object BlacksmithInteractFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith;",
+	name = "interact",
+	returnType = "Z",
+	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
+)

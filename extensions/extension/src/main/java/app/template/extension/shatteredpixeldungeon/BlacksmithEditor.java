@@ -85,6 +85,14 @@ public final class BlacksmithEditor {
 	}
 
 	/**
+	 * Called with whether the blacksmith still has services to offer when you talk to him after his quest. With the Floor editor on, his
+	 * window opens even once your favor is used up, so its Edit button can add more.
+	 */
+	public static boolean servicesShown(boolean available) {
+		return available || EditorSwitches.floor();
+	}
+
+	/**
 	 * Called with each answer the caves floor checks before letting you down into the mine: whether the quest was given, started or
 	 * completed. While the blacksmith lets you down, the way is open as during his quest.
 	 */

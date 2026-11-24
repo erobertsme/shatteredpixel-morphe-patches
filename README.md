@@ -80,7 +80,7 @@ Every patch that adds settings puts them in **Extras**, on the title screen and 
 - **Draw:** drag across the map to paint floor, wall or empty pit, move the view around, then Finish to keep or Cancel to undo.
 - **Edit Floor** mode: the game is saved, then tapping any tile shows its info with an Edit button and a button for each creature, item, plant or trap on it; drag to look around. **Save** keeps the changes, **Cancel** asks "Dismiss all changes and exit edit mode?" and then reloads the game as it was.
 
-- **Blacksmith:** an Edit button in the troll blacksmith's window sets your favor and whether he lets you down into the mine, even after his quest is done.
+- **Blacksmith:** an Edit button in the troll blacksmith's window sets your favor and whether he lets you down into the mine, even after his quest is done. His window keeps opening once your favor is used up, so you can add more.
 
 ### Fun
 - **Fun** window (Extras → General).

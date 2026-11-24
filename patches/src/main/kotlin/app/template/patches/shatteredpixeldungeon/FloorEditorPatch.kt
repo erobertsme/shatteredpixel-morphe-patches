@@ -23,6 +23,7 @@ val floorEditorPatch = bytecodePatch(
 		val quest = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith\$Quest;"
 		WndBlacksmithConstructorFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $blacksmith->beforeWindow(Ljava/lang/Object;)V")
 		WndBlacksmithConstructorFingerprint.callWithThisBeforeReturns("$blacksmith->afterWindow(Ljava/lang/Object;)V")
+		BlacksmithInteractFingerprint.adjustCallResults("$quest->rewardsAvailable()Z", "$blacksmith->servicesShown(Z)Z")
 		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->given()Z", "$blacksmith->questGiven(Z)Z")
 		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->started()Z", "$blacksmith->questStarted(Z)Z")
 		CavesLevelActivateTransitionFingerprint.adjustCallResults("$quest->completed()Z", "$blacksmith->questCompleted(Z)Z")
