@@ -1082,3 +1082,10 @@ object BlacksmithInteractFingerprint : Fingerprint(
 	returnType = "Z",
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
 )
+
+object LocalBackupRestoreConfirmedFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/windows/WndAndroidLocalBackupRestore\$3\$1;",
+	name = "buttonPressed",
+	returnType = "V",
+	parameters = listOf(),
+)
