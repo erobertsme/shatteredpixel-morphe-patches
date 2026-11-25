@@ -1,3 +1,9 @@
+## [1.7.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.1...v1.7.0-dev.1) (2026-11-25)
+
+### ✨ New Features
+
+* support Shattered Pixel Dungeon 4.0.3, including its GitHub version without supporter features ([724d81a](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/724d81ab6a4e2c64b291b197014137698281878e))
+
 ## [1.6.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.0...v1.6.1) (2026-11-25)
 
 ### 🐛 Bug Fixes

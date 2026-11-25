@@ -21,7 +21,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.6.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
+> **[v1.7.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.7.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;11 patches</summary>
 <br>
@@ -30,8 +30,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 
 **🎯 Supported versions:**
 
-| 4.0.2 |
-| :---: |
+| 4.0.3 | 4.0.2 |
+| :---: | :---: |
+| Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features. |  |  |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|

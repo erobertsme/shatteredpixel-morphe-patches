@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.6.1",
+  "version": "1.7.0-dev.1",
   "patches": [
     {
       "name": "Character editor",
@@ -17,6 +17,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
             {
               "version": "4.0.2",
               "versionCodes": null,
@@ -52,6 +59,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -85,6 +99,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
             {
               "version": "4.0.2",
               "versionCodes": null,
@@ -120,6 +141,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -153,6 +181,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
             {
               "version": "4.0.2",
               "versionCodes": null,
@@ -188,6 +223,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -222,6 +264,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -255,6 +304,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
             {
               "version": "4.0.2",
               "versionCodes": null,
@@ -327,6 +383,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -361,6 +424,13 @@
           "formFactor": "MOBILE",
           "targets": [
             {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
+            {
               "version": "4.0.2",
               "versionCodes": null,
               "isExperimental": false,
@@ -394,6 +464,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "4.0.3",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features."
+            },
             {
               "version": "4.0.2",
               "versionCodes": null,
