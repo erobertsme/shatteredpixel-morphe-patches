@@ -7,6 +7,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLa
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.PatchException
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patcher.util.smali.ExternalLabel
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
@@ -210,16 +211,30 @@ internal fun Fingerprint.adjustFieldReads(field: String, adjust: String) {
  */
 context(_: BytecodePatchContext)
 internal fun Fingerprint.replaceCalls(called: String, replacement: String) {
-	val instructions = method.implementation!!.instructions.toList()
+	if (method.replaceCalls(called, replacement) == 0) throw PatchException("${method.name} never calls $called")
+}
+
+/**
+ * Like [Fingerprint.replaceCalls], in every method of the class [type], so it keeps working when the game moves the call into another
+ * method of the class between versions.
+ */
+context(context: BytecodePatchContext)
+internal fun replaceCallsInClass(type: String, called: String, replacement: String) {
+	val count = context.mutableClassDefBy(type).methods.sumOf { it.replaceCalls(called, replacement) }
+	if (count == 0) throw PatchException("$type never calls $called")
+}
+
+private fun MutableMethod.replaceCalls(called: String, replacement: String): Int {
+	val instructions = implementation?.instructions?.toList() ?: return 0
 	val indices = instructions.withIndex()
 		.filter { (it.value as? ReferenceInstruction)?.reference?.toString() == called }
 		.map { it.index }
-	if (indices.isEmpty()) throw PatchException("${method.name} never calls $called")
 	indices.forEach { index ->
-		val call = instructions[index] as? Instruction35c ?: throw PatchException("${method.name} calls $called with a range of registers")
+		val call = instructions[index] as? Instruction35c ?: throw PatchException("$name calls $called with a range of registers")
 		val registers = listOf(call.registerC, call.registerD, call.registerE, call.registerF, call.registerG).take(call.registerCount)
-		method.replaceInstruction(index, "invoke-static { ${registers.joinToString { "v$it" }} }, $replacement")
+		replaceInstruction(index, "invoke-static { ${registers.joinToString { "v$it" }} }, $replacement")
 	}
+	return indices.size
 }
 
 private const val INFO_WINDOWS_CLASS = "$EXTENSION_PACKAGE/InfoWindows;"

@@ -1027,13 +1027,6 @@ object RegularLevelRespawnCellFingerprint : Fingerprint(
 	parameters = listOf("Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;"),
 )
 
-object GolemActFingerprint : Fingerprint(
-	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem;",
-	name = "act",
-	returnType = "Z",
-	parameters = listOf(),
-)
-
 object CustomSeedChosenFingerprint : Fingerprint(
 	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/scenes/HeroSelectScene\$GameOptions\$1\$1;",
 	name = "onSelect",

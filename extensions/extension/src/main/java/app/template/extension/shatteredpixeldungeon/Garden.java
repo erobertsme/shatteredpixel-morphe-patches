@@ -101,11 +101,12 @@ public final class Garden {
 	}
 
 	/**
-	 * Called in place of ScrollOfTeleportation.appear when a golem teleports itself. A golem doesn't teleport into a garden.
+	 * Called in place of ScrollOfTeleportation.appear in the golem's code, both when it teleports itself and when it pulls you to it. A golem
+	 * doesn't teleport itself into a garden; pulling you out of one is left alone.
 	 */
-	public static void golemAppears(Char golem, int cell) {
-		if (noEnemies() && contains(cell) && !contains(golem.pos)) return;
-		com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation.appear(golem, cell);
+	public static void golemAppears(Char ch, int cell) {
+		if (ch instanceof Mob && noEnemies() && contains(cell) && !contains(ch.pos)) return;
+		com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation.appear(ch, cell);
 	}
 
 	private static boolean isEnemy(Char ch) {

@@ -113,7 +113,8 @@ val qolEnhancementsPatch = bytecodePatch(
 		FireBurnFingerprint.replaceCalls("Lcom/shatteredpixel/shatteredpixeldungeon/plants/Plant;->wither()V", "$GARDEN_CLASS->burnPlant(Lcom/shatteredpixel/shatteredpixeldungeon/plants/Plant;)V")
 		MobGetCloserFingerprint.skipWhen("invoke-static/range { p0 .. p1 }, $GARDEN_CLASS->staysOut(${ITEM_TYPE}I)Z", result = false)
 		RegularLevelRespawnCellFingerprint.adjustReturns("$GARDEN_CLASS->respawnCell(I)I")
-		GolemActFingerprint.replaceCalls(
+		replaceCallsInClass(
+			"Lcom/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem;",
 			"Lcom/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation;->appear(Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;I)V",
 			"$GARDEN_CLASS->golemAppears(Lcom/shatteredpixel/shatteredpixeldungeon/actors/Char;I)V",
 		)
@@ -129,7 +130,9 @@ val qolEnhancementsPatch = bytecodePatch(
 		MageroyalActivateFingerprint.method.addInstruction(0, "invoke-static/range { p1 .. p1 }, $EXTENSION_PACKAGE/MageroyalCure;->beforeActivate(Ljava/lang/Object;)V")
 		ItemEnergyValFingerprint.adjustReturns("$EXTENSION_PACKAGE/EnergizeMore;->energyVal(I$ITEM_TYPE)I", "p0")
 		WndBagConstructorFingerprint.callBeforeReturn("invoke-static/range { p0 .. p0 }, $EXTENSION_PACKAGE/QuickslotEmpty;->afterBagCreated($ITEM_TYPE)V")
-		RenameWindowConstructorFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")
+		if (RenameWindowConstructorFingerprint.methodOrNull != null) {
+			RenameWindowConstructorFingerprint.callWithThisBeforeReturns("$EXTENSION_PACKAGE/RenameClose;->afterRenameWindow($ITEM_TYPE)V")
+		}
 		HeapDropFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->onDrop($ITEM_TYPE$ITEM_TYPE)V")
 		ItemStoreInBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->store($ITEM_TYPE$ITEM_TYPE)V")
 		ItemRestoreFromBundleFingerprint.method.addInstruction(0, "invoke-static { p0, p1 }, $ABSORBED_CLASS->restore($ITEM_TYPE$ITEM_TYPE)V")

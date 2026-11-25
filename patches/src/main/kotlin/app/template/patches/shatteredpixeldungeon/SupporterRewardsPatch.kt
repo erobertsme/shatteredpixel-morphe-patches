@@ -17,6 +17,7 @@ val supporterRewardsPatch = bytecodePatch(
 
 	execute {
 		SupporterRewardsAvailableFingerprint.returnTrue()
+		if (PaymentIsTierUnlockedFingerprint.methodOrNull == null) return@execute
 		PaymentIsTierUnlockedFingerprint.returnTrueWhen("$SUPPORTER_CLASS->isTierUnlocked(I)Z", "p0")
 	}
 }
