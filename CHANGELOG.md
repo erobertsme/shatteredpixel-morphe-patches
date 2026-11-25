@@ -1,3 +1,9 @@
+## [1.7.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0-dev.2...v1.7.0-dev.3) (2026-11-25)
+
+### ✨ New Features
+
+* choose whether the game's own backup restore keeps your games in progress ([39e3e98](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/39e3e9896823726ef1b5ed3a855d215d9d7707ff))
+
 ## [1.7.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0-dev.1...v1.7.0-dev.2) (2026-11-25)
 
 ### 🐛 Bug Fixes
