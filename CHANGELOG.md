@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.0...v1.6.1) (2026-11-25)
+
+### 🐛 Bug Fixes
+
+* tier buttons turn weapons and armor into their kind's item at that tier; instant equipping only while the Inventory editor changes equipment ([f58d141](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f58d1414d89c939e4635b854cca0058484d30282))
+
 ## [1.6.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.0...v1.6.1-dev.1) (2026-11-24)
 
 ### 🐛 Bug Fixes
