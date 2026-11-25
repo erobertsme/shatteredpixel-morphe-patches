@@ -13,7 +13,7 @@ object Constants {
 		targets = listOf(
 			AppTarget(
 				version = "4.0.3",
-				description = "Get the Google Play version, such as from APKMirror, or ShatteredPD-v4.0.3-Android.apk from github.com/00-Evan/shattered-pixel-dungeon/releases. The GitHub version has no supporter features.",
+				description = "From github.com/00-Evan/shattered-pixel-dungeon/releases: ShatteredPD-v4.0.3-Gplay.apk, the Google Play version, or ShatteredPD-v4.0.3-Android.apk, which has no supporter features.",
 			),
 			AppTarget(version = "4.0.2"),
 			AppTarget(version = null, isExperimental = true),
