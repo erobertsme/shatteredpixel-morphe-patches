@@ -1,3 +1,9 @@
+## [1.7.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0-dev.1...v1.7.0-dev.2) (2026-11-25)
+
+### 🐛 Bug Fixes
+
+* name both GitHub release files for 4.0.3 in the version's description ([b71dcb8](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b71dcb81210fcadd2b553ba6b3d2326bad8bfd72))
+
 ## [1.7.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.1...v1.7.0-dev.1) (2026-11-25)
 
 ### ✨ New Features
