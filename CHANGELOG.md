@@ -1,3 +1,9 @@
+## [1.8.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.1-dev.1...v1.8.0-dev.1) (2026-11-26)
+
+### ✨ New Features
+
+* game preview with seed link and stats beside the hero, a Talents button, the game's Continue and Erase buttons, and talents drawn inside their window ([2970321](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/2970321b3a17fd5d11aa73bba1d1bed18fc581e1))
+
 ## [1.7.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0...v1.7.1-dev.1) (2026-11-26)
 
 ### 🐛 Bug Fixes
