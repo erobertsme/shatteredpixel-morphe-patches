@@ -108,8 +108,11 @@ val characterEditorPatch = bytecodePatch(
 			}
 			if (foresight < 0) throw PatchException("Hero.search no longer checks Foresight")
 			val distance = (instructions.subList(0, foresight).last { it.opcode == Opcode.ADD_INT_LIT8 } as TwoRegisterInstruction).registerA
-			val after = foresight + 2
-			if (instructions[after].opcode != Opcode.MOVE_RESULT_OBJECT) throw PatchException("Hero.search changed around Foresight")
+			val center = instructions.indexOfFirst {
+				(it as? ReferenceInstruction)?.reference?.toString() == "Lcom/shatteredpixel/shatteredpixeldungeon/levels/Level;->cellToPoint(I)Lcom/watabou/utils/Point;"
+			}
+			val after = center + 1
+			if (center < foresight || instructions[after].opcode != Opcode.MOVE_RESULT_OBJECT) throw PatchException("Hero.search changed after Foresight")
 			search.addInstructions(
 				after + 1,
 				"""

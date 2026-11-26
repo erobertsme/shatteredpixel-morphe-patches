@@ -39,9 +39,9 @@ final class ExtraStats {
 	 * How many tiles around the hero are searched for hidden doors and traps.
 	 */
 	static int searchRange(Hero hero) {
-		if (hasBuff(hero, FORESIGHT)) return FORESIGHT_RANGE;
 		int distance = hero.heroClass == HeroClass.valueOf("ROGUE") ? 2 : 1;
 		if (talentPoints(hero, "WIDE_SEARCH") > 0) distance++;
+		if (hasBuff(hero, FORESIGHT)) distance = FORESIGHT_RANGE;
 		return HeroExtras.adjustSearchDistance(distance);
 	}
 

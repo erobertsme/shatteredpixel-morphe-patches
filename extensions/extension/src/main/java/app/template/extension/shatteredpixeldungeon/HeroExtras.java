@@ -392,7 +392,8 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called with how far a character sees, before the field of view is cast. Adds the Vision modifier for the hero.
+	 * Called with how far a character sees, before the field of view is cast: its sight with light, talents and trinkets already counted.
+	 * Adds the Vision modifier for the hero on top.
 	 */
 	public static float adjustViewDistance(Object character, float distance) {
 		if (character != Dungeon.hero || mod(Mod.VISION) == 0) return distance;
@@ -400,7 +401,7 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called with how far the hero searches. Adds the Search range modifier.
+	 * Called with how far the hero searches, once talents and Foresight have set it. Adds the Search range modifier on top.
 	 */
 	public static int adjustSearchDistance(int distance) {
 		if (mod(Mod.SEARCH_RANGE) == 0) return distance;
