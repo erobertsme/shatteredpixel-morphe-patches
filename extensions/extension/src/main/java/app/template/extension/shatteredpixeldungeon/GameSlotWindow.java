@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.Game;
 
@@ -14,6 +15,8 @@ import com.watabou.noosa.Game;
  * A game in progress picked from the main menu, shown the way Game Saves are, with its deepest floor and seed, and Continue and Erase.
  */
 public class GameSlotWindow extends PreviewWindow {
+
+	private static final int GAME_BUTTON_HEIGHT = 20;
 
 	private final int slot;
 	private final GamesInProgress.Info info;
@@ -33,18 +36,44 @@ public class GameSlotWindow extends PreviewWindow {
 	}
 
 	@Override
-	protected void addActions() {
-		addIconRow(Icons.get(Icons.DEPTH), "Deepest floor", String.valueOf(info.maxDepth));
-		addSection("Seed");
+	protected String[] extraStats() {
+		String deepest = "Deepest " + info.maxDepth;
+		return GameSlots.seedCode(info) == null ? new String[] { deepest, "Daily seed" } : new String[] { deepest };
+	}
+
+	@Override
+	protected StatLink statLink() {
 		String seed = GameSlots.seedCode(info);
-		if (seed == null) {
-			addHint("Daily games use the day's seed.");
-		} else {
-			addRowButton(seed, null, () -> seedChoices(seed));
-		}
-		pos += GAP;
-		addButtonPair("Continue", this::continueGame, "Erase", this::erase);
-		pos -= GAP;
+		return seed == null ? null : new StatLink("Seed", seed, () -> seedChoices(seed));
+	}
+
+	/**
+	 * Continue and Erase, drawn and placed like the game's own: side by side, 20 pixels tall, with their icons.
+	 */
+	@Override
+	protected void addActions() {
+		float half = WIDTH / 2f;
+		RedButton continueButton = new RedButton("Continue") {
+			@Override
+			public void onClick() {
+				super.onClick();
+				continueGame();
+			}
+		};
+		continueButton.icon(Icons.get(Icons.ENTER));
+		continueButton.setRect(0, pos, half - 1, GAME_BUTTON_HEIGHT);
+		add(continueButton);
+		RedButton eraseButton = new RedButton("Erase") {
+			@Override
+			public void onClick() {
+				super.onClick();
+				erase();
+			}
+		};
+		eraseButton.icon(Icons.get(Icons.CLOSE));
+		eraseButton.setRect(half + 1, pos, half - 1, GAME_BUTTON_HEIGHT);
+		add(eraseButton);
+		pos += GAME_BUTTON_HEIGHT + 1;
 	}
 
 	private void seedChoices(String seed) {

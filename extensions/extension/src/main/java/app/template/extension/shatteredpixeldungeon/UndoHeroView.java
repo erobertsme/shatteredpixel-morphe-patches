@@ -129,7 +129,7 @@ final class UndoHeroView {
 		return block;
 	}
 
-	private static void showTalents(Hero hero) {
+	static void showTalents(Hero hero) {
 		if (hero.talents == null) return;
 		Game.scene().addToFront(new TalentsWindow(hero));
 	}
@@ -186,7 +186,8 @@ final class UndoHeroView {
 	}
 
 	/**
-	 * The hero's talents at an undo step. Tapping a talent shows what it does.
+	 * The hero's talents at an undo step or in a save. Tapping a talent shows what it does. The talents are placed once the window has its
+	 * size and place, since their scrolling area follows the window.
 	 */
 	static final class TalentsWindow extends EditorWindow {
 
@@ -201,9 +202,10 @@ final class UndoHeroView {
 			float height = Math.min(PixelScene.uiCamera.height * SHARE, 200);
 			TalentsPane pane = new TalentsPane(TalentButton.Mode.INFO, hero.talents);
 			add(pane);
-			pane.setRect(0, pos, WIDTH, height);
+			float paneTop = pos;
 			pos += height;
 			finish();
+			pane.setRect(0, paneTop, WIDTH, height);
 		}
 
 		@Override

@@ -6,13 +6,19 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.input.PointerEvent;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.PointerArea;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,6 +28,11 @@ import java.util.List;
 abstract class PreviewWindow extends EditorWindow {
 
 	private static final int STATS_WIDTH = 40;
+	private static final int LINK_WIDTH = 60;
+	private static final int LINK_UNDERLINE_GAP = 1;
+	private static final int LINK_LABEL_GAP = 2;
+	private static final int TALENTS_WIDTH = 56;
+	private static final int LINK_TAP_MARGIN = 3;
 	private static final int BACKPACK_WIDTH = 60;
 	private static final int BACKPACK_HEIGHT = 16;
 	static final int TOP_BUTTON_WIDTH = 50;
@@ -78,6 +89,36 @@ abstract class PreviewWindow extends EditorWindow {
 	protected abstract void addActions();
 
 	/**
+	 * More small lines under the depth and turn, beside the hero.
+	 */
+	protected String[] extraStats() {
+		return new String[0];
+	}
+
+	/**
+	 * A line under the hero whose value can be tapped, or null for none.
+	 */
+	protected StatLink statLink() {
+		return null;
+	}
+
+	/**
+	 * A stat whose value is a link, on one line under the hero: a dim [label], then [text] in yellow and underlined, which runs [action] when
+	 * tapped.
+	 */
+	static final class StatLink {
+		final String label;
+		final String text;
+		final Runnable action;
+
+		StatLink(String label, String text, Runnable action) {
+			this.label = label;
+			this.text = text;
+			this.action = action;
+		}
+	}
+
+	/**
 	 * Adds two buttons side by side on one row.
 	 */
 	protected void addButtonPair(String left, Runnable leftAction, String right, Runnable rightAction) {
@@ -89,35 +130,81 @@ abstract class PreviewWindow extends EditorWindow {
 
 	private void addHero(Hero hero, UndoScene scene) {
 		float top = pos;
-		String[] stats = {
-			"Depth " + (scene != null && scene.depth >= 0 ? scene.depth : "-"),
-			"Turn " + (scene != null && scene.turn >= 0 ? scene.turn : "-"),
-		};
+		List<String> lines = new ArrayList<>();
+		lines.add("Depth " + (scene != null && scene.depth >= 0 ? scene.depth : "-"));
+		lines.add("Turn " + (scene != null && scene.turn >= 0 ? scene.turn : "-"));
+		Collections.addAll(lines, extraStats());
 		List<Gizmo> parts = new ArrayList<>();
-		PreviewParts.statLines(parts, stats, WIDTH, top, STATS_WIDTH);
-		if (hero == null) {
-			addAll(parts);
-			pos = top + stats.length * PreviewParts.STAT_LINE_HEIGHT + GAP;
-			return;
+		PreviewParts.statLines(parts, lines.toArray(new String[0]), WIDTH, top, LINK_WIDTH);
+		float statsWidth = STATS_WIDTH;
+		for (Gizmo part : parts) {
+			if (part instanceof RenderedTextBlock) statsWidth = Math.max(statsWidth, ((RenderedTextBlock) part).width());
 		}
-		try {
-			UndoHeroView.build(parts, hero, 0, top, WIDTH - STATS_WIDTH - 4);
-		} catch (Throwable e) {
-			Log.e("PreviewWindow", "Could not show the hero", e);
+		float statsBottom = top + lines.size() * PreviewParts.STAT_LINE_HEIGHT;
+		if (hero != null) {
+			try {
+				UndoHeroView.build(parts, hero, 0, top, WIDTH - statsWidth - 4);
+			} catch (Throwable e) {
+				Log.e("PreviewWindow", "Could not show the hero", e);
+			}
+			statsBottom = Math.max(statsBottom, top + UndoHeroView.HEIGHT);
 		}
 		addAll(parts);
-		pos = top + UndoHeroView.HEIGHT + 3;
-		RedButton backpack = new RedButton("Backpack", 7) {
+		pos = statsBottom + 3;
+		StatLink link = statLink();
+		if (link != null) pos = addLink(link, pos) + GAP;
+		if (hero == null) return;
+		float talentsLeft = BACKPACK_WIDTH + 2;
+		addHeroButton("Backpack", Icons.get(Icons.BACKPACK), 0, BACKPACK_WIDTH, () -> {
+			hide();
+			show(new BackpackWindow(hero, PreviewWindow.this::reopen));
+		});
+		addHeroButton("Talents", Icons.get(Icons.TALENT), talentsLeft, TALENTS_WIDTH, () -> UndoHeroView.showTalents(hero));
+		pos += BACKPACK_HEIGHT + 2 * GAP;
+	}
+
+	/**
+	 * A button beside the hero, on the row at pos.
+	 */
+	private void addHeroButton(String label, Image icon, float x, float width, Runnable action) {
+		RedButton button = new RedButton(label, 7) {
 			@Override
 			public void onClick() {
-				hide();
-				show(new BackpackWindow(hero, PreviewWindow.this::reopen));
+				action.run();
 			}
 		};
-		backpack.icon(Icons.get(Icons.BACKPACK));
-		backpack.setRect(0, pos, BACKPACK_WIDTH, BACKPACK_HEIGHT);
-		add(backpack);
-		pos += BACKPACK_HEIGHT + 2 * GAP;
+		button.icon(icon);
+		button.setRect(x, pos, width, BACKPACK_HEIGHT);
+		add(button);
+	}
+
+	/**
+	 * Adds [link] as one line at [y], ending at the window's right edge: its dim label, then its text in yellow and underlined like the
+	 * game's own links, with a tap area over the text. Returns the line's bottom.
+	 */
+	private float addLink(StatLink link, float y) {
+		RenderedTextBlock text = PixelScene.renderTextBlock(link.text, 6);
+		text.hardlight(TITLE_COLOR);
+		text.setPos(WIDTH - text.width(), y);
+		PixelScene.align(text);
+		add(text);
+		RenderedTextBlock label = PixelScene.renderTextBlock(link.label, 6);
+		label.hardlight(PreviewParts.DIM_COLOR);
+		label.setPos(text.left() - LINK_LABEL_GAP - label.width(), y);
+		PixelScene.align(label);
+		add(label);
+		ColorBlock underline = new ColorBlock(text.width(), 1, 0xFF000000 | TITLE_COLOR);
+		underline.x = text.left();
+		underline.y = text.bottom() + LINK_UNDERLINE_GAP;
+		add(underline);
+		add(new PointerArea(text.left() - LINK_TAP_MARGIN, y - LINK_TAP_MARGIN, text.width() + 2 * LINK_TAP_MARGIN,
+			text.height() + 2 * LINK_TAP_MARGIN) {
+			@Override
+			public void onClick(PointerEvent event) {
+				link.action.run();
+			}
+		});
+		return underline.y + 1;
 	}
 
 	/**

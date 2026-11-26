@@ -19,6 +19,7 @@ public enum Icons {
 	BUFFS,
 	DEPTH,
 	CLOSE,
+	ENTER,
 	CHECKED,
 	UNCHECKED,
 	COIN_SML,
