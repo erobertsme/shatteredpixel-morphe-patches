@@ -1,3 +1,9 @@
+## [1.7.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0...v1.7.1-dev.1) (2026-11-26)
+
+### 🐛 Bug Fixes
+
+* the Search range modifier adds on top of Foresight's range ([2cba0da](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/2cba0dab64c559502e2208625e74fb8970aefcbf))
+
 ## [1.7.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.6.1...v1.7.0) (2026-11-26)
 
 ### ✨ New Features
