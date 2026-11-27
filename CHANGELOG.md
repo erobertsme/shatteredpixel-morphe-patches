@@ -1,3 +1,9 @@
+## [1.10.1-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.1...v1.10.1-dev.2) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* previews draw the hero from data kept with each save ([443f34b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/443f34bd68803d4a6abcea0a31bd5dbb76776420))
+
 ## [1.10.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.0...v1.10.1-dev.1) (2026-11-27)
 
 ### 🐛 Bug Fixes
