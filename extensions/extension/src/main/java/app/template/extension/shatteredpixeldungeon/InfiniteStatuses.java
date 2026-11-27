@@ -82,7 +82,7 @@ public final class InfiniteStatuses {
 			String[] pair = part.split("=");
 			if (pair.length != 2) continue;
 			try {
-				Class<?> type = Class.forName(pair[0]);
+				Class<?> type = Reflect.require(pair[0]);
 				if (Buff.class.isAssignableFrom(type)) pinned.put((Class<? extends Buff>) type, Integer.parseInt(pair[1]));
 			} catch (Throwable ignored) {
 			}

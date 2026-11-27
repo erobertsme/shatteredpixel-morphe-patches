@@ -122,7 +122,7 @@ final class GameTagGhosts {
 	private static Image icon(int index) {
 		try {
 			switch (index) {
-				case 0: return (Image) Class.forName(RAT_SPRITE).getDeclaredConstructor().newInstance();
+				case 0: return (Image) Reflect.require(RAT_SPRITE).getDeclaredConstructor().newInstance();
 				case 1: return new ItemSprite(ItemSpriteSheet.RATION);
 				case 2: return new BuffIcon(StatIcons.BUFF_COMBO, true);
 				default: return Icons.get(Icons.ARROW);

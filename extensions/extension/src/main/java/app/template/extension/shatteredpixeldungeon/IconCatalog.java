@@ -107,7 +107,7 @@ final class IconCatalog {
 
 	private static Object[] enumValues(String className) {
 		try {
-			Object[] values = Class.forName(className).getEnumConstants();
+			Object[] values = Reflect.require(className).getEnumConstants();
 			return values == null ? new Object[0] : values;
 		} catch (Throwable e) {
 			return new Object[0];

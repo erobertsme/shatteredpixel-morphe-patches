@@ -17,6 +17,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ final class StatusEditor {
 	}
 
 	private static List<Entry> catalog;
+	private static final CatalogTabs<Entry> tabs = new CatalogTabs<>();
 
 	private StatusEditor() {
 	}
@@ -68,7 +70,7 @@ final class StatusEditor {
 	@SuppressWarnings("unchecked")
 	private static Entry load(String className) {
 		try {
-			Class<?> type = Class.forName(className);
+			Class<?> type = Reflect.require(className);
 			if (!Buff.class.isAssignableFrom(type) || type == Hunger.class) return null;
 			Buff sample = (Buff) type.getConstructor().newInstance();
 			if (sample.icon() == NO_ICON) return null;
@@ -93,11 +95,8 @@ final class StatusEditor {
 	}
 
 	static List<Entry> catalog(int kind) {
-		List<Entry> result = new ArrayList<>();
-		for (Entry entry : catalog()) {
-			if (matches(entry, kind)) result.add(entry);
-		}
-		return result;
+		if (kind == StatusPickerWindow.FAVORITES) return CatalogTabs.live(catalog(), entry -> matches(entry, kind));
+		return tabs.tab(kind, catalog(), entry -> matches(entry, kind));
 	}
 
 	private static boolean matches(Entry entry, int kind) {
@@ -284,9 +283,7 @@ final class StatusEditor {
 	 * instead.
 	 */
 	static boolean isTurnsEditable(Buff buff) {
-		if (buff instanceof FlavourBuff) return true;
-		Field duration = durationField(buff);
-		return duration != null && !duration.equals(amountField(buff));
+		return shape(buff.getClass()).turnsEditable;
 	}
 
 	static int turnsValue(Buff buff) {
@@ -324,7 +321,41 @@ final class StatusEditor {
 	}
 
 	private static Field durationField(Buff buff) {
-		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
+		return shape(buff.getClass()).duration;
+	}
+
+	/**
+	 * What a kind of status keeps and how it is edited, worked out from its class once and remembered: the field holding its turns, its
+	 * extra number and what that is called, and every setting it has.
+	 */
+	private static final class Shape {
+		final Field duration;
+		final String[] amount;
+		final Field amountField;
+		final boolean turnsEditable;
+		final List<Setting> settings;
+
+		Shape(Class<?> type) {
+			duration = findDurationField(type);
+			amount = findAmount(type);
+			amountField = findAmountField(type, amount);
+			turnsEditable = FlavourBuff.class.isAssignableFrom(type) || duration != null && !duration.equals(amountField);
+			settings = Collections.unmodifiableList(findSettings(type, turnsEditable ? duration : null, amountField, amount));
+		}
+	}
+
+	private static final Map<Class<?>, Shape> shapes = new HashMap<>();
+
+	private static synchronized Shape shape(Class<?> type) {
+		Shape shape = shapes.get(type);
+		if (shape != null) return shape;
+		shape = new Shape(type);
+		shapes.put(type, shape);
+		return shape;
+	}
+
+	private static Field findDurationField(Class<?> buffType) {
+		for (Class<?> type = buffType; type != null && type != Buff.class; type = type.getSuperclass()) {
 			for (String name : DURATION_FIELDS) {
 				try {
 					Field field = Reflect.declaredField(type, name);
@@ -366,11 +397,13 @@ final class StatusEditor {
 	};
 
 	private static String[] amountOf(Class<?> type) {
+		return shape(type).amount;
+	}
+
+	private static String[] findAmount(Class<?> type) {
 		for (String[] amount : AMOUNTS) {
-			try {
-				if (Class.forName(GAME_PACKAGE + amount[0]).isAssignableFrom(type)) return amount;
-			} catch (ClassNotFoundException ignored) {
-			}
+			Class<?> owner = Reflect.type(GAME_PACKAGE + amount[0]);
+			if (owner != null && owner.isAssignableFrom(type)) return amount;
 		}
 		return null;
 	}
@@ -392,10 +425,13 @@ final class StatusEditor {
 	}
 
 	private static Field amountField(Buff buff) {
-		String[] amount = amountOf(buff.getClass());
+		return shape(buff.getClass()).amountField;
+	}
+
+	private static Field findAmountField(Class<?> type, String[] amount) {
 		if (amount == null) return null;
 		try {
-			return Reflect.field(buff.getClass(), amount[1]);
+			return Reflect.field(type, amount[1]);
 		} catch (NoSuchFieldException e) {
 			return null;
 		}
@@ -439,17 +475,19 @@ final class StatusEditor {
 	 * Every setting [buff] keeps, its amount first, leaving out its turns when those are edited on their own.
 	 */
 	static List<Setting> settings(Buff buff) {
-		Field duration = isTurnsEditable(buff) ? durationField(buff) : null;
-		Field amount = amountField(buff);
+		return shape(buff.getClass()).settings;
+	}
+
+	private static List<Setting> findSettings(Class<?> buffType, Field duration, Field amount, String[] amountDef) {
 		List<Setting> settings = new ArrayList<>();
-		for (Class<?> type = buff.getClass(); type != null && type != Buff.class; type = type.getSuperclass()) {
+		for (Class<?> type = buffType; type != null && type != Buff.class; type = type.getSuperclass()) {
 			for (Field field : type.getDeclaredFields()) {
 				int modifiers = field.getModifiers();
 				Class<?> kind = field.getType();
 				if (java.lang.reflect.Modifier.isStatic(modifiers) || java.lang.reflect.Modifier.isFinal(modifiers) || field.isSynthetic()) continue;
 				if (kind != int.class && kind != float.class && kind != boolean.class || field.equals(duration)) continue;
 				field.setAccessible(true);
-				Setting setting = new Setting(field, field.equals(amount) ? amountLabel(buff.getClass()) : words(field.getName()));
+				Setting setting = new Setting(field, field.equals(amount) ? amountDef[2] : words(field.getName()));
 				if (field.equals(amount)) {
 					settings.add(0, setting);
 				} else {

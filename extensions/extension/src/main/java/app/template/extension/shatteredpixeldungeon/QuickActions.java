@@ -153,7 +153,7 @@ final class QuickActions {
 	 */
 	private static String gameIcon(String prefix, String field) {
 		try {
-			Class<?> type = Class.forName("com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet" + (prefix.equals("ITEM:") ? "$Icons" : ""));
+			Class<?> type = Reflect.require("com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet" + (prefix.equals("ITEM:") ? "$Icons" : ""));
 			return prefix + type.getField(field).getInt(null);
 		} catch (Throwable e) {
 			return "ARROW";

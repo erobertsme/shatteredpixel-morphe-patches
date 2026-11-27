@@ -37,7 +37,7 @@ public final class AndroidUi {
 	 */
 	static Activity activity() {
 		try {
-			return (Activity) Reflect.getStatic(Class.forName(LAUNCHER), "instance");
+			return (Activity) Reflect.getStatic(Reflect.require(LAUNCHER), "instance");
 		} catch (Throwable e) {
 			return null;
 		}

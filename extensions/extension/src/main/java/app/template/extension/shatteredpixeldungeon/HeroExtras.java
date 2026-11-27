@@ -193,7 +193,7 @@ public final class HeroExtras {
 			java.util.List<Class<?>> found = new java.util.ArrayList<>();
 			for (String name : names) {
 				try {
-					found.add(Class.forName(GAME_PACKAGE + name));
+					found.add(Reflect.require(GAME_PACKAGE + name));
 				} catch (Throwable ignored) {
 				}
 			}
@@ -208,7 +208,7 @@ public final class HeroExtras {
 		@SuppressWarnings("unchecked")
 		private static java.util.Collection<Class<?>> magicEffects() {
 			try {
-				return (java.util.Collection<Class<?>>) Reflect.getStatic(Class.forName(GAME_PACKAGE + "items.armor.glyphs.AntiMagic"), "RESISTS");
+				return (java.util.Collection<Class<?>>) Reflect.getStatic(Reflect.require(GAME_PACKAGE + "items.armor.glyphs.AntiMagic"), "RESISTS");
 			} catch (Throwable e) {
 				return java.util.Collections.emptyList();
 			}
@@ -379,12 +379,10 @@ public final class HeroExtras {
 	}
 
 	private static boolean magicBlocked(Object target) {
-		try {
-			Class<?> immune = Class.forName("com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune");
-			for (Object buff : ((Hero) target).buffs()) {
-				if (immune.isInstance(buff)) return true;
-			}
-		} catch (Throwable ignored) {
+		Class<?> immune = Reflect.type("com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune");
+		if (immune == null) return false;
+		for (Object buff : ((Hero) target).buffs()) {
+			if (immune.isInstance(buff)) return true;
 		}
 		return false;
 	}

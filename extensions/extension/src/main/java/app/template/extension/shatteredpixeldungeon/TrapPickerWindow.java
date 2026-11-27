@@ -3,7 +3,6 @@ package app.template.extension.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TrapPickerWindow extends EditorWindow {
@@ -36,11 +35,11 @@ public class TrapPickerWindow extends EditorWindow {
 		addCheckBox("Hidden", hidden, () -> hidden = !hidden);
 		pos += GAP;
 
-		List<String[]> traps = traps(kind);
+		List<FloorEditor.TrapKind> traps = kind == 0 ? CatalogTabs.live(FloorEditor.trapKinds(), trap -> Favorites.isTrap(trap.className)) : FloorEditor.trapKinds();
 		if (traps.isEmpty()) addHint("No favorites yet. Tap the heart next to a trap to add it here.");
 		addPagedList(traps.size(), perPage(7, 3), page, index -> {
-			String className = traps.get(index)[0];
-			String name = traps.get(index)[1];
+			String className = traps.get(index).className;
+			String name = traps.get(index).name;
 			addListRow(name, null, replacing != null && replacing.getClass().getName().equals(className), true, () -> {
 				FloorEditor.placeTrap(className, cell, hidden);
 				goBack();
@@ -60,29 +59,8 @@ public class TrapPickerWindow extends EditorWindow {
 		finishWithBack(this::back);
 	}
 
-	private static List<String[]> traps(int kind) {
-		List<String[]> result = new ArrayList<>();
-		for (String className : FloorEditor.TRAPS) {
-			if (kind == 0 && !Favorites.isTrap(className)) continue;
-			Trap sample = sample(className);
-			if (sample == null) continue;
-			result.add(new String[] { className, FloorEditor.trapName(sample) });
-		}
-		result.sort((a, b) -> a[1].compareToIgnoreCase(b[1]));
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Trap sample(String className) {
-		try {
-			return ((Class<? extends Trap>) Class.forName(className)).getConstructor().newInstance();
-		} catch (Throwable e) {
-			return null;
-		}
-	}
-
 	private static void showInfo(String className, String name) {
-		Trap sample = sample(className);
+		Trap sample = FloorEditor.trapSample(className);
 		if (sample == null) return;
 		try {
 			show(new WndMessage(name + "\n\n" + sample.desc()));

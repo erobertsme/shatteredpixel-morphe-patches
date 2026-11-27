@@ -50,7 +50,7 @@ public final class QuickslotEmpty {
 	}
 
 	private static int quickslotFor(Object selector) throws ReflectiveOperationException {
-		Class<?> buttonClass = Class.forName(BUTTON_CLASS);
+		Class<?> buttonClass = Reflect.require(BUTTON_CLASS);
 		Field instanceField = Reflect.field(buttonClass, "instance");
 		Field selectorField = Reflect.field(buttonClass, "itemSelector");
 		Field slotField = Reflect.field(buttonClass, "slotNum");

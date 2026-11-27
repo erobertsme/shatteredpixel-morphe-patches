@@ -197,7 +197,7 @@ public class SaveLocation {
 
 	static Context getContext() {
 		try {
-			return (Context) Reflect.method(Class.forName("android.app.ActivityThread"), "currentApplication").invoke(null);
+			return (Context) Reflect.method(Reflect.require("android.app.ActivityThread"), "currentApplication").invoke(null);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not get application context", e);
 			return null;

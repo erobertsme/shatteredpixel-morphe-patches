@@ -71,6 +71,7 @@ final class CreatureCatalog {
 	}
 
 	private static List<Entry> catalog;
+	private static final CatalogTabs<Entry> tabs = new CatalogTabs<>();
 
 	private CreatureCatalog() {
 	}
@@ -92,18 +93,14 @@ final class CreatureCatalog {
 	}
 
 	static List<Entry> catalog(int kind) {
-		List<Entry> result = new ArrayList<>();
-		for (Entry entry : catalog()) {
-			boolean matches = kind == FAVORITES ? Favorites.isCreature(entry.type.getName()) : entry.kind == kind;
-			if (matches) result.add(entry);
-		}
-		return result;
+		if (kind == FAVORITES) return CatalogTabs.live(catalog(), entry -> Favorites.isCreature(entry.type.getName()));
+		return tabs.tab(kind, catalog(), entry -> entry.kind == kind);
 	}
 
 	@SuppressWarnings("unchecked")
 	private static Entry load(String className) {
 		try {
-			Class<?> type = Class.forName(className);
+			Class<?> type = Reflect.require(className);
 			if (!Mob.class.isAssignableFrom(type)) return null;
 			Mob sample = (Mob) type.getConstructor().newInstance();
 			String name = sample.name();

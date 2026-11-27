@@ -62,7 +62,7 @@ final class ExtraStats {
 	static int ringLevel(Char character, HeroExtras.Mod mod) {
 		if (mod.ring == null) return 0;
 		try {
-			return Ring.getBuffedBonus(character, Class.forName(mod.ring));
+			return Ring.getBuffedBonus(character, Reflect.require(mod.ring));
 		} catch (Throwable e) {
 			return 0;
 		}
@@ -92,19 +92,17 @@ final class ExtraStats {
 
 	private static float eyeOfNewt() {
 		try {
-			return (Float) Reflect.callStatic(Class.forName(EYE_OF_NEWT), "visionRangeMultiplier", new Class<?>[0]);
+			return (Float) Reflect.callStatic(Reflect.require(EYE_OF_NEWT), "visionRangeMultiplier", new Class<?>[0]);
 		} catch (Throwable e) {
 			return 1f;
 		}
 	}
 
 	private static boolean hasBuff(Char character, String className) {
-		try {
-			Class<?> type = Class.forName(className);
-			for (Buff buff : character.buffs()) {
-				if (type.isInstance(buff)) return true;
-			}
-		} catch (Throwable ignored) {
+		Class<?> type = Reflect.type(className);
+		if (type == null) return false;
+		for (Buff buff : character.buffs()) {
+			if (type.isInstance(buff)) return true;
 		}
 		return false;
 	}

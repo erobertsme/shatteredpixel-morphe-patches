@@ -71,6 +71,8 @@ final class InventoryEditor {
 	}
 
 	private static List<Entry> catalog;
+	private static final CatalogTabs<Entry> tabs = new CatalogTabs<>();
+	private static final Map<Integer, List<Object>> enchantmentChoices = new HashMap<>();
 
 	private InventoryEditor() {
 	}
@@ -99,12 +101,8 @@ final class InventoryEditor {
 	}
 
 	static List<Entry> catalog(Category category) {
-		List<Entry> result = new ArrayList<>();
-		for (Entry entry : catalog()) {
-			boolean matches = category == Category.FAVORITES ? Favorites.isItem(entry.type) : entry.category == category;
-			if (matches) result.add(entry);
-		}
-		return result;
+		if (category == Category.FAVORITES) return CatalogTabs.live(catalog(), entry -> Favorites.isItem(entry.type));
+		return tabs.tab(category, catalog(), entry -> entry.category == category);
 	}
 
 	private static boolean inheritsName(Entry entry, Map<Class<?>, Entry> loaded) {
@@ -124,7 +122,7 @@ final class InventoryEditor {
 	@SuppressWarnings("unchecked")
 	private static Entry load(String className) {
 		try {
-			Class<?> type = Class.forName(className);
+			Class<?> type = Reflect.require(className);
 			if (!Item.class.isAssignableFrom(type)) return null;
 			Item sample = (Item) type.getConstructor().newInstance();
 			String name = sample.trueName();
@@ -200,11 +198,8 @@ final class InventoryEditor {
 
 	private static Class<?> typeFamily(Item item) {
 		for (String name : TYPE_FAMILIES) {
-			try {
-				Class<?> family = Class.forName(GAME_ITEMS + name);
-				if (family.isInstance(item)) return family;
-			} catch (ClassNotFoundException ignored) {
-			}
+			Class<?> family = Reflect.type(GAME_ITEMS + name);
+			if (family != null && family.isInstance(item)) return family;
 		}
 		return null;
 	}
@@ -415,7 +410,14 @@ final class InventoryEditor {
 		Item.updateQuickslot();
 	}
 
-	static List<Object> enchantments(boolean armor, boolean curses) {
+	/**
+	 * One of each glyph, or each enchantment, or their curses, made once to show their names and descriptions. Giving one to an item makes
+	 * a new one of its kind.
+	 */
+	static synchronized List<Object> enchantments(boolean armor, boolean curses) {
+		int key = (armor ? 2 : 0) + (curses ? 1 : 0);
+		List<Object> cached = enchantmentChoices.get(key);
+		if (cached != null) return cached;
 		List<Object> result = new ArrayList<>();
 		Class<?>[][] groups = armor
 			? (curses ? new Class<?>[][] { Armor.Glyph.curses } : new Class<?>[][] { Armor.Glyph.common, Armor.Glyph.uncommon, Armor.Glyph.rare })
@@ -429,7 +431,9 @@ final class InventoryEditor {
 				}
 			}
 		}
-		return result;
+		cached = Collections.unmodifiableList(result);
+		enchantmentChoices.put(key, cached);
+		return cached;
 	}
 
 	static String enchantmentName(Object enchantment) {
@@ -478,7 +482,17 @@ final class InventoryEditor {
 		return "";
 	}
 
-	static void applyEnchantment(Item item, Object enchantment) {
+	/**
+	 * Gives [item] a new enchantment or glyph of the same kind as [choice], or takes its one away when [choice] is null.
+	 */
+	static void applyEnchantment(Item item, Object choice) {
+		Object enchantment;
+		try {
+			enchantment = choice == null ? null : choice.getClass().getConstructor().newInstance();
+		} catch (Throwable e) {
+			Log.e(TAG, "Could not make " + choice.getClass().getName(), e);
+			return;
+		}
 		if (item instanceof Weapon) ((Weapon) item).enchant((Weapon.Enchantment) enchantment);
 		if (item instanceof Armor) ((Armor) item).inscribe((Armor.Glyph) enchantment);
 		Item.updateQuickslot();

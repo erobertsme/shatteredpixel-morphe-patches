@@ -86,7 +86,7 @@ public final class CustomItemTags {
 	 */
 	static Item sample(String className) {
 		try {
-			return (Item) Class.forName(className).getDeclaredConstructor().newInstance();
+			return (Item) Reflect.require(className).getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			return null;
 		}

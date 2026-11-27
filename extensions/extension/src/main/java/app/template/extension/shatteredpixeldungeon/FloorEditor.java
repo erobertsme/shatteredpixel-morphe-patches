@@ -19,6 +19,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public final class FloorEditor {
 		@SuppressWarnings("unchecked")
 		Class<? extends Blob> type() {
 			try {
-				return (Class<? extends Blob>) Class.forName(BLOBS + className);
+				return (Class<? extends Blob>) Reflect.require(BLOBS + className);
 			} catch (ClassNotFoundException e) {
 				return null;
 			}
@@ -85,7 +86,7 @@ public final class FloorEditor {
 		new Effect("Regrowth", "Regrowth", false),
 	};
 
-	static final String[] TRAPS = {
+	private static final String[] TRAPS = {
 		"com.shatteredpixel.shatteredpixeldungeon.levels.traps.AlarmTrap",
 		"com.shatteredpixel.shatteredpixeldungeon.levels.traps.BlazingTrap",
 		"com.shatteredpixel.shatteredpixeldungeon.levels.traps.BurningTrap",
@@ -122,6 +123,9 @@ public final class FloorEditor {
 	};
 
 
+	private static final CatalogTabs<Effect> effectTabs = new CatalogTabs<>();
+	private static List<TrapKind> trapKinds;
+
 	private FloorEditor() {
 	}
 
@@ -137,14 +141,56 @@ public final class FloorEditor {
 		return InventoryEditor.capitalize(name);
 	}
 
+	/**
+	 * The effects in the picker tab [kind]: gases, other effects, or favorites.
+	 */
 	static List<Effect> effects(int kind) {
-		List<Effect> result = new ArrayList<>();
-		for (Effect effect : EFFECTS) {
-			if (effect.type() == null) continue;
-			boolean matches = kind == GASES ? effect.gas : kind == OTHER ? !effect.gas : Favorites.isEffect(effect.className);
-			if (matches) result.add(effect);
+		List<Effect> available = effectTabs.tab("available", Arrays.asList(EFFECTS), effect -> effect.type() != null);
+		if (kind == GASES) return effectTabs.tab(kind, available, effect -> effect.gas);
+		if (kind == OTHER) return effectTabs.tab(kind, available, effect -> !effect.gas);
+		return CatalogTabs.live(available, effect -> Favorites.isEffect(effect.className));
+	}
+
+	/**
+	 * A kind of trap the floor editor can place: its class name and its name, read from the game once.
+	 */
+	static final class TrapKind {
+		final String className;
+		final String name;
+
+		TrapKind(String className, String name) {
+			this.className = className;
+			this.name = name;
 		}
-		return result;
+	}
+
+	/**
+	 * Every trap this version of the game has, by name.
+	 */
+	static synchronized List<TrapKind> trapKinds() {
+		if (trapKinds != null) return trapKinds;
+		List<TrapKind> found = new ArrayList<>();
+		for (String className : TRAPS) {
+			Trap sample = trapSample(className);
+			if (sample != null) found.add(new TrapKind(className, trapName(sample)));
+		}
+		found.sort((a, b) -> a.name.compareToIgnoreCase(b.name));
+		trapKinds = Collections.unmodifiableList(found);
+		return trapKinds;
+	}
+
+	/**
+	 * A new trap of [className], placed nowhere, or null when this version of the game has none.
+	 */
+	@SuppressWarnings("unchecked")
+	static Trap trapSample(String className) {
+		Class<?> type = Reflect.type(className);
+		if (type == null) return null;
+		try {
+			return ((Class<? extends Trap>) type).getConstructor().newInstance();
+		} catch (Throwable e) {
+			return null;
+		}
 	}
 
 	static List<Blob> activeEffects() {
@@ -254,11 +300,11 @@ public final class FloorEditor {
 		return level != null && level.passable != null && cell >= 0 && cell < level.passable.length && level.passable[cell];
 	}
 
-	@SuppressWarnings("unchecked")
 	static void placeTrap(String className, int cell, boolean hidden) {
 		if (!canPlaceTrap(cell)) return;
+		Trap trap = trapSample(className);
+		if (trap == null) return;
 		try {
-			Trap trap = ((Class<? extends Trap>) Class.forName(className)).getConstructor().newInstance();
 			level().setTrap(trap, cell);
 			trap.active = true;
 			trap.visible = !hidden || !trap.canBeHidden;

@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ final class ItemAlchemy {
 	private static final String TAG = "ItemAlchemy";
 	private static final String ITEMS = "com.shatteredpixel.shatteredpixeldungeon.items.";
 	static final int WATERSKIN_MAX = 20;
+
+	private static final Map<Class<?>, String> names = new HashMap<>();
 
 	private ItemAlchemy() {
 	}
@@ -38,7 +41,7 @@ final class ItemAlchemy {
 	@SuppressWarnings("unchecked")
 	private static void addFrom(List<Class<? extends Item>> result, Class<?> type, String owner, String field) {
 		try {
-			Field f = Reflect.field(Class.forName(ITEMS + owner), field);
+			Field f = Reflect.field(Reflect.require(ITEMS + owner), field);
 			Map<Class<?>, Class<?>> map = (Map<Class<?>, Class<?>>) f.get(null);
 			Class<?> target = map == null ? null : map.get(type);
 			if (target != null && !result.contains(target)) result.add((Class<? extends Item>) target);
@@ -46,12 +49,20 @@ final class ItemAlchemy {
 		}
 	}
 
-	static String name(Class<? extends Item> type) {
+	/**
+	 * The name of items of [type], read from the game once.
+	 */
+	static synchronized String name(Class<? extends Item> type) {
+		String cached = names.get(type);
+		if (cached != null) return cached;
+		String name;
 		try {
-			return InventoryEditor.capitalize(type.getConstructor().newInstance().trueName());
+			name = InventoryEditor.capitalize(type.getConstructor().newInstance().trueName());
 		} catch (Throwable e) {
-			return type.getSimpleName();
+			name = type.getSimpleName();
 		}
+		names.put(type, name);
+		return name;
 	}
 
 	/**

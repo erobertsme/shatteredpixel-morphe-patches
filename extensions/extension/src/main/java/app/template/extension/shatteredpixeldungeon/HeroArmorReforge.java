@@ -44,7 +44,7 @@ public final class HeroArmorReforge {
 			boolean firstKept = one.trueLevel() >= two.trueLevel();
 			Item kept = firstKept ? one : two;
 			Item consumed = firstKept ? two : one;
-			Class<?> heroArmor = Class.forName(ARMOR + "ClassArmor");
+			Class<?> heroArmor = Reflect.require(ARMOR + "ClassArmor");
 			if (!heroArmor.isInstance(consumed) || heroArmor.isInstance(kept)) return;
 			consumed.level(kept.trueLevel());
 			for (String name : CARRIED) {
@@ -66,10 +66,10 @@ public final class HeroArmorReforge {
 		Class<?> type = item.getClass();
 		if (!isOn()) return type;
 		try {
-			if (!Class.forName(ARMOR + "ClassArmor").isInstance(item)) return type;
+			if (!Reflect.require(ARMOR + "ClassArmor").isInstance(item)) return type;
 			Field tier = Reflect.field(type, "tier");
 			int index = tier.getInt(item) - 1;
-			return index >= 0 && index < TIERS.length ? Class.forName(ARMOR + TIERS[index]) : type;
+			return index >= 0 && index < TIERS.length ? Reflect.require(ARMOR + TIERS[index]) : type;
 		} catch (Throwable e) {
 			return type;
 		}

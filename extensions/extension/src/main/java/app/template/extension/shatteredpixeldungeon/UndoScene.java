@@ -297,7 +297,7 @@ final class UndoScene {
 			if (!(list instanceof Iterable)) return;
 			for (Object custom : (Iterable<?>) list) {
 				if (custom == null) continue;
-				Class<?> type = Class.forName("com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap");
+				Class<?> type = Reflect.require("com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap");
 				Object texture = readField(type, custom, "texture");
 				Object vis = readField(type, custom, "vis");
 				if (!(texture instanceof String) || vis == null) continue;
@@ -667,7 +667,7 @@ final class UndoScene {
 
 	private Image figureImage(Figure figure) {
 		try {
-			Image sprite = (Image) Class.forName(figure.spriteClass).getConstructor().newInstance();
+			Image sprite = (Image) Reflect.require(figure.spriteClass).getConstructor().newInstance();
 			Image image = new Image(sprite);
 			image.frame(figure.frame);
 			image.flipHorizontal = figure.flipped;

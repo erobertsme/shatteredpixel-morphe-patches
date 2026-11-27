@@ -128,8 +128,8 @@ public final class Teleport {
 	}
 
 	private static int floorHeaderAt(Object grid, float x, float y) throws ReflectiveOperationException {
-		Field itemsField = Reflect.field(Class.forName(GRID_CLASS), "items");
-		Field textField = Reflect.field(Class.forName(GRID_CLASS + "$GridHeader"), "text");
+		Field itemsField = Reflect.field(Reflect.require(GRID_CLASS), "items");
+		Field textField = Reflect.field(Reflect.require(GRID_CLASS + "$GridHeader"), "text");
 		for (Object item : (List<?>) itemsField.get(grid)) {
 			if (!item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) continue;
 			Component header = (Component) item;

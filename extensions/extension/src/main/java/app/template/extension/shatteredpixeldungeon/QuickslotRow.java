@@ -59,7 +59,7 @@ public final class QuickslotRow {
 	static void setOn(boolean on) {
 		CloverlordSettings.set(KEY, on);
 		try {
-			Reflect.method(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
+			Reflect.method(Reflect.require("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not update the toolbar", e);
 		}
@@ -351,7 +351,7 @@ public final class QuickslotRow {
 				return;
 			}
 			try {
-				Reflect.method(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
+				Reflect.method(Reflect.require("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
 			} catch (Throwable e) {
 				Log.e(TAG, "Could not restore the extra quickslots", e);
 				rowSlots.clear();
@@ -400,7 +400,7 @@ public final class QuickslotRow {
 			enable(swap, end.active);
 		}
 
-		Field swappedField = Reflect.field(Class.forName("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "swappedQuickslots");
+		Field swappedField = Reflect.field(Reflect.require("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "swappedQuickslots");
 		boolean swapped = swappedField.getBoolean(null);
 		int size = spots.size();
 		int usable = Math.min(quick.length, SWAPPER_SLOTS);

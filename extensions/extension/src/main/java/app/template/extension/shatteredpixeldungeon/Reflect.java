@@ -20,6 +20,8 @@ final class Reflect {
 
 	private static final Map<String, Field> fields = new HashMap<>();
 	private static final Map<String, Method> methods = new HashMap<>();
+	private static final Map<String, Class<?>> types = new HashMap<>();
+	private static final Class<?> MISSING = Void.class;
 
 	private Reflect() {
 	}
@@ -65,18 +67,26 @@ final class Reflect {
 	/**
 	 * The field [name] declared on [type] itself, not a superclass, made accessible.
 	 */
-	static Field declaredField(Class<?> type, String name) throws NoSuchFieldException {
+	static synchronized Field declaredField(Class<?> type, String name) throws NoSuchFieldException {
+		String key = type.getName() + '!' + name;
+		Field cached = fields.get(key);
+		if (cached != null) return cached;
 		Field field = type.getDeclaredField(name);
 		field.setAccessible(true);
+		fields.put(key, field);
 		return field;
 	}
 
 	/**
 	 * The method [name] with [types] declared on [type] itself, not a superclass, made accessible.
 	 */
-	static Method declaredMethod(Class<?> type, String name, Class<?>... types) throws NoSuchMethodException {
+	static synchronized Method declaredMethod(Class<?> type, String name, Class<?>... types) throws NoSuchMethodException {
+		String key = type.getName() + '!' + name + Arrays.toString(types);
+		Method cached = methods.get(key);
+		if (cached != null) return cached;
 		Method method = type.getDeclaredMethod(name, types);
 		method.setAccessible(true);
+		methods.put(key, method);
 		return method;
 	}
 
@@ -162,13 +172,27 @@ final class Reflect {
 	}
 
 	/**
-	 * The class named [name], or null when this version of the game doesn't have it.
+	 * The class named [name], or null when this version of the game doesn't have it. Each name is looked up once, then remembered.
 	 */
-	static Class<?> type(String name) {
+	static synchronized Class<?> type(String name) {
+		Class<?> cached = types.get(name);
+		if (cached != null) return cached == MISSING ? null : cached;
+		Class<?> found;
 		try {
-			return Class.forName(name);
-		} catch (ClassNotFoundException e) {
-			return null;
+			found = Class.forName(name);
+		} catch (ClassNotFoundException | LinkageError e) {
+			found = null;
 		}
+		types.put(name, found == null ? MISSING : found);
+		return found;
+	}
+
+	/**
+	 * Like [type], for code that treats a missing class as an error.
+	 */
+	static Class<?> require(String name) throws ClassNotFoundException {
+		Class<?> found = type(name);
+		if (found == null) throw new ClassNotFoundException(name);
+		return found;
 	}
 }

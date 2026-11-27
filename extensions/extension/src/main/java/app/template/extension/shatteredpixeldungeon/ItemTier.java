@@ -69,7 +69,7 @@ final class ItemTier {
 		String[] kind = kindOf(item);
 		if (kind == null || tier < MIN || tier > MAX || kind[tier - MIN] == null) return null;
 		try {
-			return (Class<? extends Item>) Class.forName(kind[tier - MIN]);
+			return (Class<? extends Item>) Reflect.require(kind[tier - MIN]);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}

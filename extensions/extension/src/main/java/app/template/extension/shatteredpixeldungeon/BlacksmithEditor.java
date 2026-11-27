@@ -48,7 +48,7 @@ public final class BlacksmithEditor {
 
 	private static void reopen(Object troll) {
 		try {
-			Class<?> type = Class.forName(WINDOW);
+			Class<?> type = Reflect.require(WINDOW);
 			Object window = type.getConstructors()[0].newInstance(troll, Dungeon.hero);
 			EditorWindow.show((Window) window);
 		} catch (Throwable e) {
@@ -58,7 +58,7 @@ public final class BlacksmithEditor {
 
 	static int favor() {
 		try {
-			return Reflect.field(Class.forName(QUEST), "favor").getInt(null);
+			return Reflect.field(Reflect.require(QUEST), "favor").getInt(null);
 		} catch (Throwable e) {
 			return 0;
 		}
@@ -70,7 +70,7 @@ public final class BlacksmithEditor {
 	static void favor(int value) {
 		int rounded = (Math.max(0, value) + FAVOR_STEP - 1) / FAVOR_STEP * FAVOR_STEP;
 		try {
-			Reflect.field(Class.forName(QUEST), "favor").setInt(null, rounded);
+			Reflect.field(Reflect.require(QUEST), "favor").setInt(null, rounded);
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not set the favor", e);
 		}
