@@ -42,6 +42,8 @@ public final class Teleport {
 	private static final int GAP = 2;
 	static final int ENTRANCE = -1;
 	static final int EXIT = -2;
+	static final int MAIN_BRANCH = 0;
+	static final int QUEST_BRANCH = 1;
 
 	private static int pendingArrival;
 
@@ -168,11 +170,18 @@ public final class Teleport {
 	 * Takes the hero to [depth], arriving at its entrance or its exit.
 	 */
 	static void toDepth(int depth, int arrival) {
+		toDepth(depth, MAIN_BRANCH, arrival);
+	}
+
+	/**
+	 * Takes the hero to [depth] of [branch], the main dungeon or a quest floor beside it, arriving at its entrance or its exit.
+	 */
+	static void toDepth(int depth, int branch, int arrival) {
 		if (Dungeon.hero == null || !Dungeon.hero.isAlive()) return;
 		try {
 			InterlevelScene.mode = InterlevelScene.Mode.RETURN;
 			InterlevelScene.returnDepth = Math.max(1, Math.min(MAX_DEPTH, depth));
-			InterlevelScene.returnBranch = 0;
+			InterlevelScene.returnBranch = branch;
 			InterlevelScene.returnPos = arrival;
 			pendingArrival = arrival;
 			Game.switchScene(InterlevelScene.class);
