@@ -1,3 +1,9 @@
+## [1.11.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.5...v1.11.0-dev.6) (2026-11-27)
+
+### ✨ New Features
+
+* improved torches, and status icons no longer cover their stepper's label ([f85fde5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f85fde59ab10e98f332c148e0a160cf982c10b58))
+
 ## [1.11.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.4...v1.11.0-dev.5) (2026-11-27)
 
 ### 🐛 Bug Fixes

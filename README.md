@@ -21,7 +21,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.11.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.11.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
+> **[v1.11.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/tag/v1.11.0-dev.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
 <details open>
 <summary>📦 Shattered Pixel Dungeon&nbsp;&nbsp;•&nbsp;&nbsp;11 patches</summary>
 <br>
@@ -42,7 +42,7 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Fun](#fun) | Just for fun: change your hero's sprite to another hero, an enemy or an NPC. |  |
 | [Hunger editor](#hunger-editor) | Change how long each hunger stage lasts and how starving hurts, or switch hunger off. |  |
 | [Inventory editor](#inventory-editor) | Edit gold, energy and every item, add any item, and identify or uncurse everything. Adds unlimited inventory space and Equipment and Rings backpack tabs. |  |
-| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags, display margins, a stronger Mageroyal, safe gardens, a preview of each game in progress and new games from any game's seed. |  |
+| [QoL enhancements](#qol-enhancements) | Confirm risky taps, a calmer shopkeeper, a Quantum Chest on boss floors, bigger bags, extra toolbar item slots, an Attack Tile button, an Enhanced Bestiary, a hero stats button, experience and loot rules, more items to energize, catalyst rerolls, walking through allies, item tags, display margins, a stronger Mageroyal, safe gardens, improved torches, a preview of each game in progress and new games from any game's seed. |  |
 | [Save management](#save-management) | Export and import all saves as a zip, keep up to 10 saves of each game, and Undo / Redo. Optional public, uncompressed save files. | • Public save folder<br>• Save folder<br>• Uncompressed saves<br>• Save file access |
 | [Supporter options](#supporter-options) | NOTICE: This patch is not intended to gain these bonus extras for free. It is meant to ensure supporters are able to keep the benefits they paid for. Don't be a scumbag. Please support the developer!<br><br>Keep your supporter rewards and hide the Support button. Google Play version only. |  |
 | [Teleport](#teleport) | Teleport to any floor, and teleport your hero or other creatures to any tile. |  |
