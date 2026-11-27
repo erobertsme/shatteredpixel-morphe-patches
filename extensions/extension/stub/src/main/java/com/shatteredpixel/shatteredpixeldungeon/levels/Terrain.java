@@ -9,4 +9,8 @@ public class Terrain {
 	public static final int LOCKED_DOOR		= 10;
 	public static final int CRYSTAL_DOOR	= 31;
 	public static final int UNLOCKED_EXIT	= 22;
+	public static final int SOLID = 0x10;
+	public static final int LIQUID = 0x40;
+	public static final int PIT = 0x80;
+	public static int[] flags;
 }

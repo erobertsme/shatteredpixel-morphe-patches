@@ -9,7 +9,7 @@ public class DepthPickerWindow extends EditorWindow {
 	private static final String INFO = "Teleport to...\n\n"
 		+ "Pick any floor to go there straight away. The current floor is highlighted.\n\n"
 		+ "_A tile on this floor:_ tap any tile on this floor to appear there, or on the closest tile you can stand on.\n"
-		+ "_Arrive:_ at its entrance or its exit, your choice.\n_New floors:_ floors you haven't reached are created when you arrive, as if you took the stairs. Skipping floors also skips what's on them.\n"
+		+ "_Arrive:_ at its entrance or its exit, or, on a floor you've been to, _Choose a Tile_ on its map. The map is read from the floor's save, so looking at it doesn't take you there.\n_New floors:_ floors you haven't reached are created when you arrive, as if you took the stairs. Skipping floors also skips what's on them.\n"
 		+ "_Quest floors:_ the Blacksmith's mine and the Ambitious Imp's vault, once you have been there. You arrive where you came in.";
 	private static final int[][] QUEST_FLOORS = { { 11, 14 }, { 16, 19 } };
 	private static final String[] QUEST_NAMES = { "Mine", "Vault" };
@@ -71,10 +71,7 @@ public class DepthPickerWindow extends EditorWindow {
 
 	private void choose(int depth) {
 		hide();
-		ConfirmPrompt.ask("Depth " + depth, "Teleport to depth " + depth + "?", new String[] { "Arrive at Entrance", "Arrive at Exit" }, new Runnable[] {
-			() -> Teleport.toDepth(depth, Teleport.ENTRANCE),
-			() -> Teleport.toDepth(depth, Teleport.EXIT),
-		});
+		Teleport.askArrival("Floor " + depth, depth);
 	}
 
 	@Override

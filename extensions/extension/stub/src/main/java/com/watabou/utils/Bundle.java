@@ -17,4 +17,5 @@ public class Bundle {
 	public java.util.Collection<?> getCollection(String key) { throw new RuntimeException("Stub"); }
 	public void put(String key, int[] value) { throw new RuntimeException("Stub"); }
 	public int[] getIntArray(String key) { throw new RuntimeException("Stub"); }
+	public boolean[] getBooleanArray(String key) { throw new RuntimeException("Stub"); }
 }

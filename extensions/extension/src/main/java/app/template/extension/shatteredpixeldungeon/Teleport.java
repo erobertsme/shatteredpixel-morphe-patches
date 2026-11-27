@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -22,6 +23,7 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.ui.Component;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,10 +120,7 @@ public final class Teleport {
 		try {
 			int floor = floorHeaderAt(grid, x, y);
 			if (floor <= 0) return false;
-			ConfirmPrompt.ask("Floor " + floor, "Teleport to floor " + floor + "?", new String[] { "Arrive at Entrance", "Arrive at Exit" }, new Runnable[] {
-				() -> toDepth(floor, ENTRANCE),
-				() -> toDepth(floor, EXIT),
-			});
+			askArrival("Floor " + floor, floor);
 			return true;
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not handle the notes tap", e);
@@ -164,6 +163,16 @@ public final class Teleport {
 			if (current instanceof Window) return (Window) current;
 		}
 		return null;
+	}
+
+	/**
+	 * Asks how to arrive on [depth]: at its entrance, at its exit, or, on a floor the hero has been to, on a tile chosen on its map.
+	 */
+	static void askArrival(String title, int depth) {
+		String[] labels = { "Arrive at Entrance", "Arrive at Exit", "Choose a Tile" };
+		Runnable[] actions = { () -> toDepth(depth, ENTRANCE), () -> toDepth(depth, EXIT), () -> FloorMapWindow.open(title, depth, MAIN_BRANCH) };
+		int choices = Dungeon.levelHasBeenGenerated(depth, MAIN_BRANCH) ? 3 : 2;
+		ConfirmPrompt.ask(title, "Teleport to floor " + depth + "?", Arrays.copyOf(labels, choices), Arrays.copyOf(actions, choices));
 	}
 
 	/**
@@ -213,13 +222,15 @@ public final class Teleport {
 	}
 
 	/**
-	 * Called at the start of Dungeon.switchLevel. After a teleport, puts the hero on the stairs to the floor above (Entrance) or below (Exit).
+	 * Called at the start of Dungeon.switchLevel. After a teleport, puts the hero on the stairs to the floor above (Entrance) or below (Exit),
+	 * or on the chosen tile, or the closest one to it they can stand on.
 	 */
 	public static int arrivalCell(Object target, int pos) {
 		int arrival = pendingArrival;
 		pendingArrival = 0;
 		if (arrival == 0 || !(target instanceof Level)) return pos;
 		Level level = (Level) target;
+		if (arrival >= 0) return nearestStandable(level, arrival);
 		if (level.transitions == null) return pos;
 		for (LevelTransition transition : level.transitions) {
 			boolean up = transition.destDepth < Dungeon.depth;
@@ -227,5 +238,33 @@ public final class Teleport {
 			if (arrival == ENTRANCE && up || arrival == EXIT && down) return transition.cell();
 		}
 		return pos;
+	}
+
+	/**
+	 * [cell] if the hero can stand there on [level], or else the closest tile they can, searching outward ring by ring.
+	 */
+	private static int nearestStandable(Level level, int cell) {
+		int width = level.width();
+		int height = level.length() / width;
+		int column = cell % width;
+		int row = cell / width;
+		for (int radius = 0; radius < Math.max(width, height); radius++) {
+			for (int y = row - radius; y <= row + radius; y++) {
+				for (int x = column - radius; x <= column + radius; x++) {
+					if (Math.max(Math.abs(x - column), Math.abs(y - row)) != radius || x < 0 || y < 0 || x >= width || y >= height) continue;
+					int candidate = x + y * width;
+					if (standable(level, candidate)) return candidate;
+				}
+			}
+		}
+		return cell;
+	}
+
+	private static boolean standable(Level level, int cell) {
+		if (!level.passable[cell] || level.avoid[cell]) return false;
+		for (Mob mob : level.mobs) {
+			if (mob.pos == cell) return false;
+		}
+		return true;
 	}
 }

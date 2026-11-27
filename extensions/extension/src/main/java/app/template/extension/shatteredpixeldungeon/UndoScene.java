@@ -24,8 +24,13 @@ import com.watabou.noosa.SkinnedBlock;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.Tilemap;
 import com.watabou.noosa.Visual;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.RectF;
 import com.watabou.utils.Signal;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -377,28 +382,8 @@ final class UndoScene {
 	}
 
 	private void captureMap(Hero hero, Level level) {
-		mapWidth = level.width();
-		mapHeight = level.height();
 		heroPos = hero.pos;
-		int length = level.length();
-		map = new byte[length];
-		for (int i = 0; i < length; i++) {
-			if (!level.visited[i] && !level.mapped[i]) continue;
-			int terrain = level.map[i];
-			if (terrain == Terrain.ENTRANCE || terrain == Terrain.ENTRANCE_SP || terrain == Terrain.EXIT || terrain == Terrain.UNLOCKED_EXIT) {
-				map[i] = MAP_STAIRS;
-			} else if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR || terrain == Terrain.LOCKED_DOOR || terrain == Terrain.CRYSTAL_DOOR) {
-				map[i] = MAP_DOOR;
-			} else if (level.solid[i]) {
-				map[i] = MAP_WALL;
-			} else if (level.pit[i]) {
-				map[i] = MAP_CHASM;
-			} else if (level.water[i]) {
-				map[i] = MAP_WATER;
-			} else {
-				map[i] = MAP_FLOOR;
-			}
-		}
+		fillMap(level.width(), level.map, level.visited, level.mapped, level.solid, level.pit, level.water);
 		for (Heap heap : level.heaps.valueList()) {
 			if (heap.seen && map[heap.pos] != MAP_UNKNOWN) markers.add(new Marker(heap.pos, ITEM_COLOR));
 		}
@@ -408,6 +393,117 @@ final class UndoScene {
 			markers.add(new Marker(mob.pos, color));
 		}
 		markers.add(new Marker(hero.pos, HERO_COLOR));
+	}
+
+	/**
+	 * Fills the map from a floor [width] tiles wide: its [terrain], which tiles were [visited] or [mapped], and which are [solid], a [pit]
+	 * or [water]. Tiles the hero hasn't explored stay unknown.
+	 */
+	private void fillMap(int width, int[] terrain, boolean[] visited, boolean[] mapped, boolean[] solid, boolean[] pit, boolean[] water) {
+		mapWidth = width;
+		mapHeight = terrain.length / width;
+		map = new byte[terrain.length];
+		for (int i = 0; i < terrain.length; i++) {
+			if (!visited[i] && !mapped[i]) continue;
+			int kind = terrain[i];
+			if (kind == Terrain.ENTRANCE || kind == Terrain.ENTRANCE_SP || kind == Terrain.EXIT || kind == Terrain.UNLOCKED_EXIT) {
+				map[i] = MAP_STAIRS;
+			} else if (kind == Terrain.DOOR || kind == Terrain.OPEN_DOOR || kind == Terrain.LOCKED_DOOR || kind == Terrain.CRYSTAL_DOOR) {
+				map[i] = MAP_DOOR;
+			} else if (solid[i]) {
+				map[i] = MAP_WALL;
+			} else if (pit[i]) {
+				map[i] = MAP_CHASM;
+			} else if (water[i]) {
+				map[i] = MAP_WATER;
+			} else {
+				map[i] = MAP_FLOOR;
+			}
+		}
+	}
+
+	/**
+	 * The map of the floor the hero is on, as explored, with the items seen and the hero.
+	 */
+	static UndoScene floorMap(Hero hero, Level level) {
+		UndoScene scene = new UndoScene();
+		scene.captureMap(hero, level);
+		return scene;
+	}
+
+	/**
+	 * The map of a floor read from its save, [level] being the floor as the game stores it, with the items seen there. The floor itself
+	 * is never made from it.
+	 */
+	static UndoScene savedFloorMap(Bundle level) {
+		UndoScene scene = new UndoScene();
+		int[] terrain = level.getIntArray(SAVED_MAP);
+		boolean[] solid = new boolean[terrain.length];
+		boolean[] pit = new boolean[terrain.length];
+		boolean[] water = new boolean[terrain.length];
+		for (int i = 0; i < terrain.length; i++) {
+			int flags = Terrain.flags[terrain[i]];
+			solid[i] = (flags & Terrain.SOLID) != 0;
+			pit[i] = (flags & Terrain.PIT) != 0;
+			water[i] = (flags & Terrain.LIQUID) != 0;
+		}
+		scene.heroPos = -1;
+		scene.fillMap(level.getInt(SAVED_WIDTH), terrain, level.getBooleanArray(SAVED_VISITED), level.getBooleanArray(SAVED_MAPPED), solid, pit, water);
+		scene.addSavedItems(level);
+		return scene;
+	}
+
+	/**
+	 * Marks the items seen on a saved floor, read from the floor's saved text so that no item is made from it.
+	 */
+	private void addSavedItems(Bundle level) {
+		try {
+			JSONArray heaps = new JSONObject(level.toString()).optJSONArray(SAVED_HEAPS);
+			if (heaps == null) return;
+			for (int i = 0; i < heaps.length(); i++) {
+				JSONObject heap = heaps.optJSONObject(i);
+				int pos = heap == null ? -1 : heap.optInt(SAVED_POS, -1);
+				if (heap != null && heap.optBoolean(SAVED_SEEN) && knows(pos)) markers.add(new Marker(pos, ITEM_COLOR));
+			}
+		} catch (JSONException e) {
+			Log.e("UndoScene", "Could not read the items of a saved floor", e);
+		}
+	}
+
+	private static final String SAVED_WIDTH = "width";
+	private static final String SAVED_MAP = "map";
+	private static final String SAVED_VISITED = "visited";
+	private static final String SAVED_MAPPED = "mapped";
+	private static final String SAVED_HEAPS = "heaps";
+	private static final String SAVED_POS = "pos";
+	private static final String SAVED_SEEN = "seen";
+
+	/**
+	 * Whether the map shows [cell], a tile the hero explored.
+	 */
+	boolean knows(int cell) {
+		return map != null && cell >= 0 && cell < map.length && map[cell] != MAP_UNKNOWN;
+	}
+
+	/**
+	 * The tile at [px], [py] on the map drawn by [drawMap] at [x], [y], [size] across, or -1 off the map.
+	 */
+	int cellAt(float px, float py, float x, float y, float size) {
+		float cell = size / Math.max(mapWidth, mapHeight);
+		int column = (int) Math.floor((px - (x + (size - cell * mapWidth) / 2f)) / cell);
+		int row = (int) Math.floor((py - (y + (size - cell * mapHeight) / 2f)) / cell);
+		if (column < 0 || row < 0 || column >= mapWidth || row >= mapHeight) return -1;
+		return row * mapWidth + column;
+	}
+
+	/**
+	 * Where [cell] is on the map drawn by [drawMap] at [x], [y], [size] across: its left, top and width.
+	 */
+	float[] cellBox(int cell, float x, float y, float size) {
+		float width = size / Math.max(mapWidth, mapHeight);
+		float left = x + (size - width * mapWidth) / 2f + (cell % mapWidth) * width;
+		float top = y + (size - width * mapHeight) / 2f + (cell / mapWidth) * width;
+		return new float[] { left, top, width };
 	}
 
 	private static final int FORMAT = 6;
