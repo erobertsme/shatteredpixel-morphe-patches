@@ -2,7 +2,10 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.util.Log;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -187,17 +190,23 @@ final class UndoHeroView {
 
 	/**
 	 * The hero's talents at an undo step or in a save. Tapping a talent shows what it does. The talents are placed once the window has its
-	 * size and place, since their scrolling area follows the window.
+	 * size and place, since their scrolling area follows the window. Outside a game, where the game draws some talents for the hero class
+	 * being picked, that class is the saved hero's while the window is open.
 	 */
 	static final class TalentsWindow extends EditorWindow {
 
 		private static final float SHARE = 0.6f;
 
 		private final Hero hero;
+		private final boolean classLent;
+		private final HeroClass lentOver;
 
 		TalentsWindow(Hero hero) {
 			super();
 			this.hero = hero;
+			classLent = Dungeon.hero == null;
+			lentOver = GamesInProgress.selectedClass;
+			if (classLent) GamesInProgress.selectedClass = hero.heroClass;
 			addTitle("Talents");
 			float height = Math.min(PixelScene.uiCamera.height * SHARE, 200);
 			TalentsPane pane = new TalentsPane(TalentButton.Mode.INFO, hero.talents);
@@ -206,6 +215,12 @@ final class UndoHeroView {
 			pos += height;
 			finish();
 			pane.setRect(0, paneTop, WIDTH, height);
+		}
+
+		@Override
+		public void destroy() {
+			super.destroy();
+			if (classLent) GamesInProgress.selectedClass = lentOver;
 		}
 
 		@Override
