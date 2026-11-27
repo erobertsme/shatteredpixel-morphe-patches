@@ -1,3 +1,9 @@
+## [1.11.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.3...v1.11.0-dev.4) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* the joined quickslot row leaves the right end of the quickslots as before ([2510fcf](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/2510fcfd4c669e8b1b988fc221430f3e5a66bf27))
+
 ## [1.11.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.2...v1.11.0-dev.3) (2026-11-27)
 
 ### 🐛 Bug Fixes
