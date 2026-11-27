@@ -1,3 +1,9 @@
+## [1.10.1-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.4...v1.10.1-dev.5) (2026-11-27)
+
+### 🔧 Improvements
+
+* keep lists and lookups that never change instead of working them out again ([5ec6b34](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5ec6b34f0cfdf5f6a54d75997185da1086e51b88))
+
 ## [1.10.1-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.3...v1.10.1-dev.4) (2026-11-27)
 
 ### 🐛 Bug Fixes
