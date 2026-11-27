@@ -1,3 +1,16 @@
+## [1.10.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.0...v1.10.1) (2026-11-27)
+
+### 🔧 Improvements
+
+* keep lists and lookups that never change instead of working them out again ([5ec6b34](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/5ec6b34f0cfdf5f6a54d75997185da1086e51b88))
+
+### 🐛 Bug Fixes
+
+* backpack previews show item pictures and the game's slot backgrounds ([b428128](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b4281281315363f7224b5c3f55fcf9910dc2b49e))
+* opening talents from a game preview on the main menu no longer crashes ([8dbea04](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8dbea0472313d8184ae9cc5b82e6f6df96b204d6))
+* previews draw the hero from data kept with each save ([443f34b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/443f34bd68803d4a6abcea0a31bd5dbb76776420))
+* the seed menu shows the seed code larger and centered ([068f126](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/068f126f361b11c05deb843bcf2aabcce7f60e86))
+
 ## [1.10.1-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.4...v1.10.1-dev.5) (2026-11-27)
 
 ### 🔧 Improvements
