@@ -1,3 +1,9 @@
+## [1.12.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.1-dev.1...v1.12.0-dev.1) (2026-11-27)
+
+### ✨ New Features
+
+* choose the tile to teleport to on a map of the floor, without going there first ([88419b0](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/88419b066270867e288e8cdea1aad7d361ea035a))
+
 ## [1.11.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0...v1.11.1-dev.1) (2026-11-27)
 
 ### 🐛 Bug Fixes
