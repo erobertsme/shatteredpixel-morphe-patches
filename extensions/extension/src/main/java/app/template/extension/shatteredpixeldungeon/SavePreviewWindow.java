@@ -1,5 +1,9 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 /**
@@ -20,13 +24,17 @@ public class SavePreviewWindow extends PreviewWindow {
 	}
 
 	@Override
+	protected StatLink statLink() {
+		return seedLink(save);
+	}
+
+	@Override
 	protected void addActions() {
-		addButtonPair("Load", this::load, save.locked ? "Unlock" : "Lock", this::toggleLock);
-		float half = (WIDTH - GAP) / 2f;
-		addButton("Delete", 0, half, this::delete).enable(!save.locked);
+		addGameButtons("Load", Icons.get(Icons.ENTER), this::load, save.locked ? "Unlock" : "Lock", new ItemSprite(ItemSpriteSheet.IRON_KEY), this::toggleLock);
 		backTo(this::back);
-		addBackButton(half + GAP, half);
-		pos += ROW_HEIGHT;
+		RedButton[] row = addGameButtons("Delete", Icons.get(Icons.CLOSE), this::delete, "Back", Icons.get(Icons.EXIT), this::goBack);
+		row[0].enable(!save.locked);
+		pos -= 1;
 	}
 
 	private void load() {

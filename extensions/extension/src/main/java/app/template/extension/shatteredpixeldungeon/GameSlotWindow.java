@@ -16,8 +16,6 @@ import com.watabou.noosa.Game;
  */
 public class GameSlotWindow extends PreviewWindow {
 
-	private static final int GAME_BUTTON_HEIGHT = 20;
-
 	private final int slot;
 	private final GamesInProgress.Info info;
 	private final GameSaves.Save save;
@@ -44,47 +42,13 @@ public class GameSlotWindow extends PreviewWindow {
 	@Override
 	protected StatLink statLink() {
 		String seed = GameSlots.seedCode(info);
-		return seed == null ? null : new StatLink("Seed", seed, () -> seedChoices(seed));
+		return seed == null ? null : new StatLink("Seed", seed, () -> GameSlots.seedChoices(seed));
 	}
 
-	/**
-	 * Continue and Erase, drawn and placed like the game's own: side by side, 20 pixels tall, with their icons.
-	 */
 	@Override
 	protected void addActions() {
-		float half = WIDTH / 2f;
-		RedButton continueButton = new RedButton("Continue") {
-			@Override
-			public void onClick() {
-				super.onClick();
-				continueGame();
-			}
-		};
-		continueButton.icon(Icons.get(Icons.ENTER));
-		continueButton.setRect(0, pos, half - 1, GAME_BUTTON_HEIGHT);
-		add(continueButton);
-		RedButton eraseButton = new RedButton("Erase") {
-			@Override
-			public void onClick() {
-				super.onClick();
-				erase();
-			}
-		};
-		eraseButton.icon(Icons.get(Icons.CLOSE));
-		eraseButton.setRect(half + 1, pos, half - 1, GAME_BUTTON_HEIGHT);
-		add(eraseButton);
-		pos += GAME_BUTTON_HEIGHT + 1;
-	}
-
-	private void seedChoices(String seed) {
-		ConfirmPrompt.ask("Seed", seed, new String[] { "Copy", "Start New" }, new Runnable[] {
-			() -> show(new WndMessage(SaveLocation.copyText("Seed", seed) ? "Copied " + seed + "." : "The seed couldn't be copied.")),
-			() -> ConfirmPrompt.ask("Start New", "Start a new game on seed " + seed + "? You'll pick your hero next. This game is kept.", "Start New", () -> newGame(seed)),
-		}, "Back");
-	}
-
-	private void newGame(String seed) {
-		if (!GameSlots.newGameFromSeed(seed)) show(new WndMessage("Every game slot is in use. Erase a game to make room for a new one."));
+		addGameButtons("Continue", Icons.get(Icons.ENTER), this::continueGame, "Erase", Icons.get(Icons.CLOSE), this::erase);
+		pos -= 1;
 	}
 
 	private void continueGame() {

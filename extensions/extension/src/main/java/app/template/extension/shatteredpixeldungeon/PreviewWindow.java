@@ -28,6 +28,8 @@ import java.util.List;
 abstract class PreviewWindow extends EditorWindow {
 
 	private static final int STATS_WIDTH = 40;
+	private static final int LOG_LINES = 2;
+	static final int GAME_BUTTON_HEIGHT = 20;
 	private static final int LINK_WIDTH = 60;
 	private static final int LINK_UNDERLINE_GAP = 1;
 	private static final int LINK_TAP_MARGIN = 3;
@@ -41,7 +43,7 @@ abstract class PreviewWindow extends EditorWindow {
 	 * Lays out the preview of a Game Save or undo step, with its picture of the dungeon when it has one.
 	 */
 	protected void layout(GameSaves.Save save) {
-		layout(save.title(), save);
+		layout(save.heading(), save);
 	}
 
 	/**
@@ -122,13 +124,36 @@ abstract class PreviewWindow extends EditorWindow {
 	}
 
 	/**
-	 * Adds two buttons side by side on one row.
+	 * Adds two buttons side by side across the window at pos, drawn and placed like the game's own Continue and Erase: full size, 20 pixels
+	 * tall, with their icons. Moves pos past them.
 	 */
-	protected void addButtonPair(String left, Runnable leftAction, String right, Runnable rightAction) {
-		float half = (WIDTH - GAP) / 2f;
-		addButton(left, 0, half, leftAction);
-		addButton(right, half + GAP, half, rightAction);
-		pos += ROW_HEIGHT + GAP;
+	protected RedButton[] addGameButtons(String left, Image leftIcon, Runnable leftAction, String right, Image rightIcon, Runnable rightAction) {
+		float half = WIDTH / 2f;
+		RedButton[] buttons = { gameButton(left, leftIcon, 0, half - 1, leftAction), gameButton(right, rightIcon, half + 1, half - 1, rightAction) };
+		pos += GAME_BUTTON_HEIGHT + 2;
+		return buttons;
+	}
+
+	private RedButton gameButton(String label, Image icon, float x, float width, Runnable action) {
+		RedButton button = new RedButton(label) {
+			@Override
+			public void onClick() {
+				super.onClick();
+				action.run();
+			}
+		};
+		if (icon != null) button.icon(icon);
+		button.setRect(x, pos, width, GAME_BUTTON_HEIGHT);
+		add(button);
+		return button;
+	}
+
+	/**
+	 * The seed of the game [save] belongs to as a link that copies it or starts a new game on it, or null when it isn't known.
+	 */
+	protected static StatLink seedLink(GameSaves.Save save) {
+		String seed = GameSlots.seedCode(save.seed());
+		return seed == null ? null : new StatLink("Seed", seed, () -> GameSlots.seedChoices(seed));
 	}
 
 	private void addHero(Hero hero, UndoScene scene) {
@@ -228,10 +253,10 @@ abstract class PreviewWindow extends EditorWindow {
 
 	private void addLog(List<String> lines) {
 		List<Gizmo> parts = new ArrayList<>();
-		PreviewParts.logBackground(parts, 0, pos, WIDTH);
-		PreviewParts.logLines(parts, lines, 0, pos, WIDTH, "No recent messages");
+		PreviewParts.logBackground(parts, 0, pos, WIDTH, LOG_LINES);
+		PreviewParts.logLines(parts, lines, 0, pos, WIDTH, "No recent messages", LOG_LINES);
 		addAll(parts);
-		pos += PreviewParts.logHeight() + 2 * GAP;
+		pos += PreviewParts.logHeight(LOG_LINES) + 2 * GAP;
 	}
 
 	private void addAll(List<Gizmo> parts) {

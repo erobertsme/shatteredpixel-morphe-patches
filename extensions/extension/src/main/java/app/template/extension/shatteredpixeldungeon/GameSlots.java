@@ -12,6 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.Game;
 
 import java.io.File;
@@ -139,8 +140,27 @@ public final class GameSlots {
 	 * The seed code of [info]'s game, or null for a daily game, whose seed is the day's.
 	 */
 	static String seedCode(GamesInProgress.Info info) {
-		if (info.daily || info.seed < 0 || info.seed >= DungeonSeed.TOTAL_SEEDS) return null;
-		return DungeonSeed.convertToCode(info.seed);
+		return info.daily ? null : seedCode(info.seed);
+	}
+
+	/**
+	 * The seed code of [seed], or null for one that isn't a dungeon seed, such as a daily game's.
+	 */
+	static String seedCode(long seed) {
+		if (seed < 0 || seed >= DungeonSeed.TOTAL_SEEDS) return null;
+		return DungeonSeed.convertToCode(seed);
+	}
+
+	/**
+	 * What can be done with a game's [seed]: copy it, or start a new game on it after asking first.
+	 */
+	static void seedChoices(String seed) {
+		ConfirmPrompt.ask("Seed", seed, new String[] { "Copy", "Start New" }, new Runnable[] {
+			() -> EditorWindow.show(new WndMessage(SaveLocation.copyText("Seed", seed) ? "Copied " + seed + "." : "The seed couldn't be copied.")),
+			() -> ConfirmPrompt.ask("Start New", "Start a new game on seed " + seed + "? You'll pick your hero next. Your other games are kept.", "Start New", () -> {
+				if (!newGameFromSeed(seed)) EditorWindow.show(new WndMessage("Every game slot is in use. Erase a game to make room for a new one."));
+			}),
+		}, "Back");
 	}
 
 	/**
@@ -150,6 +170,13 @@ public final class GameSlots {
 	static boolean newGameFromSeed(String seed) {
 		int slot = GamesInProgress.firstEmpty();
 		if (slot < 0) return false;
+		if (Game.scene() instanceof GameScene) {
+			try {
+				Dungeon.saveAll();
+			} catch (Throwable e) {
+				Log.e(TAG, "Could not save the game before starting a new one", e);
+			}
+		}
 		SPDSettings.customSeed(seed);
 		GamesInProgress.selectedClass = null;
 		GamesInProgress.curSlot = slot;

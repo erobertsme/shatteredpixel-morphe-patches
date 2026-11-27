@@ -20,6 +20,7 @@ public enum Icons {
 	DEPTH,
 	CLOSE,
 	ENTER,
+	EXIT,
 	CHECKED,
 	UNCHECKED,
 	COIN_SML,

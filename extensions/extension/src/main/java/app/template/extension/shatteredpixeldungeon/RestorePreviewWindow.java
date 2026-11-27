@@ -1,5 +1,7 @@
 package app.template.extension.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+
 /**
  * A save or undo step about to be put back into its slot, shown in full first, with Restore and Back buttons.
  */
@@ -18,10 +20,15 @@ public class RestorePreviewWindow extends PreviewWindow {
 	}
 
 	@Override
+	protected StatLink statLink() {
+		return seedLink(save);
+	}
+
+	@Override
 	protected void addActions() {
 		backTo(onBack);
-		addButtonPair("Restore", this::restore, "Back", this::goBack);
-		pos -= GAP;
+		addGameButtons("Restore", Icons.get(Icons.ENTER), this::restore, "Back", Icons.get(Icons.EXIT), this::goBack);
+		pos -= 1;
 	}
 
 	private void restore() {

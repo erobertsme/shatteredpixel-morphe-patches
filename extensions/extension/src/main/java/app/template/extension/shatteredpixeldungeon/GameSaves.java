@@ -40,6 +40,7 @@ public final class GameSaves {
 	private static final String OLD_ROOT = "morphe_saves";
 	private static final String KEPT_PREFIX = "gamesave_kept_";
 	private static final java.util.regex.Pattern FOLDER = java.util.regex.Pattern.compile("game(\\d+)_([0-9a-f]+)");
+	private static final java.util.regex.Pattern UNDO_FOLDER = java.util.regex.Pattern.compile("(\\d+)_(-?\\d+)");
 	private static final String INFO_FILE = "morphe_save_info.properties";
 	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
 	private static final String PICTURE_FILE = "morphe_save_picture.png";
@@ -142,6 +143,31 @@ public final class GameSaves {
 		String title() {
 			if (partial) return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
 			return label + " - " + date();
+		}
+
+		/**
+		 * The save's heading for its preview: the hero's class and level, and under it when the save was made, or "Undo step" for an
+		 * undo step.
+		 */
+		String heading() {
+			Hero hero = hero();
+			String who = hero == null ? null : InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl;
+			if (partial) return who == null ? "Undo step" : who + "\nUndo step";
+			if (who == null) return title();
+			return (auto ? "Auto: " : "") + who + "\n" + date();
+		}
+
+		/**
+		 * The seed of the game this save belongs to, read from the name of the folder its game's saves or undo steps are kept in, or -1
+		 * when it can't be told.
+		 */
+		long seed() {
+			File parent = folder.getParentFile();
+			if (parent == null) return -1;
+			java.util.regex.Matcher saves = FOLDER.matcher(parent.getName());
+			if (saves.matches()) return Long.parseUnsignedLong(saves.group(2), 16);
+			java.util.regex.Matcher steps = UNDO_FOLDER.matcher(parent.getName());
+			return steps.matches() ? Long.parseLong(steps.group(2)) : -1;
 		}
 
 		String date() {

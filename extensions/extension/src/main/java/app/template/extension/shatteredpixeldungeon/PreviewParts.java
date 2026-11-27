@@ -81,7 +81,14 @@ final class PreviewParts {
 	}
 
 	static float logHeight() {
-		return LOG_LINES * LOG_LINE_HEIGHT + 2 * LOG_PADDING;
+		return logHeight(LOG_LINES);
+	}
+
+	/**
+	 * The height of a message area with room for [lines] messages.
+	 */
+	static float logHeight(int lines) {
+		return lines * LOG_LINE_HEIGHT + 2 * LOG_PADDING;
 	}
 
 	static void block(List<Gizmo> out, float x, float y, float width, float height, int color) {
@@ -92,17 +99,29 @@ final class PreviewParts {
 	}
 
 	static void logBackground(List<Gizmo> out, float x, float y, float width) {
-		block(out, x, y, width, logHeight(), LOG_BACK_COLOR);
+		logBackground(out, x, y, width, LOG_LINES);
+	}
+
+	static void logBackground(List<Gizmo> out, float x, float y, float width, int lines) {
+		block(out, x, y, width, logHeight(lines), LOG_BACK_COLOR);
 	}
 
 	/**
 	 * Up to four game messages in their own colors, one per line, or [empty] when there are none.
 	 */
 	static void logLines(List<Gizmo> out, List<String> lines, float x, float y, float width, String empty) {
+		logLines(out, lines, x, y, width, empty, LOG_LINES);
+	}
+
+	/**
+	 * Like the other, with room for [count] messages: the last ones when there are more.
+	 */
+	static void logLines(List<Gizmo> out, List<String> lines, float x, float y, float width, String empty, int count) {
 		float inner = width - 2 * LOG_PADDING;
 		if (lines.isEmpty()) line(out, empty, DIM_COLOR, x + LOG_PADDING, y + LOG_PADDING, inner);
-		for (int k = 0; k < lines.size() && k < LOG_LINES; k++) {
-			String text = lines.get(k);
+		List<String> shown = lines.subList(Math.max(0, Math.min(lines.size(), LOG_LINES) - count), Math.min(lines.size(), LOG_LINES));
+		for (int k = 0; k < shown.size(); k++) {
+			String text = shown.get(k);
 			line(out, UndoScene.plain(text), UndoScene.lineColor(text), x + LOG_PADDING, y + LOG_PADDING + k * LOG_LINE_HEIGHT, inner);
 		}
 	}
