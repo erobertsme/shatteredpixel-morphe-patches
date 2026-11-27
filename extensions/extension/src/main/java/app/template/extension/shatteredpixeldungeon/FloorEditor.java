@@ -617,10 +617,19 @@ public final class FloorEditor {
 		if (level == null) return;
 		for (int i = 0; i < level.length(); i++) {
 			if (level.discoverable[i]) level.mapped[i] = true;
-			if (level.secret[i]) level.discover(i);
 		}
+		uncoverSecrets(level);
 		Dungeon.observe();
 		GameScene.updateFog();
+	}
+
+	/**
+	 * Uncovers every secret door and hidden trap on [level].
+	 */
+	private static void uncoverSecrets(Level level) {
+		for (int i = 0; i < level.length(); i++) {
+			if (level.secret[i]) level.discover(i);
+		}
 	}
 
 	/**
@@ -671,6 +680,9 @@ public final class FloorEditor {
 		GameScene.afterObserve();
 	}
 
+	/**
+	 * Marks every tile as explored, as if the hero had walked past it, uncovers every secret door and hidden trap, and shows every item.
+	 */
 	static void exploreMap() {
 		Level level = level();
 		if (level == null) return;
@@ -679,6 +691,8 @@ public final class FloorEditor {
 			level.mapped[i] = true;
 			level.visited[i] = true;
 		}
+		uncoverSecrets(level);
+		for (Heap heap : level.heaps.valueList()) heap.seen = true;
 		Dungeon.observe();
 		GameScene.updateFog();
 	}
