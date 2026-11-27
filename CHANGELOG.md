@@ -1,3 +1,9 @@
+## [1.10.1-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.2...v1.10.1-dev.3) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* backpack previews show item pictures and the game's slot backgrounds ([b428128](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/b4281281315363f7224b5c3f55fcf9910dc2b49e))
+
 ## [1.10.1-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1-dev.1...v1.10.1-dev.2) (2026-11-27)
 
 ### 🐛 Bug Fixes
