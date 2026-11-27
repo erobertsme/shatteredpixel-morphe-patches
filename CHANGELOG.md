@@ -1,3 +1,9 @@
+## [1.11.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1...v1.11.0-dev.1) (2026-11-27)
+
+### ✨ New Features
+
+* option to join the extra quickslot row to the quickslots at one border ([3a0dbaa](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3a0dbaa399631d4fb775e969033ff716a66b6b55))
+
 ## [1.10.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.0...v1.10.1) (2026-11-27)
 
 ### 🔧 Improvements
