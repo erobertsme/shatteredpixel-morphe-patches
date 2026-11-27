@@ -1,3 +1,9 @@
+## [1.9.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.8.0...v1.9.0-dev.1) (2026-11-27)
+
+### ✨ New Features
+
+* seed in the top right corner of the game preview, and Backpack and Talents across the window ([a5980c5](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/a5980c52faf5d6e09a50f2ba1bb2ad313dc003a6))
+
 ## [1.8.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.7.0...v1.8.0) (2026-11-26)
 
 ### ✨ New Features
