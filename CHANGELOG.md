@@ -1,3 +1,9 @@
+## [1.11.0-dev.3](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.2...v1.11.0-dev.3) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* preview pictures show the dungeon around the hero wherever the view was moved ([cb9d3d7](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/cb9d3d72119e5141c9a79cc6fcbe42d908b6e695))
+
 ## [1.11.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-27)
 
 ### 🐛 Bug Fixes
