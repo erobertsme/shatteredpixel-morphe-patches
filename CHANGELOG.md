@@ -1,3 +1,9 @@
+## [1.11.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* the joined quickslot row finishes the corners at each end of the quickslots ([9f904d3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9f904d33f31e50e3945a2929557a9f17c6a1b821))
+
 ## [1.11.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1...v1.11.0-dev.1) (2026-11-27)
 
 ### ✨ New Features

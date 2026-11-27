@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-27T06:33:16",
-  "description": "## [1.11.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1...v1.11.0-dev.1) (2026-11-27)\n\n### ✨ New Features\n\n* option to join the extra quickslot row to the quickslots at one border ([3a0dbaa](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/3a0dbaa399631d4fb775e969033ff716a66b6b55))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.11.0-dev.1/patches-1.11.0-dev.1.mpp",
+  "created_at": "2026-11-27T06:46:30",
+  "description": "## [1.11.0-dev.2](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-27)\n\n### 🐛 Bug Fixes\n\n* the joined quickslot row finishes the corners at each end of the quickslots ([9f904d3](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/9f904d33f31e50e3945a2929557a9f17c6a1b821))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.11.0-dev.2/patches-1.11.0-dev.2.mpp",
   "signature_download_url": "",
-  "version": "1.11.0-dev.1"
+  "version": "1.11.0-dev.2"
 }
