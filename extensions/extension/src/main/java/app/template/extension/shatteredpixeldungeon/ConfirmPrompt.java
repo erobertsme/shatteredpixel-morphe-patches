@@ -10,12 +10,16 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 public class ConfirmPrompt extends EditorWindow {
 
 	private static final int SCREEN_MARGIN = 8;
+	private static final int MESSAGE_SIZE = 6;
+	private static final int HEADLINE_SIZE = 16;
+	private static final int HEADLINE_PADDING = 4;
 
 	private final String title;
 	private final String message;
 	private final String[] labels;
 	private final Runnable[] actions;
 	private final String closeLabel;
+	private final boolean headline;
 	private Runnable onClose;
 
 	public ConfirmPrompt(String title, String message, String confirmLabel, Runnable onConfirm) {
@@ -30,19 +34,30 @@ public class ConfirmPrompt extends EditorWindow {
 	 * A choice between [labels], with a last button labeled [closeLabel] that just closes the prompt.
 	 */
 	public ConfirmPrompt(String title, String message, String[] labels, Runnable[] actions, String closeLabel) {
+		this(title, message, labels, actions, closeLabel, false);
+	}
+
+	/**
+	 * Like the other, with [message] shown large and centered when it is a [headline], such as a code to read out, and the actions side
+	 * by side in one row.
+	 */
+	private ConfirmPrompt(String title, String message, String[] labels, Runnable[] actions, String closeLabel, boolean headline) {
 		super();
 		this.title = title;
 		this.message = message;
 		this.labels = labels;
 		this.actions = actions;
 		this.closeLabel = closeLabel;
+		this.headline = headline;
 
 		addTitle(title);
-		RenderedTextBlock text = PixelScene.renderTextBlock(message, 6);
+		if (headline) pos += HEADLINE_PADDING;
+		RenderedTextBlock text = headline ? headline(message) : PixelScene.renderTextBlock(message, MESSAGE_SIZE);
 		text.maxWidth(WIDTH);
-		text.setPos(0, pos);
+		text.setPos(headline ? (WIDTH - text.width()) / 2f : 0, pos);
+		PixelScene.align(text);
 		add(text);
-		pos = text.bottom() + 2 * GAP;
+		pos = text.bottom() + 2 * GAP + (headline ? HEADLINE_PADDING : 0);
 
 		if (labels.length == 1) {
 			float half = (WIDTH - GAP) / 2f;
@@ -52,13 +67,34 @@ public class ConfirmPrompt extends EditorWindow {
 			finish();
 			return;
 		}
-		for (int i = 0; i < labels.length; i++) {
-			int index = i;
-			addRowButton(labels[i], null, () -> choose(index));
+		if (headline) {
+			float width = (WIDTH - (labels.length - 1) * GAP) / (float) labels.length;
+			for (int i = 0; i < labels.length; i++) {
+				int index = i;
+				addButton(labels[i], i * (width + GAP), width, () -> choose(index));
+			}
+			pos += ROW_HEIGHT + GAP;
+		} else {
+			for (int i = 0; i < labels.length; i++) {
+				int index = i;
+				addRowButton(labels[i], null, () -> choose(index));
+			}
 		}
 		addButton(closeLabel, 0, WIDTH, this::hide);
 		pos += ROW_HEIGHT;
 		finish();
+	}
+
+	/**
+	 * [message] at the headline size, or smaller when that wouldn't fit on one line.
+	 */
+	private static RenderedTextBlock headline(String message) {
+		for (int size = HEADLINE_SIZE; size > MESSAGE_SIZE; size--) {
+			RenderedTextBlock text = PixelScene.renderTextBlock(message, size);
+			if (text.width() <= WIDTH) return text;
+			text.destroy();
+		}
+		return PixelScene.renderTextBlock(message, MESSAGE_SIZE);
 	}
 
 	private void choose(int index) {
@@ -79,6 +115,14 @@ public class ConfirmPrompt extends EditorWindow {
 	 */
 	static void ask(String title, String message, String[] labels, Runnable[] actions, String closeLabel) {
 		show(new ConfirmPrompt(title, message, labels, actions, closeLabel));
+	}
+
+	/**
+	 * Offers [labels], side by side, for [headline], shown large and centered under [title], with a last button labeled [closeLabel] that
+	 * just closes the prompt.
+	 */
+	static void askAbout(String title, String headline, String[] labels, Runnable[] actions, String closeLabel) {
+		show(new ConfirmPrompt(title, headline, labels, actions, closeLabel, true));
 	}
 
 	/**
@@ -121,6 +165,6 @@ public class ConfirmPrompt extends EditorWindow {
 
 	@Override
 	protected void reopen() {
-		show(new ConfirmPrompt(title, message, labels, actions, closeLabel));
+		show(new ConfirmPrompt(title, message, labels, actions, closeLabel, headline));
 	}
 }

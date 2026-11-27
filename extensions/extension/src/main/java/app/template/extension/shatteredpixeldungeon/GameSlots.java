@@ -152,7 +152,7 @@ public final class GameSlots {
 	 * What can be done with a game's [seed]: copy it, or start a new game on it after asking first.
 	 */
 	static void seedChoices(String seed) {
-		ConfirmPrompt.ask("Seed", seed, new String[] { "Copy", "Start New" }, new Runnable[] {
+		ConfirmPrompt.askAbout("Seed", seed, new String[] { "Copy", "Start New" }, new Runnable[] {
 			() -> EditorWindow.show(new WndMessage(SaveLocation.copyText("Seed", seed) ? "Copied " + seed + "." : "The seed couldn't be copied.")),
 			() -> ConfirmPrompt.ask("Start New", "Start a new game on seed " + seed + "? You'll pick your hero next. Your other games are kept.", "Start New", () -> {
 				if (!newGameFromSeed(seed)) EditorWindow.show(new WndMessage("Every game slot is in use. Erase a game to make room for a new one."));
