@@ -127,18 +127,23 @@ public final class Teleport {
 		}
 	}
 
+	/**
+	 * The floor of the header tapped at [x], [y], or 0 for none. The game lays every header out the full width of the list, so when two
+	 * floors share a row the left header reaches under the right one; the tap belongs to the header starting furthest right.
+	 */
 	private static int floorHeaderAt(Object grid, float x, float y) throws ReflectiveOperationException {
 		Field itemsField = Reflect.field(Reflect.require(GRID_CLASS), "items");
 		Field textField = Reflect.field(Reflect.require(GRID_CLASS + "$GridHeader"), "text");
+		Component tapped = null;
 		for (Object item : (List<?>) itemsField.get(grid)) {
 			if (!item.getClass().getName().equals(GRID_CLASS + "$GridHeader")) continue;
 			Component header = (Component) item;
 			if (x < header.left() || x >= header.right() || y < header.top() || y >= header.bottom()) continue;
-			Object text = textField.get(header);
-			if (!(text instanceof RenderedTextBlock)) return 0;
-			return floorNumber(((RenderedTextBlock) text).text());
+			if (tapped == null || header.left() > tapped.left()) tapped = header;
 		}
-		return 0;
+		if (tapped == null) return 0;
+		Object text = textField.get(tapped);
+		return text instanceof RenderedTextBlock ? floorNumber(((RenderedTextBlock) text).text()) : 0;
 	}
 
 	/**
