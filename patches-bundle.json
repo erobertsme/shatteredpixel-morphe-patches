@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-27T09:29:57",
-  "description": "## [1.11.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.6...v1.11.0-dev.7) (2026-11-27)\n\n### ✨ New Features\n\n* support Shattered Pixel Dungeon 4.0.3 only ([f4db10d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f4db10d8689b5dbe3d1e69287a7f26941845cae8))",
-  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.11.0-dev.7/patches-1.11.0-dev.7.mpp",
+  "created_at": "2026-11-27T11:35:25",
+  "description": "## [1.11.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-27)\n\n### ✨ New Features\n\n* Teleport to... reaches the Blacksmith's mine and the Ambitious Imp's vault once visited ([adad82b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/adad82b191cdd668fbc71fe584a1720f022c61d6))",
+  "download_url": "https://github.com/erobertsme/shatteredpixel-morphe-patches/releases/download/v1.11.0-dev.8/patches-1.11.0-dev.8.mpp",
   "signature_download_url": "",
-  "version": "1.11.0-dev.7"
+  "version": "1.11.0-dev.8"
 }

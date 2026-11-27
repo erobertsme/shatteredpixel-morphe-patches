@@ -1,3 +1,9 @@
+## [1.11.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-27)
+
+### ✨ New Features
+
+* Teleport to... reaches the Blacksmith's mine and the Ambitious Imp's vault once visited ([adad82b](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/adad82b191cdd668fbc71fe584a1720f022c61d6))
+
 ## [1.11.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.6...v1.11.0-dev.7) (2026-11-27)
 
 ### ✨ New Features
