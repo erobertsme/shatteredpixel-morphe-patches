@@ -1,3 +1,9 @@
+## [1.11.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0...v1.11.1-dev.1) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* revealed creatures no longer leave patches of the map uncovered after you act ([6b43b86](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/6b43b86cc6a355dc14dc79822f97751a414cdc2b))
+
 ## [1.11.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.1...v1.11.0) (2026-11-27)
 
 ### ✨ New Features
