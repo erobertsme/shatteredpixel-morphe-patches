@@ -11,4 +11,5 @@ public class ItemSlot extends Button {
 	protected com.watabou.noosa.BitmapText extra;
 	protected com.watabou.noosa.Image itemIcon;
 	protected com.watabou.noosa.BitmapText level;
+	public void enable(boolean value) { throw new RuntimeException("Stub"); }
 }

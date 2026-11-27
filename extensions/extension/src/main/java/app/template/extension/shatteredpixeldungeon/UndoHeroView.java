@@ -3,10 +3,7 @@ package app.template.extension.shatteredpixeldungeon;
 import android.util.Log;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -24,7 +21,6 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.PointerArea;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +45,8 @@ final class UndoHeroView {
 	private static final int SLOT_GAP = 1;
 	private static final int MAX_SLOT = 20;
 	private static final int MIN_SLOT = 12;
+	private static final int SLOT_NORMAL = 0x9953564D;
+	private static final int SLOT_EQUIPPED = 0x9991938C;
 	private static final int STATUS_SIZE = 7;
 	private static final int STATUS_GAP = 1;
 	private static final int STATUS_LEFT = 1;
@@ -171,25 +169,6 @@ final class UndoHeroView {
 	}
 
 	/**
-	 * Everything the hero carried: equipped items first, then the backpack, then the contents of each bag.
-	 */
-	static List<Item> belongings(Hero hero) {
-		List<Item> items = new ArrayList<>();
-		if (hero.belongings == null) return items;
-		for (Item worn : new Item[] { hero.belongings.weapon, hero.belongings.armor, hero.belongings.artifact, hero.belongings.misc, hero.belongings.ring }) {
-			if (worn != null) items.add(worn);
-		}
-		if (hero.belongings.backpack == null) return items;
-		List<Bag> bags = new ArrayList<>();
-		for (Item item : hero.belongings.backpack.items) {
-			items.add(item);
-			if (item instanceof Bag) bags.add((Bag) item);
-		}
-		for (Bag bag : bags) items.addAll(bag.items);
-		return items;
-	}
-
-	/**
 	 * Adds a slot for each item to [out], filling a [width] by [height] area from [x], [y]. Tapping a slot shows the item's details.
 	 */
 	static void slots(List<Gizmo> out, List<HeroCard.Thing> things, float x, float y, float width, float height) {
@@ -210,6 +189,7 @@ final class UndoHeroView {
 		int columns = Math.max(1, (int) ((width + SLOT_GAP) / (size + SLOT_GAP)));
 		for (int i = 0; i < things.size(); i++) {
 			HeroCard.Thing thing = things.get(i);
+			if (thing.slot != HeroCard.SLOT_NONE) out.add(background(thing, x + (i % columns) * (size + SLOT_GAP), y + (i / columns) * (size + SLOT_GAP), size));
 			ItemSlot slot = new ItemSlot() {
 				@Override
 				public void onClick() {
@@ -226,6 +206,26 @@ final class UndoHeroView {
 		}
 	}
 
+	/**
+	 * The slot's background, colored like the game's inventory: lighter when worn, red when known to be cursed, blue when known not to be
+	 * and purple when not identified.
+	 */
+	private static ColorBlock background(HeroCard.Thing thing, float x, float y, float size) {
+		ColorBlock block = block(x, y, size, size, thing.equipped ? SLOT_EQUIPPED : SLOT_NORMAL);
+		if (thing.slot == HeroCard.SLOT_CURSED) {
+			block.ra = 0.3f;
+			block.ga = -0.15f;
+			block.ba = -0.15f;
+		} else if (thing.slot == HeroCard.SLOT_UNCURSED) {
+			block.ba = 0.3f;
+			block.ra = -0.1f;
+		} else if (thing.slot == HeroCard.SLOT_UNKNOWN) {
+			block.ra = 0.35f;
+			block.ba = 0.35f;
+		}
+		return block;
+	}
+
 	private static ItemSprite.Glowing glowing(HeroCard.Thing thing) {
 		return thing.glow == HeroCard.NO_COLOR ? null : new ItemSprite.Glowing(thing.glow, thing.glowPeriod);
 	}
@@ -234,7 +234,10 @@ final class UndoHeroView {
 	 * Fills the game's item [slot] with [thing]: its sprite and the texts and icon in its corners, as the game would for the item.
 	 */
 	private static void show(ItemSlot slot, HeroCard.Thing thing) throws ReflectiveOperationException {
-		((ItemSprite) Reflect.get(ItemSlot.class, slot, "sprite")).view(thing.image, glowing(thing));
+		slot.enable(true);
+		ItemSprite sprite = (ItemSprite) Reflect.get(ItemSlot.class, slot, "sprite");
+		sprite.view(thing.image, glowing(thing));
+		sprite.visible(true);
 		corner(slot, "status", thing.status, thing.statusColor);
 		corner(slot, "extra", thing.extra, thing.extraColor);
 		corner(slot, "level", thing.level, thing.levelColor);

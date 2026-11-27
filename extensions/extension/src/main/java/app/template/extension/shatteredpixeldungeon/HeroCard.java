@@ -5,8 +5,10 @@ import android.util.Log;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -36,6 +38,11 @@ final class HeroCard {
 	private static final int MASTERED = 0xFFFF44;
 	private static final int CURSE_INFUSED = 0x8800FF;
 	private static final int BUFF_NONE = 127;
+	static final int SLOT_NONE = 0;
+	static final int SLOT_PLAIN = 1;
+	static final int SLOT_CURSED = 2;
+	static final int SLOT_UNCURSED = 3;
+	static final int SLOT_UNKNOWN = 4;
 
 	String heroClass = "";
 	String title = "";
@@ -73,10 +80,13 @@ final class HeroCard {
 	}
 
 	/**
-	 * An item as its slot shows it: the sprite, its glow, the texts in its corners and their colors, and its item icon, or -1.
+	 * An item as its slot shows it: the sprite, its glow, the texts in its corners and their colors, its item icon, or -1, and its
+	 * background: whether it is worn, and one of the SLOT kinds for what is known about it.
 	 */
 	static final class Thing {
 		int image;
+		boolean equipped;
+		int slot = SLOT_PLAIN;
 		int glow = NO_COLOR;
 		float glowPeriod;
 		String status = "";
@@ -111,11 +121,34 @@ final class HeroCard {
 				for (Map.Entry<Talent, Integer> entry : tier.entrySet()) entries.add(talent(entry.getKey(), entry.getValue()));
 				card.talents.add(entries);
 			}
-			for (Item item : UndoHeroView.belongings(hero)) card.belongings.add(thing(item, hero));
+			for (Item item : belongings(hero)) {
+				Thing thing = thing(item, hero);
+				thing.equipped = worn(item, hero);
+				card.belongings.add(thing);
+			}
 		} catch (Throwable e) {
 			Log.e("HeroCard", "Could not copy the hero", e);
 		}
 		return card;
+	}
+
+/**
+	 * Everything the hero carried: equipped items first, then the backpack, then the contents of each bag.
+	 */
+	private static List<Item> belongings(Hero hero) {
+		List<Item> items = new ArrayList<>();
+		if (hero.belongings == null) return items;
+		for (Item worn : new Item[] { hero.belongings.weapon, hero.belongings.armor, hero.belongings.artifact, hero.belongings.misc, hero.belongings.ring, hero.belongings.secondWep }) {
+			if (worn != null) items.add(worn);
+		}
+		if (hero.belongings.backpack == null) return items;
+		List<Bag> bags = new ArrayList<>();
+		for (Item item : hero.belongings.backpack.items) {
+			items.add(item);
+			if (item instanceof Bag) bags.add((Bag) item);
+		}
+		for (Bag bag : bags) items.addAll(bag.items);
+		return items;
 	}
 
 	private static void addStatus(HeroCard card, Buff buff) {
@@ -191,9 +224,28 @@ final class HeroCard {
 				thing.levelColor = buffedLevel > trueLevel ? ENHANCED : WARNING;
 			}
 		}
+		thing.slot = slot(item);
 		thing.name = text(item.title());
 		thing.info = text(item.info());
 		return thing;
+	}
+
+	/**
+	 * Whether [item] is worn, checked the way the game's inventory does.
+	 */
+	private static boolean worn(Item item, Hero hero) {
+		if (item.isEquipped(hero)) return true;
+		for (Item worn : new Item[] { hero.belongings.weapon, hero.belongings.armor, hero.belongings.artifact, hero.belongings.misc, hero.belongings.ring, hero.belongings.secondWep }) {
+			if (item == worn) return true;
+		}
+		return false;
+	}
+
+	private static int slot(Item item) {
+		if (item instanceof Bag) return SLOT_NONE;
+		if (item.cursed && item.cursedKnown) return SLOT_CURSED;
+		if (item.isIdentified()) return SLOT_PLAIN;
+		return (item instanceof EquipableItem || item instanceof Wand) && item.cursedKnown ? SLOT_UNCURSED : SLOT_UNKNOWN;
 	}
 
 	private static String text(String value) {
@@ -235,6 +287,8 @@ final class HeroCard {
 		out.writeInt(belongings.size());
 		for (Thing thing : belongings) {
 			out.writeInt(thing.image);
+			out.writeBoolean(thing.equipped);
+			out.writeInt(thing.slot);
 			out.writeInt(thing.glow);
 			out.writeFloat(thing.glowPeriod);
 			out.writeUTF(thing.status);
@@ -249,7 +303,10 @@ final class HeroCard {
 		}
 	}
 
-	static HeroCard read(DataInputStream in) throws IOException {
+	/**
+	 * Reads a card written by [write] in the preview's [format]; cards before format 6 have no slot backgrounds.
+	 */
+	static HeroCard read(DataInputStream in, int format) throws IOException {
 		HeroCard card = new HeroCard();
 		card.heroClass = in.readUTF();
 		card.title = in.readUTF();
@@ -288,6 +345,10 @@ final class HeroCard {
 		for (int i = in.readInt(); i > 0; i--) {
 			Thing thing = new Thing();
 			thing.image = in.readInt();
+			if (format >= 6) {
+				thing.equipped = in.readBoolean();
+				thing.slot = in.readInt();
+			}
 			thing.glow = in.readInt();
 			thing.glowPeriod = in.readFloat();
 			thing.status = in.readUTF();

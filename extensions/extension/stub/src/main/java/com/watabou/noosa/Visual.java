@@ -19,4 +19,7 @@ public class Visual extends Gizmo {
 	public float gm;
 	public float bm;
 	public void hardlight(int color) { throw new RuntimeException("Stub"); }
+	public float ra;
+	public float ga;
+	public float ba;
 }

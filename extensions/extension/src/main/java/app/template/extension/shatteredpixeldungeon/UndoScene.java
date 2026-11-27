@@ -410,7 +410,7 @@ final class UndoScene {
 		markers.add(new Marker(hero.pos, HERO_COLOR));
 	}
 
-	private static final int FORMAT = 5;
+	private static final int FORMAT = 6;
 
 	/**
 	 * Writes this scene to [out], to be read back with [read].
@@ -510,7 +510,7 @@ final class UndoScene {
 			}
 			int lines = in.readInt();
 			for (int i = 0; i < lines; i++) scene.lines.add(in.readUTF());
-			if (format >= 5 && in.readBoolean()) scene.hero = HeroCard.read(in);
+			if (format >= 5 && in.readBoolean()) scene.hero = HeroCard.read(in, format);
 			return scene;
 		} catch (Throwable e) {
 			Log.e("UndoScene", "Could not read a scene", e);
