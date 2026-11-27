@@ -1,3 +1,9 @@
+## [1.11.0-dev.5](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.4...v1.11.0-dev.5) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* tapping a floor in the right column of the Adventuring Notes teleports to that floor ([f9fbe38](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f9fbe386d5c20d7ee1e3f509f7ab7601ed271f5d))
+
 ## [1.11.0-dev.4](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.3...v1.11.0-dev.4) (2026-11-27)
 
 ### 🐛 Bug Fixes
