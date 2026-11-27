@@ -399,7 +399,7 @@ public final class QuickslotRow {
 			bar.bringToFront(slot);
 			rowSlots.put(slot, y - part[2]);
 		}
-		if (count > 0) addCorners(bar, spans, cells.get(0) - FIRST_FRAME[2], cells.get(count - 1) + PITCH, y);
+		if (count > 0) addCorners(bar, spans, cells.get(0) - FIRST_FRAME[2], y);
 	}
 
 	private static final List<Image> corners = new ArrayList<>();
@@ -414,22 +414,17 @@ public final class QuickslotRow {
 	}
 
 	/**
-	 * Where a joined row reaches past the quickslots, finishes the corner at each end of them: the quickslots' side border carries on
-	 * down to the line dividing the rows, instead of being cut off by the top edge of the extra slot beside them. The row spans [rowLeft]
-	 * to [rowRight] with its dividing line at [line].
+	 * Where a joined row reaches past the left end of the quickslots, finishes the corner there: the quickslots' inner border carries on
+	 * down to the line dividing the rows, instead of being cut off by the top edge of the extra slot beside them. The row starts at
+	 * [rowLeft] with its dividing line at [line].
 	 */
-	private static void addCorners(Component bar, List<float[]> spans, float rowLeft, float rowRight, float line) {
+	private static void addCorners(Component bar, List<float[]> spans, float rowLeft, float line) {
 		for (Image corner : corners) corner.killAndErase();
 		corners.clear();
 		if (!isJoined() || spans.isEmpty()) return;
 		float left = Float.MAX_VALUE;
-		float right = -Float.MAX_VALUE;
-		for (float[] span : spans) {
-			left = Math.min(left, span[0]);
-			right = Math.max(right, span[1]);
-		}
+		for (float[] span : spans) left = Math.min(left, span[0]);
 		if (rowLeft < left) addCorner(bar, FIRST_FRAME[0] + 1, left + 1, line - 1);
-		if (rowRight > right) addCorner(bar, LAST_FRAME[0] + LAST_FRAME[1] - 1, right - 1, line - 1);
 	}
 
 	private static void addCorner(Component bar, int column, float x, float y) {
