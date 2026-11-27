@@ -1,3 +1,9 @@
+## [1.10.0-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.9.0...v1.10.0-dev.1) (2026-11-27)
+
+### ✨ New Features
+
+* save and undo previews share the game preview layout, with the seed, a shorter message area and the game's buttons ([d43a817](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/d43a81729be6941b2ece0e8e4311342cda2187b0))
+
 ## [1.9.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.8.0...v1.9.0) (2026-11-27)
 
 ### ✨ New Features
