@@ -1,3 +1,9 @@
+## [1.10.1-dev.1](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.10.0...v1.10.1-dev.1) (2026-11-27)
+
+### 🐛 Bug Fixes
+
+* opening talents from a game preview on the main menu no longer crashes ([8dbea04](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/8dbea0472313d8184ae9cc5b82e6f6df96b204d6))
+
 ## [1.10.0](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.9.0...v1.10.0) (2026-11-27)
 
 ### ✨ New Features
