@@ -1,3 +1,10 @@
+## [1.11.0-dev.9](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.8...v1.11.0-dev.9) (2026-11-27)
+
+### ✨ New Features
+
+* floor editor buttons to reveal every creature or every item, taking no time ([71ab9ff](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/71ab9fffe030fc3d20d630d2fb65cdc0643bf1cb))
+* Mark explored also uncovers secret doors and hidden traps and shows every item ([31ceff9](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/31ceff9fe28e3ba8f03ecb0e6ab0eaeec4f5140a))
+
 ## [1.11.0-dev.8](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-27)
 
 ### ✨ New Features
