@@ -144,7 +144,6 @@ public final class QuantumChest {
 	 * Called at the start of Hero.restoreFromBundle.
 	 */
 	public static synchronized void onRestore(Object hero, Bundle bundle) {
-		if (SnapshotHero.restoring) return;
 		owner = new WeakReference<>(hero);
 		items.clear();
 		defeatedBosses.clear();

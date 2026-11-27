@@ -7,7 +7,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -117,7 +116,7 @@ public final class UndoTags {
 	 * Shows what the hero carried at the chosen step, over the undo panel, with a Back button below it.
 	 */
 	private static void openBackpack(Scene scene) {
-		Hero hero = UndoHistory.hero(UndoHistory.selected());
+		HeroCard hero = UndoHistory.hero(UndoHistory.selected());
 		if (hero == null || backpackPanel == null || !backpackLayer.isEmpty()) return;
 		Camera ui = PixelScene.uiCamera;
 		PointerArea blocker = new PointerArea(0, 0, ui.width, ui.height);
@@ -138,7 +137,7 @@ public final class UndoTags {
 		addBackpackPart(scene, title);
 		float slotsTop = title.bottom() + 4;
 		List<Gizmo> slots = new ArrayList<>();
-		UndoHeroView.slots(slots, UndoHeroView.belongings(hero), left, slotsTop, width, backpackPanel[1] + backpackPanel[3] - PANEL_PADDING - slotsTop);
+		UndoHeroView.slots(slots, hero.belongings, left, slotsTop, width, backpackPanel[1] + backpackPanel[3] - PANEL_PADDING - slotsTop);
 		for (Gizmo slot : slots) addBackpackPart(scene, slot);
 		TintedButton back = new TintedButton("Back", null, 1f, 1f, 1f, UndoTags::closeBackpack);
 		back.setRect(backButton[0], backButton[1], backButton[2], backButton[3]);
@@ -297,7 +296,7 @@ public final class UndoTags {
 					? new String[] { "Step -", "Depth -", "Turn -" }
 					: new String[] { "Step " + (selected + 1) + "/" + count, "Depth " + stats[0], "Turn " + stats[1] };
 				PreviewParts.statLines(parts, values, innerLeft + innerWidth, heroTop, STATS_WIDTH);
-				Hero hero = UndoHistory.hero(selected);
+				HeroCard hero = step == null ? null : step.hero;
 				backpack.enable(hero != null);
 				if (hero != null) {
 					try {

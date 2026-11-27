@@ -41,4 +41,9 @@ public class Item {
 	public String title() { throw new RuntimeException("Stub"); }
 	public final String trueName() { throw new RuntimeException("Stub"); }
 	public final Item upgrade(int n) { throw new RuntimeException("Stub"); }
+	public int icon;
+	public int visiblyUpgraded() { throw new RuntimeException("Stub"); }
+	public int buffedVisiblyUpgraded() { throw new RuntimeException("Stub"); }
+	public com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing glowing() { throw new RuntimeException("Stub"); }
+	public String status() { throw new RuntimeException("Stub"); }
 }

@@ -15,4 +15,8 @@ public class Visual extends Gizmo {
 	public void resetColor() { throw new RuntimeException("Stub"); }
 	public float width() { throw new RuntimeException("Stub"); }
 	public float height() { throw new RuntimeException("Stub"); }
+	public float rm;
+	public float gm;
+	public float bm;
+	public void hardlight(int color) { throw new RuntimeException("Stub"); }
 }

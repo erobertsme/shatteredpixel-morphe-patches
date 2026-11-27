@@ -15,4 +15,6 @@ public class Buff {
 	public Char target;
 	public static <T extends Buff> T affect(Char target, Class<T> buffClass) { throw new RuntimeException("Stub"); }
 	public static <T extends FlavourBuff> T affect(Char target, Class<T> buffClass, float duration) { throw new RuntimeException("Stub"); }
+	public void tintIcon(com.watabou.noosa.Image icon) { throw new RuntimeException("Stub"); }
+	public float iconFadePercent() { throw new RuntimeException("Stub"); }
 }

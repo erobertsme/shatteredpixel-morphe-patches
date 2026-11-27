@@ -9,13 +9,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.watabou.noosa.Game;
-import com.watabou.utils.Bundle;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,7 +43,6 @@ public final class GameSaves {
 	private static final String PREVIEW_FILE = "morphe_save_preview.bin";
 	private static final String PICTURE_FILE = "morphe_save_picture.png";
 	private static final String HERO_FILE = "morphe_save_hero.dat";
-	private static final String HERO_KEY = "hero";
 	private static final String[] SAVE_ONLY_FILES = { INFO_FILE, PREVIEW_FILE, PICTURE_FILE, HERO_FILE };
 	private static final String GAME_FILE = "game.dat";
 	static final int MAX_SAVES = 10;
@@ -125,21 +122,6 @@ public final class GameSaves {
 			return file.isFile() ? file : null;
 		}
 
-		/**
-		 * The hero as they were in this save, or null if it can't be read. Reads the small copy of just the hero kept with the save, or the
-		 * whole saved game for older saves.
-		 */
-		Hero hero() {
-			File file = new File(folder, HERO_FILE);
-			if (!file.isFile()) file = new File(folder, GAME_FILE);
-			if (!file.isFile()) return null;
-			try {
-				return SnapshotHero.read(FileHelpers.read(file));
-			} catch (IOException e) {
-				return null;
-			}
-		}
-
 		String title() {
 			if (partial) return "Depth " + depth + ", turn " + turn + ", HP " + hp + "/" + ht;
 			return label + " - " + date();
@@ -147,11 +129,11 @@ public final class GameSaves {
 
 		/**
 		 * The save's heading for its preview: the hero's class and level, and under it when the save was made, or "Undo step" for an
-		 * undo step.
+		 * undo step. The hero is read from the save's [preview].
 		 */
-		String heading() {
-			Hero hero = hero();
-			String who = hero == null ? null : InventoryEditor.capitalize(hero.className()) + " Lv " + hero.lvl;
+		String heading(UndoScene preview) {
+			HeroCard hero = preview == null ? null : preview.hero;
+			String who = hero == null || hero.title.isEmpty() ? null : InventoryEditor.capitalize(hero.title) + " Lv " + hero.level;
 			if (partial) return who == null ? "Undo step" : who + "\nUndo step";
 			if (who == null) return title();
 			return (auto ? "Auto: " : "") + who + "\n" + date();
@@ -650,36 +632,16 @@ public final class GameSaves {
 	}
 
 	/**
-	 * Writes the files only a save has into [target], which already holds its copy of the game: the preview [scene], a copy of just the hero
-	 * and, last, its details [info], so a save with details is always whole. Safe to call off the render thread.
+	 * Writes the files only a save has into [target], which already holds its copy of the game: the preview [scene] and, last, its details
+	 * [info], so a save with details is always whole. Safe to call off the render thread.
 	 */
 	static void writeExtras(File target, Properties info, UndoScene scene) throws IOException {
 		writePreview(new File(target, PREVIEW_FILE), scene);
-		writeHero(new File(target, GAME_FILE), new File(target, HERO_FILE));
 		File temp = new File(target, INFO_FILE + ".tmp");
 		try (OutputStream out = new FileOutputStream(temp)) {
 			info.store(out, null);
 		}
 		if (!temp.renameTo(new File(target, INFO_FILE))) throw new IOException("Could not write the save's details");
-	}
-
-	/**
-	 * Keeps a copy of just the hero from the saved game [game] in [file], so showing the save doesn't read the whole game.
-	 */
-	private static void writeHero(File game, File file) {
-		try {
-			Bundle saved = Bundle.read(new ByteArrayInputStream(FileHelpers.read(game)));
-			Bundle hero = saved == null ? null : saved.getBundle(HERO_KEY);
-			if (hero == null) return;
-			Bundle copy = new Bundle();
-			copy.put(HERO_KEY, hero);
-			try (OutputStream out = new FileOutputStream(file)) {
-				Bundle.write(copy, out);
-			}
-		} catch (Throwable e) {
-			Log.e(TAG, "Could not keep a copy of the hero", e);
-			file.delete();
-		}
 	}
 
 	/**

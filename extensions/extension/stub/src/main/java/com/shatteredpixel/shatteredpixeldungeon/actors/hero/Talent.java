@@ -17,4 +17,6 @@ public enum Talent {
 	public static void initSubclassTalents(HeroSubClass cls, ArrayList<LinkedHashMap<Talent, Integer>> talents) { throw new RuntimeException("Stub"); }
 	public static void initArmorTalents(Hero hero) { throw new RuntimeException("Stub"); }
 	public static void onTalentUpgraded(Hero hero, Talent talent) { throw new RuntimeException("Stub"); }
+	public int icon() { throw new RuntimeException("Stub"); }
+	public String desc(boolean metamorphed) { throw new RuntimeException("Stub"); }
 }

@@ -16,7 +16,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 

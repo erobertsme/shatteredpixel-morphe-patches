@@ -275,10 +275,9 @@ public final class HeroExtras {
 	}
 
 	/**
-	 * Called at the start of the Hero constructor. A stand-in hero made to show a save or undo step leaves the game's values alone.
+	 * Called at the start of the Hero constructor.
 	 */
 	public static void reset() {
-		if (SnapshotHero.restoring) return;
 		for (int i = 0; i < bonusTalentPoints.length; i++) bonusTalentPoints[i] = 0;
 		resetMods();
 		InfiniteStatuses.reset();
@@ -298,7 +297,6 @@ public final class HeroExtras {
 	 * Called at the start of Hero.restoreFromBundle.
 	 */
 	public static void restore(Bundle bundle) {
-		if (SnapshotHero.restoring) return;
 		reset();
 		for (int tier = 1; tier <= TIERS; tier++) bonusTalentPoints[tier] = bundle.getInt(PREFIX + "talents_" + tier);
 		for (Mod mod : Mod.values()) mods[mod.ordinal()] = bundle.getInt(PREFIX + mod.name().toLowerCase());

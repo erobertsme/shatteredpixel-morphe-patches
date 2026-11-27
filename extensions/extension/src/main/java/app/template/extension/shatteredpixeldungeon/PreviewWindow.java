@@ -2,7 +2,6 @@ package app.template.extension.shatteredpixeldungeon;
 
 import android.util.Log;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -43,15 +42,16 @@ abstract class PreviewWindow extends EditorWindow {
 	 * Lays out the preview of a Game Save or undo step, with its picture of the dungeon when it has one.
 	 */
 	protected void layout(GameSaves.Save save) {
-		layout(save.heading(), save);
+		layout(null, save);
 	}
 
 	/**
-	 * Like the other, under [title] instead of the save's own.
+	 * Like the other, under [title] instead of the save's own, unless it is null.
 	 */
 	protected void layout(String title, GameSaves.Save save) {
 		picture = save.picture();
-		layout(title, save.preview(), save.hero());
+		UndoScene scene = save.preview();
+		layout(title == null ? save.heading(scene) : title, scene);
 	}
 
 	/**
@@ -62,9 +62,9 @@ abstract class PreviewWindow extends EditorWindow {
 	}
 
 	/**
-	 * Lays out the preview of [scene] and [hero] under [title], then the buttons from [addActions], and sizes the window.
+	 * Lays out the preview of [scene] under [title], then the buttons from [addActions], and sizes the window.
 	 */
-	protected void layout(String title, UndoScene scene, Hero hero) {
+	protected void layout(String title, UndoScene scene) {
 		StatLink link = statLink();
 		if (link == null) {
 			addTitle(title);
@@ -75,7 +75,7 @@ abstract class PreviewWindow extends EditorWindow {
 		float columnTop = pos;
 		boolean hasPicture = scene != null && (scene.hasArea() || scene.hasMap());
 		boolean wide = PixelScene.landscape() && hasPicture;
-		addHero(hero, scene);
+		addHero(scene);
 		if (hasPicture) {
 			if (showsLog()) addLog(scene.lines);
 		} else {
@@ -156,7 +156,8 @@ abstract class PreviewWindow extends EditorWindow {
 		return seed == null ? null : new StatLink("Seed", seed, () -> GameSlots.seedChoices(seed));
 	}
 
-	private void addHero(Hero hero, UndoScene scene) {
+	private void addHero(UndoScene scene) {
+		HeroCard hero = scene == null ? null : scene.hero;
 		float top = pos;
 		List<String> lines = new ArrayList<>();
 		lines.add("Depth " + (scene != null && scene.depth >= 0 ? scene.depth : "-"));
@@ -309,11 +310,11 @@ abstract class PreviewWindow extends EditorWindow {
 
 		private static final float SHARE = 0.55f;
 
-		private final Hero hero;
+		private final HeroCard hero;
 		private final Runnable onBack;
 		private final TopButton back;
 
-		BackpackWindow(Hero hero, Runnable onBack) {
+		BackpackWindow(HeroCard hero, Runnable onBack) {
 			super();
 			this.hero = hero;
 			this.onBack = onBack;
@@ -321,7 +322,7 @@ abstract class PreviewWindow extends EditorWindow {
 			addTitle("Backpack");
 			float height = Math.min(PixelScene.uiCamera.height * SHARE, 180);
 			List<Gizmo> slots = new ArrayList<>();
-			UndoHeroView.slots(slots, UndoHeroView.belongings(hero), 0, pos, WIDTH, height);
+			UndoHeroView.slots(slots, hero.belongings, 0, pos, WIDTH, height);
 			for (Gizmo slot : slots) add(slot);
 			pos += height;
 			finish();

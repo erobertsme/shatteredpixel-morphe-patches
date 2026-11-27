@@ -349,20 +349,12 @@ public final class UndoHistory {
 		return label + " - " + line;
 	}
 
-	private static Step cachedFor;
-	private static Hero cachedHero;
-
 	/**
-	 * The hero as they were at a step, read from that step's save. The last one read is kept.
+	 * What the preview shows about the hero at a step, or null when it isn't known.
 	 */
-	static Hero hero(int position) {
-		if (position < 0 || position >= history.size()) return null;
-		Step step = history.get(position);
-		if (step == cachedFor) return cachedHero;
-		if (!step.written) flush();
-		cachedHero = step.save.hero();
-		cachedFor = step;
-		return cachedHero;
+	static HeroCard hero(int position) {
+		UndoScene scene = scene(position);
+		return scene == null ? null : scene.hero;
 	}
 
 	static UndoScene scene(int position) {

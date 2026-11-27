@@ -160,6 +160,10 @@ final class UndoScene {
 	private int areaLeft;
 	private int areaTop;
 	private final List<Marker> markers = new ArrayList<>();
+	/**
+	 * What the preview shows about the hero, or null for scenes kept before it was.
+	 */
+	HeroCard hero;
 	final List<String> lines = new ArrayList<>();
 
 	private static final List<String> pendingLines = new ArrayList<>();
@@ -216,6 +220,7 @@ final class UndoScene {
 			scene.turn = (int) (Statistics.duration + Actor.now());
 			scene.captureArea(hero, level);
 			scene.captureMap(hero, level);
+			scene.hero = HeroCard.of(hero);
 		} catch (Throwable e) {
 			Log.e("UndoScene", "Could not copy the scene", e);
 			scene.tiles = null;
@@ -405,7 +410,7 @@ final class UndoScene {
 		markers.add(new Marker(hero.pos, HERO_COLOR));
 	}
 
-	private static final int FORMAT = 4;
+	private static final int FORMAT = 5;
 
 	/**
 	 * Writes this scene to [out], to be read back with [read].
@@ -454,6 +459,8 @@ final class UndoScene {
 		}
 		out.writeInt(lines.size());
 		for (String line : lines) out.writeUTF(line);
+		out.writeBoolean(hero != null);
+		if (hero != null) hero.write(out);
 	}
 
 	/**
@@ -503,6 +510,7 @@ final class UndoScene {
 			}
 			int lines = in.readInt();
 			for (int i = 0; i < lines; i++) scene.lines.add(in.readUTF());
+			if (format >= 5 && in.readBoolean()) scene.hero = HeroCard.read(in);
 			return scene;
 		} catch (Throwable e) {
 			Log.e("UndoScene", "Could not read a scene", e);

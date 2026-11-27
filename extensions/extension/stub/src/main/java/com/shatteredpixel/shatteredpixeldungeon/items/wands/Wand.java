@@ -7,4 +7,5 @@ public class Wand extends Item {
 	public int maxCharges;
 
 	public void updateLevel() { throw new RuntimeException("Stub"); }
+	public boolean curseInfusionBonus;
 }

@@ -313,7 +313,6 @@ public final class HungerEditor {
 	 * Called at the start of the Hunger constructor. A new hunger status means a new or freshly loaded game.
 	 */
 	public static void onHungerCreated() {
-		if (SnapshotHero.restoring) return;
 		gameSettings = null;
 		partialDamage = 0;
 		fixedTurns = 0;
@@ -333,7 +332,6 @@ public final class HungerEditor {
 	 * Called at the start of Hunger.restoreFromBundle, which reuses its parameter register before returning.
 	 */
 	public static void beforeRestore(Bundle bundle) {
-		if (SnapshotHero.restoring) return;
 		restoringBundle = bundle;
 	}
 

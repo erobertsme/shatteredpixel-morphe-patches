@@ -17,7 +17,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TalentIcon;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.watabou.noosa.Game;

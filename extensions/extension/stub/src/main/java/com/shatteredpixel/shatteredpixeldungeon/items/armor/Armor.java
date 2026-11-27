@@ -22,4 +22,8 @@ public class Armor extends EquipableItem {
 		public String name(String itemName) { throw new RuntimeException("Stub"); }
 		public String desc() { throw new RuntimeException("Stub"); }
 	}
+	public boolean curseInfusionBonus;
+	public boolean masteryPotionBonus;
+	public int STRReq() { throw new RuntimeException("Stub"); }
+	public int STRReq(int lvl) { throw new RuntimeException("Stub"); }
 }
