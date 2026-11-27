@@ -44,9 +44,16 @@ abstract class EditorWindow extends Window {
 	 * The window title. When [info] is given, an [i] button in the top right corner shows it.
 	 */
 	protected void addTitle(String text, String info) {
+		addTitle(text, info, info == null ? 0 : InfoButton.SIZE + GAP);
+	}
+
+	/**
+	 * Like the other, keeping [reserved] pixels free at the right of the title for something else in the top right corner.
+	 */
+	protected void addTitle(String text, String info, float reserved) {
 		RenderedTextBlock title = PixelScene.renderTextBlock(text, 9);
 		title.hardlight(TITLE_COLOR);
-		title.maxWidth(info == null ? WIDTH : WIDTH - InfoButton.SIZE - GAP);
+		title.maxWidth((int) (WIDTH - reserved));
 		title.setPos(0, pos + (InfoButton.SIZE - title.height()) / 2f);
 		add(title);
 		if (info != null) InfoButton.add(this, WIDTH, pos, info);

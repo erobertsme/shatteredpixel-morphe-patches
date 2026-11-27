@@ -30,10 +30,7 @@ abstract class PreviewWindow extends EditorWindow {
 	private static final int STATS_WIDTH = 40;
 	private static final int LINK_WIDTH = 60;
 	private static final int LINK_UNDERLINE_GAP = 1;
-	private static final int LINK_LABEL_GAP = 2;
-	private static final int TALENTS_WIDTH = 56;
 	private static final int LINK_TAP_MARGIN = 3;
-	private static final int BACKPACK_WIDTH = 60;
 	private static final int BACKPACK_HEIGHT = 16;
 	static final int TOP_BUTTON_WIDTH = 50;
 	static final int TOP_BUTTON_HEIGHT = 20;
@@ -66,7 +63,13 @@ abstract class PreviewWindow extends EditorWindow {
 	 * Lays out the preview of [scene] and [hero] under [title], then the buttons from [addActions], and sizes the window.
 	 */
 	protected void layout(String title, UndoScene scene, Hero hero) {
-		addTitle(title);
+		StatLink link = statLink();
+		if (link == null) {
+			addTitle(title);
+		} else {
+			float linkLeft = addLink(link, pos);
+			addTitle(title, null, WIDTH - linkLeft + 2 * GAP);
+		}
 		float columnTop = pos;
 		boolean hasPicture = scene != null && (scene.hasArea() || scene.hasMap());
 		boolean wide = PixelScene.landscape() && hasPicture;
@@ -96,15 +99,15 @@ abstract class PreviewWindow extends EditorWindow {
 	}
 
 	/**
-	 * A line under the hero whose value can be tapped, or null for none.
+	 * A line in the top right corner, beside the title, whose value can be tapped, or null for none.
 	 */
 	protected StatLink statLink() {
 		return null;
 	}
 
 	/**
-	 * A stat whose value is a link, on one line under the hero: a dim [label], then [text] in yellow and underlined, which runs [action] when
-	 * tapped.
+	 * A stat whose value is a link, in the top right corner: a dim [label], and under it [text] in yellow and underlined, which runs [action]
+	 * when tapped.
 	 */
 	static final class StatLink {
 		final String label;
@@ -151,20 +154,22 @@ abstract class PreviewWindow extends EditorWindow {
 		}
 		addAll(parts);
 		pos = statsBottom + 3;
-		StatLink link = statLink();
-		if (link != null) pos = addLink(link, pos) + GAP;
 		if (hero == null) return;
-		float talentsLeft = BACKPACK_WIDTH + 2;
-		addHeroButton("Backpack", Icons.get(Icons.BACKPACK), 0, BACKPACK_WIDTH, () -> {
+		float half = WIDTH / 2f;
+		Image backpackIcon = Icons.get(Icons.BACKPACK);
+		Image talentsIcon = Icons.get(Icons.TALENT);
+		float scale = backpackIcon.height() / talentsIcon.height();
+		talentsIcon.scale.set(scale, scale);
+		addHeroButton("Backpack", backpackIcon, 0, half - 1, () -> {
 			hide();
 			show(new BackpackWindow(hero, PreviewWindow.this::reopen));
 		});
-		addHeroButton("Talents", Icons.get(Icons.TALENT), talentsLeft, TALENTS_WIDTH, () -> UndoHeroView.showTalents(hero));
+		addHeroButton("Talents", talentsIcon, half + 1, half - 1, () -> UndoHeroView.showTalents(hero));
 		pos += BACKPACK_HEIGHT + 2 * GAP;
 	}
 
 	/**
-	 * A button beside the hero, on the row at pos.
+	 * A button on the row under the hero, at pos.
 	 */
 	private void addHeroButton(String label, Image icon, float x, float width, Runnable action) {
 		RedButton button = new RedButton(label, 7) {
@@ -179,32 +184,32 @@ abstract class PreviewWindow extends EditorWindow {
 	}
 
 	/**
-	 * Adds [link] as one line at [y], ending at the window's right edge: its dim label, then its text in yellow and underlined like the
-	 * game's own links, with a tap area over the text. Returns the line's bottom.
+	 * Adds [link] at [y], right-aligned to the window's edge: its dim label, and under it its text in yellow and underlined like the game's
+	 * own links, with a tap area over the text. Returns where its wider line starts.
 	 */
 	private float addLink(StatLink link, float y) {
-		RenderedTextBlock text = PixelScene.renderTextBlock(link.text, 6);
-		text.hardlight(TITLE_COLOR);
-		text.setPos(WIDTH - text.width(), y);
-		PixelScene.align(text);
-		add(text);
 		RenderedTextBlock label = PixelScene.renderTextBlock(link.label, 6);
 		label.hardlight(PreviewParts.DIM_COLOR);
-		label.setPos(text.left() - LINK_LABEL_GAP - label.width(), y);
+		label.setPos(WIDTH - label.width(), y);
 		PixelScene.align(label);
 		add(label);
+		RenderedTextBlock text = PixelScene.renderTextBlock(link.text, 6);
+		text.hardlight(TITLE_COLOR);
+		text.setPos(WIDTH - text.width(), y + PreviewParts.STAT_LINE_HEIGHT);
+		PixelScene.align(text);
+		add(text);
 		ColorBlock underline = new ColorBlock(text.width(), 1, 0xFF000000 | TITLE_COLOR);
 		underline.x = text.left();
 		underline.y = text.bottom() + LINK_UNDERLINE_GAP;
 		add(underline);
-		add(new PointerArea(text.left() - LINK_TAP_MARGIN, y - LINK_TAP_MARGIN, text.width() + 2 * LINK_TAP_MARGIN,
+		add(new PointerArea(text.left() - LINK_TAP_MARGIN, text.top() - LINK_TAP_MARGIN, text.width() + 2 * LINK_TAP_MARGIN,
 			text.height() + 2 * LINK_TAP_MARGIN) {
 			@Override
 			public void onClick(PointerEvent event) {
 				link.action.run();
 			}
 		});
-		return underline.y + 1;
+		return Math.min(label.left(), text.left());
 	}
 
 	/**
