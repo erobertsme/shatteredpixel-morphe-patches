@@ -1,3 +1,9 @@
+## [1.11.0-dev.7](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.6...v1.11.0-dev.7) (2026-11-27)
+
+### ✨ New Features
+
+* support Shattered Pixel Dungeon 4.0.3 only ([f4db10d](https://github.com/erobertsme/shatteredpixel-morphe-patches/commit/f4db10d8689b5dbe3d1e69287a7f26941845cae8))
+
 ## [1.11.0-dev.6](https://github.com/erobertsme/shatteredpixel-morphe-patches/compare/v1.11.0-dev.5...v1.11.0-dev.6) (2026-11-27)
 
 ### ✨ New Features
