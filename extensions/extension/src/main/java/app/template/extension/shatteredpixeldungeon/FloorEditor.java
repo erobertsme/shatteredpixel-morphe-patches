@@ -676,8 +676,21 @@ public final class FloorEditor {
 	}
 
 	private static void afterSensing() {
+		staleFog = true;
 		GameScene.updateFog();
 		GameScene.afterObserve();
+	}
+
+	private static boolean staleFog;
+
+	/**
+	 * Called at the end of Dungeon.observe. After a reveal, the next time the game works out what the hero sees it only redraws the fog
+	 * near the hero, so the fog is redrawn everywhere once to hide what the reveal showed.
+	 */
+	public static void afterObserve() {
+		if (!staleFog) return;
+		staleFog = false;
+		GameScene.updateFog();
 	}
 
 	/**

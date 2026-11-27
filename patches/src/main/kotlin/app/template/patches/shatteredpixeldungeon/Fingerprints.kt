@@ -1103,3 +1103,10 @@ object FlavourBuffDescFingerprint : Fingerprint(
 	returnType = "Ljava/lang/String;",
 	parameters = listOf(),
 )
+
+object DungeonObserveFingerprint : Fingerprint(
+	definingClass = "Lcom/shatteredpixel/shatteredpixeldungeon/Dungeon;",
+	name = "observe",
+	returnType = "V",
+	parameters = listOf("I"),
+)

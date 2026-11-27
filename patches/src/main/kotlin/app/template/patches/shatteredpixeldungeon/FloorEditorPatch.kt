@@ -16,6 +16,7 @@ val floorEditorPatch = bytecodePatch(
 
 	execute {
 		FloorEditorAvailableFingerprint.returnTrue()
+		DungeonObserveFingerprint.callBeforeEveryReturn("invoke-static { }, $EXTENSION_PACKAGE/FloorEditor;->afterObserve()V")
 
 		hookInfoWindows()
 
