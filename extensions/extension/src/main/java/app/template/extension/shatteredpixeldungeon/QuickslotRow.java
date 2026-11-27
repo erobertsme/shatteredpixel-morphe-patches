@@ -42,6 +42,7 @@ public final class QuickslotRow {
 	private static final int PITCH = 18;
 	private static final int BEZEL = 2;
 	private static final int LIGHT_LINE = 1;
+	private static final int CORNER_ROW = 20;
 	private static final String TOOLBAR = "interfaces/toolbar.png";
 	private static final int[] FIRST_FRAME = { 86, 20, 2, 1 };
 	private static final int[] MIDDLE_FRAME = { 88, 18, 0, 1 };
@@ -330,19 +331,19 @@ public final class QuickslotRow {
 			Component bar = (Component) toolbar;
 			matchHeight(bar);
 			if (!isOn() || QuickSlot.SIZE < SWAPPER_SLOTS) {
-				rowSlots.clear();
+				clearRow();
 				return;
 			}
 			Object[] quick = (Object[]) field(bar, "btnQuick").get(bar);
 			if (SPDSettings.quickSwapper() && SPDSettings.interfaceSize() == 0) {
-				rowSlots.clear();
+				clearRow();
 				pageWithSwapper(bar, quick);
 				return;
 			}
 			if (grown.containsKey(toolbar)) {
 				addExtraRow(bar, quick);
 			} else {
-				rowSlots.clear();
+				clearRow();
 			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Could not lay out the extra quickslots", e);
@@ -398,6 +399,45 @@ public final class QuickslotRow {
 			bar.bringToFront(slot);
 			rowSlots.put(slot, y - part[2]);
 		}
+		if (count > 0) addCorners(bar, spans, cells.get(0) - FIRST_FRAME[2], cells.get(count - 1) + PITCH, y);
+	}
+
+	private static final List<Image> corners = new ArrayList<>();
+
+	/**
+	 * Forgets the extra row and takes away its corners, when the row is no longer shown.
+	 */
+	private static void clearRow() {
+		rowSlots.clear();
+		for (Image corner : corners) corner.killAndErase();
+		corners.clear();
+	}
+
+	/**
+	 * Where a joined row reaches past the quickslots, finishes the corner at each end of them: the quickslots' side border carries on
+	 * down to the line dividing the rows, instead of being cut off by the top edge of the extra slot beside them. The row spans [rowLeft]
+	 * to [rowRight] with its dividing line at [line].
+	 */
+	private static void addCorners(Component bar, List<float[]> spans, float rowLeft, float rowRight, float line) {
+		for (Image corner : corners) corner.killAndErase();
+		corners.clear();
+		if (!isJoined() || spans.isEmpty()) return;
+		float left = Float.MAX_VALUE;
+		float right = -Float.MAX_VALUE;
+		for (float[] span : spans) {
+			left = Math.min(left, span[0]);
+			right = Math.max(right, span[1]);
+		}
+		if (rowLeft < left) addCorner(bar, FIRST_FRAME[0] + 1, left + 1, line - 1);
+		if (rowRight > right) addCorner(bar, LAST_FRAME[0] + LAST_FRAME[1] - 1, right - 1, line - 1);
+	}
+
+	private static void addCorner(Component bar, int column, float x, float y) {
+		Image corner = new Image(TOOLBAR, column, CORNER_ROW, 1, 1);
+		corner.x = x;
+		corner.y = y;
+		bar.add(corner);
+		corners.add(corner);
 	}
 
 	private static final Map<Component, Float> rowSlots = new LinkedHashMap<>();
@@ -419,7 +459,7 @@ public final class QuickslotRow {
 			return;
 		}
 		if (++repairs > 3) {
-			rowSlots.clear();
+			clearRow();
 			repairs = 0;
 			return;
 		}
@@ -427,14 +467,14 @@ public final class QuickslotRow {
 			Component slot = entry.getKey();
 			if (slot.visible && slot.parent != null && Math.abs(slot.top() - entry.getValue()) < 0.5f) continue;
 			if (slot.parent == null) {
-				rowSlots.clear();
+				clearRow();
 				return;
 			}
 			try {
 				Reflect.method(Reflect.require("com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar"), "updateLayout").invoke(null);
 			} catch (Throwable e) {
 				Log.e(TAG, "Could not restore the extra quickslots", e);
-				rowSlots.clear();
+				clearRow();
 			}
 			return;
 		}
